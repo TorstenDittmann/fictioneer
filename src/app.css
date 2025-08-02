@@ -16,90 +16,89 @@
 }
 
 html {
-	font-family: 'Libre Baskerville', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
-	background-color: var(--paper-cream);
-	color: var(--paper-text);
+  font-family: 'Libre Baskerville', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
+  background-color: var(--paper-cream);
+  color: var(--paper-text);
 }
 
 body {
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-	background-color: var(--paper-cream);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--paper-cream);
 }
 
-/* Override Tailwind colors with paper theme */
+/* Paper theme overrides */
 .bg-white {
-	background-color: var(--paper-white) !important;
+  background-color: var(--paper-white) !important;
 }
 
 .bg-gray-50,
 .bg-gray-100 {
-	background-color: var(--paper-beige) !important;
+  background-color: var(--paper-beige) !important;
 }
 
 .bg-gray-200 {
-	background-color: var(--paper-gray) !important;
+  background-color: var(--paper-gray) !important;
 }
 
 .text-gray-900 {
-	color: var(--paper-text) !important;
+  color: var(--paper-text) !important;
 }
 
 .text-gray-700 {
-	color: var(--paper-text) !important;
+  color: var(--paper-text) !important;
 }
 
 .text-gray-600 {
-	color: var(--paper-text-light) !important;
+  color: var(--paper-text-light) !important;
 }
 
 .text-gray-500,
 .text-gray-400 {
-	color: var(--paper-text-muted) !important;
+  color: var(--paper-text-muted) !important;
 }
 
 .border-gray-200,
 .border-gray-100 {
-	border-color: var(--paper-border) !important;
+  border-color: var(--paper-border) !important;
 }
 
 .hover\:bg-gray-100:hover,
 .hover\:bg-gray-200:hover {
-	background-color: var(--paper-gray) !important;
+  background-color: var(--paper-gray) !important;
 }
 
 .hover\:bg-gray-300:hover {
-	background-color: var(--paper-border) !important;
+  background-color: var(--paper-border) !important;
 }
 
-/* Blue accent becomes warm brown */
 .bg-blue-100 {
-	background-color: rgba(139, 115, 85, 0.1) !important;
+  background-color: rgba(139, 115, 85, 0.1) !important;
 }
 
 .bg-blue-600 {
-	background-color: var(--paper-accent) !important;
+  background-color: var(--paper-accent) !important;
 }
 
 .hover\:bg-blue-700:hover {
-	background-color: var(--paper-accent-light) !important;
+  background-color: var(--paper-accent-light) !important;
 }
 
 .text-blue-600 {
-	color: var(--paper-accent) !important;
+  color: var(--paper-accent) !important;
 }
 
 .border-l-blue-500 {
-	border-left-color: var(--paper-accent) !important;
+  border-left-color: var(--paper-accent) !important;
 }
 
 .border-blue-300 {
-	border-color: var(--paper-accent) !important;
+  border-color: var(--paper-accent) !important;
 }
 
 .focus\:ring-blue-500:focus {
-	--tw-ring-color: var(--paper-accent) !important;
+  --tw-ring-color: var(--paper-accent) !important;
 }
 
 /* Dark mode - keep paper theme but darker */
@@ -164,30 +163,29 @@ body {
 		border-color 0.3s ease;
 }
 
-/* Custom scrollbar with paper theme */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-	background: transparent;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-	background: var(--paper-text-muted);
-	border-radius: 4px;
-	opacity: 0.3;
+  background: var(--paper-text-muted);
+  border-radius: 4px;
+  opacity: 0.3;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	opacity: 0.5;
+  opacity: 0.5;
 }
-
-/* Remove blue focus outlines, use paper accent */
+/* Focus styles */
 button:focus,
 input:focus,
 textarea:focus {
-	outline: 2px solid var(--paper-accent);
-	outline-offset: 2px;
+  outline: 2px solid var(--paper-accent);
+  outline-offset: 2px;
 }

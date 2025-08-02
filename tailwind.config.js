@@ -15,8 +15,8 @@ export default {
 					'Cantarell',
 					'sans-serif'
 				],
-				serif: ['Georgia', 'Times New Roman', 'serif'],
-				mono: ['SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'monospace']
+				serif: ['Libre Baskerville', 'Georgia', 'Times New Roman', 'serif'],
+				mono: ['Monaco', 'Menlo', 'Ubuntu Mono', 'monospace']
 			},
 			colors: {
 				gray: {
@@ -39,7 +39,7 @@ export default {
 						color: '#374151',
 						lineHeight: '1.8',
 						fontSize: '18px',
-						fontFamily: 'Georgia, Times New Roman, serif',
+						fontFamily: 'Libre Baskerville, Georgia, Times New Roman, serif',
 						h1: {
 							fontSize: '2.25rem',
 							fontWeight: '700',
@@ -49,14 +49,14 @@ export default {
 						},
 						h2: {
 							fontSize: '1.875rem',
-							fontWeight: '600',
+							fontWeight: '700',
 							lineHeight: '1.3',
 							margin: '2.5rem 0 1rem 0',
 							color: '#1f2937'
 						},
 						h3: {
 							fontSize: '1.5rem',
-							fontWeight: '600',
+							fontWeight: '700',
 							lineHeight: '1.4',
 							margin: '2rem 0 0.75rem 0',
 							color: '#374151'
@@ -85,7 +85,7 @@ export default {
 							backgroundColor: '#f3f4f6',
 							padding: '0.25rem 0.5rem',
 							borderRadius: '0.375rem',
-							fontFamily: 'SF Mono, Monaco, Inconsolata, Roboto Mono, monospace',
+							fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
 							fontSize: '0.875rem'
 						},
 						pre: {
@@ -95,7 +95,7 @@ export default {
 							padding: '1.5rem',
 							margin: '2rem 0',
 							overflow: 'auto',
-							fontFamily: 'SF Mono, Monaco, Inconsolata, Roboto Mono, monospace',
+							fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
 							fontSize: '0.875rem',
 							lineHeight: '1.5'
 						},
