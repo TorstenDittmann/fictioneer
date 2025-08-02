@@ -4,6 +4,7 @@
     "": {
       "name": "omnia",
       "dependencies": {
+        "@fontsource/libre-baskerville": "^5.2.6",
         "@tiptap/core": "^3.0.9",
         "@tiptap/extension-character-count": "^3.0.9",
         "@tiptap/extension-focus": "^3.0.9",
@@ -112,6 +113,8 @@
     "@eslint/object-schema": ["@eslint/object-schema@2.1.6", "", {}, "sha512-RBMg5FRL0I0gs51M/guSAj5/e14VQ4tpZnQNWwuDT66P14I43ItmPfIZRhO9fUVIPOAQXU47atlywZ/czoqFPA=="],
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.3.4", "", { "dependencies": { "@eslint/core": "^0.15.1", "levn": "^0.4.1" } }, "sha512-Ul5l+lHEcw3L5+k8POx6r74mxEYKG5kOb6Xpy2gCRW6zweT6TEhAf8vhxGgjhqrd/VO/Dirhsb+1hNpD1ue9hw=="],
+
+    "@fontsource/libre-baskerville": ["@fontsource/libre-baskerville@5.2.6", "", {}, "sha512-L5FAQooEooa/pfY3Q8i5jO1g/IG12EJkfqJaAA38xrWeQ1AbPBz/Am6CqttGx0GYnyEZ4RGM3x9o1GhRj//lGA=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 

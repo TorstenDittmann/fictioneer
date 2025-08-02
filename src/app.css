@@ -16,7 +16,7 @@
 }
 
 html {
-	font-family: 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
+	font-family: 'Libre Baskerville', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
 	background-color: var(--paper-cream);
 	color: var(--paper-text);
 }

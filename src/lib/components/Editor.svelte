@@ -6,7 +6,7 @@
 	import CharacterCount from '@tiptap/extension-character-count';
 	import Focus from '@tiptap/extension-focus';
 	import Typography from '@tiptap/extension-typography';
-	import { documentStore } from '$lib/stores/documents.svelte.js';
+	import { projects } from '$lib/state/projects.svelte.js';
 	import './editor.css';
 
 	let editorElement: HTMLDivElement;
@@ -59,10 +59,14 @@
 				const html = editor.getHTML();
 				onUpdate?.(html);
 
-				// Update the active document
-				const activeDoc = documentStore.activeDocument;
-				if (activeDoc) {
-					documentStore.updateDocument(activeDoc.id, { content: html });
+				// Update the active scene
+				const activeScene = projects.activeScene;
+				const activeChapter = projects.activeChapter;
+				const activeProject = projects.activeProject;
+				if (activeScene && activeChapter && activeProject) {
+					projects.updateScene(activeProject.id, activeChapter.id, activeScene.id, {
+						content: html
+					});
 				}
 			},
 			onCreate: ({ editor }) => {
