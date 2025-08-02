@@ -4,6 +4,7 @@
 	import '@fontsource/libre-baskerville/700.css';
 	import '@fontsource/libre-baskerville/400-italic.css';
 	import favicon from '$lib/assets/favicon.svg';
+	import TitleBar from '$lib/components/TitleBar.svelte';
 
 	let { children } = $props();
 </script>
@@ -18,4 +19,5 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
+<TitleBar />
 {@render children?.()}

@@ -13,10 +13,16 @@
 		"windows": [
 			{
 				"title": "omnia",
-				"width": 800,
-				"height": 600,
+				"width": 1200,
+				"height": 800,
+				"minWidth": 800,
+				"minHeight": 600,
 				"resizable": true,
-				"fullscreen": false
+				"fullscreen": false,
+				"decorations": false,
+				"titleBarStyle": "Overlay",
+				"hiddenTitle": true,
+				"transparent": false
 			}
 		],
 		"security": {

@@ -41,6 +41,7 @@
 	},
 	"dependencies": {
 		"@fontsource/libre-baskerville": "^5.2.6",
+		"@tauri-apps/api": "^2.7.0",
 		"@tiptap/core": "^3.0.9",
 		"@tiptap/extension-character-count": "^3.0.9",
 		"@tiptap/extension-focus": "^3.0.9",
