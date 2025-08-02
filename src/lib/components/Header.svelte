@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { projects } from '$lib/state/projects.svelte.js';
+	import { projects } from '$lib/state/projects.svelte';
 
 	interface Props {
 		onToggleSidebar?: () => void;
@@ -43,14 +43,6 @@
 			(event.target as HTMLInputElement).blur();
 		}
 	}
-
-	function selectProject(projectId: string) {
-		projects.setActiveProject(projectId);
-	}
-
-	function createNewProject() {
-		projects.createProject();
-	}
 </script>
 
 <header
@@ -88,32 +80,16 @@
 			</svg>
 		</button>
 
-		<!-- Project selector -->
-		{#if projects.projects.length > 0}
-			<select
-				value={projects.activeProjectId || ''}
-				onchange={(e) => selectProject((e.target as HTMLSelectElement).value)}
-				class="rounded border border-gray-300 bg-transparent px-2 py-1 text-sm text-gray-700 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:text-gray-300"
-			>
-				{#each projects.projects as project (project.id)}
-					<option value={project.id}>{project.title}</option>
-				{/each}
-			</select>
-			<button
-				onclick={createNewProject}
-				class="ml-2 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-				title="New project"
-			>
-				+ Project
-			</button>
-		{:else}
-			<button
-				onclick={createNewProject}
-				class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-			>
-				Create Project
-			</button>
-		{/if}
+		<!-- Back to Overview -->
+		<a
+			href="/"
+			class="flex items-center text-sm text-blue-600 no-underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+		>
+			<svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+			</svg>
+			Overview
+		</a>
 
 		<!-- Scene title -->
 		{#if projects.activeScene}

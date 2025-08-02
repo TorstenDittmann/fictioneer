@@ -51,7 +51,7 @@
 	}
 </script>
 
-<div class="titlebar">
+<div class="titlebar" style="grid-area: titlebar;">
 	<!-- macOS traffic lights on left - hidden in fullscreen -->
 	{#if !isFullscreen}
 		<div class="controls">
@@ -89,18 +89,13 @@
 
 <style>
 	.titlebar {
-		height: 30px;
+		height: 100%;
 		background: var(--paper-white);
 		border-bottom: 1px solid var(--paper-border);
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		padding: 0 12px;
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		z-index: 1000;
 		user-select: none;
 	}
 

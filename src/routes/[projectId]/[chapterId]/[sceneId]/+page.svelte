@@ -1,145 +1,118 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { projects } from '$lib/state/projects.svelte.js';
+	import { projects } from '$lib/state/projects.svelte';
 	import Editor from '$lib/components/Editor.svelte';
 	import ProjectSidebar from '$lib/components/ProjectSidebar.svelte';
-	import Header from '$lib/components/Header.svelte';
 	import { onMount } from 'svelte';
+	import type { PageData } from './$types';
 
-	let { params } = $props<{ params: { projectId: string; chapterId: string; sceneId: string } }>();
+	let { data }: { data: PageData } = $props();
 
-	let isSidebarVisible = $state(true);
-	let editorComponent = $state<Editor>();
-	let editorStats = $state({ words: 0, characters: 0 });
+	let is_sidebar_visible = $state(true);
+	let is_distraction_free = $state(false);
+	let editor_component = $state<Editor>();
+	let editor_stats = $state({ words: 0, characters: 0 });
 
 	// Update editor stats periodically
-	let statsInterval: ReturnType<typeof setInterval>;
-
-	// React to URL changes and sync the active scene
-	$effect(() => {
-		const { projectId, chapterId, sceneId } = params;
-
-		// Find and set the active project
-		const project = projects.projects.find((p) => p.id === projectId);
-		if (project) {
-			projects.setActiveProject(projectId);
-
-			// Find and set the active chapter
-			const chapter = project.chapters.find((c) => c.id === chapterId);
-			if (chapter) {
-				projects.setActiveChapter(chapterId);
-
-				// Find and set the active scene
-				const scene = chapter.scenes.find((s) => s.id === sceneId);
-				if (scene) {
-					projects.setActiveScene(sceneId);
-				} else {
-					// Scene not found, redirect to project
-					goto(`/${projectId}`);
-				}
-			} else {
-				// Chapter not found, redirect to project
-				goto(`/${projectId}`);
-			}
-		} else {
-			// Project not found, redirect to home
-			goto('/');
-		}
-	});
+	let stats_interval: ReturnType<typeof setInterval>;
 
 	onMount(() => {
 		// Initialize theme from localStorage
-		const savedTheme = localStorage.getItem('theme');
+		const saved_theme = localStorage.getItem('theme');
 		if (
-			savedTheme === 'dark' ||
-			(!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+			saved_theme === 'dark' ||
+			(!saved_theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
 		) {
 			document.documentElement.classList.add('dark');
 		}
 
 		// Update stats every 2 seconds
-		statsInterval = setInterval(() => {
-			if (editorComponent) {
-				const stats = editorComponent.getStats();
-				editorStats = { words: stats.words, characters: stats.characters };
+		stats_interval = setInterval(() => {
+			if (editor_component) {
+				const stats = editor_component.getStats();
+				editor_stats = { words: stats.words, characters: stats.characters };
 			}
 		}, 2000);
 
 		return () => {
-			if (statsInterval) {
-				clearInterval(statsInterval);
+			if (stats_interval) {
+				clearInterval(stats_interval);
 			}
 		};
 	});
 
-	function toggleSidebar() {
-		isSidebarVisible = !isSidebarVisible;
+	function toggle_sidebar() {
+		is_sidebar_visible = !is_sidebar_visible;
 	}
 
-	function handleEditorUpdate() {
+	function handle_editor_update() {
 		// Update stats immediately on content change
-		if (editorComponent) {
-			const stats = editorComponent.getStats();
-			editorStats = { words: stats.words, characters: stats.characters };
+		if (editor_component) {
+			const stats = editor_component.getStats();
+			editor_stats = { words: stats.words, characters: stats.characters };
 		}
 	}
 
+	function toggle_distraction_free() {
+		is_distraction_free = !is_distraction_free;
+	}
+
+	function set_distraction_free(value: boolean) {
+		is_distraction_free = value;
+	}
+
 	// Handle keyboard shortcuts
-	function handleKeydown(event: KeyboardEvent) {
+	function handle_keydown(event: KeyboardEvent) {
 		// Cmd/Ctrl + B to toggle sidebar
 		if ((event.metaKey || event.ctrlKey) && event.key === 'b') {
 			event.preventDefault();
-			toggleSidebar();
+			toggle_sidebar();
 		}
 
 		// Cmd/Ctrl + N to create new scene
 		if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
 			event.preventDefault();
-			const activeProject = projects.activeProject;
-			const activeChapter = projects.activeChapter;
-			if (activeProject && activeChapter) {
-				const newSceneId = projects.createScene(activeProject.id, activeChapter.id);
-				goto(`/${activeProject.id}/${activeChapter.id}/${newSceneId}`);
+			const new_scene_id = projects.createScene(data.project.id, data.chapter.id);
+			if (new_scene_id) {
+				goto(`/${data.project.id}/${data.chapter.id}/${new_scene_id}`);
 			}
 		}
 
 		// Cmd/Ctrl + Shift + F to toggle focus mode
 		if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'F') {
 			event.preventDefault();
-			projects.toggleDistractionFree();
+			toggle_distraction_free();
 		}
 
 		// ESC to exit focus mode
-		if (event.key === 'Escape' && projects.isDistractionFree) {
-			projects.setDistractionFree(false);
+		if (event.key === 'Escape' && is_distraction_free) {
+			set_distraction_free(false);
 		}
 	}
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window onkeydown={handle_keydown} />
 
-<div class="app flex h-screen flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
-	<!-- Header -->
-	{#if !projects.isDistractionFree}
-		<Header {isSidebarVisible} {editorStats} onToggleSidebar={toggleSidebar} />
-	{/if}
-
+<div class="app flex h-full flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
 	<!-- Main content area -->
 	<div class="flex flex-1 overflow-hidden">
 		<!-- Sidebar -->
-		{#if !projects.isDistractionFree}
-			<ProjectSidebar isVisible={isSidebarVisible} />
+		{#if !is_distraction_free}
+			<ProjectSidebar {data} is_visible={is_sidebar_visible} />
 		{/if}
 
 		<!-- Editor area -->
 		<main class="flex-1 overflow-hidden bg-white dark:bg-gray-900">
-			{#if projects.activeScene}
-				{#key projects.activeScene.id}
+			{#if data.scene}
+				{#key data.scene.id}
 					<Editor
-						bind:this={editorComponent}
-						content={projects.activeScene.content}
+						bind:this={editor_component}
+						content={data.scene.content}
 						placeholder="Start writing your scene..."
-						onUpdate={handleEditorUpdate}
+						onUpdate={handle_editor_update}
+						project={data.project}
+						chapter={data.chapter}
+						scene={data.scene}
 					/>
 				{/key}
 			{:else}
@@ -176,10 +149,10 @@
 	</div>
 
 	<!-- Focus mode overlay -->
-	{#if projects.isDistractionFree}
-		<div class="fixed top-4 right-4 z-50">
+	{#if is_distraction_free}
+		<div class="fixed top-[34px] right-4 z-50">
 			<button
-				onclick={() => projects.setDistractionFree(false)}
+				onclick={() => set_distraction_free(false)}
 				class="bg-opacity-20 hover:bg-opacity-30 rounded-full bg-black p-3 text-white backdrop-blur-sm transition-colors duration-200"
 				title="Exit focus mode (ESC)"
 				aria-label="Exit focus mode"
@@ -200,8 +173,8 @@
 			<div
 				class="bg-opacity-20 rounded-full bg-black px-4 py-2 text-sm text-white backdrop-blur-sm"
 			>
-				{editorStats.words}
-				{editorStats.words === 1 ? 'word' : 'words'} • {editorStats.characters} characters
+				{editor_stats.words}
+				{editor_stats.words === 1 ? 'word' : 'words'} • {editor_stats.characters} characters
 			</div>
 		</div>
 	{/if}

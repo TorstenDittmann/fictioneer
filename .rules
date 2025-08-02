@@ -1,3 +1,4 @@
+Use bun.
 
 ### 1. **General Code Style**
 - **Use Svelte 5 with runes** for all component state and reactivity.
@@ -52,3 +53,7 @@
 - **Dont use $app/stores**; use $app/state
 - **Dont use on:click handler; use the native onclick. this counts for all events.
 - **Dont use :global in the style blocks.
+
+- https://svelte.dev/docs/svelte/llms.txt
+- https://svelte.dev/docs/kit/llms.txt
+- https://bits-ui.com/llms.txt

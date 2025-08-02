@@ -5,8 +5,14 @@
 	import '@fontsource/libre-baskerville/400-italic.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import TitleBar from '$lib/components/TitleBar.svelte';
+	import { theme } from '$lib/state/theme.svelte';
 
-	let { children } = $props();
+	import type { Snippet } from 'svelte';
+
+	let { children }: { children: Snippet } = $props();
+
+	// Set up theme reactivity
+	theme.setup_reactivity();
 </script>
 
 <svelte:head>
@@ -19,5 +25,27 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<TitleBar />
-{@render children?.()}
+<div class="app-grid">
+	<TitleBar />
+	<div class="content-area">
+		{@render children?.()}
+	</div>
+</div>
+
+<style>
+	.app-grid {
+		display: grid;
+		grid-template-areas:
+			'titlebar'
+			'content';
+		grid-template-rows: 30px 1fr;
+		height: 100vh;
+		width: 100vw;
+	}
+
+	.content-area {
+		grid-area: content;
+		height: 100%;
+		overflow: hidden;
+	}
+</style>

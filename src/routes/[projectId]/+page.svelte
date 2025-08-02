@@ -1,108 +1,67 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { projects } from '$lib/state/projects.svelte.js';
+	import { projects } from '$lib/state/projects.svelte';
 	import ProjectSidebar from '$lib/components/ProjectSidebar.svelte';
-	import Header from '$lib/components/Header.svelte';
+
 	import { onMount } from 'svelte';
+	import type { PageData } from './$types';
 
-	let { params } = $props<{ params: { projectId: string } }>();
+	let { data }: { data: PageData } = $props();
 
-	let isSidebarVisible = $state(true);
-	let editorStats = $state({ words: 0, characters: 0 });
+	let is_sidebar_visible = $state(true);
 
 	onMount(() => {
-		// Set the active project based on URL params
-		const { projectId } = params;
-
-		// Find and set the active project
-		const project = projects.projects.find((p) => p.id === projectId);
-		if (project) {
-			projects.setActiveProject(projectId);
-
-			// If project has chapters and scenes, redirect to first scene
-			if (project.chapters.length > 0) {
-				const firstChapter = project.chapters[0];
-				if (firstChapter.scenes.length > 0) {
-					const firstScene = firstChapter.scenes[0];
-					goto(`/${projectId}/${firstChapter.id}/${firstScene.id}`);
-					return;
-				}
-			}
-		} else {
-			// Project not found, redirect to home
-			goto('/');
-		}
-
 		// Initialize theme from localStorage
-		const savedTheme = localStorage.getItem('theme');
+		const saved_theme = localStorage.getItem('theme');
 		if (
-			savedTheme === 'dark' ||
-			(!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+			saved_theme === 'dark' ||
+			(!saved_theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
 		) {
 			document.documentElement.classList.add('dark');
 		}
 	});
 
-	function toggleSidebar() {
-		isSidebarVisible = !isSidebarVisible;
+	function toggle_sidebar() {
+		is_sidebar_visible = !is_sidebar_visible;
 	}
 
-	function createFirstScene() {
-		const activeProject = projects.activeProject;
-		if (!activeProject) return;
-
+	function create_first_scene() {
 		// Create chapter if none exists
-		let chapterId = activeProject.chapters[0]?.id;
-		if (!chapterId) {
-			chapterId = projects.createChapter(activeProject.id, 'Chapter 1');
+		let chapter_id = data.project.chapters[0]?.id;
+		if (!chapter_id) {
+			chapter_id = projects.createChapter(data.project.id, 'Chapter 1');
 		}
 
 		// Create first scene
-		const sceneId = projects.createScene(activeProject.id, chapterId, 'Scene 1');
-		goto(`/${activeProject.id}/${chapterId}/${sceneId}`);
+		const scene_id = projects.createScene(data.project.id, chapter_id, 'Scene 1');
+		if (scene_id) {
+			goto(`/${data.project.id}/${chapter_id}/${scene_id}`);
+		}
 	}
 
 	// Handle keyboard shortcuts
-	function handleKeydown(event: KeyboardEvent) {
+	function handle_keydown(event: KeyboardEvent) {
 		// Cmd/Ctrl + B to toggle sidebar
 		if ((event.metaKey || event.ctrlKey) && event.key === 'b') {
 			event.preventDefault();
-			toggleSidebar();
+			toggle_sidebar();
 		}
 
 		// Cmd/Ctrl + N to create new scene
 		if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
 			event.preventDefault();
-			createFirstScene();
-		}
-
-		// Cmd/Ctrl + Shift + F to toggle focus mode
-		if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'F') {
-			event.preventDefault();
-			projects.toggleDistractionFree();
-		}
-
-		// ESC to exit focus mode
-		if (event.key === 'Escape' && projects.isDistractionFree) {
-			projects.setDistractionFree(false);
+			create_first_scene();
 		}
 	}
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window onkeydown={handle_keydown} />
 
-<div class="app flex h-screen flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
-	<!-- Header -->
-	{#if !projects.isDistractionFree}
-		<Header {isSidebarVisible} {editorStats} onToggleSidebar={toggleSidebar} />
-	{/if}
-
+<div class="app flex h-full flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
 	<!-- Main content area -->
 	<div class="flex flex-1 overflow-hidden">
 		<!-- Sidebar -->
-		{#if !projects.isDistractionFree}
-			<ProjectSidebar isVisible={isSidebarVisible} />
-		{/if}
+		<ProjectSidebar {data} is_visible={is_sidebar_visible} />
 
 		<!-- Empty state area -->
 		<main class="flex-1 overflow-hidden bg-white dark:bg-gray-900">
@@ -125,33 +84,18 @@
 							/>
 						</svg>
 					</div>
-					{#if projects.activeProject}
-						<h3 class="mb-2 text-xl font-medium text-gray-900 dark:text-gray-100">
-							{projects.activeProject.title}
-						</h3>
-						<p class="mb-6 text-gray-500 dark:text-gray-400">
-							Start writing by creating your first scene
-						</p>
-						<button
-							onclick={createFirstScene}
-							class="rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors duration-200 hover:bg-blue-700"
-						>
-							Create First Scene
-						</button>
-					{:else}
-						<h3 class="mb-2 text-xl font-medium text-gray-900 dark:text-gray-100">
-							Project not found
-						</h3>
-						<p class="mb-6 text-gray-500 dark:text-gray-400">
-							The project you're looking for doesn't exist
-						</p>
-						<button
-							onclick={() => goto('/')}
-							class="rounded-lg bg-gray-600 px-6 py-3 text-white transition-colors duration-200 hover:bg-gray-700"
-						>
-							Go Home
-						</button>
-					{/if}
+					<h3 class="mb-2 text-xl font-medium text-gray-900 dark:text-gray-100">
+						{data.project.title}
+					</h3>
+					<p class="mb-6 text-gray-500 dark:text-gray-400">
+						Start writing by creating your first scene
+					</p>
+					<button
+						onclick={create_first_scene}
+						class="rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors duration-200 hover:bg-blue-700"
+					>
+						Create First Scene
+					</button>
 				</div>
 			</div>
 		</main>

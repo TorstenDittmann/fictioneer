@@ -7,6 +7,7 @@
 	import Focus from '@tiptap/extension-focus';
 	import Typography from '@tiptap/extension-typography';
 	import { projects } from '$lib/state/projects.svelte.js';
+	import type { Project, Chapter, Scene } from '$lib/services/projects.js';
 	import './editor.css';
 
 	let editorElement: HTMLDivElement;
@@ -16,9 +17,19 @@
 		content?: string;
 		placeholder?: string;
 		onUpdate?: (content: string) => void;
+		project: Project;
+		chapter: Chapter;
+		scene: Scene;
 	}
 
-	let { content = '', placeholder = 'Start writing your story...', onUpdate }: Props = $props();
+	let {
+		content = '',
+		placeholder = 'Start writing your story...',
+		onUpdate,
+		project,
+		chapter,
+		scene
+	}: Props = $props();
 
 	onMount(() => {
 		editor = new Editor({
@@ -59,12 +70,9 @@
 				const html = editor.getHTML();
 				onUpdate?.(html);
 
-				// Update the active scene
-				const activeScene = projects.activeScene;
-				const activeChapter = projects.activeChapter;
-				const activeProject = projects.activeProject;
-				if (activeScene && activeChapter && activeProject) {
-					projects.updateScene(activeProject.id, activeChapter.id, activeScene.id, {
+				// Update the scene using the state
+				if (project && chapter && scene) {
+					projects.updateScene(project.id, chapter.id, scene.id, {
 						content: html
 					});
 				}
