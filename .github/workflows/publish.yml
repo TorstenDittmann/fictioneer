@@ -5,8 +5,9 @@ defaults:
     working-directory: ./apps/app
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - main
 
 jobs:
   publish-tauri:
