@@ -18,10 +18,10 @@ COPY . .
 RUN bun run vite:build
 
 # Production stage
-FROM joseluisq/static-web-server:2
+FROM ghcr.io/static-web-server/static-web-server:2
 
 # Copy built app from builder stage
-COPY --from=builder /app/build /public
+COPY --from=builder /app/build ./build
 
 # Copy Static Web Server configuration
 COPY sws.toml /etc/sws.toml
