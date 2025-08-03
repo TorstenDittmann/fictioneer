@@ -71,48 +71,46 @@
 </script>
 
 <div class="titlebar" style="grid-area: titlebar;">
-	<!-- macOS traffic lights on left - hidden in fullscreen -->
-	{#if !is_fullscreen}
-		<div class="controls">
-			<button
-				class="control-button close"
-				onclick={handle_close}
-				type="button"
-				aria-label="Close window"
-			></button>
-			<button
-				class="control-button minimize"
-				onclick={handle_minimize}
-				type="button"
-				aria-label="Minimize window"
-			></button>
-			<button
-				class="control-button maximize"
-				onclick={handle_maximize}
-				type="button"
-				aria-label="Toggle fullscreen"
-			></button>
-		</div>
+	<!-- Left section -->
+	<div class="titlebar-left">
+		{#if !is_fullscreen}
+			<div class="controls">
+				<button
+					class="control-button close"
+					onclick={handle_close}
+					type="button"
+					aria-label="Close window"
+				></button>
+				<button
+					class="control-button minimize"
+					onclick={handle_minimize}
+					type="button"
+					aria-label="Minimize window"
+				></button>
+				<button
+					class="control-button maximize"
+					onclick={handle_maximize}
+					type="button"
+					aria-label="Toggle fullscreen"
+				></button>
+			</div>
 
-		<!-- Back to overview button when not in fullscreen -->
-		{#if show_back_button}
-			<a href="/" class="back-button" title="Back to Overview">
-				<svg
-					width="16"
-					height="16"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-				>
-					<path d="M15 18l-6-6 6-6" />
-				</svg>
-				Overview
-			</a>
-		{/if}
-	{:else}
-		<!-- Back to overview button in fullscreen mode, positioned where traffic lights would be -->
-		{#if show_back_button}
+			{#if show_back_button}
+				<a href="/" class="back-button" title="Back to Overview">
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path d="M15 18l-6-6 6-6" />
+					</svg>
+					Overview
+				</a>
+			{/if}
+		{:else if show_back_button}
 			<a href="/" class="back-button fullscreen" title="Back to Overview">
 				<svg
 					width="16"
@@ -126,46 +124,71 @@
 				</svg>
 				Overview
 			</a>
-		{:else}
-			<div class="spacer-left"></div>
 		{/if}
-	{/if}
+	</div>
 
-	<!-- Center title with manual drag -->
-	<div class="titlebar-title" data-tauri-drag-region>
+	<!-- Center section -->
+	<div class="titlebar-center" data-tauri-drag-region>
 		{window_title}
 	</div>
 
-	<!-- Right spacer -->
-	<div class="spacer"></div>
-
-	<SignedOut>
-		<SignInButton mode="modal" />
-	</SignedOut>
-	<SignedIn>
-		<UserButton
-			appearance={{
-				elements: {
-					avatarBox: {
-						height: '1rem',
-						width: '1rem'
+	<!-- Right section -->
+	<div class="titlebar-right">
+		<SignedOut>
+			<SignInButton mode="modal" />
+		</SignedOut>
+		<SignedIn>
+			<UserButton
+				appearance={{
+					elements: {
+						avatarBox: {
+							height: '1rem',
+							width: '1rem'
+						}
 					}
-				}
-			}}
-		/>
-	</SignedIn>
+				}}
+			/>
+		</SignedIn>
+	</div>
 </div>
 
 <style>
 	.titlebar {
 		height: 100%;
-		background: var(--paper-white);
-		border-bottom: 1px solid var(--paper-border);
+		background: var(--paper-white-transparent);
+		border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
 		padding: 0 12px;
 		user-select: none;
-		position: relative;
+	}
+
+	.titlebar-left {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		min-width: 150px;
+	}
+
+	.titlebar-center {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 13px;
+		font-weight: 500;
+		color: var(--paper-text);
+		padding: 4px 0;
+		user-select: none;
+		-webkit-user-select: none;
+	}
+
+	.titlebar-right {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		min-width: 150px;
 	}
 
 	.controls {
@@ -207,34 +230,13 @@
 		background-color: #00ca4e;
 	}
 
-	.titlebar-title {
-		font-size: 13px;
-		font-weight: 500;
-		color: var(--paper-text);
-		text-align: center;
-		position: absolute;
-		left: 50%;
-		transform: translateX(-50%);
-		padding: 4px 0;
-		width: 100%;
-		user-select: none;
-		-webkit-user-select: none;
-	}
 
-	.spacer {
-		flex: 1;
-	}
-
-	.spacer-left {
-		width: 60px;
-	}
 
 	.back-button {
 		display: flex;
 		align-items: center;
 		gap: 4px;
 		padding: 4px 8px;
-		margin-left: 8px;
 		font-size: 12px;
 		color: var(--paper-text);
 		text-decoration: none;
@@ -242,9 +244,7 @@
 		transition: background-color 0.15s ease;
 	}
 
-	.back-button.fullscreen {
-		margin-left: 0;
-	}
+
 
 	.back-button:hover {
 		background-color: rgba(0, 0, 0, 0.1);

@@ -23,9 +23,10 @@
 				"shadow": false,
 				"titleBarStyle": "Overlay",
 				"hiddenTitle": true,
-				"transparent": false
+				"transparent": true
 			}
 		],
+		"macOSPrivateApi": true,
 		"security": {
 			"csp": null
 		}

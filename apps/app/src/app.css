@@ -12,12 +12,21 @@
 	--paper-border: #d4cfc7;
 	--paper-accent: #8b7355;
 	--paper-accent-light: #a68b6b;
+	
+	/* Transparent versions for backgrounds */
+	--paper-white-transparent: rgba(254, 252, 247, 0.85);
+	--paper-cream-transparent: rgba(250, 248, 243, 0.85);
+	--paper-beige-transparent: rgba(245, 242, 237, 0.85);
+	--paper-gray-transparent: rgba(232, 229, 224, 0.85);
 }
 
 html {
 	font-family: 'Libre Baskerville', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
 	color: var(--paper-text);
+	background: transparent;
 }
+
+
 
 /* Paper theme overrides */
 .bg-white {
@@ -104,6 +113,12 @@ html {
 	--paper-border: #4a453e;
 	--paper-accent: #c4a47c;
 	--paper-accent-light: #d4b890;
+	
+	/* Transparent versions for backgrounds */
+	--paper-white-transparent: rgba(42, 38, 33, 0.85);
+	--paper-cream-transparent: rgba(37, 33, 24, 0.85);
+	--paper-beige-transparent: rgba(31, 28, 21, 0.85);
+	--paper-gray-transparent: rgba(58, 54, 48, 0.85);
 }
 
 .dark .bg-gray-800,
@@ -184,7 +199,34 @@ body {
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
+	background: transparent;
+}
 
+/* Root element styling for rounded corners */
+html,
+body {
+	background: transparent !important;
+}
+
+#app,
+body > div:first-child {
+	background: transparent !important;
+	overflow: hidden;
+	height: 100vh;
+}
+
+/* Ensure proper window dragging area */
+[data-tauri-drag-region] {
+	-webkit-app-region: drag;
+}
+
+button,
+a,
+input,
+textarea,
+select,
+[role="button"] {
+	-webkit-app-region: no-drag;
 }
 
 

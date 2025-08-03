@@ -31,23 +31,35 @@
 	publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}
 	appearance={{ theme: theme.current_theme === 'light' ? undefined : dark }}
 >
-	<div class="app-grid">
-		<TitleBar />
-		<div class="content-area">
-			{@render children?.()}
+	<div class="app-wrapper">
+		<div class="app-grid">
+			<TitleBar />
+			<div class="content-area">
+				{@render children?.()}
+			</div>
 		</div>
 	</div>
 </ClerkProvider>
 
 <style>
+	.app-wrapper {
+		height: 100vh;
+		width: 100vw;
+		background: transparent;
+		overflow: hidden;
+		border-radius: 16px;
+	}
+
 	.app-grid {
 		display: grid;
 		grid-template-areas:
 			'titlebar'
 			'content';
 		grid-template-rows: 30px 1fr;
-		height: 100vh;
-		width: 100vw;
+		height: 100%;
+		width: 100%;
+		background: var(--paper-white-transparent);
+		overflow: hidden;
 	}
 
 	.content-area {

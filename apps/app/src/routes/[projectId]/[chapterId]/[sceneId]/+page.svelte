@@ -94,7 +94,7 @@
 
 <svelte:window onkeydown={handle_keydown} />
 
-<div class="app flex h-full flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+<div class="app flex h-full flex-col text-gray-900 dark:text-gray-100">
 	<!-- Main content area -->
 	<div class="flex flex-1 overflow-hidden">
 		<!-- Sidebar -->
@@ -103,7 +103,7 @@
 		{/if}
 
 		<!-- Editor area -->
-		<main class="flex-1 overflow-hidden bg-white dark:bg-gray-900">
+		<main class="flex-1 overflow-hidden">
 			{#if data.scene}
 				{#key data.scene.id}
 					<Editor

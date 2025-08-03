@@ -44,7 +44,7 @@
 	}
 </script>
 
-<div class="flex h-full flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+<div class="flex h-full flex-col text-gray-900 dark:text-gray-100">
 	<!-- Header -->
 	<header class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
 		<div class="mx-auto flex max-w-4xl items-center justify-between">
