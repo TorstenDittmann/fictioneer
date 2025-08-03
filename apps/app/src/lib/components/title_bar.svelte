@@ -161,6 +161,7 @@
 		justify-content: space-between;
 		padding: 0 12px;
 		user-select: none;
+		cursor: default;
 	}
 
 	.titlebar-left {
@@ -201,7 +202,6 @@
 		height: 12px;
 		border-radius: 50%;
 		border: none;
-		cursor: pointer;
 		transition: all 0.15s ease;
 	}
 
