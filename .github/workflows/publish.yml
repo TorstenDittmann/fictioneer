@@ -5,10 +5,7 @@ defaults:
     working-directory: ./apps/app
 
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - release
+  release:
 
 jobs:
   publish-tauri:

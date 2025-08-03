@@ -234,13 +234,7 @@
 								<div class="h-2 w-2 rounded-full bg-gray-600 dark:bg-gray-400"></div>
 							{/if}
 							<div
-								class="rounded p-1 transition-opacity hover:bg-gray-200 dark:hover:bg-gray-600"
-								class:opacity-0={!projects.isChapterExpanded(chapter.id) &&
-									!is_chapter_active(chapter.id)}
-								class:opacity-100={projects.isChapterExpanded(chapter.id) ||
-									is_chapter_active(chapter.id)}
-								class:group-hover:opacity-100={!projects.isChapterExpanded(chapter.id) &&
-									!is_chapter_active(chapter.id)}
+								class="rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-200 dark:hover:bg-gray-600"
 								onclick={(e) => open_chapter_settings(chapter.id, chapter.title, e)}
 								onkeydown={(e) => handle_settings_keydown(e, chapter.id, chapter.title)}
 								role="button"
