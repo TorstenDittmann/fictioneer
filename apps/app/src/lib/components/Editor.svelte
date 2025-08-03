@@ -11,7 +11,7 @@
 	import type { Project, Chapter, Scene } from '$lib/services/projects.js';
 	import { AIWritingSuggestion } from './ai_writing_extension.js';
 	import FloatingMenubar from './floating_menubar.svelte';
-	import './editor.css';
+	import './tiptap.css';
 
 	let editor_element: HTMLDivElement;
 	let editor_container: HTMLDivElement;
