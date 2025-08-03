@@ -43,7 +43,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					},
 					apply(tr, oldState) {
 						const meta = tr.getMeta(suggestionPluginKey);
-						
+
 						if (meta?.type === 'set-suggestion') {
 							return {
 								...oldState,
@@ -52,7 +52,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								isLoading: false
 							};
 						}
-						
+
 						if (meta?.type === 'clear-suggestion') {
 							return {
 								...oldState,
@@ -61,7 +61,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								isLoading: false
 							};
 						}
-						
+
 						if (meta?.type === 'set-loading') {
 							return {
 								...oldState,
@@ -74,7 +74,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							if (oldState.timeout) {
 								clearTimeout(oldState.timeout);
 							}
-							
+
 							return {
 								...oldState,
 								decorations: DecorationSet.empty,
@@ -94,29 +94,29 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					},
 					handleKeyDown(view, event) {
 						const pluginState = suggestionPluginKey.getState(view.state);
-						
+
 						if (!pluginState?.suggestion) return false;
 
 						// Accept suggestion with Tab
 						if (event.key === 'Tab') {
 							event.preventDefault();
-							
+
 							const { from, to } = view.state.selection;
 							const tr = view.state.tr.insertText(pluginState.suggestion, from, to);
 							tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
 							view.dispatch(tr);
-							
+
 							return true;
 						}
 
 						// Dismiss suggestion with Escape
 						if (event.key === 'Escape') {
 							event.preventDefault();
-							
+
 							const tr = view.state.tr;
 							tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
 							view.dispatch(tr);
-							
+
 							return true;
 						}
 
@@ -130,131 +130,111 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							console.log('AI: Extension disabled');
 							return;
 						}
-						
+
 						const { state } = editorView;
 						const { to } = state.selection;
 						const text = state.doc.textBetween(0, state.doc.content.size, '\n');
-						console.log('AI: Text length:', text.length, 'Min length:', extension.options.minLength);
+						console.log(
+							'AI: Text length:',
+							text.length,
+							'Min length:',
+							extension.options.minLength
+						);
 						console.log('AI: Text content:', text);
-						
+
 						if (text.length < extension.options.minLength) {
 							console.log('AI: Text too short');
 							return;
 						}
-
-						// Set loading state and show loading indicator
-						let tr = state.tr;
-						tr.setMeta(suggestionPluginKey, { type: 'set-loading', loading: true });
-						editorView.dispatch(tr);
-
-						// Show animated caret loading indicator
-						const loadingDecoration = Decoration.widget(to, () => {
-							const span = document.createElement('span');
-							span.textContent = '|';
-							span.className = 'ai-loading-caret';
-							span.style.cssText = `
-								color: #94a3b8;
-								font-style: normal;
-								opacity: 0;
-								animation: ai-caret-explode 0.2s ease-out forwards, ai-caret-pulse 0.6s infinite 0.2s;
-								transform: scale(1);
-								transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-								cursor: pointer;
-								display: inline-block;
-								font-family: inherit;
-								line-height: inherit;
-								vertical-align: inherit;
-								transform-origin: center;
-								margin: 0;
-								padding: 0;
-								position: relative;
-								left: -1px;
-							`;
-							span.onclick = () => {
-								span.style.animation = 'ai-caret-click-explode 0.15s ease-out';
-							};
-							return span;
-						});
-
-						const loadingDecorationSet = DecorationSet.create(state.doc, [loadingDecoration]);
-						tr = editorView.state.tr;
-						tr.setMeta(suggestionPluginKey, {
-							type: 'set-suggestion',
-							decorations: loadingDecorationSet,
-							suggestion: null
-						});
-						editorView.dispatch(tr);
 
 						try {
 							// Improve context for better grammar
 							const lastSentence = text.split(/[.!?]+/).pop() || '';
 							const recentText = lastSentence.trim();
 							const isIncomplete = recentText.length > 0 && !text.match(/[.!?]\s*$/);
-							
+
 							const enhancedContext = {
 								...extension.options.context,
 								recent_text: recentText,
-								instruction: isIncomplete 
-									? 'Complete this incomplete sentence naturally, then continue writing. Only provide the words needed to finish the current sentence and continue.' 
+								instruction: isIncomplete
+									? 'Complete this incomplete sentence naturally, then continue writing. Only provide the words needed to finish the current sentence and continue.'
 									: 'Continue writing from this point. Start a new sentence naturally.'
 							};
-							
+
+							// Create streaming typewriter container
+							const typewriterSpan = document.createElement('span');
+							typewriterSpan.className = 'ai-typewriter';
+							typewriterSpan.style.cssText = `
+								color: #94a3b8;
+								font-style: italic;
+								opacity: 0.7;
+							`;
+							typewriterSpan.textContent = '';
+
+							// Add hover effect
+							typewriterSpan.onmouseenter = () => {
+								typewriterSpan.style.opacity = '1';
+								typewriterSpan.style.transform = 'scale(1.02)';
+							};
+							typewriterSpan.onmouseleave = () => {
+								typewriterSpan.style.opacity = '0.7';
+								typewriterSpan.style.transform = 'scale(1)';
+							};
+
+							const decoration = Decoration.widget(to, () => typewriterSpan);
+							const decorationSet = DecorationSet.create(state.doc, [decoration]);
+
+							// Show empty suggestion container immediately
+							let tr = editorView.state.tr;
+							tr.setMeta(suggestionPluginKey, {
+								type: 'set-suggestion',
+								decorations: decorationSet,
+								suggestion: ''
+							});
+							editorView.dispatch(tr);
+
 							console.log('AI: Calling backend with enhanced context:', enhancedContext);
+
+							let fullSuggestion = '';
 							const result = await ai_writing_backend_service.continue_writing(
 								text,
 								enhancedContext,
-								50
+								50,
+								(streamedText: string) => {
+									// Update typewriter span in real-time as text streams in
+									const displayText = ' ' + streamedText.trim();
+									typewriterSpan.textContent = displayText;
+									fullSuggestion = displayText;
+								}
 							);
+
 							console.log('AI: Backend result:', result);
 
 							if (result && result.trim()) {
-								const suggestion = ' ' + result.trim();
-								
-								// Create decoration for the suggestion
-								const decoration = Decoration.widget(to, () => {
-									const span = document.createElement('span');
-									span.textContent = suggestion;
-									span.className = 'ai-suggestion';
-									span.style.cssText = `
-										color: #94a3b8;
-										font-style: italic;
-										opacity: 0;
-										animation: ai-suggestion-fade-in 0.4s ease-out forwards;
-										transform: translateY(2px);
-										transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-									`;
-									// Add hover effect
-									span.onmouseenter = () => {
-										span.style.opacity = '1';
-										span.style.transform = 'translateY(0px) scale(1.02)';
-									};
-									span.onmouseleave = () => {
-										span.style.opacity = '0.7';
-										span.style.transform = 'translateY(0px) scale(1)';
-									};
-									return span;
-								});
+								// Ensure final text is set
+								fullSuggestion = ' ' + result.trim();
+								typewriterSpan.textContent = fullSuggestion;
 
-								const decorationSet = DecorationSet.create(state.doc, [decoration]);
-								
+								// Update suggestion state with final result
 								tr = editorView.state.tr;
 								tr.setMeta(suggestionPluginKey, {
 									type: 'set-suggestion',
 									decorations: decorationSet,
-									suggestion: suggestion
+									suggestion: fullSuggestion
 								});
 								editorView.dispatch(tr);
 							} else {
-								// Clear loading state if no suggestion
+								console.log('AI: No result from backend');
+								// Clear suggestion
 								tr = editorView.state.tr;
 								tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
 								editorView.dispatch(tr);
 							}
 						} catch (error) {
 							console.error('AI suggestion error:', error);
-							
-							// Clear loading state on error
-							tr = editorView.state.tr;
+
+							// Clear suggestion on error
+							const tr = editorView.state.tr;
 							tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
 							editorView.dispatch(tr);
 						}
@@ -274,7 +254,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							const { selection } = state;
 							const text = state.doc.textBetween(0, state.doc.content.size, '\n');
 							const isAtEnd = selection.from >= state.doc.content.size - 1;
-							
+
 							if (selection.empty && text.length >= extension.options.minLength && isAtEnd) {
 								console.log('AI: Option key held at end, generating suggestion');
 								generateSuggestion();
@@ -288,14 +268,14 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							if (clearSuggestionTimeout) {
 								clearTimeout(clearSuggestionTimeout);
 							}
-							
+
 							// Add fade-out animation before clearing
 							const suggestionElements = editorView.dom.querySelectorAll('.ai-suggestion');
-							suggestionElements.forEach(el => {
+							suggestionElements.forEach((el) => {
 								const element = el as HTMLElement;
 								element.style.animation = 'ai-suggestion-fade-out 0.3s ease-in forwards';
 							});
-							
+
 							// Clear after animation completes
 							setTimeout(() => {
 								const tr = editorView.state.tr;

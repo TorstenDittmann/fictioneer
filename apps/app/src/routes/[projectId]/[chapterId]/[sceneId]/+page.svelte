@@ -148,8 +148,6 @@
 		</main>
 	</div>
 
-
-
 	<!-- Focus mode overlay -->
 	{#if is_distraction_free}
 		<div class="fixed top-[34px] right-4 z-50">

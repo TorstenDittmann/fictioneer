@@ -38,8 +38,6 @@
 		scene_description: scene?.title
 	});
 
-
-
 	onMount(() => {
 		editor = new Editor({
 			element: editorElement,
@@ -119,7 +117,6 @@
 		}
 	});
 
-
 	// AI context updates automatically via extension options
 
 	// Expose editor instance for parent components
@@ -145,17 +142,8 @@
 			characters: typeof storage.characters === 'function' ? storage.characters() : 0
 		};
 	}
-
-
-
-
-
-
-
 </script>
 
 <div class="editor-container relative h-full w-full overflow-hidden">
-
-
 	<div bind:this={editorElement} class="editor-content h-full overflow-y-auto"></div>
 </div>

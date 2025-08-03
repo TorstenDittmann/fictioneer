@@ -1,5 +1,5 @@
 import { createGroq } from '@ai-sdk/groq';
-import { generateText } from 'ai';
+import { generateText, streamText } from 'ai';
 import dedent from 'dedent';
 
 // Get API key from environment variable
@@ -21,7 +21,9 @@ function add_cors_headers(headers: Record<string, string> = {}) {
 		...headers,
 		'Access-Control-Allow-Origin': '*',
 		'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-		'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+		'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cache-Control, X-Requested-With',
+		'Access-Control-Expose-Headers': 'Content-Type, Cache-Control',
+		'Access-Control-Max-Age': '86400'
 	};
 }
 
@@ -99,7 +101,7 @@ export default {
 			}
 		},
 
-		// Continue writing
+		// Continue writing with streaming support
 		"/api/continue": {
 			POST: async (req: Request) => {
 				try {
@@ -107,6 +109,7 @@ export default {
 					const content = body?.content;
 					const context = body?.context || {};
 					const word_count = typeof body?.word_count === 'number' ? body.word_count : 100;
+					const stream = body?.stream === true;
 
 					if (!content || typeof content !== 'string') {
 						return Response.json(
@@ -131,16 +134,36 @@ export default {
 						</text>
 					`;
 
-					const result = await generateText({
-						model: client,
-						system: system_prompt,
-						prompt: user_prompt
-					});
+					if (stream) {
+						// Use AI SDK toTextStreamResponse
+						const result = streamText({
+							model: client,
+							system: system_prompt,
+							prompt: user_prompt
+						});
 
-					return Response.json(
-						{ text: result.text },
-						{ headers: add_cors_headers() }
-					);
+						const response = result.toTextStreamResponse();
+						
+						// Add CORS headers to the streaming response
+						response.headers.set('Access-Control-Allow-Origin', '*');
+						response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+						response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cache-Control, X-Requested-With');
+						response.headers.set('Access-Control-Expose-Headers', 'Content-Type, Cache-Control');
+						
+						return response;
+					} else {
+						// Non-streaming response
+						const result = await generateText({
+							model: client,
+							system: system_prompt,
+							prompt: user_prompt
+						});
+
+						return Response.json(
+							{ text: result.text },
+							{ headers: add_cors_headers() }
+						);
+					}
 				} catch (error) {
 					console.error('Continue writing error:', error);
 					return Response.json(
@@ -154,7 +177,10 @@ export default {
 
 	// Handle CORS preflight for all routes
 	fetch(req: Request) {
+		const url = new URL(req.url);
+		
 		if (req.method === 'OPTIONS') {
+			// Handle preflight for all routes including streaming
 			return new Response(null, {
 				status: 204,
 				headers: add_cors_headers()
