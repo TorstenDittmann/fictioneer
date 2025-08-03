@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "tauri dev",
 		"build": "tauri build",
+		"start": "bun run server.ts",
 		"vite:dev": "vite dev",
 		"vite:build": "vite build",
 		"vite:preview": "vite preview",
