@@ -9,7 +9,7 @@ log-level = "info"
 
 [advanced]
 # SPA fallback - serve index.html for all routes that don't match files
-page-fallback = "/public/index.html"
+page-fallback = "/index.html"
 
 # Enable compression
 compression = true
