@@ -74,24 +74,6 @@
 >
 	<!-- Header -->
 	<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
-		<!-- Back to Overview link -->
-		<div class="mb-4">
-			<a
-				href="/"
-				class="inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium text-gray-600 no-underline transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
-			>
-				<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M15 19l-7-7 7-7"
-					/>
-				</svg>
-				Back to Overview
-			</a>
-		</div>
-
 		<!-- Project Info -->
 		<div class="space-y-3">
 			<div class="flex items-start justify-between">

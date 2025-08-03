@@ -6,13 +6,16 @@
 	import CharacterCount from '@tiptap/extension-character-count';
 	import Focus from '@tiptap/extension-focus';
 	import Typography from '@tiptap/extension-typography';
+	import Underline from '@tiptap/extension-underline';
 	import { projects } from '$lib/state/projects.svelte.js';
 	import type { Project, Chapter, Scene } from '$lib/services/projects.js';
 	import { AIWritingSuggestion } from './ai_writing_extension.js';
+	import FloatingMenubar from './floating_menubar.svelte';
 	import './editor.css';
 
 	let editorElement: HTMLDivElement;
-	let editor: Editor;
+	let editorContainer: HTMLDivElement;
+	let editor = $state<Editor | null>(null);
 
 	interface Props {
 		content?: string;
@@ -37,6 +40,38 @@
 		title: project?.title,
 		scene_description: scene?.title
 	});
+
+	// Auto-scroll functionality to keep current line in middle
+	function scroll_to_cursor(instant = false) {
+		if (!editor || !editorContainer) return;
+
+		const { view } = editor;
+		const { state } = view;
+		const { selection } = state;
+		
+		// Get the DOM coordinates of the cursor
+		const coords = view.coordsAtPos(selection.head);
+		const containerRect = editorContainer.getBoundingClientRect();
+		
+		// Calculate the scroll position to center the cursor
+		const cursorTop = coords.top - containerRect.top + editorContainer.scrollTop;
+		const containerHeight = editorContainer.clientHeight;
+		const targetScrollTop = cursorTop - containerHeight / 2;
+		
+		// Scroll to center the cursor - instant for initial load, smooth for interaction
+		editorContainer.scrollTo({
+			top: Math.max(0, targetScrollTop),
+			behavior: instant ? 'auto' : 'smooth'
+		});
+	}
+
+	// Position cursor at end of document without scrolling
+	function position_cursor_at_end() {
+		if (!editor) return;
+		
+		// Move cursor to end of document
+		editor.commands.focus('end');
+	}
 
 	onMount(() => {
 		editor = new Editor({
@@ -65,6 +100,7 @@
 					mode: 'all'
 				}),
 				Typography,
+				Underline,
 				AIWritingSuggestion.configure({
 					delay: 150,
 					minLength: 10,
@@ -89,14 +125,22 @@
 						content: html
 					});
 				}
+
+				// Auto-scroll to keep cursor in middle when typing
+				requestAnimationFrame(() => {
+					scroll_to_cursor();
+				});
 			},
 			onSelectionUpdate: () => {
-				// Selection tracking removed
+				// Don't auto-scroll on selection changes (clicks)
+				// Only scroll when typing (handled in onUpdate)
 			},
 			onCreate: ({ editor }) => {
 				// Set initial content if provided
 				if (content) {
 					editor.commands.setContent(content);
+					// Position cursor at end and scroll there instantly
+					position_cursor_at_end();
 				}
 
 				// AI context is set via extension options
@@ -114,6 +158,8 @@
 	$effect(() => {
 		if (editor && content !== editor.getHTML()) {
 			editor.commands.setContent(content);
+			// Position cursor at end and scroll there instantly when content changes
+			position_cursor_at_end();
 		}
 	});
 
@@ -145,5 +191,10 @@
 </script>
 
 <div class="editor-container relative h-full w-full overflow-hidden">
-	<div bind:this={editorElement} class="editor-content h-full overflow-y-auto"></div>
+	<div class="relative h-full w-full">
+		<FloatingMenubar {editor} />
+		<div bind:this={editorContainer} class="editor-content h-full overflow-y-auto">
+			<div bind:this={editorElement} class="editor-element"></div>
+		</div>
+	</div>
 </div>

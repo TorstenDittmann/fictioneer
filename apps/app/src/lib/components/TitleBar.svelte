@@ -6,13 +6,16 @@
 
 	let windowTitle = $state('Omnia');
 	let isFullscreen = $state(false);
+	let showBackButton = $state(false);
 
 	// Update title when page or projects change
 	$effect(() => {
 		const pathname = page.url.pathname;
 		if (pathname === '/') {
 			windowTitle = 'Omnia';
+			showBackButton = false;
 		} else {
+			showBackButton = true;
 			const activeProject = projects.activeProject;
 			const activeScene = projects.activeScene;
 
@@ -74,8 +77,36 @@
 				aria-label="Toggle fullscreen"
 			></button>
 		</div>
+		
+		<!-- Back to overview button when not in fullscreen -->
+		{#if showBackButton}
+			<a
+				href="/"
+				class="back-button"
+				title="Back to Overview"
+			>
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M15 18l-6-6 6-6"/>
+				</svg>
+				Overview
+			</a>
+		{/if}
 	{:else}
-		<div class="spacer-left"></div>
+		<!-- Back to overview button in fullscreen mode, positioned where traffic lights would be -->
+		{#if showBackButton}
+			<a
+				href="/"
+				class="back-button fullscreen"
+				title="Back to Overview"
+			>
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M15 18l-6-6 6-6"/>
+				</svg>
+				Overview
+			</a>
+		{:else}
+			<div class="spacer-left"></div>
+		{/if}
 	{/if}
 
 	<!-- Center title with manual drag -->
@@ -94,9 +125,9 @@
 		border-bottom: 1px solid var(--paper-border);
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
 		padding: 0 12px;
 		user-select: none;
+		position: relative;
 	}
 
 	.controls {
@@ -143,15 +174,43 @@
 		font-weight: 500;
 		color: var(--paper-text);
 		text-align: center;
-		flex: 1;
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
 		padding: 4px 0;
 	}
 
 	.spacer {
-		width: 60px;
+		flex: 1;
 	}
 
 	.spacer-left {
 		width: 60px;
+	}
+
+	.back-button {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		padding: 4px 8px;
+		margin-left: 8px;
+		font-size: 12px;
+		color: var(--paper-text);
+		text-decoration: none;
+		border-radius: 4px;
+		transition: background-color 0.15s ease;
+	}
+
+	.back-button.fullscreen {
+		margin-left: 0;
+	}
+
+	.back-button:hover {
+		background-color: rgba(0, 0, 0, 0.1);
+	}
+
+	.back-button svg {
+		width: 14px;
+		height: 14px;
 	}
 </style>

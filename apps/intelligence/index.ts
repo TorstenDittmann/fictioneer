@@ -41,10 +41,12 @@ app.use(
 
 // Helper functions
 function is_mid_sentence(text: string): boolean {
-	const clean_text = text.replace('<CONTINUE_HERE>', '').trim();
-	if (!clean_text) return false;
-	const last_char = clean_text[clean_text.length - 1];
-	return last_char ? !['.', '!', '?', '"', "'", ')', ']', '}'].includes(last_char) : false;
+  const clean_text = text.replace("<CONTINUE_HERE>", "").trim();
+  if (!clean_text) return false;
+  const last_char = clean_text[clean_text.length - 1];
+  return last_char
+    ? ![".", "!", "?", '"', "'", ")", "]", "}"].includes(last_char)
+    : false;
 }
 
 function build_context_string(context: unknown): string {
@@ -74,9 +76,9 @@ function build_context_string(context: unknown): string {
 }
 
 function build_system_prompt(
-	context: unknown,
-	text: string = '',
-	word_count: number = 100
+  context: unknown,
+  text: string = "",
+  word_count: number = 100,
 ): string {
   const base_context = build_context_string(context);
   const ctx =
@@ -88,15 +90,15 @@ function build_system_prompt(
       ? `\nSpecial instruction: ${ctx.instruction}`
       : "";
 
-  	// Check if the text before <CONTINUE_HERE> ends mid-sentence
-  	const text_before_marker = text.split('<CONTINUE_HERE>')[0] || '';
-  	const is_mid_sentence_context = is_mid_sentence(text_before_marker);
-  	
-  	const sentence_instruction = is_mid_sentence_context
-  		? "The text ends mid-sentence. Complete the current sentence first, then continue with new sentences."
-  		: "The text ends at a complete sentence. Start with a new sentence.";
+  // Check if the text before <CONTINUE_HERE> ends mid-sentence
+  const text_before_marker = text.split("<CONTINUE_HERE>")[0] || "";
+  const is_mid_sentence_context = is_mid_sentence(text_before_marker);
 
-  	return dedent`
+  const sentence_instruction = is_mid_sentence_context
+    ? "The text ends mid-sentence. Complete the current sentence first, then continue with new sentences."
+    : "The text ends at a complete sentence. Start with a new sentence.";
+
+  return dedent`
   		You are a creative writing assistant. ${base_context}${instruction_context}
   		
   		Continue writing from where the <CONTINUE_HERE> tag appears. ${sentence_instruction}
@@ -168,8 +170,7 @@ app.post("/api/continue", async (c) => {
         prompt: user_prompt,
       });
 
-      const response = result.toTextStreamResponse();
-      return response;
+      return result.toTextStreamResponse();
     } else {
       // Non-streaming response
       const result = await generateText({

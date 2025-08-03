@@ -3,6 +3,7 @@
 	import { projects } from '$lib/state/projects.svelte';
 	import Editor from '$lib/components/Editor.svelte';
 	import ProjectSidebar from '$lib/components/ProjectSidebar.svelte';
+
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
