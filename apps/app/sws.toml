@@ -1,0 +1,59 @@
+# Static Web Server Configuration
+# https://static-web-server.net/configuration/
+
+[general]
+host = "0.0.0.0"
+port = 80
+root = "/public"
+log-level = "info"
+
+[advanced]
+# SPA fallback - serve index.html for all routes that don't match files
+page-fallback = "/public/index.html"
+
+# Enable compression
+compression = true
+compression-static = true
+
+# Security headers
+security-headers = true
+
+# Health check endpoint
+health = true
+
+[headers]
+# Security headers for all files
+[[headers.source]]
+source = "**"
+
+[headers.source.headers]
+"X-UA-Compatible" = "IE=Edge"
+"X-Frame-Options" = "SAMEORIGIN"
+"X-XSS-Protection" = "1; mode=block;"
+"X-Content-Type-Options" = "nosniff"
+
+# Cache immutable files for 1 year (equivalent to /console/_app/immutable/)
+[[headers.source]]
+source = "_app/immutable/**"
+
+[headers.source.headers]
+"Cache-Control" = "public, max-age=31536000, immutable"
+"Pragma" = "public"
+
+# No cache for HTML files and all other requests
+[[headers.source]]
+source = "**/*.html"
+
+[headers.source.headers]
+"Cache-Control" = "no-cache, no-store, must-revalidate"
+"Pragma" = "no-cache"
+"Expires" = "0"
+
+# No cache for JSON and other dynamic content
+[[headers.source]]
+source = "**/*.json"
+
+[headers.source.headers]
+"Cache-Control" = "no-cache, no-store, must-revalidate"
+"Pragma" = "no-cache"
+"Expires" = "0"
