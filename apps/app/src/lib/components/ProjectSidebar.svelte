@@ -278,6 +278,10 @@
 						>Ctrl+N</kbd
 					>
 				</div>
+				<div class="flex justify-between">
+					<span>Copilot</span>
+					<kbd class="rounded bg-gray-200 px-1 py-0.5 font-mono text-xs dark:bg-gray-700">⌥</kbd>
+				</div>
 			</div>
 		</div>
 	</div>
