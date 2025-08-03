@@ -154,7 +154,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							const isIncomplete = recentText.length > 0 && !text.match(/[.!?]\s*$/);
 
 							const enhancedContext = {
-								...extension.options.context,
+								...(typeof extension.options.context === 'object' && extension.options.context !== null ? extension.options.context : {}),
 								recent_text: recentText,
 								instruction: isIncomplete
 									? 'Complete this incomplete sentence naturally, then continue writing. Only provide the words needed to finish the current sentence and continue.'
