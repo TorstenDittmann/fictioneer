@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
-	import ProjectSidebar from '$lib/components/ProjectSidebar.svelte';
+	import ProjectSidebar from '$lib/components/project_sidebar.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -128,19 +128,19 @@
 						<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
 							<div class="rounded-md bg-gray-50 p-4 dark:bg-gray-700">
 								<div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-									{stats.totalChapters}
+									{stats.total_chapters}
 								</div>
 								<div class="text-sm text-gray-600 dark:text-gray-400">Chapters</div>
 							</div>
 							<div class="rounded-md bg-gray-50 p-4 dark:bg-gray-700">
 								<div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-									{stats.totalScenes}
+									{stats.total_scenes}
 								</div>
 								<div class="text-sm text-gray-600 dark:text-gray-400">Scenes</div>
 							</div>
 							<div class="rounded-md bg-gray-50 p-4 dark:bg-gray-700">
 								<div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-									{stats.totalWords.toLocaleString()}
+									{stats.total_words.toLocaleString()}
 								</div>
 								<div class="text-sm text-gray-600 dark:text-gray-400">Words</div>
 							</div>

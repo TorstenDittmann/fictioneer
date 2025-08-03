@@ -98,7 +98,7 @@ export class AIWritingBackendService {
 		}
 
 		const decoder = new TextDecoder();
-		let fullText = '';
+		let full_text = '';
 
 		try {
 			while (true) {
@@ -112,8 +112,8 @@ export class AIWritingBackendService {
 				if (done) break;
 
 				const chunk = decoder.decode(value, { stream: true });
-				fullText += chunk;
-				onStream(fullText);
+				full_text += chunk;
+				onStream(full_text);
 			}
 		} finally {
 			reader.releaseLock();
@@ -121,7 +121,7 @@ export class AIWritingBackendService {
 			this.current_abort_controller = null;
 		}
 
-		return fullText;
+		return full_text;
 	}
 
 	cancel_current_request(): void {

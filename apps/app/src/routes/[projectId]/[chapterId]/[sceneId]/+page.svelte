@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
-	import Editor from '$lib/components/Editor.svelte';
-	import ProjectSidebar from '$lib/components/ProjectSidebar.svelte';
+	import Editor from '$lib/components/editor.svelte';
+	import ProjectSidebar from '$lib/components/project_sidebar.svelte';
 
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
@@ -30,7 +30,7 @@
 		// Update stats every 2 seconds
 		stats_interval = setInterval(() => {
 			if (editor_component) {
-				const stats = editor_component.getStats();
+				const stats = editor_component.get_stats();
 				editor_stats = { words: stats.words, characters: stats.characters };
 			}
 		}, 2000);
@@ -49,7 +49,7 @@
 	function handle_editor_update() {
 		// Update stats immediately on content change
 		if (editor_component) {
-			const stats = editor_component.getStats();
+			const stats = editor_component.get_stats();
 			editor_stats = { words: stats.words, characters: stats.characters };
 		}
 	}

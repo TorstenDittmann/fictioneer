@@ -377,25 +377,25 @@ class ProjectsService {
 	// Get project statistics
 	get_project_stats(project_id: string) {
 		const project = this.get_project(project_id);
-		if (!project) return { totalWords: 0, totalCharacters: 0, totalScenes: 0, totalChapters: 0 };
+		if (!project) return { total_words: 0, total_characters: 0, total_scenes: 0, total_chapters: 0 };
 
-		let totalWords = 0;
-		let totalCharacters = 0;
-		let totalScenes = 0;
+		let total_words = 0;
+		let total_characters = 0;
+		let total_scenes = 0;
 
 		for (const chapter of project.chapters) {
 			for (const scene of chapter.scenes) {
-				totalWords += scene.wordCount;
-				totalCharacters += scene.characterCount;
-				totalScenes++;
+				total_words += scene.wordCount;
+				total_characters += scene.characterCount;
+				total_scenes++;
 			}
 		}
 
 		return {
-			totalWords,
-			totalCharacters,
-			totalScenes,
-			totalChapters: project.chapters.length
+			total_words,
+			total_characters,
+			total_scenes,
+			total_chapters: project.chapters.length
 		};
 	}
 
@@ -406,10 +406,10 @@ class ProjectsService {
 			(acc, project) => {
 				const project_stats = this.get_project_stats(project.id);
 				return {
-					totalWords: acc.totalWords + project_stats.totalWords,
-					totalCharacters: acc.totalCharacters + project_stats.totalCharacters,
-					totalScenes: acc.totalScenes + project_stats.totalScenes,
-					totalChapters: acc.totalChapters + project_stats.totalChapters,
+					totalWords: acc.totalWords + project_stats.total_words,
+					totalCharacters: acc.totalCharacters + project_stats.total_characters,
+					totalScenes: acc.totalScenes + project_stats.total_scenes,
+					totalChapters: acc.totalChapters + project_stats.total_chapters,
 					totalProjects: acc.totalProjects + 1
 				};
 			},

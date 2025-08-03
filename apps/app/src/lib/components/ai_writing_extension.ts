@@ -150,70 +150,70 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 
 						try {
 							// Improve context for better grammar
-							const lastSentence = text.split(/[.!?]+/).pop() || '';
-							const recentText = lastSentence.trim();
-							const isIncomplete = recentText.length > 0 && !text.match(/[.!?]\s*$/);
+							const last_sentence = text.split(/[.!?]+/).pop() || '';
+							const recent_text = last_sentence.trim();
+							const is_incomplete = recent_text.length > 0 && !text.match(/[.!?]\s*$/);
 
-							const enhancedContext = {
+							const enhanced_context = {
 								...(typeof extension.options.context === 'object' &&
 								extension.options.context !== null
 									? extension.options.context
 									: {}),
-								recent_text: recentText,
-								instruction: isIncomplete
+								recent_text: recent_text,
+								instruction: is_incomplete
 									? 'Complete this incomplete sentence naturally, then continue writing. Only provide the words needed to finish the current sentence and continue.'
 									: 'Continue writing from this point. Start a new sentence naturally.'
 							};
 
 							// Create streaming typewriter container
-							const typewriterSpan = document.createElement('span');
-							typewriterSpan.className = 'ai-typewriter';
-							typewriterSpan.title = 'AI is generating text... Release ⌘ to cancel';
-							typewriterSpan.style.cssText = `
+							const typewriter_span = document.createElement('span');
+							typewriter_span.className = 'ai-typewriter';
+							typewriter_span.title = 'AI is generating text... Release ⌘ to cancel';
+							typewriter_span.style.cssText = `
 								color: #94a3b8;
 								font-style: italic;
 								opacity: 0.7;
 							`;
-							typewriterSpan.textContent = '';
+							typewriter_span.textContent = '';
 
 							// Add hover effect
-							typewriterSpan.onmouseenter = () => {
-								typewriterSpan.style.opacity = '1';
-								typewriterSpan.style.transform = 'scale(1.02)';
+							typewriter_span.onmouseenter = () => {
+								typewriter_span.style.opacity = '1';
+								typewriter_span.style.transform = 'scale(1.02)';
 							};
-							typewriterSpan.onmouseleave = () => {
-								typewriterSpan.style.opacity = '0.7';
-								typewriterSpan.style.transform = 'scale(1)';
+							typewriter_span.onmouseleave = () => {
+								typewriter_span.style.opacity = '0.7';
+								typewriter_span.style.transform = 'scale(1)';
 							};
 
-							const decoration = Decoration.widget(to, () => typewriterSpan);
-							const decorationSet = DecorationSet.create(state.doc, [decoration]);
+							const decoration = Decoration.widget(to, () => typewriter_span);
+							const decoration_set = DecorationSet.create(state.doc, [decoration]);
 
 							// Show empty suggestion container immediately
 							let tr = editorView.state.tr;
 							tr.setMeta(suggestionPluginKey, {
 								type: 'set-suggestion',
-								decorations: decorationSet,
+								decorations: decoration_set,
 								suggestion: ''
 							});
 							editorView.dispatch(tr);
 
-							console.log('AI: Calling backend with enhanced context:', enhancedContext);
+							console.log('AI: Calling backend with enhanced context:', enhanced_context);
 
-							let fullSuggestion = '';
+							let full_suggestion = '';
 							const result = await ai_writing_backend_service.continue_writing(
 								text,
-								enhancedContext,
+								enhanced_context,
 								50,
-								(streamedText: string) => {
+								(streamed_text: string) => {
 									// Check if request was cancelled before updating UI
 									if (!ai_writing_backend.is_request_active) {
 										return;
 									}
 									// Update typewriter span in real-time as text streams in
-									const displayText = ' ' + streamedText.trim();
-									typewriterSpan.textContent = displayText;
-									fullSuggestion = displayText;
+									const display_text = ' ' + streamed_text.trim();
+									typewriter_span.textContent = display_text;
+									full_suggestion = display_text;
 								}
 							);
 
@@ -221,15 +221,15 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 
 							if (result && result.trim()) {
 								// Ensure final text is set
-								fullSuggestion = ' ' + result.trim();
-								typewriterSpan.textContent = fullSuggestion;
+								full_suggestion = ' ' + result.trim();
+								typewriter_span.textContent = full_suggestion;
 
 								// Update suggestion state with final result
 								tr = editorView.state.tr;
 								tr.setMeta(suggestionPluginKey, {
 									type: 'set-suggestion',
-									decorations: decorationSet,
-									suggestion: fullSuggestion
+									decorations: decoration_set,
+									suggestion: full_suggestion
 								});
 								editorView.dispatch(tr);
 							} else {
@@ -249,14 +249,14 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 						}
 					};
 
-					let clearSuggestionTimeout: ReturnType<typeof setTimeout> | null = null;
+					let clear_suggestion_timeout: ReturnType<typeof setTimeout> | null = null;
 
-					const checkOptionKey = (event: KeyboardEvent) => {
+					const check_option_key = (event: KeyboardEvent) => {
 						if (event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
 							// Clear any pending clear timeout
-							if (clearSuggestionTimeout) {
-								clearTimeout(clearSuggestionTimeout);
-								clearSuggestionTimeout = null;
+							if (clear_suggestion_timeout) {
+								clearTimeout(clear_suggestion_timeout);
+								clear_suggestion_timeout = null;
 							}
 
 							const { state } = editorView;
@@ -271,7 +271,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 						}
 					};
 
-					const handleKeyUp = (event: KeyboardEvent) => {
+					const handle_key_up = (event: KeyboardEvent) => {
 						// Cancel request when Command key is released if there's an active request
 						if (
 							(event.key === 'Meta' ||
@@ -292,8 +292,8 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 
 						if (!event.altKey) {
 							// Option key released - clear suggestion immediately with animation
-							if (clearSuggestionTimeout) {
-								clearTimeout(clearSuggestionTimeout);
+							if (clear_suggestion_timeout) {
+								clearTimeout(clear_suggestion_timeout);
 							}
 
 							// Add fade-out animation before clearing
@@ -313,18 +313,18 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					};
 
 					// Add event listeners
-					editorView.dom.addEventListener('keydown', checkOptionKey);
-					editorView.dom.addEventListener('keyup', handleKeyUp);
+					editorView.dom.addEventListener('keydown', check_option_key);
+					editorView.dom.addEventListener('keyup', handle_key_up);
 
 					return {
 						update: () => {
 							// No automatic suggestions - only on Option key
 						},
 						destroy: () => {
-							editorView.dom.removeEventListener('keydown', checkOptionKey);
-							editorView.dom.removeEventListener('keyup', handleKeyUp);
-							if (clearSuggestionTimeout) {
-								clearTimeout(clearSuggestionTimeout);
+							editorView.dom.removeEventListener('keydown', check_option_key);
+							editorView.dom.removeEventListener('keyup', handle_key_up);
+							if (clear_suggestion_timeout) {
+								clearTimeout(clear_suggestion_timeout);
 							}
 							const pluginState = suggestionPluginKey.getState(editorView.state);
 							if (pluginState?.timeout) {

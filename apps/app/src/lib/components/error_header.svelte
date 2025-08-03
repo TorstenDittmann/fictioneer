@@ -21,7 +21,7 @@
 				class="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
 				title="Current: {theme.current_theme_label}, Click for: {theme.next_theme_label}"
 			>
-				{theme.next_theme_label}
+				{theme.current_theme_label}
 			</button>
 		</div>
 	</div>

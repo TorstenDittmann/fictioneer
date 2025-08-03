@@ -4,7 +4,7 @@
 	import '@fontsource/libre-baskerville/700.css';
 	import '@fontsource/libre-baskerville/400-italic.css';
 	import favicon from '$lib/assets/favicon.svg';
-	import TitleBar from '$lib/components/TitleBar.svelte';
+	import TitleBar from '$lib/components/title_bar.svelte';
 	import { theme } from '$lib/state/theme.svelte';
 	import { ClerkProvider } from 'svelte-clerk/client';
 	import type { Snippet } from 'svelte';

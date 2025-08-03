@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
-	import ProjectSidebar from '$lib/components/ProjectSidebar.svelte';
+	import ProjectSidebar from '$lib/components/project_sidebar.svelte';
 
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';

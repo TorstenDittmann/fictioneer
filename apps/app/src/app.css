@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 
-/* Paper-like theme with minimal colors */
 :root {
 	/* Paper colors */
 	--paper-white: #fefcf7;
@@ -17,7 +16,6 @@
 
 html {
 	font-family: 'Libre Baskerville', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
-	background-color: var(--paper-cream);
 	color: var(--paper-text);
 }
 
@@ -157,9 +155,14 @@ html {
 }
 
 /* Custom scrollbar */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--paper-text-muted) transparent;
+}
+
 ::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
+	width: 6px;
+	height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -168,7 +171,7 @@ html {
 
 ::-webkit-scrollbar-thumb {
 	background: var(--paper-text-muted);
-	border-radius: 4px;
+	border-radius: 3px;
 	opacity: 0.3;
 }
 
@@ -181,8 +184,10 @@ body {
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
-	background-color: var(--paper-cream);
+
 }
+
+
 
 /* Focus styles */
 button:focus,

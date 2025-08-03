@@ -13,8 +13,8 @@
 	import FloatingMenubar from './floating_menubar.svelte';
 	import './editor.css';
 
-	let editorElement: HTMLDivElement;
-	let editorContainer: HTMLDivElement;
+	let editor_element: HTMLDivElement;
+	let editor_container: HTMLDivElement;
 	let editor = $state<Editor | null>(null);
 
 	interface Props {
@@ -43,7 +43,7 @@
 
 	// Auto-scroll functionality to keep current line in middle
 	function scroll_to_cursor(instant = false) {
-		if (!editor || !editorContainer) return;
+		if (!editor || !editor_container) return;
 
 		const { view } = editor;
 		const { state } = view;
@@ -51,16 +51,16 @@
 
 		// Get the DOM coordinates of the cursor
 		const coords = view.coordsAtPos(selection.head);
-		const containerRect = editorContainer.getBoundingClientRect();
+		const container_rect = editor_container.getBoundingClientRect();
 
 		// Calculate the scroll position to center the cursor
-		const cursorTop = coords.top - containerRect.top + editorContainer.scrollTop;
-		const containerHeight = editorContainer.clientHeight;
-		const targetScrollTop = cursorTop - containerHeight / 2;
+		const cursor_top = coords.top - container_rect.top + editor_container.scrollTop;
+		const container_height = editor_container.clientHeight;
+		const target_scroll_top = cursor_top - container_height / 2;
 
 		// Scroll to center the cursor - instant for initial load, smooth for interaction
-		editorContainer.scrollTo({
-			top: Math.max(0, targetScrollTop),
+		editor_container.scrollTo({
+			top: Math.max(0, target_scroll_top),
 			behavior: instant ? 'auto' : 'smooth'
 		});
 	}
@@ -75,7 +75,7 @@
 
 	onMount(() => {
 		editor = new Editor({
-			element: editorElement,
+			element: editor_element,
 			extensions: [
 				StarterKit.configure({
 					heading: {
@@ -166,7 +166,7 @@
 	// AI context updates automatically via extension options
 
 	// Expose editor instance for parent components
-	export function getEditor() {
+	export function get_editor() {
 		return editor;
 	}
 
@@ -174,7 +174,7 @@
 		editor?.commands.focus();
 	}
 
-	export function getStats() {
+	export function get_stats() {
 		if (!editor) return { words: 0, characters: 0 };
 
 		const extension = editor.extensionManager.extensions.find(
@@ -190,11 +190,11 @@
 	}
 </script>
 
-<div class="editor-container relative h-full w-full overflow-hidden">
-	<div class="relative h-full w-full">
-		<FloatingMenubar {editor} />
-		<div bind:this={editorContainer} class="editor-content h-full overflow-y-auto">
-			<div bind:this={editorElement} class="editor-element"></div>
+	<div class="editor-container relative h-full w-full overflow-hidden">
+		<div class="relative h-full w-full">
+			<FloatingMenubar {editor} />
+			<div bind:this={editor_container} class="editor-content h-full overflow-y-auto">
+				<div bind:this={editor_element} class="editor-element"></div>
+			</div>
 		</div>
 	</div>
-</div>
