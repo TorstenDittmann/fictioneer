@@ -7,7 +7,7 @@ port = 80
 root = "./build"
 log-level = "info"
 # SPA fallback - serve index.html for all routes that don't match files
-page-fallback = "/index.html"
+page-fallback = "./build/index.html"
 
 # Enable compression
 compression = true
