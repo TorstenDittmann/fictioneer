@@ -4,7 +4,8 @@ function create_ai_writing_backend_state() {
 	const state = $state({
 		is_loading: false,
 		error: null as string | null,
-		current_suggestion: null as string | null
+		current_suggestion: null as string | null,
+		is_cancelled: false
 	});
 
 	return {
@@ -21,6 +22,7 @@ function create_ai_writing_backend_state() {
 		async continue_writing(content: string, context: unknown = {}, word_count: number = 100) {
 			state.is_loading = true;
 			state.error = null;
+			state.is_cancelled = false;
 
 			try {
 				const result = await ai_writing_backend_service.continue_writing(
@@ -28,9 +30,16 @@ function create_ai_writing_backend_state() {
 					context,
 					word_count
 				);
-				state.current_suggestion = result;
+
+				if (!state.is_cancelled) {
+					state.current_suggestion = result;
+				}
 				return result;
 			} catch (error) {
+				if (error instanceof Error && error.name === 'AbortError') {
+					state.is_cancelled = true;
+					return null;
+				}
 				state.error = error instanceof Error ? error.message : 'Failed to generate continuation';
 				return null;
 			} finally {
@@ -53,6 +62,16 @@ function create_ai_writing_backend_state() {
 
 		clear_error() {
 			state.error = null;
+		},
+
+		cancel_current_request() {
+			ai_writing_backend_service.cancel_current_request();
+			state.is_cancelled = true;
+			state.is_loading = false;
+		},
+
+		get is_request_active() {
+			return ai_writing_backend_service.is_request_active();
 		}
 	};
 }

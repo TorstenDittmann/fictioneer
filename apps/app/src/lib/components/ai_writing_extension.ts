@@ -2,6 +2,7 @@ import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { ai_writing_backend_service } from '$lib/services/ai_writing_backend.js';
+import { ai_writing_backend } from '$lib/state/ai_writing_backend.svelte.js';
 
 export interface AIWritingSuggestionOptions {
 	delay: number;
@@ -154,7 +155,10 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							const isIncomplete = recentText.length > 0 && !text.match(/[.!?]\s*$/);
 
 							const enhancedContext = {
-								...(typeof extension.options.context === 'object' && extension.options.context !== null ? extension.options.context : {}),
+								...(typeof extension.options.context === 'object' &&
+								extension.options.context !== null
+									? extension.options.context
+									: {}),
 								recent_text: recentText,
 								instruction: isIncomplete
 									? 'Complete this incomplete sentence naturally, then continue writing. Only provide the words needed to finish the current sentence and continue.'
@@ -164,6 +168,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							// Create streaming typewriter container
 							const typewriterSpan = document.createElement('span');
 							typewriterSpan.className = 'ai-typewriter';
+							typewriterSpan.title = 'AI is generating text... Release ⌘ to cancel';
 							typewriterSpan.style.cssText = `
 								color: #94a3b8;
 								font-style: italic;
@@ -201,6 +206,10 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								enhancedContext,
 								50,
 								(streamedText: string) => {
+									// Check if request was cancelled before updating UI
+									if (!ai_writing_backend.is_request_active) {
+										return;
+									}
 									// Update typewriter span in real-time as text streams in
 									const displayText = ' ' + streamedText.trim();
 									typewriterSpan.textContent = displayText;
@@ -263,6 +272,24 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					};
 
 					const handleKeyUp = (event: KeyboardEvent) => {
+						// Cancel request when Command key is released if there's an active request
+						if (
+							(event.key === 'Meta' ||
+								event.key === 'Cmd' ||
+								event.code === 'MetaLeft' ||
+								event.code === 'MetaRight') &&
+							ai_writing_backend.is_request_active
+						) {
+							console.log('AI: Command key released, cancelling request');
+							ai_writing_backend.cancel_current_request();
+
+							// Clear suggestion immediately without animation
+							const tr = editorView.state.tr;
+							tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
+							editorView.dispatch(tr);
+							return;
+						}
+
 						if (!event.altKey) {
 							// Option key released - clear suggestion immediately with animation
 							if (clearSuggestionTimeout) {

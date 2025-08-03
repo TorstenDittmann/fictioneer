@@ -2,13 +2,20 @@
 const BACKEND_URL = 'http://localhost:3001/api';
 
 export class AIWritingBackendService {
-	private async call_backend(endpoint: string, data: unknown): Promise<unknown> {
+	private current_abort_controller: AbortController | null = null;
+
+	private async call_backend(
+		endpoint: string,
+		data: unknown,
+		signal?: AbortSignal
+	): Promise<unknown> {
 		const response = await fetch(`${BACKEND_URL}/${endpoint}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify(data)
+			body: JSON.stringify(data),
+			signal
 		});
 
 		if (!response.ok) {
@@ -24,16 +31,29 @@ export class AIWritingBackendService {
 		word_count: number = 100,
 		onStream?: (chunk: string) => void
 	): Promise<string> {
+		// Cancel any existing request
+		this.cancel_current_request();
+
+		// Create new abort controller for this request
+		this.current_abort_controller = new AbortController();
+
 		if (onStream) {
 			return this.stream_continue_writing(content, context, word_count, onStream);
 		}
 
-		const result = await this.call_backend('continue', {
-			content,
-			context,
-			word_count,
-			stream: false
-		});
+		const result = await this.call_backend(
+			'continue',
+			{
+				content,
+				context,
+				word_count,
+				stream: false
+			},
+			this.current_abort_controller.signal
+		);
+
+		// Clean up abort controller on successful completion
+		this.current_abort_controller = null;
 
 		if (result && typeof result === 'object' && result !== null) {
 			const res = result as Record<string, unknown>;
@@ -58,7 +78,8 @@ export class AIWritingBackendService {
 				context,
 				word_count,
 				stream: true
-			})
+			}),
+			signal: this.current_abort_controller?.signal
 		});
 
 		if (!response.ok) {
@@ -76,6 +97,11 @@ export class AIWritingBackendService {
 
 		try {
 			while (true) {
+				// Check if request was cancelled
+				if (this.current_abort_controller?.signal.aborted) {
+					break;
+				}
+
 				const { done, value } = await reader.read();
 
 				if (done) break;
@@ -86,9 +112,18 @@ export class AIWritingBackendService {
 			}
 		} finally {
 			reader.releaseLock();
+			// Clean up abort controller on completion
+			this.current_abort_controller = null;
 		}
 
 		return fullText;
+	}
+
+	cancel_current_request(): void {
+		if (this.current_abort_controller) {
+			this.current_abort_controller.abort();
+			this.current_abort_controller = null;
+		}
 	}
 
 	async check_health(): Promise<boolean> {
@@ -98,6 +133,10 @@ export class AIWritingBackendService {
 		} catch {
 			return false;
 		}
+	}
+
+	is_request_active(): boolean {
+		return this.current_abort_controller !== null;
 	}
 }
 
