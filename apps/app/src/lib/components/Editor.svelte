@@ -8,6 +8,7 @@
 	import Typography from '@tiptap/extension-typography';
 	import { projects } from '$lib/state/projects.svelte.js';
 	import type { Project, Chapter, Scene } from '$lib/services/projects.js';
+	import { AIWritingSuggestion } from './ai_writing_extension.js';
 	import './editor.css';
 
 	let editorElement: HTMLDivElement;
@@ -30,6 +31,14 @@
 		chapter,
 		scene
 	}: Props = $props();
+
+	// Build writing context from project data
+	let writing_context = $derived({
+		title: project?.title,
+		scene_description: scene?.title
+	});
+
+
 
 	onMount(() => {
 		editor = new Editor({
@@ -57,7 +66,13 @@
 					className: 'has-focus',
 					mode: 'all'
 				}),
-				Typography
+				Typography,
+				AIWritingSuggestion.configure({
+					delay: 150,
+					minLength: 10,
+					context: writing_context,
+					enabled: true
+				})
 			],
 			content: content,
 			editorProps: {
@@ -77,11 +92,16 @@
 					});
 				}
 			},
+			onSelectionUpdate: () => {
+				// Selection tracking removed
+			},
 			onCreate: ({ editor }) => {
 				// Set initial content if provided
 				if (content) {
 					editor.commands.setContent(content);
 				}
+
+				// AI context is set via extension options
 			}
 		});
 	});
@@ -98,6 +118,9 @@
 			editor.commands.setContent(content);
 		}
 	});
+
+
+	// AI context updates automatically via extension options
 
 	// Expose editor instance for parent components
 	export function getEditor() {
@@ -122,8 +145,17 @@
 			characters: typeof storage.characters === 'function' ? storage.characters() : 0
 		};
 	}
+
+
+
+
+
+
+
 </script>
 
-<div class="editor-container h-full w-full">
-	<div bind:this={editorElement} class="editor-content h-full w-full"></div>
+<div class="editor-container relative h-full w-full overflow-hidden">
+
+
+	<div bind:this={editorElement} class="editor-content h-full overflow-y-auto"></div>
 </div>

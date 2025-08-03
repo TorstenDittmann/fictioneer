@@ -132,10 +132,10 @@
 				<!-- Chapter header -->
 				<button
 					class="flex w-full items-center gap-3 border-l-4 px-4 py-3 text-left text-sm font-medium transition-colors duration-200 outline-none focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:shadow-none active:ring-0 active:outline-none"
-					class:bg-stone-100={is_chapter_active(chapter.id)}
-					class:dark:bg-stone-700={is_chapter_active(chapter.id)}
-					class:border-stone-600={is_chapter_active(chapter.id)}
-					class:dark:border-stone-400={is_chapter_active(chapter.id)}
+					class:bg-gray-100={is_chapter_active(chapter.id)}
+					class:dark:bg-gray-700={is_chapter_active(chapter.id)}
+					class:border-gray-400={is_chapter_active(chapter.id)}
+					class:dark:border-gray-500={is_chapter_active(chapter.id)}
 					class:border-transparent={!is_chapter_active(chapter.id)}
 					class:hover:bg-gray-100={!is_chapter_active(chapter.id)}
 					class:dark:hover:bg-gray-700={!is_chapter_active(chapter.id)}
@@ -145,12 +145,10 @@
 						<svg
 							class="h-3 w-3 text-gray-500 transition-all duration-300 ease-out dark:text-gray-400"
 							class:rotate-90={projects.isChapterExpanded(chapter.id)}
-							class:text-gray-700={projects.isChapterExpanded(chapter.id) &&
-								!is_chapter_active(chapter.id)}
-							class:dark:text-gray-300={projects.isChapterExpanded(chapter.id) &&
-								!is_chapter_active(chapter.id)}
-							class:text-stone-700={is_chapter_active(chapter.id)}
-							class:dark:text-stone-300={is_chapter_active(chapter.id)}
+							class:text-gray-700={projects.isChapterExpanded(chapter.id) ||
+								is_chapter_active(chapter.id)}
+							class:dark:text-gray-300={projects.isChapterExpanded(chapter.id) ||
+								is_chapter_active(chapter.id)}
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -172,7 +170,7 @@
 						</span>
 						<div class="flex items-center gap-2">
 							{#if is_chapter_active(chapter.id)}
-								<div class="h-2 w-2 rounded-full bg-stone-600 dark:bg-stone-400"></div>
+								<div class="h-2 w-2 rounded-full bg-gray-600 dark:bg-gray-400"></div>
 							{/if}
 							<span
 								class="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
@@ -190,10 +188,10 @@
 							<a
 								href={get_scene_url(chapter.id, scene.id)}
 								class="flex w-full items-center gap-3 border-l-2 border-transparent py-2.5 pr-3 pl-6 text-left text-sm no-underline transition-colors duration-200 outline-none hover:bg-gray-100 focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:ring-0 active:outline-none dark:hover:bg-gray-700"
-								class:bg-stone-200={current_scene_id === scene.id}
-								class:dark:bg-stone-700={current_scene_id === scene.id}
-								class:border-stone-600={current_scene_id === scene.id}
-								class:dark:border-stone-400={current_scene_id === scene.id}
+								class:bg-gray-100={current_scene_id === scene.id}
+								class:dark:bg-gray-700={current_scene_id === scene.id}
+								class:border-gray-400={current_scene_id === scene.id}
+								class:dark:border-gray-500={current_scene_id === scene.id}
 							>
 								<svg
 									class="h-3 w-3 flex-shrink-0 text-gray-400"
