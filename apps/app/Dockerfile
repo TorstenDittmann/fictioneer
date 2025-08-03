@@ -14,6 +14,10 @@ RUN bun install --frozen-lockfile
 # Copy source code
 COPY . .
 
+# Set build-time environment variable
+ARG PUBLIC_INTELLIGENCE_SERVER_URL
+ENV PUBLIC_INTELLIGENCE_SERVER_URL=$PUBLIC_INTELLIGENCE_SERVER_URL
+
 # Build the application
 RUN bun run vite:build
 
