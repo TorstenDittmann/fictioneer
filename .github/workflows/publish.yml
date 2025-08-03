@@ -6,6 +6,7 @@ defaults:
 
 on:
   release:
+    types: [published]
 
 jobs:
   publish-tauri:
