@@ -1,4 +1,4 @@
-import { createGroq } from "@ai-sdk/groq";
+import { createGroq, type GroqProvider } from "@ai-sdk/groq";
 import { generateText, streamText } from "ai";
 import dedent from "dedent";
 import { Hono } from "hono";
@@ -11,13 +11,15 @@ if (!GROQ_API_KEY) {
   throw new Error("GROQ_API_KEY environment variable is required");
 }
 
-// Initialize Groq client with hardcoded model
-// const MODEL = 'llama-3.1-8b-instant';
-const CONTINUE_MODEL = "llama-3.3-70b-versatile";
-
 const groq = createGroq({
   apiKey: GROQ_API_KEY,
 });
+
+const MODELS = {
+  PREMIUM: "moonshotai/kimi-k2-instruct",
+  NORMAL: "llama-3.3-70b-versatile",
+  FREE: "meta-llama/llama-4-scout-17b-16e-instruct"
+} as const satisfies Record<string, Parameters<GroqProvider>[0]>;
 
 // Initialize Hono app
 const app = new Hono();
@@ -140,7 +142,7 @@ app.post("/api/continue", async (c) => {
       return c.json({ error: "Content is required and must be a string" }, 400);
     }
 
-    const client = groq(CONTINUE_MODEL);
+    const client = groq(MODELS.FREE);
     const system_prompt = build_system_prompt(context, content, word_count);
 
     const ctx =
