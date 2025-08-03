@@ -155,8 +155,7 @@
 <style>
 	.titlebar {
 		height: 100%;
-		background: var(--paper-white-transparent);
-		border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+		border-bottom: 1px solid var(--paper-border);
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -230,8 +229,6 @@
 		background-color: #00ca4e;
 	}
 
-
-
 	.back-button {
 		display: flex;
 		align-items: center;
@@ -244,10 +241,8 @@
 		transition: background-color 0.15s ease;
 	}
 
-
-
 	.back-button:hover {
-		background-color: rgba(0, 0, 0, 0.1);
+		background-color: var(--paper-gray-transparent);
 	}
 
 	.back-button svg {

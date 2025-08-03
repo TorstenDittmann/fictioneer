@@ -125,9 +125,9 @@
 								<div
 									class="mb-3 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400"
 								>
-									<span>{stats.totalChapters} chapters</span>
-									<span>{stats.totalScenes} scenes</span>
-									<span>{format_word_count(stats.totalWords)}</span>
+									<span>{stats.total_chapters} chapters</span>
+									<span>{stats.total_scenes} scenes</span>
+									<span>{format_word_count(stats.total_words)}</span>
 								</div>
 
 								<div class="text-xs text-gray-400 dark:text-gray-500">
@@ -156,7 +156,7 @@
 									</span>
 								</div>
 								<div class="text-sm text-gray-500 dark:text-gray-400">
-									{format_word_count(projects.getProjectStats(project.id).totalWords)}
+									{format_word_count(projects.getProjectStats(project.id).total_words)}
 								</div>
 							</a>
 						{/each}

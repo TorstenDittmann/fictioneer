@@ -12,7 +12,7 @@
 	--paper-border: #d4cfc7;
 	--paper-accent: #8b7355;
 	--paper-accent-light: #a68b6b;
-	
+
 	/* Transparent versions for backgrounds */
 	--paper-white-transparent: rgba(254, 252, 247, 0.85);
 	--paper-cream-transparent: rgba(250, 248, 243, 0.85);
@@ -25,8 +25,6 @@ html {
 	color: var(--paper-text);
 	background: transparent;
 }
-
-
 
 /* Paper theme overrides */
 .bg-white {
@@ -113,7 +111,7 @@ html {
 	--paper-border: #4a453e;
 	--paper-accent: #c4a47c;
 	--paper-accent-light: #d4b890;
-	
+
 	/* Transparent versions for backgrounds */
 	--paper-white-transparent: rgba(42, 38, 33, 0.85);
 	--paper-cream-transparent: rgba(37, 33, 24, 0.85);
@@ -161,8 +159,13 @@ html {
 	color: var(--paper-accent-light) !important;
 }
 
-/* Smooth transitions for theme changes */
-* {
+/* Smooth transitions for theme changes - applied only to root elements */
+.app-wrapper,
+.app-grid,
+.titlebar,
+.content-area,
+main,
+header {
 	transition:
 		background-color 0.3s ease,
 		color 0.3s ease,
@@ -225,11 +228,9 @@ a,
 input,
 textarea,
 select,
-[role="button"] {
+[role='button'] {
 	-webkit-app-region: no-drag;
 }
-
-
 
 /* Focus styles */
 button:focus,

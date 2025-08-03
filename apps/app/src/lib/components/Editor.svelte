@@ -190,11 +190,11 @@
 	}
 </script>
 
-	<div class="editor-container relative h-full w-full overflow-hidden">
-		<div class="relative h-full w-full">
-			<FloatingMenubar {editor} />
-			<div bind:this={editor_container} class="editor-content h-full overflow-y-auto">
-				<div bind:this={editor_element} class="editor-element"></div>
-			</div>
+<div class="editor-container relative h-full w-full overflow-hidden">
+	<div class="relative h-full w-full">
+		<FloatingMenubar {editor} />
+		<div bind:this={editor_container} class="editor-content h-full overflow-y-auto">
+			<div bind:this={editor_element} class="editor-element"></div>
 		</div>
 	</div>
+</div>

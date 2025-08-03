@@ -377,7 +377,8 @@ class ProjectsService {
 	// Get project statistics
 	get_project_stats(project_id: string) {
 		const project = this.get_project(project_id);
-		if (!project) return { total_words: 0, total_characters: 0, total_scenes: 0, total_chapters: 0 };
+		if (!project)
+			return { total_words: 0, total_characters: 0, total_scenes: 0, total_chapters: 0 };
 
 		let total_words = 0;
 		let total_characters = 0;

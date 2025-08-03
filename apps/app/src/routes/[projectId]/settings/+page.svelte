@@ -53,14 +53,14 @@
 
 <svelte:window onkeydown={handle_keydown} />
 
-<div class="app flex h-full flex-col bg-transparent-paper text-gray-900 dark:text-gray-100">
+<div class="app bg-transparent-paper flex h-full flex-col text-gray-900 dark:text-gray-100">
 	<!-- Main content area -->
 	<div class="flex flex-1 overflow-hidden">
 		<!-- Sidebar -->
 		<ProjectSidebar {data} is_visible={is_sidebar_visible} />
 
 		<!-- Settings content -->
-		<main class="flex-1 overflow-y-auto bg-transparent-paper">
+		<main class="bg-transparent-paper flex-1 overflow-y-auto">
 			<div class="mx-auto max-w-4xl p-8">
 				<!-- Header -->
 				<div class="mb-8">

@@ -26,19 +26,23 @@
 	// Watch for name changes and auto-save
 	$effect(() => {
 		if (editing_chapter_id && data.project && editing_chapter_name.trim()) {
-			const current_chapter = current_project().chapters.find(c => c.id === editing_chapter_id);
+			const current_chapter = current_project().chapters.find((c) => c.id === editing_chapter_id);
 			if (current_chapter && current_chapter.title !== editing_chapter_name.trim()) {
-				projects.updateChapter(data.project.id, editing_chapter_id, { title: editing_chapter_name.trim() });
+				projects.updateChapter(data.project.id, editing_chapter_id, {
+					title: editing_chapter_name.trim()
+				});
 			}
 		}
 	});
 
 	$effect(() => {
 		if (editing_scene_id && editing_chapter_id && data.project && editing_scene_name.trim()) {
-			const current_chapter = current_project().chapters.find(c => c.id === editing_chapter_id);
-			const current_scene = current_chapter?.scenes.find(s => s.id === editing_scene_id);
+			const current_chapter = current_project().chapters.find((c) => c.id === editing_chapter_id);
+			const current_scene = current_chapter?.scenes.find((s) => s.id === editing_scene_id);
 			if (current_scene && current_scene.title !== editing_scene_name.trim()) {
-				projects.updateScene(data.project.id, editing_chapter_id, editing_scene_id, { title: editing_scene_name.trim() });
+				projects.updateScene(data.project.id, editing_chapter_id, editing_scene_id, {
+					title: editing_scene_name.trim()
+				});
 			}
 		}
 	});
@@ -101,7 +105,11 @@
 		chapter_modal_open = true;
 	}
 
-	function handle_settings_keydown(event: KeyboardEvent, chapter_id: string, chapter_title: string) {
+	function handle_settings_keydown(
+		event: KeyboardEvent,
+		chapter_id: string,
+		chapter_title: string
+	) {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
 			event.stopPropagation();
@@ -109,7 +117,12 @@
 		}
 	}
 
-	function open_scene_settings(chapter_id: string, scene_id: string, scene_title: string, event: Event) {
+	function open_scene_settings(
+		chapter_id: string,
+		scene_id: string,
+		scene_title: string,
+		event: Event
+	) {
 		event.stopPropagation();
 		event.preventDefault();
 		editing_chapter_id = chapter_id;
@@ -175,7 +188,7 @@
 	<!-- Chapters and Scenes -->
 	<div class="flex-1 overflow-y-auto py-2">
 		{#each current_project().chapters as chapter (chapter.id)}
-			<div class="mb-1 group">
+			<div class="group mb-1">
 				<!-- Chapter header -->
 				<button
 					class="flex w-full items-center gap-3 border-l-4 px-4 py-3 text-left text-sm font-medium transition-colors duration-200 outline-none focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:shadow-none active:ring-0 active:outline-none"
@@ -221,10 +234,13 @@
 								<div class="h-2 w-2 rounded-full bg-gray-600 dark:bg-gray-400"></div>
 							{/if}
 							<div
-								class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-opacity"
-								class:opacity-0={!projects.isChapterExpanded(chapter.id) && !is_chapter_active(chapter.id)}
-								class:opacity-100={projects.isChapterExpanded(chapter.id) || is_chapter_active(chapter.id)}
-								class:group-hover:opacity-100={!projects.isChapterExpanded(chapter.id) && !is_chapter_active(chapter.id)}
+								class="rounded p-1 transition-opacity hover:bg-gray-200 dark:hover:bg-gray-600"
+								class:opacity-0={!projects.isChapterExpanded(chapter.id) &&
+									!is_chapter_active(chapter.id)}
+								class:opacity-100={projects.isChapterExpanded(chapter.id) ||
+									is_chapter_active(chapter.id)}
+								class:group-hover:opacity-100={!projects.isChapterExpanded(chapter.id) &&
+									!is_chapter_active(chapter.id)}
 								onclick={(e) => open_chapter_settings(chapter.id, chapter.title, e)}
 								onkeydown={(e) => handle_settings_keydown(e, chapter.id, chapter.title)}
 								role="button"
@@ -232,9 +248,24 @@
 								title="Chapter settings"
 								aria-label="Chapter settings for {chapter.title}"
 							>
-								<svg class="h-3 w-3 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+								<svg
+									class="h-3 w-3 text-gray-500 dark:text-gray-400"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+									/>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+									/>
 								</svg>
 							</div>
 							<span
@@ -277,14 +308,29 @@
 									</span>
 								</a>
 								<button
-									class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-opacity"
+									class="absolute top-1/2 right-2 -translate-y-1/2 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-200 dark:hover:bg-gray-600"
 									onclick={(e) => open_scene_settings(chapter.id, scene.id, scene.title, e)}
 									title="Scene settings"
 									aria-label="Scene settings for {scene.title}"
 								>
-									<svg class="h-3 w-3 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+									<svg
+										class="h-3 w-3 text-gray-500 dark:text-gray-400"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+										/>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+										/>
 									</svg>
 								</button>
 							</div>

@@ -25,7 +25,7 @@
 	}
 </script>
 
-<div class="flex min-h-screen flex-col bg-transparent-paper text-gray-900 dark:text-gray-100">
+<div class="bg-transparent-paper flex min-h-screen flex-col text-gray-900 dark:text-gray-100">
 	<!-- Header -->
 	<ErrorHeader />
 

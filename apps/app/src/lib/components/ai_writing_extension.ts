@@ -96,19 +96,40 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					handleKeyDown(view, event) {
 						const pluginState = suggestionPluginKey.getState(view.state);
 
-						if (!pluginState?.suggestion) return false;
-
-						// Accept suggestion with Tab
+						// Handle Tab key
 						if (event.key === 'Tab') {
-							event.preventDefault();
+							// Always prevent default when Option/Alt is held
+							if (event.altKey) {
+								event.preventDefault();
 
-							const { from, to } = view.state.selection;
-							const tr = view.state.tr.insertText(pluginState.suggestion, from, to);
-							tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
-							view.dispatch(tr);
+								// If there's a suggestion, accept it
+								if (pluginState?.suggestion) {
+									const { from, to } = view.state.selection;
+									const tr = view.state.tr.insertText(pluginState.suggestion, from, to);
+									tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
+									view.dispatch(tr);
+								}
+								// If generation is in progress or no suggestion yet, do nothing
+								// This prevents triggering new generations
 
-							return true;
+								return true;
+							}
+
+							// Accept suggestion with Tab (but not with other modifier keys)
+							if (pluginState?.suggestion && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+								event.preventDefault();
+
+								const { from, to } = view.state.selection;
+								const tr = view.state.tr.insertText(pluginState.suggestion, from, to);
+								tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
+								view.dispatch(tr);
+
+								return true;
+							}
 						}
+
+						// Only handle other keys if suggestion exists
+						if (!pluginState?.suggestion) return false;
 
 						// Dismiss suggestion with Escape
 						if (event.key === 'Escape') {
@@ -129,6 +150,18 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 						console.log('AI: generateSuggestion called');
 						if (!extension.options.enabled) {
 							console.log('AI: Extension disabled');
+							return;
+						}
+
+						// Don't generate if option key is not held
+						if (!option_key_held) {
+							console.log('AI: Option key not held, skipping generation');
+							return;
+						}
+
+						// Don't generate if already generating
+						if (ai_writing_backend.is_request_active) {
+							console.log('AI: Request already active, skipping generation');
 							return;
 						}
 
@@ -206,8 +239,12 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								enhanced_context,
 								50,
 								(streamed_text: string) => {
-									// Check if request was cancelled before updating UI
-									if (!ai_writing_backend.is_request_active) {
+									// Check if request was cancelled or option key released before updating UI
+									if (!ai_writing_backend.is_request_active || !option_key_held) {
+										// Clear suggestion if option key was released
+										const tr = editorView.state.tr;
+										tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
+										editorView.dispatch(tr);
 										return;
 									}
 									// Update typewriter span in real-time as text streams in
@@ -219,8 +256,8 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 
 							console.log('AI: Backend result:', result);
 
-							if (result && result.trim()) {
-								// Ensure final text is set
+							if (result && result.trim() && option_key_held) {
+								// Ensure final text is set only if option key is still held
 								full_suggestion = ' ' + result.trim();
 								typewriter_span.textContent = full_suggestion;
 
@@ -250,9 +287,11 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					};
 
 					let clear_suggestion_timeout: ReturnType<typeof setTimeout> | null = null;
+					let option_key_held = false;
 
 					const check_option_key = (event: KeyboardEvent) => {
 						if (event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+							option_key_held = true;
 							// Clear any pending clear timeout
 							if (clear_suggestion_timeout) {
 								clearTimeout(clear_suggestion_timeout);
@@ -264,7 +303,12 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							const text = state.doc.textBetween(0, state.doc.content.size, '\n');
 							const isAtEnd = selection.from >= state.doc.content.size - 1;
 
-							if (selection.empty && text.length >= extension.options.minLength && isAtEnd) {
+							if (
+								selection.empty &&
+								text.length >= extension.options.minLength &&
+								isAtEnd &&
+								!ai_writing_backend.is_request_active
+							) {
 								console.log('AI: Option key held at end, generating suggestion');
 								generateSuggestion();
 							}
@@ -272,6 +316,16 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					};
 
 					const handle_key_up = (event: KeyboardEvent) => {
+						// Update option key state
+						if (
+							event.key === 'Alt' ||
+							event.key === 'Option' ||
+							event.code === 'AltLeft' ||
+							event.code === 'AltRight'
+						) {
+							option_key_held = false;
+						}
+
 						// Cancel request when Command key is released if there's an active request
 						if (
 							(event.key === 'Meta' ||
