@@ -7,9 +7,9 @@ import { cors } from 'hono/cors';
 import { verifyToken } from '@clerk/backend';
 import type { JwtPayload } from '@clerk/types';
 
-// Get API key from environment variable
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY;
+
 if (!GROQ_API_KEY) {
 	throw new Error('GROQ_API_KEY environment variable is required');
 }
@@ -27,12 +27,10 @@ const MODELS = {
 	FREE: 'meta-llama/llama-4-scout-17b-16e-instruct'
 } as const satisfies Record<string, Parameters<GroqProvider>[0]>;
 
-// Initialize Hono app
 const app = new Hono();
 
 const auth_cache = new Map<string, { expires: number; session: JwtPayload }>();
 
-// Add CORS middleware
 app.use(
 	'*',
 	cors({
@@ -48,7 +46,6 @@ app.use(
 	'/api/*',
 	bearerAuth({
 		verifyToken: async (token, context) => {
-			return true;
 			if (!token) return false;
 			if (auth_cache.has(token)) {
 				const { expires, session } = auth_cache.get(token)!;
@@ -75,7 +72,6 @@ app.use(
 	})
 );
 
-// Helper functions
 function is_mid_sentence(text: string): boolean {
 	const clean_text = text.replace('<CONTINUE_HERE>', '').trim();
 	if (!clean_text) return false;
@@ -129,23 +125,22 @@ function build_system_prompt(
 		: 'The text ends at a complete sentence. Start with a new sentence.';
 
 	return dedent`
-  		You are a creative writing assistant. ${base_context}${instruction_context}
-  		
-  		Continue writing from where the <CONTINUE_HERE> tag appears. ${sentence_instruction}
-  		
-  		Rules:
-  		1. The provided text contains only complete words - there are no partial or incomplete words
-  		2. The <CONTINUE_HERE> tag shows exactly where to insert your text
-  		3. Write naturally with varied sentence lengths (maximum 30 words per sentence)
-  		4. NEVER repeat existing text - only add new content after the tag
-  		5. NEVER repeat words, phrases, or ideas from the existing text
-  		6. NEVER use similar vocabulary or sentence structures as what came before
-  		7. Maintain the same style, tone, and narrative voice while using fresh language
-  		8. Write around ${word_count} words, but prioritize natural sentence endings
-  		9. End at a natural stopping point - complete your sentences
-  		
-  		Return only the text that should be inserted at <CONTINUE_HERE>, with no quotes or explanations.
-  	`;
+		You are a creative writing assistant. ${base_context}${instruction_context}
+		
+		Continue writing from where the <CONTINUE_HERE> tag appears. ${sentence_instruction}
+		
+		Rules:
+		1. The provided text contains only complete words - there are no partial or incomplete words
+		2. The <CONTINUE_HERE> tag shows exactly where to insert your text
+		3. Write naturally with varied sentence lengths (maximum 30 words per sentence)
+		4. NEVER repeat existing text - only add new content after the tag
+		5. NEVER repeat words, phrases, or ideas from the existing text
+		6. NEVER use similar vocabulary or sentence structures as what came before
+		7. Maintain the same style, tone, and narrative voice while using fresh language
+		8. Write around ${word_count} words, but prioritize natural sentence endings
+		9. End at a natural stopping point - complete your sentences
+		
+		Return only the text that should be inserted at <CONTINUE_HERE>, with no quotes or explanations.`;
 }
 
 // Health check endpoint
@@ -163,7 +158,7 @@ app.post('/api/continue', async (c) => {
 		const content = body?.content;
 		const context = body?.context || {};
 		const word_count = typeof body?.word_count === 'number' ? body.word_count : 100;
-		const stream = body?.stream === true;
+		const stream = c.req.header('accept') === 'text/plain+stream';
 
 		if (!content || typeof content !== 'string') {
 			return c.json({ error: 'Content is required and must be a string' }, 400);
@@ -190,23 +185,19 @@ app.post('/api/continue', async (c) => {
 		`;
 
 		if (stream) {
-			// Use AI SDK toTextStreamResponse
-			const result = streamText({
+			return streamText({
 				model: client,
 				system: system_prompt,
 				prompt: user_prompt
-			});
-
-			return result.toTextStreamResponse();
+			}).toTextStreamResponse();
 		} else {
-			// Non-streaming response
 			const result = await generateText({
 				model: client,
 				system: system_prompt,
 				prompt: user_prompt
 			});
 
-			return c.json({ text: result.text });
+			return c.text(result.text);
 		}
 	} catch (error) {
 		console.error('Continue writing error:', error);

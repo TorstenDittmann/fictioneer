@@ -16,7 +16,8 @@ export class AIWritingBackendService {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.token}`
+				Authorization: `Bearer ${this.token}`,
+				Accept: 'text/plain'
 			},
 			body: JSON.stringify(data),
 			signal
@@ -29,99 +30,75 @@ export class AIWritingBackendService {
 		return await response.json();
 	}
 
-	async continue_writing(
-		content: string,
-		context: unknown = {},
-		word_count: number = 100,
-		onStream?: (chunk: string) => void
-	): Promise<string> {
-		// Cancel any existing request
-		this.cancel_current_request();
-
-		// Create new abort controller for this request
-		this.current_abort_controller = new AbortController();
-
-		if (onStream) {
-			return this.stream_continue_writing(content, context, word_count, onStream);
-		}
-
-		const result = await this.call_backend(
-			'continue',
-			{
-				content,
-				context,
-				word_count,
-				stream: false
-			},
-			this.current_abort_controller.signal
-		);
-
-		// Clean up abort controller on successful completion
-		this.current_abort_controller = null;
-
-		if (result && typeof result === 'object' && result !== null) {
-			const res = result as Record<string, unknown>;
-			return typeof res.text === 'string' ? res.text : '';
-		}
-		return '';
-	}
-
-	private async stream_continue_writing(
-		content: string,
-		context: unknown = {},
-		word_count: number = 100,
-		onStream: (chunk: string) => void
-	): Promise<string> {
-		const response = await fetch(`${BACKEND_URL}/continue`, {
+	private async *call_backend_stream(
+		endpoint: string,
+		data: unknown,
+		signal?: AbortSignal
+	): AsyncGenerator<string, void, unknown> {
+		const response = await fetch(`${BACKEND_URL}/${endpoint}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.token}`
+				Authorization: `Bearer ${this.token}`,
+				Accept: 'text/plain+stream'
 			},
-			body: JSON.stringify({
-				content,
-				context,
-				word_count,
-				stream: true
-			}),
-			signal: this.current_abort_controller?.signal
+			body: JSON.stringify(data),
+			signal
 		});
 
 		if (!response.ok) {
 			throw new Error(`Backend request failed: ${response.statusText}`);
 		}
 
-		// Get the response as a text stream
 		const reader = response.body?.getReader();
 		if (!reader) {
 			throw new Error('No response body reader available');
 		}
 
 		const decoder = new TextDecoder();
-		let full_text = '';
 
 		try {
 			while (true) {
-				// Check if request was cancelled
-				if (this.current_abort_controller?.signal.aborted) {
-					break;
-				}
-
 				const { done, value } = await reader.read();
-
 				if (done) break;
 
 				const chunk = decoder.decode(value, { stream: true });
-				full_text += chunk;
-				onStream(full_text);
+				yield chunk;
 			}
 		} finally {
 			reader.releaseLock();
+		}
+	}
+
+	async *continue_writing(
+		content: string,
+		context: unknown = {},
+		word_count: number = 100
+	): AsyncGenerator<string, void, unknown> {
+		// Cancel any existing request
+		this.cancel_current_request();
+
+		// Create new abort controller for this request
+		this.current_abort_controller = new AbortController();
+
+		try {
+			let accumulated_text = '';
+			for await (const chunk of this.call_backend_stream(
+				'continue',
+				{
+					content,
+					context,
+					word_count
+				},
+				this.current_abort_controller?.signal
+			)) {
+				accumulated_text += chunk;
+				yield accumulated_text;
+			}
+		} finally {
 			// Clean up abort controller on completion
 			this.current_abort_controller = null;
 		}
-
-		return full_text;
 	}
 
 	cancel_current_request(): void {

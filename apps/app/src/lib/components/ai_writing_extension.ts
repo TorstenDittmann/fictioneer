@@ -2,7 +2,6 @@ import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { ai_writing_backend_service } from '$lib/services/ai_writing_backend.js';
-import { ai_writing_backend } from '$lib/state/ai_writing_backend.svelte.js';
 
 export interface AIWritingSuggestionOptions {
 	delay: number;
@@ -160,7 +159,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 						}
 
 						// Don't generate if already generating
-						if (ai_writing_backend.is_request_active) {
+						if (ai_writing_backend_service.is_request_active()) {
 							console.log('AI: Request already active, skipping generation');
 							return;
 						}
@@ -234,25 +233,27 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							console.log('AI: Calling backend with enhanced context:', enhanced_context);
 
 							let full_suggestion = '';
-							const result = await ai_writing_backend_service.continue_writing(
+							let result = '';
+
+							for await (const streamed_text of ai_writing_backend_service.continue_writing(
 								text,
 								enhanced_context,
-								50,
-								(streamed_text: string) => {
-									// Check if request was cancelled or option key released before updating UI
-									if (!ai_writing_backend.is_request_active || !option_key_held) {
-										// Clear suggestion if option key was released
-										const tr = editorView.state.tr;
-										tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
-										editorView.dispatch(tr);
-										return;
-									}
-									// Update typewriter span in real-time as text streams in
-									const display_text = ' ' + streamed_text.trim();
-									typewriter_span.textContent = display_text;
-									full_suggestion = display_text;
+								50
+							)) {
+								// Check if request was cancelled or option key released before updating UI
+								if (!ai_writing_backend_service.is_request_active() || !option_key_held) {
+									// Clear suggestion if option key was released
+									const tr = editorView.state.tr;
+									tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
+									editorView.dispatch(tr);
+									break;
 								}
-							);
+								// Update typewriter span in real-time as text streams in
+								const display_text = ' ' + streamed_text.trim();
+								typewriter_span.textContent = display_text;
+								full_suggestion = display_text;
+								result = streamed_text;
+							}
 
 							console.log('AI: Backend result:', result);
 
@@ -307,7 +308,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								selection.empty &&
 								text.length >= extension.options.minLength &&
 								isAtEnd &&
-								!ai_writing_backend.is_request_active
+								!ai_writing_backend_service.is_request_active()
 							) {
 								console.log('AI: Option key held at end, generating suggestion');
 								generateSuggestion();
@@ -332,10 +333,10 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								event.key === 'Cmd' ||
 								event.code === 'MetaLeft' ||
 								event.code === 'MetaRight') &&
-							ai_writing_backend.is_request_active
+							ai_writing_backend_service.is_request_active()
 						) {
 							console.log('AI: Command key released, cancelling request');
-							ai_writing_backend.cancel_current_request();
+							ai_writing_backend_service.cancel_current_request();
 
 							// Clear suggestion immediately without animation
 							const tr = editorView.state.tr;
