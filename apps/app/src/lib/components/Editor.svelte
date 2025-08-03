@@ -48,16 +48,16 @@
 		const { view } = editor;
 		const { state } = view;
 		const { selection } = state;
-		
+
 		// Get the DOM coordinates of the cursor
 		const coords = view.coordsAtPos(selection.head);
 		const containerRect = editorContainer.getBoundingClientRect();
-		
+
 		// Calculate the scroll position to center the cursor
 		const cursorTop = coords.top - containerRect.top + editorContainer.scrollTop;
 		const containerHeight = editorContainer.clientHeight;
 		const targetScrollTop = cursorTop - containerHeight / 2;
-		
+
 		// Scroll to center the cursor - instant for initial load, smooth for interaction
 		editorContainer.scrollTo({
 			top: Math.max(0, targetScrollTop),
@@ -68,7 +68,7 @@
 	// Position cursor at end of document without scrolling
 	function position_cursor_at_end() {
 		if (!editor) return;
-		
+
 		// Move cursor to end of document
 		editor.commands.focus('end');
 	}

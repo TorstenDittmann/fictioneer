@@ -6,8 +6,10 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { theme } from '$lib/state/theme.svelte';
-
+	import { ClerkProvider } from 'svelte-clerk/client';
 	import type { Snippet } from 'svelte';
+	import { PUBLIC_CLERK_PUBLISHABLE_KEY } from '$env/static/public';
+	import { dark } from '@clerk/themes';
 
 	let { children }: { children: Snippet } = $props();
 
@@ -25,12 +27,17 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<div class="app-grid">
-	<TitleBar />
-	<div class="content-area">
-		{@render children?.()}
+<ClerkProvider
+	publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}
+	appearance={{ theme: theme.current_theme === 'light' ? undefined : dark }}
+>
+	<div class="app-grid">
+		<TitleBar />
+		<div class="content-area">
+			{@render children?.()}
+		</div>
 	</div>
-</div>
+</ClerkProvider>
 
 <style>
 	.app-grid {

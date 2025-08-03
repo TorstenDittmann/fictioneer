@@ -3,6 +3,16 @@
 	import { page } from '$app/state';
 	import { projects } from '$lib/state/projects.svelte.js';
 	import { getCurrentWindow } from '@tauri-apps/api/window';
+	import {
+		SignedIn,
+		SignedOut,
+		SignInButton,
+		useClerkContext,
+		UserButton
+	} from 'svelte-clerk/client';
+	import { ai_writing_backend_service } from '$lib/services/ai_writing_backend';
+
+	const ctx = useClerkContext();
 
 	let windowTitle = $state('Omnia');
 	let isFullscreen = $state(false);
@@ -27,6 +37,12 @@
 				windowTitle = 'Omnia';
 			}
 		}
+	});
+
+	$effect(() => {
+		ctx.session?.getToken().then((token) => {
+			ai_writing_backend_service.set_token(token);
+		});
 	});
 
 	onMount(async () => {
@@ -77,16 +93,19 @@
 				aria-label="Toggle fullscreen"
 			></button>
 		</div>
-		
+
 		<!-- Back to overview button when not in fullscreen -->
 		{#if showBackButton}
-			<a
-				href="/"
-				class="back-button"
-				title="Back to Overview"
-			>
-				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M15 18l-6-6 6-6"/>
+			<a href="/" class="back-button" title="Back to Overview">
+				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path d="M15 18l-6-6 6-6" />
 				</svg>
 				Overview
 			</a>
@@ -94,13 +113,16 @@
 	{:else}
 		<!-- Back to overview button in fullscreen mode, positioned where traffic lights would be -->
 		{#if showBackButton}
-			<a
-				href="/"
-				class="back-button fullscreen"
-				title="Back to Overview"
-			>
-				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M15 18l-6-6 6-6"/>
+			<a href="/" class="back-button fullscreen" title="Back to Overview">
+				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path d="M15 18l-6-6 6-6" />
 				</svg>
 				Overview
 			</a>
@@ -116,6 +138,22 @@
 
 	<!-- Right spacer -->
 	<div class="spacer"></div>
+
+	<SignedOut>
+		<SignInButton mode="modal" />
+	</SignedOut>
+	<SignedIn>
+		<UserButton
+			appearance={{
+				elements: {
+					avatarBox: {
+						height: '1rem',
+						width: '1rem'
+					}
+				}
+			}}
+		/>
+	</SignedIn>
 </div>
 
 <style>

@@ -17,6 +17,8 @@ COPY . .
 # Set build-time environment variable
 ARG PUBLIC_INTELLIGENCE_SERVER_URL
 ENV PUBLIC_INTELLIGENCE_SERVER_URL=$PUBLIC_INTELLIGENCE_SERVER_URL
+ARG PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLIC_CLERK_PUBLISHABLE_KEY
 
 # Build the application
 RUN bun run vite:build
@@ -32,10 +34,6 @@ COPY sws.toml /etc/sws.toml
 
 # Expose port 80
 EXPOSE 80
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
 
 # Start Static Web Server with config file
 CMD ["--config-file", "/etc/sws.toml"]

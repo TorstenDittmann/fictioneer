@@ -41,7 +41,7 @@
 	},
 	"dependencies": {
 		"@ai-sdk/groq": "^2.0.0",
-		"@ai-sdk/openai": "^2.0.0",
+		"@clerk/themes": "^2.4.4",
 		"@fontsource/libre-baskerville": "^5.2.6",
 		"@tauri-apps/api": "^2.7.0",
 		"@tiptap/core": "^3.0.9",
@@ -54,6 +54,7 @@
 		"@tiptap/starter-kit": "^3.0.9",
 		"ai": "^5.0.0",
 		"bits-ui": "^2.9.1",
-		"dedent": "^1.6.0"
+		"dedent": "^1.6.0",
+		"svelte-clerk": "^0.16.3"
 	}
 }

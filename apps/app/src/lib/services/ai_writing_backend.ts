@@ -5,6 +5,7 @@ const BACKEND_URL = PUBLIC_INTELLIGENCE_SERVER_URL || 'http://localhost:3001/api
 
 export class AIWritingBackendService {
 	private current_abort_controller: AbortController | null = null;
+	private token: string | null = null;
 
 	private async call_backend(
 		endpoint: string,
@@ -14,7 +15,8 @@ export class AIWritingBackendService {
 		const response = await fetch(`${BACKEND_URL}/${endpoint}`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.token}`
 			},
 			body: JSON.stringify(data),
 			signal
@@ -73,7 +75,8 @@ export class AIWritingBackendService {
 		const response = await fetch(`${BACKEND_URL}/continue`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.token}`
 			},
 			body: JSON.stringify({
 				content,
@@ -139,6 +142,10 @@ export class AIWritingBackendService {
 
 	is_request_active(): boolean {
 		return this.current_abort_controller !== null;
+	}
+
+	set_token(token: string | null) {
+		this.token = token;
 	}
 }
 
