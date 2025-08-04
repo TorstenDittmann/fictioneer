@@ -497,13 +497,6 @@ class FileService {
 	}
 
 	/**
-	 * Helper method to read project data from a file path
-	 */
-	private async read_project_data_from_path(file_path: string): Promise<string> {
-		return await readTextFile(file_path);
-	}
-
-	/**
 	 * Open a project from a specific file path
 	 */
 	async open_project_from_path(file_path: string): Promise<Project | null> {

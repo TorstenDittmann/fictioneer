@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
 	import ProjectSidebar from '$lib/components/project_sidebar.svelte';
+	import { Input, Textarea, Button, Label, Card } from '$lib/components/ui';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -74,54 +75,38 @@
 				<!-- Settings Form -->
 				<div class="space-y-8">
 					<!-- Basic Information -->
-					<div
-						class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
-					>
+					<Card>
 						<h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
 							Basic Information
 						</h2>
 
 						<div class="space-y-4">
-							<div>
-								<label
-									class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-									for="title"
-								>
-									Project Title
-								</label>
-								<input
+							<div class="grid gap-2">
+								<Label for="title">Project Title</Label>
+								<Input
 									id="title"
 									type="text"
 									bind:value={project_title}
 									oninput={save_settings}
-									class="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm transition-colors focus:border-gray-500 focus:ring-1 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-gray-400"
 									placeholder="Enter project title..."
 								/>
 							</div>
 
-							<div>
-								<label
-									class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-									for="description"
-								>
-									Description
-								</label>
-								<textarea
+							<div class="grid gap-2">
+								<Label for="description">Description</Label>
+								<Textarea
 									id="description"
 									bind:value={project_description}
 									oninput={save_settings}
-									rows="4"
-									class="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm transition-colors focus:border-gray-500 focus:ring-1 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-gray-400"
+									rows={4}
 									placeholder="Enter project description..."
-								></textarea>
+								/>
 							</div>
 						</div>
-					</div>
+					</Card>
 
 					<!-- Project Statistics -->
-					<div
-						class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
-					>
+					<Card>
 						<h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
 							Project Statistics
 						</h2>
@@ -146,12 +131,10 @@
 								<div class="text-sm text-gray-600 dark:text-gray-400">Words</div>
 							</div>
 						</div>
-					</div>
+					</Card>
 
 					<!-- Project Actions -->
-					<div
-						class="rounded-lg border border-red-200 bg-white p-6 dark:border-red-800 dark:bg-gray-800"
-					>
+					<Card class="border-red-200 dark:border-red-800">
 						<h2 class="mb-4 text-xl font-semibold text-red-900 dark:text-red-100">Danger Zone</h2>
 
 						<div class="space-y-4">
@@ -160,15 +143,12 @@
 								<p class="mt-1 text-sm text-red-700 dark:text-red-300">
 									Once you delete a project, there is no going back. Please be certain.
 								</p>
-								<button
-									onclick={delete_project}
-									class="mt-3 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
-								>
+								<Button variant="destructive" onclick={delete_project} class="mt-3">
 									Delete Project
-								</button>
+								</Button>
 							</div>
 						</div>
-					</div>
+					</Card>
 				</div>
 
 				<!-- Keyboard Shortcuts -->

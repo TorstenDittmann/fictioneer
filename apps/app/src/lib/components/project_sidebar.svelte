@@ -3,7 +3,7 @@
 	import { projects } from '$lib/state/projects.svelte';
 	import { page } from '$app/state';
 	import type { Project } from '$lib/services/projects.svelte.js';
-	import NameEditModal from './name_edit_modal.svelte';
+	import { Modal, Input, Button, Label } from '$lib/components/ui';
 
 	interface Props {
 		data: {
@@ -399,17 +399,39 @@
 </aside>
 
 <!-- Chapter Settings Modal -->
-<NameEditModal
-	bind:open={chapter_modal_open}
-	title="Edit Chapter Name"
-	bind:name={editing_chapter_name}
-	on_close={close_chapter_modal}
-/>
+<Modal bind:open={chapter_modal_open} onOpenChange={close_chapter_modal}>
+	<h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">Edit Chapter Name</h2>
+
+	<div class="mb-4 grid gap-2">
+		<Label for="chapter-name">Name</Label>
+		<Input
+			bind:value={editing_chapter_name}
+			onkeydown={(e) => e.key === 'Enter' && close_chapter_modal()}
+			id="chapter-name"
+			placeholder="Enter name..."
+		/>
+	</div>
+
+	<div class="flex justify-end">
+		<Button variant="secondary" onclick={close_chapter_modal}>Done</Button>
+	</div>
+</Modal>
 
 <!-- Scene Settings Modal -->
-<NameEditModal
-	bind:open={scene_modal_open}
-	title="Edit Scene Name"
-	bind:name={editing_scene_name}
-	on_close={close_scene_modal}
-/>
+<Modal bind:open={scene_modal_open} onOpenChange={close_scene_modal}>
+	<h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">Edit Scene Name</h2>
+
+	<div class="mb-4 grid gap-2">
+		<Label for="scene-name">Name</Label>
+		<Input
+			bind:value={editing_scene_name}
+			onkeydown={(e) => e.key === 'Enter' && close_scene_modal()}
+			id="scene-name"
+			placeholder="Enter name..."
+		/>
+	</div>
+
+	<div class="flex justify-end">
+		<Button variant="secondary" onclick={close_scene_modal}>Done</Button>
+	</div>
+</Modal>

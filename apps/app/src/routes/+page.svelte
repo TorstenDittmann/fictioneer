@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
-	import NewProjectModal from '$lib/components/new_project_modal.svelte';
+	import NewProjectModal from './new_project_modal.svelte';
 
 	let show_new_project_modal = $state(false);
 

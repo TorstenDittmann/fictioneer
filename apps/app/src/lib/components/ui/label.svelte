@@ -1,28 +1,19 @@
 <script lang="ts">
-	interface Props {
-		for?: string;
-		required?: boolean;
+	import type { HTMLLabelAttributes } from 'svelte/elements';
+
+	interface Props extends HTMLLabelAttributes {
 		class?: string;
 		children?: import('svelte').Snippet;
 	}
 
-	let {
-		for: htmlFor = '',
-		required = false,
-		class: additional_class = '',
-		children
-	}: Props = $props();
-
-	const base_classes =
-		'text-sm font-medium leading-none text-gray-700 peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-gray-300';
-	const label_classes = `${base_classes} ${additional_class}`;
+	let { class: additional_class = '', children, ...rest_props }: Props = $props();
 </script>
 
-<label for={htmlFor} class={label_classes}>
+<label
+	class="text-sm font-medium text-gray-700 dark:text-gray-300 {additional_class}"
+	{...rest_props}
+>
 	{#if children}
 		{@render children()}
-	{/if}
-	{#if required}
-		<span class="text-red-500">*</span>
 	{/if}
 </label>

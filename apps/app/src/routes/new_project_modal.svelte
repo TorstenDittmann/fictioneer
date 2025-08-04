@@ -14,7 +14,6 @@
 	let project_description = $state('');
 	let selected_file_path = $state('');
 	let is_creating = $state(false);
-	let title_input: Input;
 
 	// Reset form when modal opens
 	$effect(() => {
@@ -23,8 +22,6 @@
 			project_description = '';
 			selected_file_path = '';
 			is_creating = false;
-			// Focus title input after modal opens
-			setTimeout(() => title_input?.focus(), 100);
 		}
 	});
 
@@ -52,7 +49,6 @@
 
 	async function handle_create() {
 		if (!project_title.trim()) {
-			title_input?.focus();
 			return;
 		}
 
@@ -81,12 +77,6 @@
 		open = false;
 	}
 
-	function handle_keydown(event: KeyboardEvent) {
-		if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
-			handle_create();
-		}
-	}
-
 	function sanitize_filename(filename: string): string {
 		return filename
 			.replace(/[<>:"/\\|?*]/g, '_')
@@ -100,34 +90,39 @@
 	}
 </script>
 
-<Modal
-	bind:open
-	title="Create New Project"
-	description="Set up your new writing project. Choose a title, description, and save location."
-	onEscapeKeydown={handle_keydown}
->
-	{#snippet content()}
+<Modal bind:open>
+	<div class="grid gap-6">
+		<div>
+			<h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Create New Project</h2>
+			<p class="text-sm text-gray-500 dark:text-gray-400">
+				Set up your new writing project. Choose a title, description, and save location.
+			</p>
+		</div>
+
 		<div class="grid gap-4">
 			<!-- Project Title -->
-			<Input
-				bind:this={title_input}
-				bind:value={project_title}
-				id="project-title"
-				label="Project Title"
-				placeholder="My Novel"
-				required
-				disabled={is_creating}
-			/>
+			<div class="grid gap-2">
+				<Label for="project-title">Project Title</Label>
+				<Input
+					bind:value={project_title}
+					id="project-title"
+					placeholder="My Novel"
+					required
+					disabled={is_creating}
+				/>
+			</div>
 
 			<!-- Project Description -->
-			<Textarea
-				bind:value={project_description}
-				id="project-description"
-				label="Description"
-				placeholder="A story about..."
-				rows={3}
-				disabled={is_creating}
-			/>
+			<div class="grid gap-2">
+				<Label for="project-description">Description</Label>
+				<Textarea
+					bind:value={project_description}
+					id="project-description"
+					placeholder="A story about..."
+					rows={3}
+					disabled={is_creating}
+				/>
+			</div>
 
 			<!-- Save Location -->
 			<div class="grid gap-2">
@@ -150,28 +145,24 @@
 				{/if}
 			</div>
 		</div>
-	{/snippet}
 
-	{#snippet footer()}
-		<div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-			<Button variant="secondary" onclick={handle_cancel} disabled={is_creating}>Cancel</Button>
-			<Button
-				onclick={handle_create}
-				disabled={is_creating || !project_title.trim()}
-				loading={is_creating}
-			>
-				{#if is_creating}
-					Creating...
-				{:else}
-					Create Project
-				{/if}
-			</Button>
-		</div>
+		<div class="flex flex-col gap-4">
+			<div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+				<Button variant="secondary" onclick={handle_cancel} disabled={is_creating}>Cancel</Button>
+				<Button onclick={handle_create} disabled={is_creating || !project_title.trim()}>
+					{#if is_creating}
+						Creating...
+					{:else}
+						Create Project
+					{/if}
+				</Button>
+			</div>
 
-		<div class="border-t border-gray-200 pt-4 text-center">
-			<p class="text-xs text-gray-500">
-				Press <kbd class="rounded bg-gray-100 px-1">⌘Enter</kbd> to create
-			</p>
+			<div class="border-t border-gray-200 pt-4 text-center">
+				<p class="text-xs text-gray-500">
+					Press <kbd class="rounded bg-gray-100 px-1">⌘Enter</kbd> to create
+				</p>
+			</div>
 		</div>
-	{/snippet}
+	</div>
 </Modal>
