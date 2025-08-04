@@ -87,13 +87,6 @@
 <svelte:window onkeydown={handle_keydown} />
 
 <div class="flex h-full flex-col text-gray-100">
-	<!-- Header -->
-	<header class="border-b border-gray-700 px-6 py-4">
-		<div class="mx-auto flex max-w-4xl items-center justify-between">
-			<h1 class="text-2xl font-bold">Omnia</h1>
-		</div>
-	</header>
-
 	<!-- Main content -->
 	<main class="flex-1 overflow-y-auto">
 		<div class="mx-auto max-w-4xl px-6 py-12">

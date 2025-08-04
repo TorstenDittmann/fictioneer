@@ -10,8 +10,19 @@
 	import type { Snippet } from 'svelte';
 	import { PUBLIC_CLERK_PUBLISHABLE_KEY } from '$env/static/public';
 	import { dark } from '@clerk/themes';
+	import { blur } from 'svelte/transition';
+	import { onMount } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
+
+	let show_app = $state(false);
+
+	onMount(() => {
+		// Show app after mount
+		setTimeout(() => {
+			show_app = true;
+		}, 100);
+	});
 
 	// Global keyboard shortcuts
 	function handle_keydown(event: KeyboardEvent) {
@@ -41,14 +52,16 @@
 </svelte:head>
 
 <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY} appearance={{ theme: dark }}>
-	<div class="app-wrapper dark">
-		<div class="app-grid">
-			<TitleBar />
-			<div class="content-area">
-				{@render children?.()}
+	{#if show_app}
+		<div class="app-wrapper dark" transition:blur={{ duration: 600, amount: 10 }}>
+			<div class="app-grid">
+				<TitleBar />
+				<div class="content-area">
+					{@render children?.()}
+				</div>
 			</div>
 		</div>
-	</div>
+	{/if}
 </ClerkProvider>
 
 <style>
