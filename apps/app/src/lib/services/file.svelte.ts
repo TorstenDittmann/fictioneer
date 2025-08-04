@@ -1,5 +1,5 @@
-import { writeTextFile, readTextFile } from '@tauri-apps/plugin-fs';
 import { save, open } from '@tauri-apps/plugin-dialog';
+import { invoke } from '@tauri-apps/api/core';
 import type { Project } from './projects.svelte.js';
 
 interface SerializedScene {
@@ -148,7 +148,7 @@ class FileService {
 	 */
 	async load_project_from_path(file_path: string): Promise<Project | null> {
 		try {
-			const file_content = await readTextFile(file_path);
+			const file_content = await invoke<string>('load_project_file', { path: file_path });
 			const file_data: OmniaFileData = JSON.parse(file_content);
 
 			// Validate file format
@@ -239,7 +239,7 @@ class FileService {
 		};
 
 		const file_content = JSON.stringify(file_data, null, 2);
-		await writeTextFile(file_path, file_content);
+		await invoke<void>('save_project_file', { path: file_path, contents: file_content });
 	}
 
 	/**

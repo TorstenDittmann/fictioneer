@@ -1,8 +1,30 @@
+// Custom commands for file operations
+#[tauri::command]
+async fn load_project_file(path: String) -> Result<String, String> {
+    std::fs::read_to_string(&path)
+        .map_err(|e| format!("Failed to load project file {}: {}", path, e))
+}
+
+#[tauri::command]
+async fn save_project_file(path: String, contents: String) -> Result<(), String> {
+    std::fs::write(&path, contents)
+        .map_err(|e| format!("Failed to save project file {}: {}", path, e))
+}
+
+#[tauri::command]
+async fn check_project_exists(path: String) -> Result<bool, String> {
+    Ok(std::path::Path::new(&path).exists())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_fs::init())
+        .invoke_handler(tauri::generate_handler![
+            load_project_file,
+            save_project_file,
+            check_project_exists
+        ])
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
