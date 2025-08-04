@@ -29,11 +29,11 @@
 		// Create chapter if none exists
 		let chapter_id = data.project.chapters[0]?.id;
 		if (!chapter_id) {
-			chapter_id = projects.createChapter(data.project.id, 'Chapter 1');
+			chapter_id = projects.createChapter('Chapter 1');
 		}
 
 		// Create first scene
-		const scene_id = projects.createScene(data.project.id, chapter_id, 'Scene 1');
+		const scene_id = projects.createScene(chapter_id, 'Scene 1');
 		if (scene_id) {
 			goto(`/${data.project.id}/${chapter_id}/${scene_id}`);
 		}

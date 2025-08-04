@@ -14,29 +14,25 @@
 
 	const ctx = useClerkContext();
 
-	let window_title = $state('Omnia');
 	let is_fullscreen = $state(false);
 	let show_back_button = $state(false);
 
-	// Update title when page or projects change
+	// Update title and back button state when page changes
 	$effect(() => {
 		const pathname = page.url.pathname;
 		if (pathname === '/') {
-			window_title = 'Omnia';
 			show_back_button = false;
 		} else {
 			show_back_button = true;
-			const active_project = projects.activeProject;
-			const active_scene = projects.activeScene;
-
-			if (active_scene && active_project) {
-				window_title = `${active_scene.title} - ${active_project.title} - Omnia`;
-			} else if (active_project) {
-				window_title = `${active_project.title} - Omnia`;
-			} else {
-				window_title = 'Omnia';
-			}
 		}
+	});
+
+	// Get the display title from file service
+	const window_title = $derived(() => {
+		if (projects.hasProject) {
+			return projects.fileStatus.display_title;
+		}
+		return 'Omnia';
 	});
 
 	$effect(() => {
@@ -129,7 +125,7 @@
 
 	<!-- Center section -->
 	<div class="titlebar-center" data-tauri-drag-region>
-		{window_title}
+		{window_title()}
 	</div>
 
 	<!-- Right section -->

@@ -8,7 +8,7 @@
 	import Typography from '@tiptap/extension-typography';
 	import Underline from '@tiptap/extension-underline';
 	import { projects } from '$lib/state/projects.svelte.js';
-	import type { Project, Chapter, Scene } from '$lib/services/projects.js';
+	import type { Project, Chapter, Scene } from '$lib/services/projects.svelte.js';
 	import { AIWritingSuggestion } from './ai_writing_extension.js';
 	import FloatingMenubar from './floating_menubar.svelte';
 	import './tiptap.css';
@@ -121,7 +121,7 @@
 
 				// Update the scene using the state
 				if (project && chapter && scene) {
-					projects.updateScene(project.id, chapter.id, scene.id, {
+					projects.updateScene(chapter.id, scene.id, {
 						content: html
 					});
 				}

@@ -2,8 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
 	import { page } from '$app/state';
-	import type { Project } from '$lib/services/projects.js';
-	import { theme } from '$lib/state/theme.svelte';
+	import type { Project } from '$lib/services/projects.svelte.js';
 	import NameEditModal from './name_edit_modal.svelte';
 
 	interface Props {
@@ -28,7 +27,7 @@
 		if (editing_chapter_id && data.project && editing_chapter_name.trim()) {
 			const current_chapter = current_project().chapters.find((c) => c.id === editing_chapter_id);
 			if (current_chapter && current_chapter.title !== editing_chapter_name.trim()) {
-				projects.updateChapter(data.project.id, editing_chapter_id, {
+				projects.updateChapter(editing_chapter_id, {
 					title: editing_chapter_name.trim()
 				});
 			}
@@ -40,7 +39,7 @@
 			const current_chapter = current_project().chapters.find((c) => c.id === editing_chapter_id);
 			const current_scene = current_chapter?.scenes.find((s) => s.id === editing_scene_id);
 			if (current_scene && current_scene.title !== editing_scene_name.trim()) {
-				projects.updateScene(data.project.id, editing_chapter_id, editing_scene_id, {
+				projects.updateScene(editing_chapter_id, editing_scene_id, {
 					title: editing_scene_name.trim()
 				});
 			}
@@ -55,7 +54,7 @@
 
 	// Get current project data from state for real-time updates
 	const current_project = $derived(() => {
-		return projects.projects.find((p) => p.id === data.project.id) || data.project;
+		return projects.project || data.project;
 	});
 
 	// Helper function to check if a chapter has the active scene
@@ -76,12 +75,12 @@
 
 	function create_chapter() {
 		if (data.project) {
-			const chapter_id = projects.createChapter(data.project.id);
+			const chapter_id = projects.createChapter();
 			if (chapter_id) {
 				projects.expandChapter(chapter_id);
 
 				// Create first scene and navigate to it
-				const scene_id = projects.createScene(data.project.id, chapter_id);
+				const scene_id = projects.createScene(chapter_id);
 				if (scene_id) {
 					goto(`/${data.project.id}/${chapter_id}/${scene_id}`);
 				}
@@ -91,7 +90,7 @@
 
 	function create_scene(chapter_id: string) {
 		if (data.project) {
-			const scene_id = projects.createScene(data.project.id, chapter_id);
+			const scene_id = projects.createScene(chapter_id);
 			if (scene_id) {
 				goto(`/${data.project.id}/${chapter_id}/${scene_id}`);
 			}
@@ -332,7 +331,7 @@
 
 						<!-- Add scene -->
 						<button
-							class="flex w-full items-center gap-3 border-l-2 border-transparent py-2.5 pr-3 pl-6 text-left text-sm font-medium text-gray-600 transition-colors duration-200 outline-none hover:bg-gray-100 hover:text-gray-800 focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:ring-0 active:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+							class="flex w-full items-center gap-3 border-l-2 border-transparent py-2.5 pr-3 pl-6 text-left text-sm font-medium text-gray-400 transition-colors duration-200 outline-none hover:bg-gray-700 hover:text-gray-200 focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:ring-0 active:outline-none"
 							onclick={(e) => {
 								e.stopPropagation();
 								create_scene(chapter.id);
@@ -351,7 +350,7 @@
 									d="M12 6v6m0 0v6m0-6h6m-6 0H6"
 								/>
 							</svg>
-							<span class="truncate font-medium text-gray-900 dark:text-gray-100"> Add scene </span>
+							<span class="truncate font-medium text-gray-100"> Add scene </span>
 						</button>
 					</div>
 				{/if}
@@ -361,7 +360,7 @@
 		<!-- Add chapter -->
 		<div class="mx-4 mt-4">
 			<button
-				class="flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 px-4 py-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-800 focus:border-gray-500 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+				class="flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-600 px-4 py-3 text-sm font-medium text-gray-400 transition-colors duration-200 hover:border-gray-500 hover:bg-gray-800 hover:text-gray-200 focus:border-gray-500 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
 				onclick={create_chapter}
 			>
 				<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -378,45 +377,21 @@
 	</div>
 
 	<!-- Footer -->
-	<div class="border-t border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+	<div class="border-t border-gray-700 bg-gray-800 p-4">
 		<div class="space-y-3">
-			<!-- Theme toggle -->
-			<div class="flex items-center justify-between">
-				<span class="text-xs font-medium text-gray-700 dark:text-gray-300">Theme:</span>
-				<button
-					onclick={() => theme.toggle_theme()}
-					class="inline-flex items-center rounded-md px-2 py-1 text-xs text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
-					title="Current: {theme.current_theme_label}, Click for: {theme.next_theme_label}"
-				>
-					<svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-						/>
-					</svg>
-					{theme.current_theme_label}
-				</button>
-			</div>
-
-			<div class="text-xs font-medium text-gray-700 dark:text-gray-300">Keyboard shortcuts:</div>
-			<div class="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+			<div class="text-xs font-medium text-gray-300">Keyboard shortcuts:</div>
+			<div class="space-y-1 text-xs text-gray-400">
 				<div class="flex justify-between">
 					<span>Toggle sidebar</span>
-					<kbd class="rounded bg-gray-200 px-1 py-0.5 font-mono text-xs dark:bg-gray-700"
-						>Ctrl+B</kbd
-					>
+					<kbd class="rounded bg-gray-700 px-1 py-0.5 font-mono text-xs">Ctrl+B</kbd>
 				</div>
 				<div class="flex justify-between">
 					<span>New scene</span>
-					<kbd class="rounded bg-gray-200 px-1 py-0.5 font-mono text-xs dark:bg-gray-700"
-						>Ctrl+N</kbd
-					>
+					<kbd class="rounded bg-gray-700 px-1 py-0.5 font-mono text-xs">Ctrl+N</kbd>
 				</div>
 				<div class="flex justify-between">
 					<span>Copilot</span>
-					<kbd class="rounded bg-gray-200 px-1 py-0.5 font-mono text-xs dark:bg-gray-700">⌥</kbd>
+					<kbd class="rounded bg-gray-700 px-1 py-0.5 font-mono text-xs">⌥</kbd>
 				</div>
 			</div>
 		</div>

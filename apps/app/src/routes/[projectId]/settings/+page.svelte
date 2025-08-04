@@ -11,14 +11,14 @@
 	let project_description = $state(data.project.description || '');
 
 	// Get project stats as derived value
-	const stats = $derived(projects.getProjectStats(data.project.id));
+	const stats = $derived(projects.getProjectStats());
 
 	function toggle_sidebar() {
 		is_sidebar_visible = !is_sidebar_visible;
 	}
 
 	function save_settings() {
-		projects.updateProject(data.project.id, {
+		projects.updateProject({
 			title: project_title.trim() || 'Untitled Project',
 			description: project_description.trim()
 		});
@@ -30,7 +30,8 @@
 				`Are you sure you want to delete "${data.project.title}"? This action cannot be undone.`
 			)
 		) {
-			projects.deleteProject(data.project.id);
+			// In file-based system, just close the project
+			projects.closeProject();
 			goto('/');
 		}
 	}

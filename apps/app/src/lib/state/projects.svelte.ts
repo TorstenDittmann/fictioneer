@@ -28,30 +28,25 @@ export interface Project {
 	lastOpenedSceneId?: string;
 }
 
-import { projects_service } from '$lib/services/projects.js';
+import { projects_service } from '$lib/services/projects.svelte.js';
 
 class Projects {
-	private projects_data = $state<Project[]>([]);
 	private trigger = $state(0);
-	private active_project_id = $state<string | null>(null);
 	private active_chapter_id = $state<string | null>(null);
 	private active_scene_id = $state<string | null>(null);
 	private is_distraction_free = $state(false);
 	private expanded_chapters = $state<string[]>([]);
 
 	constructor() {
-		// Load projects from service
-		this.refresh();
 		this.initializeExpandedChapters();
 	}
 
 	private initializeExpandedChapters() {
-		// Auto-expand first chapter of each project if no chapters are expanded
-		this.projects_data.forEach((project) => {
-			if (project.chapters.length > 0 && this.expanded_chapters.length === 0) {
-				this.expanded_chapters = [project.chapters[0].id];
-			}
-		});
+		// Auto-expand first chapter if no chapters are expanded
+		const project = this.project;
+		if (project && project.chapters.length > 0 && this.expanded_chapters.length === 0) {
+			this.expanded_chapters = [project.chapters[0].id];
+		}
 	}
 
 	// Trigger reactivity by updating a counter
@@ -59,36 +54,22 @@ class Projects {
 		this.trigger = Date.now();
 	}
 
-	// Refresh projects from service
-	refresh() {
-		this.projects_data = projects_service.get_projects();
-		this.trigger_update();
-	}
-
 	// Getters
-	get projects(): Project[] {
-		return this.projects_data;
-	}
-
-	get activeProject(): Project | null {
-		if (!this.active_project_id) return null;
-		return this.projects_data.find((project) => project.id === this.active_project_id) || null;
+	get project(): Project | null {
+		// Trigger reactivity
+		void this.trigger;
+		return projects_service.get_current_project();
 	}
 
 	get activeChapter(): Chapter | null {
-		const project = this.activeProject;
-		if (!project || !this.active_chapter_id) return null;
-		return project.chapters.find((chapter) => chapter.id === this.active_chapter_id) || null;
+		if (!this.active_chapter_id) return null;
+		return projects_service.get_chapter(this.active_chapter_id);
 	}
 
 	get activeScene(): Scene | null {
 		const chapter = this.activeChapter;
 		if (!chapter || !this.active_scene_id) return null;
 		return chapter.scenes.find((scene) => scene.id === this.active_scene_id) || null;
-	}
-
-	get activeProjectId(): string | null {
-		return this.active_project_id;
 	}
 
 	get activeChapterId(): string | null {
@@ -107,111 +88,205 @@ class Projects {
 		return this.expanded_chapters;
 	}
 
-	// Project methods
-	createProject(title: string = 'Untitled Project', description: string = ''): string {
-		const project_id = projects_service.create_project(title, description);
-		if (!project_id) {
-			throw new Error('Failed to create project');
-		}
-		this.refresh();
-		this.active_project_id = project_id;
-		return project_id;
+	get fileStatus() {
+		return projects_service.get_file_status();
 	}
 
-	updateProject(id: string, updates: Partial<Omit<Project, 'id' | 'createdAt' | 'chapters'>>) {
-		const result = projects_service.update_project(id, updates);
-		if (!result) {
-			throw new Error(`Failed to update project with id: ${id}`);
-		}
-		this.refresh();
+	get hasProject(): boolean {
+		return projects_service.has_project();
 	}
 
-	deleteProject(id: string) {
-		const success = projects_service.delete_project(id);
-		if (!success) {
-			throw new Error(`Failed to delete project with id: ${id}`);
-		}
-		this.refresh();
-		// If we deleted the active project, switch to the first available one
-		if (this.active_project_id === id) {
-			const first_project = this.projects_data[0];
-			if (first_project) {
-				this.setActiveProject(first_project.id);
-			} else {
-				this.active_project_id = null;
-				this.active_chapter_id = null;
-				this.active_scene_id = null;
-			}
-		}
+	get recentProjects() {
+		return projects_service.get_recent_projects();
 	}
 
-	setActiveProject(id: string) {
-		const project = this.projects_data.find((project) => project.id === id);
-		if (!project) {
-			throw new Error(`Project with id ${id} not found`);
-		}
+	// File operations
+	async createNewProject(title: string, description: string, filePath: string): Promise<boolean> {
+		try {
+			const project = await projects_service.new_project(title, description, filePath);
+			if (!project) return false;
 
-		this.active_project_id = id;
+			this.trigger_update();
+			this.initializeExpandedChapters();
 
-		// Set active chapter and scene to the last opened or first available
-		if (project.lastOpenedSceneId) {
-			// Find the scene and set the chapter/scene accordingly
-			for (const chapter of project.chapters) {
-				const scene = chapter.scenes.find((s) => s.id === project.lastOpenedSceneId);
-				if (scene) {
-					this.active_chapter_id = chapter.id;
-					this.active_scene_id = scene.id;
-					return;
+			// Set active chapter and scene to first available
+			if (project.chapters.length > 0) {
+				this.active_chapter_id = project.chapters[0].id;
+				const first_scene = project.chapters[0].scenes[0];
+				if (first_scene) {
+					this.active_scene_id = first_scene.id;
 				}
 			}
-		}
 
-		// Default to first chapter and scene
-		const first_chapter = project.chapters[0];
-		if (first_chapter) {
-			this.active_chapter_id = first_chapter.id;
-			const first_scene = first_chapter.scenes[0];
-			if (first_scene) {
-				this.active_scene_id = first_scene.id;
+			return true;
+		} catch (error) {
+			console.error('Failed to create new project:', error);
+			return false;
+		}
+	}
+
+	async newProject(title: string = 'Untitled Project', description: string = ''): Promise<boolean> {
+		try {
+			const project = await projects_service.new_project(title, description);
+			if (!project) return false;
+
+			this.trigger_update();
+			this.initializeExpandedChapters();
+
+			// Set active chapter and scene to first available
+			if (project.chapters.length > 0) {
+				this.active_chapter_id = project.chapters[0].id;
+				const first_scene = project.chapters[0].scenes[0];
+				if (first_scene) {
+					this.active_scene_id = first_scene.id;
+				}
 			}
-		}
 
-		// Auto-expand the active chapter
-		this.autoExpandActiveChapter();
+			return true;
+		} catch (error) {
+			console.error('Failed to create new project:', error);
+			return false;
+		}
+	}
+
+	async openProject(): Promise<boolean> {
+		try {
+			const project = await projects_service.open_project();
+			if (!project) return false;
+
+			this.trigger_update();
+			this.initializeExpandedChapters();
+
+			// Set active chapter and scene to last opened or first available
+			if (project.lastOpenedSceneId) {
+				// Find the scene and set the chapter/scene accordingly
+				for (const chapter of project.chapters) {
+					const scene = chapter.scenes.find((s) => s.id === project.lastOpenedSceneId);
+					if (scene) {
+						this.active_chapter_id = chapter.id;
+						this.active_scene_id = scene.id;
+						this.autoExpandActiveChapter();
+						return true;
+					}
+				}
+			}
+
+			// Default to first chapter and scene
+			const first_chapter = project.chapters[0];
+			if (first_chapter) {
+				this.active_chapter_id = first_chapter.id;
+				const first_scene = first_chapter.scenes[0];
+				if (first_scene) {
+					this.active_scene_id = first_scene.id;
+				}
+			}
+
+			this.autoExpandActiveChapter();
+			return true;
+		} catch (error) {
+			console.error('Failed to open project:', error);
+			return false;
+		}
+	}
+
+	async openRecentProject(filePath: string): Promise<boolean> {
+		try {
+			const project = await projects_service.open_project_from_path(filePath);
+			if (!project) return false;
+
+			this.trigger_update();
+			this.initializeExpandedChapters();
+
+			// Set active chapter and scene to last opened or first available
+			if (project.lastOpenedSceneId) {
+				// Find the scene and set the chapter/scene accordingly
+				for (const chapter of project.chapters) {
+					const scene = chapter.scenes.find((s) => s.id === project.lastOpenedSceneId);
+					if (scene) {
+						this.active_chapter_id = chapter.id;
+						this.active_scene_id = scene.id;
+						this.autoExpandActiveChapter();
+						return true;
+					}
+				}
+			}
+
+			// Default to first chapter and scene
+			const first_chapter = project.chapters[0];
+			if (first_chapter) {
+				this.active_chapter_id = first_chapter.id;
+				const first_scene = first_chapter.scenes[0];
+				if (first_scene) {
+					this.active_scene_id = first_scene.id;
+				}
+			}
+
+			this.autoExpandActiveChapter();
+			return true;
+		} catch (error) {
+			console.error('Failed to open recent project:', error);
+			return false;
+		}
+	}
+
+	async closeProject(): Promise<boolean> {
+		try {
+			const can_close = await projects_service.close_project();
+			if (can_close) {
+				this.active_chapter_id = null;
+				this.active_scene_id = null;
+				this.expanded_chapters = [];
+				this.trigger_update();
+			}
+			return can_close;
+		} catch (error) {
+			console.error('Failed to close project:', error);
+			return false;
+		}
+	}
+
+	// Project methods
+	updateProject(updates: Partial<Omit<Project, 'id' | 'createdAt' | 'chapters'>>) {
+		const success = projects_service.update_project(updates);
+		if (success) {
+			this.trigger_update();
+		} else {
+			throw new Error('Failed to update project');
+		}
 	}
 
 	// Chapter methods
-	createChapter(project_id: string, title: string = 'Untitled Chapter'): string {
-		const chapter_id = projects_service.create_chapter(project_id, title);
+	createChapter(title: string = 'Untitled Chapter'): string {
+		const chapter_id = projects_service.create_chapter(title);
 		if (!chapter_id) {
-			throw new Error(`Failed to create chapter in project ${project_id}`);
+			throw new Error('Failed to create chapter');
 		}
-		this.refresh();
+		this.trigger_update();
 		this.active_chapter_id = chapter_id;
 		return chapter_id;
 	}
 
 	updateChapter(
-		project_id: string,
 		chapter_id: string,
 		updates: Partial<Omit<Chapter, 'id' | 'createdAt' | 'scenes'>>
 	) {
-		const result = projects_service.update_chapter(project_id, chapter_id, updates);
-		if (!result) {
-			throw new Error(`Failed to update chapter ${chapter_id} in project ${project_id}`);
+		const success = projects_service.update_chapter(chapter_id, updates);
+		if (!success) {
+			throw new Error(`Failed to update chapter ${chapter_id}`);
 		}
-		this.refresh();
+		this.trigger_update();
 	}
 
-	deleteChapter(project_id: string, chapter_id: string) {
-		const success = projects_service.delete_chapter(project_id, chapter_id);
+	deleteChapter(chapter_id: string) {
+		const success = projects_service.delete_chapter(chapter_id);
 		if (!success) {
-			throw new Error(`Failed to delete chapter ${chapter_id} in project ${project_id}`);
+			throw new Error(`Failed to delete chapter ${chapter_id}`);
 		}
-		this.refresh();
+		this.trigger_update();
+
 		// If we deleted the active chapter, switch to the first available one
 		if (this.active_chapter_id === chapter_id) {
-			const project = this.projects_data.find((p) => p.id === project_id);
+			const project = this.project;
 			if (project) {
 				const first_chapter = project.chapters[0];
 				if (first_chapter) {
@@ -226,14 +301,14 @@ class Projects {
 	}
 
 	setActiveChapter(chapter_id: string) {
-		const project = this.activeProject;
+		const project = this.project;
 		if (!project) {
-			throw new Error('No active project found');
+			throw new Error('No project loaded');
 		}
 
 		const chapter = project.chapters.find((c) => c.id === chapter_id);
 		if (!chapter) {
-			throw new Error(`Chapter ${chapter_id} not found in active project`);
+			throw new Error(`Chapter ${chapter_id} not found in project`);
 		}
 		this.active_chapter_id = chapter_id;
 		// Set to first scene in chapter
@@ -244,42 +319,38 @@ class Projects {
 	}
 
 	// Scene methods
-	createScene(project_id: string, chapter_id: string, title: string = 'Untitled Scene'): string {
-		const scene_id = projects_service.create_scene(project_id, chapter_id, title);
+	createScene(chapter_id: string, title: string = 'Untitled Scene'): string {
+		const scene_id = projects_service.create_scene(chapter_id, title);
 		if (!scene_id) {
-			throw new Error(`Failed to create scene in chapter ${chapter_id} of project ${project_id}`);
+			throw new Error(`Failed to create scene in chapter ${chapter_id}`);
 		}
-		this.refresh();
+		this.trigger_update();
 		this.active_scene_id = scene_id;
 		return scene_id;
 	}
 
 	updateScene(
-		project_id: string,
 		chapter_id: string,
 		scene_id: string,
 		updates: Partial<Omit<Scene, 'id' | 'createdAt'>>
 	) {
-		const result = projects_service.update_scene(project_id, chapter_id, scene_id, updates);
-		if (!result) {
-			throw new Error(
-				`Failed to update scene ${scene_id} in chapter ${chapter_id} of project ${project_id}`
-			);
+		const success = projects_service.update_scene(chapter_id, scene_id, updates);
+		if (!success) {
+			throw new Error(`Failed to update scene ${scene_id} in chapter ${chapter_id}`);
 		}
-		this.refresh();
+		this.trigger_update();
 	}
 
-	deleteScene(project_id: string, chapter_id: string, scene_id: string) {
-		const success = projects_service.delete_scene(project_id, chapter_id, scene_id);
+	deleteScene(chapter_id: string, scene_id: string) {
+		const success = projects_service.delete_scene(chapter_id, scene_id);
 		if (!success) {
-			throw new Error(
-				`Failed to delete scene ${scene_id} in chapter ${chapter_id} of project ${project_id}`
-			);
+			throw new Error(`Failed to delete scene ${scene_id} in chapter ${chapter_id}`);
 		}
-		this.refresh();
+		this.trigger_update();
+
 		// If we deleted the active scene, switch to the first available one
 		if (this.active_scene_id === scene_id) {
-			const project = this.projects_data.find((p) => p.id === project_id);
+			const project = this.project;
 			if (project) {
 				const chapter = project.chapters.find((c) => c.id === chapter_id);
 				if (chapter) {
@@ -293,9 +364,9 @@ class Projects {
 	}
 
 	setActiveScene(scene_id: string) {
-		const project = this.activeProject;
+		const project = this.project;
 		if (!project) {
-			throw new Error('No active project found');
+			throw new Error('No project loaded');
 		}
 
 		// Find the scene and set the chapter/scene accordingly
@@ -304,13 +375,13 @@ class Projects {
 			if (scene) {
 				this.active_chapter_id = chapter.id;
 				this.active_scene_id = scene_id;
-				projects_service.update_last_opened_scene(project.id, scene_id);
+				projects_service.update_last_opened_scene(scene_id);
 				this.autoExpandActiveChapter();
-				this.refresh();
+				this.trigger_update();
 				return;
 			}
 		}
-		throw new Error(`Scene ${scene_id} not found in active project`);
+		throw new Error(`Scene ${scene_id} not found in project`);
 	}
 
 	// Focus mode
@@ -348,34 +419,16 @@ class Projects {
 		}
 	}
 
-	// Utility methods
-	private stripHtml(html: string): string {
-		// Simple HTML tag removal for SSR compatibility
-		return html.replace(/<[^>]*>/g, '');
-	}
-
-	private countWords(text: string): number {
-		return text
-			.trim()
-			.split(/\s+/)
-			.filter((word) => word.length > 0).length;
-	}
-
 	// Get project statistics
-	getProjectStats(project_id: string) {
-		return projects_service.get_project_stats(project_id);
-	}
-
-	// Get total statistics across all projects
-	getTotalStats() {
-		return projects_service.get_total_stats();
+	getProjectStats() {
+		return projects_service.get_project_stats();
 	}
 
 	// Get project URLs
-	getProjectUrls(project_id: string) {
-		const urls = projects_service.get_project_urls(project_id);
+	getProjectUrls() {
+		const urls = projects_service.get_project_urls();
 		if (!urls) {
-			throw new Error(`Failed to get URLs for project ${project_id}`);
+			throw new Error('Failed to get URLs for project');
 		}
 		return urls;
 	}

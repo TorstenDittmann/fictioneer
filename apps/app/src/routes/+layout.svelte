@@ -5,7 +5,7 @@
 	import '@fontsource/libre-baskerville/400-italic.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import TitleBar from '$lib/components/title_bar.svelte';
-	import { theme } from '$lib/state/theme.svelte';
+	import { projects } from '$lib/state/projects.svelte';
 	import { ClerkProvider } from 'svelte-clerk/client';
 	import type { Snippet } from 'svelte';
 	import { PUBLIC_CLERK_PUBLISHABLE_KEY } from '$env/static/public';
@@ -13,9 +13,22 @@
 
 	let { children }: { children: Snippet } = $props();
 
-	// Set up theme reactivity
-	theme.setup_reactivity();
+	// Global keyboard shortcuts
+	function handle_keydown(event: KeyboardEvent) {
+		if (event.metaKey || event.ctrlKey) {
+			switch (event.key) {
+				case 'w':
+					if (projects.hasProject) {
+						event.preventDefault();
+						projects.closeProject();
+					}
+					break;
+			}
+		}
+	}
 </script>
+
+<svelte:window onkeydown={handle_keydown} />
 
 <svelte:head>
 	<title>Omnia - Creative Writing Tool</title>
@@ -27,11 +40,8 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<ClerkProvider
-	publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}
-	appearance={{ theme: theme.current_theme === 'light' ? undefined : dark }}
->
-	<div class="app-wrapper">
+<ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY} appearance={{ theme: dark }}>
+	<div class="app-wrapper dark">
 		<div class="app-grid">
 			<TitleBar />
 			<div class="content-area">
