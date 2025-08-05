@@ -29,6 +29,10 @@
 
 	// Get the display title from file service
 	const window_title = $derived(() => {
+		const pathname = page.url.pathname;
+		if (pathname === '/') {
+			return 'Omnia';
+		}
 		if (projects.hasProject) {
 			return projects.fileStatus.display_title;
 		}

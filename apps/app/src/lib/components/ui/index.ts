@@ -6,3 +6,5 @@ export { default as IconButton } from './icon_button.svelte';
 export { default as Card } from './card.svelte';
 export { default as Select } from './select.svelte';
 export { default as Modal } from './modal.svelte';
+export { default as ContextMenu } from './context_menu.svelte';
+export { default as AlertDialog } from './alert_dialog.svelte';

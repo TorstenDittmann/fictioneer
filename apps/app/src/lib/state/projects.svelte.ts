@@ -100,6 +100,12 @@ class Projects {
 		return projects_service.get_recent_projects();
 	}
 
+	get recentScenes() {
+		// Trigger reactivity
+		void this.trigger;
+		return projects_service.get_recent_scenes();
+	}
+
 	// File operations
 	async createNewProject(title: string, description: string, filePath: string): Promise<boolean> {
 		try {

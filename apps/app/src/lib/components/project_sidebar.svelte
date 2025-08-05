@@ -3,7 +3,7 @@
 	import { projects } from '$lib/state/projects.svelte';
 	import { page } from '$app/state';
 	import type { Project } from '$lib/services/projects.svelte.js';
-	import { Modal, Input, Button, Label } from '$lib/components/ui';
+	import { Modal, Input, Button, Label, ContextMenu, AlertDialog } from '$lib/components/ui';
 
 	interface Props {
 		data: {
@@ -21,6 +21,29 @@
 	let editing_scene_id = $state<string | null>(null);
 	let editing_chapter_name = $state('');
 	let editing_scene_name = $state('');
+
+	// Alert dialog state
+	let delete_alert_open = $state(false);
+	let pending_delete_action = $state<{
+		type: 'chapter' | 'scene';
+		chapter_id: string;
+		scene_id?: string;
+		title: string;
+	} | null>(null);
+
+	// Context menu items
+	const chapter_menu_items = [
+		{ value: 'rename', label: 'Rename', icon: 'edit' },
+		{ value: 'add_scene', label: 'Add Scene', icon: 'add' },
+		{ separator: true } as const,
+		{ value: 'delete', label: 'Delete', icon: 'delete', destructive: true }
+	];
+
+	const scene_menu_items = [
+		{ value: 'rename', label: 'Rename', icon: 'edit' },
+		{ separator: true } as const,
+		{ value: 'delete', label: 'Delete', icon: 'delete', destructive: true }
+	];
 
 	// Watch for name changes and auto-save
 	$effect(() => {
@@ -49,6 +72,7 @@
 	// Get current IDs from page params
 	const current_chapter_id = $derived(page.params.chapterId);
 	const current_scene_id = $derived(page.params.sceneId);
+	const is_overview_active = $derived(!current_chapter_id && !current_scene_id);
 
 	// Note: expanded chapters state is now managed in the projects store
 
@@ -97,37 +121,34 @@
 		}
 	}
 
-	function open_chapter_settings(chapter_id: string, chapter_title: string, event: Event) {
-		event.stopPropagation();
-		editing_chapter_id = chapter_id;
-		editing_chapter_name = chapter_title;
-		chapter_modal_open = true;
-	}
-
-	function handle_settings_keydown(
-		event: KeyboardEvent,
-		chapter_id: string,
-		chapter_title: string
-	) {
-		if (event.key === 'Enter' || event.key === ' ') {
-			event.preventDefault();
-			event.stopPropagation();
-			open_chapter_settings(chapter_id, chapter_title, event);
+	function handle_chapter_context_menu(action: string, chapter_id: string, chapter_title: string) {
+		if (action === 'rename') {
+			editing_chapter_id = chapter_id;
+			editing_chapter_name = chapter_title;
+			chapter_modal_open = true;
+		} else if (action === 'delete') {
+			pending_delete_action = { type: 'chapter', chapter_id, title: chapter_title };
+			delete_alert_open = true;
+		} else if (action === 'add_scene') {
+			create_scene(chapter_id);
 		}
 	}
 
-	function open_scene_settings(
+	function handle_scene_context_menu(
+		action: string,
 		chapter_id: string,
 		scene_id: string,
-		scene_title: string,
-		event: Event
+		scene_title: string
 	) {
-		event.stopPropagation();
-		event.preventDefault();
-		editing_chapter_id = chapter_id;
-		editing_scene_id = scene_id;
-		editing_scene_name = scene_title;
-		scene_modal_open = true;
+		if (action === 'rename') {
+			editing_chapter_id = chapter_id;
+			editing_scene_id = scene_id;
+			editing_scene_name = scene_title;
+			scene_modal_open = true;
+		} else if (action === 'delete') {
+			pending_delete_action = { type: 'scene', chapter_id, scene_id, title: scene_title };
+			delete_alert_open = true;
+		}
 	}
 
 	function close_chapter_modal() {
@@ -140,6 +161,22 @@
 		scene_modal_open = false;
 		editing_scene_id = null;
 		editing_scene_name = '';
+	}
+
+	function handle_delete_confirm() {
+		if (!pending_delete_action) return;
+
+		if (pending_delete_action.type === 'chapter') {
+			projects.deleteChapter(pending_delete_action.chapter_id);
+		} else if (pending_delete_action.type === 'scene' && pending_delete_action.scene_id) {
+			projects.deleteScene(pending_delete_action.chapter_id, pending_delete_action.scene_id);
+		}
+
+		pending_delete_action = null;
+	}
+
+	function handle_delete_cancel() {
+		pending_delete_action = null;
 	}
 </script>
 
@@ -184,65 +221,58 @@
 		</div>
 	</div>
 
+	<!-- Overview Button -->
+	<div class="border-b border-gray-200 p-4 dark:border-gray-700">
+		<a
+			href="/{data.project.id}"
+			class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200"
+			class:bg-gray-200={is_overview_active}
+			class:text-gray-900={is_overview_active}
+			class:text-gray-700={!is_overview_active}
+			class:hover:bg-gray-100={!is_overview_active}
+		>
+			<svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+				/>
+			</svg>
+			<span>Overview</span>
+		</a>
+	</div>
+
 	<!-- Chapters and Scenes -->
 	<div class="flex-1 overflow-y-auto py-2">
 		{#each current_project().chapters as chapter (chapter.id)}
 			<div class="group mb-1">
 				<!-- Chapter header -->
-				<button
-					class="flex w-full items-center gap-3 border-l-4 px-4 py-3 text-left text-sm font-medium transition-colors duration-200 outline-none focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:shadow-none active:ring-0 active:outline-none"
-					class:bg-gray-100={is_chapter_active(chapter.id)}
-					class:dark:bg-gray-700={is_chapter_active(chapter.id)}
-					class:border-gray-400={is_chapter_active(chapter.id)}
-					class:dark:border-gray-500={is_chapter_active(chapter.id)}
-					class:border-transparent={!is_chapter_active(chapter.id)}
-					class:hover:bg-gray-100={!is_chapter_active(chapter.id)}
-					class:dark:hover:bg-gray-700={!is_chapter_active(chapter.id)}
-					onclick={() => toggle_chapter(chapter.id)}
-					aria-label="Toggle chapter {chapter.title}"
+				<ContextMenu
+					items={chapter_menu_items}
+					onSelect={(action) => handle_chapter_context_menu(action, chapter.id, chapter.title)}
 				>
-					<div class="flex h-5 w-5 items-center justify-center">
-						<svg
-							class="h-3 w-3 text-gray-500 transition-all duration-300 ease-out dark:text-gray-400"
-							class:rotate-90={projects.isChapterExpanded(chapter.id)}
-							class:text-gray-700={projects.isChapterExpanded(chapter.id) ||
-								is_chapter_active(chapter.id)}
-							class:dark:text-gray-300={projects.isChapterExpanded(chapter.id) ||
-								is_chapter_active(chapter.id)}
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
+					<div class="w-full select-none">
+						<button
+							class="flex w-full items-center gap-3 border-l-4 px-4 py-3 text-left text-sm font-medium transition-colors duration-200 outline-none select-none focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:shadow-none active:ring-0 active:outline-none"
+							class:bg-gray-100={is_chapter_active(chapter.id)}
+							class:dark:bg-gray-700={is_chapter_active(chapter.id)}
+							class:border-gray-400={is_chapter_active(chapter.id)}
+							class:dark:border-gray-500={is_chapter_active(chapter.id)}
+							class:border-transparent={!is_chapter_active(chapter.id)}
+							class:hover:bg-gray-100={!is_chapter_active(chapter.id)}
+							class:dark:hover:bg-gray-700={!is_chapter_active(chapter.id)}
+							onclick={() => toggle_chapter(chapter.id)}
+							aria-label="Toggle chapter {chapter.title}"
 						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 5l7 7-7 7"
-							/>
-						</svg>
-					</div>
-					<div class="flex min-w-0 flex-1 items-center justify-between">
-						<span
-							class="truncate text-gray-900 dark:text-gray-100"
-							class:font-semibold={is_chapter_active(chapter.id)}
-						>
-							{chapter.title}
-						</span>
-						<div class="flex items-center gap-2">
-							{#if is_chapter_active(chapter.id)}
-								<div class="h-2 w-2 rounded-full bg-gray-600 dark:bg-gray-400"></div>
-							{/if}
-							<div
-								class="rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-200 dark:hover:bg-gray-600"
-								onclick={(e) => open_chapter_settings(chapter.id, chapter.title, e)}
-								onkeydown={(e) => handle_settings_keydown(e, chapter.id, chapter.title)}
-								role="button"
-								tabindex="0"
-								title="Chapter settings"
-								aria-label="Chapter settings for {chapter.title}"
-							>
+							<div class="flex h-5 w-5 items-center justify-center">
 								<svg
-									class="h-3 w-3 text-gray-500 dark:text-gray-400"
+									class="h-3 w-3 text-gray-500 transition-all duration-300 ease-out dark:text-gray-400"
+									class:rotate-90={projects.isChapterExpanded(chapter.id)}
+									class:text-gray-700={projects.isChapterExpanded(chapter.id) ||
+										is_chapter_active(chapter.id)}
+									class:dark:text-gray-300={projects.isChapterExpanded(chapter.id) ||
+										is_chapter_active(chapter.id)}
 									fill="none"
 									stroke="currentColor"
 									viewBox="0 0 24 24"
@@ -251,81 +281,70 @@
 										stroke-linecap="round"
 										stroke-linejoin="round"
 										stroke-width="2"
-										d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-									/>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+										d="M9 5l7 7-7 7"
 									/>
 								</svg>
 							</div>
-							<span
-								class="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-							>
-								{chapter.scenes.length}
-							</span>
-						</div>
+							<div class="flex min-w-0 flex-1 items-center justify-between">
+								<span
+									class="truncate text-gray-900 dark:text-gray-100"
+									class:font-semibold={is_chapter_active(chapter.id)}
+								>
+									{chapter.title}
+								</span>
+								<div class="flex items-center gap-2">
+									{#if is_chapter_active(chapter.id)}
+										<div class="h-2 w-2 rounded-full bg-gray-600 dark:bg-gray-400"></div>
+									{/if}
+									<span
+										class="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+									>
+										{chapter.scenes.length}
+									</span>
+								</div>
+							</div>
+						</button>
 					</div>
-				</button>
+				</ContextMenu>
 
 				<!-- Scenes (only show if chapter is expanded) -->
 				{#if projects.isChapterExpanded(chapter.id)}
 					<div class="ml-6 space-y-1 border-l-2 border-gray-200 dark:border-gray-700">
 						{#each chapter.scenes as scene (scene.id)}
 							<div class="group relative">
-								<a
-									href={get_scene_url(chapter.id, scene.id)}
-									class="flex w-full items-center gap-3 border-l-2 border-transparent py-2.5 pr-3 pl-6 text-left text-sm no-underline transition-colors duration-200 outline-none hover:bg-gray-100 focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:ring-0 active:outline-none dark:hover:bg-gray-700"
-									class:bg-gray-100={current_scene_id === scene.id}
-									class:dark:bg-gray-700={current_scene_id === scene.id}
-									class:border-gray-400={current_scene_id === scene.id}
-									class:dark:border-gray-500={current_scene_id === scene.id}
+								<ContextMenu
+									items={scene_menu_items}
+									onSelect={(action) =>
+										handle_scene_context_menu(action, chapter.id, scene.id, scene.title)}
 								>
-									<svg
-										class="h-3 w-3 flex-shrink-0 text-gray-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-										/>
-									</svg>
-									<span class="truncate font-medium text-gray-900 dark:text-gray-100">
-										{scene.title}
-									</span>
-								</a>
-								<button
-									class="absolute top-1/2 right-2 -translate-y-1/2 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-200 dark:hover:bg-gray-600"
-									onclick={(e) => open_scene_settings(chapter.id, scene.id, scene.title, e)}
-									title="Scene settings"
-									aria-label="Scene settings for {scene.title}"
-								>
-									<svg
-										class="h-3 w-3 text-gray-500 dark:text-gray-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-										/>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-										/>
-									</svg>
-								</button>
+									<div class="w-full select-none">
+										<a
+											href={get_scene_url(chapter.id, scene.id)}
+											class="flex w-full items-center gap-3 border-l-2 border-transparent py-2.5 pr-3 pl-6 text-left text-sm no-underline transition-colors duration-200 outline-none select-none hover:bg-gray-100 focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:ring-0 active:outline-none dark:hover:bg-gray-700"
+											class:bg-gray-100={current_scene_id === scene.id}
+											class:dark:bg-gray-700={current_scene_id === scene.id}
+											class:border-gray-400={current_scene_id === scene.id}
+											class:dark:border-gray-500={current_scene_id === scene.id}
+										>
+											<svg
+												class="h-3 w-3 flex-shrink-0 text-gray-400"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+												/>
+											</svg>
+											<span class="truncate font-medium text-gray-900 dark:text-gray-100">
+												{scene.title}
+											</span>
+										</a>
+									</div>
+								</ContextMenu>
 							</div>
 						{/each}
 
@@ -389,6 +408,7 @@
 					<span>New scene</span>
 					<kbd class="rounded bg-gray-700 px-1 py-0.5 font-mono text-xs">Ctrl+N</kbd>
 				</div>
+
 				<div class="flex justify-between">
 					<span>Copilot</span>
 					<kbd class="rounded bg-gray-700 px-1 py-0.5 font-mono text-xs">⌥</kbd>
@@ -435,3 +455,15 @@
 		<Button variant="secondary" onclick={close_scene_modal}>Done</Button>
 	</div>
 </Modal>
+
+<!-- Delete Confirmation Alert Dialog -->
+<AlertDialog
+	bind:open={delete_alert_open}
+	title={`Delete ${pending_delete_action?.type === 'chapter' ? 'Chapter' : 'Scene'}`}
+	description={`Are you sure you want to delete ${pending_delete_action?.type === 'chapter' ? 'the chapter' : 'the scene'} "${pending_delete_action?.title}"? This action cannot be undone.`}
+	confirmText="Delete"
+	cancelText="Cancel"
+	destructive={true}
+	onConfirm={handle_delete_confirm}
+	onCancel={handle_delete_cancel}
+/>

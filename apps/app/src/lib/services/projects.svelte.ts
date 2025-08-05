@@ -272,8 +272,8 @@ class ProjectsService {
 		if (!this.current_project) return false;
 
 		const chapter = this.get_chapter(chapter_id);
-		if (!chapter || chapter.scenes.length <= 1) {
-			return false; // Don't delete the last scene
+		if (!chapter) {
+			return false;
 		}
 
 		return this.update_current_project((project) => {
@@ -297,6 +297,32 @@ class ProjectsService {
 		this.update_current_project((project) => {
 			project.lastOpenedSceneId = scene_id;
 		});
+	}
+
+	/**
+	 * Get recently updated scenes across all chapters
+	 */
+	get_recent_scenes(
+		limit: number = 10
+	): Array<Scene & { chapter_id: string; chapter_title: string }> {
+		if (!this.current_project) return [];
+
+		const all_scenes: Array<Scene & { chapter_id: string; chapter_title: string }> = [];
+
+		for (const chapter of this.current_project.chapters) {
+			for (const scene of chapter.scenes) {
+				all_scenes.push({
+					...scene,
+					chapter_id: chapter.id,
+					chapter_title: chapter.title
+				});
+			}
+		}
+
+		// Sort by updatedAt in descending order (most recent first)
+		all_scenes.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+
+		return all_scenes.slice(0, limit);
 	}
 
 	/**

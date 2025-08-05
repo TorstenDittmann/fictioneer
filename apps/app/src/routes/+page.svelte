@@ -17,10 +17,7 @@
 		if (success) {
 			const project = projects.project;
 			if (project) {
-				const urls = projects.getProjectUrls();
-				if (urls) {
-					await goto(urls.scene_url);
-				}
+				await goto(`/${project.id}`);
 			}
 		}
 	}
@@ -30,10 +27,7 @@
 		if (success) {
 			const project = projects.project;
 			if (project) {
-				const urls = projects.getProjectUrls();
-				if (urls) {
-					await goto(urls.scene_url);
-				}
+				await goto(`/${project.id}`);
 			}
 		}
 	}
@@ -43,10 +37,7 @@
 		if (success) {
 			const project = projects.project;
 			if (project) {
-				const urls = projects.getProjectUrls();
-				if (urls) {
-					await goto(urls.scene_url);
-				}
+				await goto(`/${project.id}`);
 			}
 		}
 	}
