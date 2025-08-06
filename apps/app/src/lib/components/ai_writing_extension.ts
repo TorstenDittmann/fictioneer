@@ -8,9 +8,26 @@ export interface AIWritingSuggestionOptions {
 	minLength: number;
 	context: unknown;
 	enabled: boolean;
+	contextWindowSize: number;
 }
 
 const suggestionPluginKey = new PluginKey('aiWritingSuggestion');
+
+/**
+ * Get the last N characters from the document as context
+ */
+function get_relevant_context(full_text: string, max_length: number): string {
+	if (full_text.length <= max_length) {
+		return full_text;
+	}
+	
+	// Take the last max_length characters
+	const context = full_text.slice(-max_length);
+	
+	console.log('AI: Context extraction - Full length:', full_text.length, 'Context length:', context.length);
+	
+	return context;
+}
 
 export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>({
 	name: 'aiWritingSuggestion',
@@ -20,7 +37,8 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 			delay: 2000,
 			minLength: 50,
 			context: {},
-			enabled: true
+			enabled: true,
+			contextWindowSize: 1000
 		};
 	},
 
@@ -166,25 +184,29 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 
 						const { state } = editorView;
 						const { to } = state.selection;
-						const text = state.doc.textBetween(0, state.doc.content.size, '\n');
+						
+						// Get full text and extract relevant context
+						const full_text = state.doc.textBetween(0, state.doc.content.size, '\n');
+						const context_text = get_relevant_context(full_text, extension.options.contextWindowSize);
+						
 						console.log(
-							'AI: Text length:',
-							text.length,
+							'AI: Context length:',
+							context_text.length,
 							'Min length:',
 							extension.options.minLength
 						);
-						console.log('AI: Text content:', text);
+						console.log('AI: Context content:', context_text);
 
-						if (text.length < extension.options.minLength) {
-							console.log('AI: Text too short');
+						if (context_text.length < extension.options.minLength) {
+							console.log('AI: Context too short');
 							return;
 						}
 
 						try {
 							// Improve context for better grammar
-							const last_sentence = text.split(/[.!?]+/).pop() || '';
+							const last_sentence = context_text.split(/[.!?]+/).pop() || '';
 							const recent_text = last_sentence.trim();
-							const is_incomplete = recent_text.length > 0 && !text.match(/[.!?]\s*$/);
+							const is_incomplete = recent_text.length > 0 && !context_text.match(/[.!?]\s*$/);
 
 							const enhanced_context = {
 								...(typeof extension.options.context === 'object' &&
@@ -236,7 +258,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							let result = '';
 
 							for await (const streamed_text of ai_writing_backend_service.continue_writing(
-								text,
+								context_text,
 								enhanced_context,
 								50
 							)) {
@@ -301,12 +323,13 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 
 							const { state } = editorView;
 							const { selection } = state;
-							const text = state.doc.textBetween(0, state.doc.content.size, '\n');
+							const full_text = state.doc.textBetween(0, state.doc.content.size, '\n');
+							const context_text = get_relevant_context(full_text, extension.options.contextWindowSize);
 							const isAtEnd = selection.from >= state.doc.content.size - 1;
 
 							if (
 								selection.empty &&
-								text.length >= extension.options.minLength &&
+								context_text.length >= extension.options.minLength &&
 								isAtEnd &&
 								!ai_writing_backend_service.is_request_active()
 							) {

@@ -24,7 +24,7 @@ const groq = createGroq({
 const MODELS = {
 	PREMIUM: 'moonshotai/kimi-k2-instruct',
 	NORMAL: 'llama-3.3-70b-versatile',
-	FREE: 'meta-llama/llama-4-scout-17b-16e-instruct'
+	FREE: 'meta-llama/llama-4-maverick-17b-128e-instruct'
 } as const satisfies Record<string, Parameters<GroqProvider>[0]>;
 
 const app = new Hono();
