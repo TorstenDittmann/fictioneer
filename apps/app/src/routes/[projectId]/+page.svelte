@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
 	import ProjectSidebar from '$lib/components/project_sidebar.svelte';
+	import CommandMenu from '$lib/components/command_menu.svelte';
 
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
@@ -9,6 +10,7 @@
 	let { data }: { data: PageData } = $props();
 
 	let is_sidebar_visible = $state(true);
+	let command_menu_open = $state(false);
 
 	onMount(() => {
 		// Initialize theme from localStorage
@@ -84,6 +86,12 @@
 			event.preventDefault();
 			create_first_scene();
 		}
+
+		// Cmd/Ctrl + K to open command menu
+		if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+			event.preventDefault();
+			command_menu_open = true;
+		}
 	}
 </script>
 
@@ -110,12 +118,29 @@
 									{current_project.description || 'Project overview and recent activity'}
 								</p>
 							</div>
-							<button
-								onclick={create_first_scene}
-								class="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-700"
-							>
-								New Scene
-							</button>
+							<div class="flex items-center gap-3">
+								<button
+									onclick={() => (command_menu_open = true)}
+									class="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-200"
+								>
+									<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+										/>
+									</svg>
+									Search
+									<kbd class="ml-1 rounded bg-gray-200 px-1.5 py-0.5 text-xs">⌘K</kbd>
+								</button>
+								<button
+									onclick={create_first_scene}
+									class="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-700"
+								>
+									New Scene
+								</button>
+							</div>
 						</div>
 					</div>
 
@@ -327,6 +352,8 @@
 						{/if}
 					</div>
 				</div>
+
+				<CommandMenu bind:open={command_menu_open} />
 			</div>
 		</main>
 	</div>

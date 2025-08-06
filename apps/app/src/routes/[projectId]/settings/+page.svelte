@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
 	import ProjectSidebar from '$lib/components/project_sidebar.svelte';
+	import CommandMenu from '$lib/components/command_menu.svelte';
 	import { Input, Textarea, Button, Label, Card } from '$lib/components/ui';
 	import type { PageData } from './$types';
 
@@ -10,6 +11,7 @@
 	let is_sidebar_visible = $state(true);
 	let project_title = $state(data.project.title);
 	let project_description = $state(data.project.description || '');
+	let command_menu_open = $state(false);
 
 	// Get project stats as derived value
 	const stats = $derived(projects.getProjectStats());
@@ -49,6 +51,12 @@
 		if ((event.metaKey || event.ctrlKey) && event.key === 's') {
 			event.preventDefault();
 			save_settings();
+		}
+
+		// Cmd/Ctrl + K to open command menu
+		if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+			event.preventDefault();
+			command_menu_open = true;
 		}
 	}
 </script>
@@ -168,11 +176,19 @@
 							>
 						</div>
 						<div class="flex justify-between">
+							<span>Command menu</span>
+							<kbd class="rounded bg-gray-200 px-1 py-0.5 font-mono text-xs dark:bg-gray-700"
+								>Ctrl+K</kbd
+							>
+						</div>
+						<div class="flex justify-between">
 							<span>AI auto complete</span>
 							<kbd class="rounded bg-gray-200 px-1 py-0.5 font-mono text-xs dark:bg-gray-700">⌥</kbd
 							>
 						</div>
 					</div>
+
+					<CommandMenu bind:open={command_menu_open} />
 				</div>
 			</div>
 		</main>

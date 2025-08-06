@@ -3,6 +3,7 @@
 	import { projects } from '$lib/state/projects.svelte';
 	import Editor from '$lib/components/editor.svelte';
 	import ProjectSidebar from '$lib/components/project_sidebar.svelte';
+	import CommandMenu from '$lib/components/command_menu.svelte';
 
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
@@ -13,6 +14,7 @@
 	let is_distraction_free = $state(false);
 	let editor_component = $state<Editor>();
 	let editor_stats = $state({ words: 0, characters: 0 });
+	let command_menu_open = $state(false);
 
 	// Update editor stats periodically
 	let stats_interval: ReturnType<typeof setInterval>;
@@ -83,6 +85,12 @@
 		if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'F') {
 			event.preventDefault();
 			toggle_distraction_free();
+		}
+
+		// Cmd/Ctrl + K to open command menu
+		if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+			event.preventDefault();
+			command_menu_open = true;
 		}
 
 		// ESC to exit focus mode
@@ -180,3 +188,5 @@
 		</div>
 	{/if}
 </div>
+
+<CommandMenu bind:open={command_menu_open} />

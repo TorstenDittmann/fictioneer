@@ -20,12 +20,17 @@ function get_relevant_context(full_text: string, max_length: number): string {
 	if (full_text.length <= max_length) {
 		return full_text;
 	}
-	
+
 	// Take the last max_length characters
 	const context = full_text.slice(-max_length);
-	
-	console.log('AI: Context extraction - Full length:', full_text.length, 'Context length:', context.length);
-	
+
+	console.log(
+		'AI: Context extraction - Full length:',
+		full_text.length,
+		'Context length:',
+		context.length
+	);
+
 	return context;
 }
 
@@ -184,11 +189,14 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 
 						const { state } = editorView;
 						const { to } = state.selection;
-						
+
 						// Get full text and extract relevant context
 						const full_text = state.doc.textBetween(0, state.doc.content.size, '\n');
-						const context_text = get_relevant_context(full_text, extension.options.contextWindowSize);
-						
+						const context_text = get_relevant_context(
+							full_text,
+							extension.options.contextWindowSize
+						);
+
 						console.log(
 							'AI: Context length:',
 							context_text.length,
@@ -324,7 +332,10 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							const { state } = editorView;
 							const { selection } = state;
 							const full_text = state.doc.textBetween(0, state.doc.content.size, '\n');
-							const context_text = get_relevant_context(full_text, extension.options.contextWindowSize);
+							const context_text = get_relevant_context(
+								full_text,
+								extension.options.contextWindowSize
+							);
 							const isAtEnd = selection.from >= state.doc.content.size - 1;
 
 							if (
