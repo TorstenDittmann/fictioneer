@@ -188,13 +188,15 @@ app.post('/api/continue', async (c) => {
 			return streamText({
 				model: client,
 				system: system_prompt,
-				prompt: user_prompt
+				prompt: user_prompt,
+				temperature: 0.7
 			}).toTextStreamResponse();
 		} else {
 			const result = await generateText({
 				model: client,
 				system: system_prompt,
-				prompt: user_prompt
+				prompt: user_prompt,
+				temperature: 0.7
 			});
 
 			return c.text(result.text);
