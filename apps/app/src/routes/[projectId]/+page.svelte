@@ -1,31 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
-	import ProjectSidebar from '$lib/components/project_sidebar.svelte';
-	import CommandMenu from '$lib/components/command_menu.svelte';
-
-	import { onMount } from 'svelte';
+	import RecentNotes from '$lib/components/recent_notes.svelte';
+	import { Button } from '$lib/components/ui';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
-
-	let is_sidebar_visible = $state(true);
-	let command_menu_open = $state(false);
-
-	onMount(() => {
-		// Initialize theme from localStorage
-		const saved_theme = localStorage.getItem('theme');
-		if (
-			saved_theme === 'dark' ||
-			(!saved_theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
-		) {
-			document.documentElement.classList.add('dark');
-		}
-	});
-
-	function toggle_sidebar() {
-		is_sidebar_visible = !is_sidebar_visible;
-	}
 
 	function create_first_scene() {
 		// Create chapter if none exists
@@ -73,12 +53,16 @@
 		return text.length > 150 ? text.slice(0, 150) + '...' : text;
 	}
 
-	// Handle keyboard shortcuts
+	// Handle page-specific keyboard shortcuts
 	function handle_keydown(event: KeyboardEvent) {
-		// Cmd/Ctrl + B to toggle sidebar
-		if ((event.metaKey || event.ctrlKey) && event.key === 'b') {
-			event.preventDefault();
-			toggle_sidebar();
+		// Skip if user is typing in an input field
+		const target = event.target as HTMLElement;
+		if (
+			target.tagName === 'INPUT' ||
+			target.tagName === 'TEXTAREA' ||
+			target.contentEditable === 'true'
+		) {
+			return;
 		}
 
 		// Cmd/Ctrl + N to create new scene
@@ -86,191 +70,180 @@
 			event.preventDefault();
 			create_first_scene();
 		}
-
-		// Cmd/Ctrl + K to open command menu
-		if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-			event.preventDefault();
-			command_menu_open = true;
-		}
 	}
 </script>
 
 <svelte:window onkeydown={handle_keydown} />
 
-<div class="app flex h-full flex-col text-gray-900 dark:text-gray-100">
-	<!-- Main content area -->
-	<div class="flex flex-1 overflow-hidden">
-		<!-- Sidebar -->
-		<ProjectSidebar {data} is_visible={is_sidebar_visible} />
+<div class="h-full overflow-y-auto">
+	<div class="mx-auto max-w-6xl p-6">
+		<!-- Header -->
+		<div class="mb-8">
+			<div class="flex items-center justify-between">
+				<div>
+					<h1 class="text-3xl font-bold text-gray-900">
+						{current_project.title}
+					</h1>
+					<p class="mt-2 text-gray-600">
+						{current_project.description || 'Project overview and recent activity'}
+					</p>
+				</div>
+				<div class="flex items-center gap-3">
+					<Button variant="secondary" onclick={create_first_scene}>New Scene</Button>
+				</div>
+			</div>
+		</div>
 
-		<!-- Overview content -->
-		<main class="flex-1 overflow-hidden">
-			<div class="h-full overflow-y-auto">
-				<div class="mx-auto max-w-6xl p-6">
-					<!-- Header -->
-					<div class="mb-8">
-						<div class="flex items-center justify-between">
-							<div>
-								<h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
-									{current_project.title}
-								</h1>
-								<p class="mt-2 text-gray-600 dark:text-gray-400">
-									{current_project.description || 'Project overview and recent activity'}
-								</p>
-							</div>
-							<div class="flex items-center gap-3">
-								<button
-									onclick={() => (command_menu_open = true)}
-									class="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-200"
-								>
-									<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-										/>
-									</svg>
-									Search
-									<kbd class="ml-1 rounded bg-gray-200 px-1.5 py-0.5 text-xs">⌘K</kbd>
-								</button>
-								<button
-									onclick={create_first_scene}
-									class="bg-paper-accent hover:bg-paper-accent-light rounded-lg px-4 py-2 text-white transition-colors duration-200"
-								>
-									New Scene
-								</button>
-							</div>
-						</div>
+		<!-- Project Stats -->
+		<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<svg
+							class="h-8 w-8 text-gray-600"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+							/>
+						</svg>
 					</div>
-
-					<!-- Project Stats -->
-					<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-						<div
-							class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"
-						>
-							<div class="flex items-center">
-								<div class="flex-shrink-0">
-									<svg
-										class="h-8 w-8 text-gray-600"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-										/>
-									</svg>
-								</div>
-								<div class="ml-4">
-									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">Scenes</p>
-									<p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-										{project_stats.total_scenes}
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div
-							class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"
-						>
-							<div class="flex items-center">
-								<div class="flex-shrink-0">
-									<svg
-										class="h-8 w-8 text-green-600"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-										/>
-									</svg>
-								</div>
-								<div class="ml-4">
-									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">Chapters</p>
-									<p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-										{project_stats.total_chapters}
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div
-							class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"
-						>
-							<div class="flex items-center">
-								<div class="flex-shrink-0">
-									<svg
-										class="h-8 w-8 text-purple-600"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M7 4v16l4.586-4.586a2 2 0 012.828 0L19 20V4a2 2 0 00-2-2H9a2 2 0 00-2 2z"
-										/>
-									</svg>
-								</div>
-								<div class="ml-4">
-									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">Words</p>
-									<p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-										{project_stats.total_words.toLocaleString()}
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div
-							class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"
-						>
-							<div class="flex items-center">
-								<div class="flex-shrink-0">
-									<svg
-										class="h-8 w-8 text-orange-600"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
-										/>
-									</svg>
-								</div>
-								<div class="ml-4">
-									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">Characters</p>
-									<p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-										{project_stats.total_characters.toLocaleString()}
-									</p>
-								</div>
-							</div>
-						</div>
+					<div class="ml-4">
+						<p class="text-sm font-medium text-gray-600">Scenes</p>
+						<p class="text-2xl font-semibold text-gray-900">
+							{project_stats.total_scenes}
+						</p>
 					</div>
+				</div>
+			</div>
 
-					<!-- Recent Scenes -->
-					<div class="mb-8">
-						<h2 class="mb-6 text-xl font-semibold text-gray-900 dark:text-gray-100">
-							Recently Updated Scenes
-						</h2>
+			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<svg
+							class="h-8 w-8 text-green-600"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+							/>
+						</svg>
+					</div>
+					<div class="ml-4">
+						<p class="text-sm font-medium text-gray-600">Chapters</p>
+						<p class="text-2xl font-semibold text-gray-900">
+							{project_stats.total_chapters}
+						</p>
+					</div>
+				</div>
+			</div>
 
-						{#if recent_scenes.length === 0}
-							<div
-								class="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center dark:border-gray-600"
-							>
+			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<svg
+							class="h-8 w-8 text-purple-600"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M7 4v16l4.586-4.586a2 2 0 012.828 0L19 20V4a2 2 0 00-2-2H9a2 2 0 00-2 2z"
+							/>
+						</svg>
+					</div>
+					<div class="ml-4">
+						<p class="text-sm font-medium text-gray-600">Words</p>
+						<p class="text-2xl font-semibold text-gray-900">
+							{project_stats.total_words.toLocaleString()}
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<svg
+							class="h-8 w-8 text-orange-600"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
+							/>
+						</svg>
+					</div>
+					<div class="ml-4">
+						<p class="text-sm font-medium text-gray-600">Characters</p>
+						<p class="text-2xl font-semibold text-gray-900">
+							{project_stats.total_characters.toLocaleString()}
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Recent Scenes -->
+		<div class="mb-8">
+			<h2 class="mb-6 text-xl font-semibold text-gray-900">Recently Updated Scenes</h2>
+
+			{#if recent_scenes.length === 0}
+				<div class="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+					<svg
+						class="mx-auto h-12 w-12 text-gray-400"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+						/>
+					</svg>
+					<h3 class="mt-4 text-lg font-medium text-gray-900">No scenes yet</h3>
+					<p class="mt-2 text-gray-600">Start writing by creating your first scene</p>
+					<Button variant="primary" onclick={create_first_scene} class="mt-4">
+						Create First Scene
+					</Button>
+				</div>
+			{:else}
+				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+					{#each recent_scenes as scene (scene.id)}
+						<button
+							onclick={() => navigate_to_scene(scene.chapter_id, scene.id)}
+							class="group rounded-lg bg-white p-6 text-left shadow-sm ring-1 ring-gray-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+						>
+							<div class="flex items-start justify-between">
+								<div class="min-w-0 flex-1">
+									<h3 class="truncate text-lg font-medium text-gray-900 group-hover:text-gray-600">
+										{scene.title}
+									</h3>
+									<p class="mt-1 text-sm text-gray-600">
+										{scene.chapter_title}
+									</p>
+								</div>
 								<svg
-									class="mx-auto h-12 w-12 text-gray-400"
+									class="h-5 w-5 flex-shrink-0 text-gray-400 transition-colors group-hover:text-gray-600"
 									fill="none"
 									stroke="currentColor"
 									viewBox="0 0 24 24"
@@ -279,83 +252,35 @@
 										stroke-linecap="round"
 										stroke-linejoin="round"
 										stroke-width="2"
-										d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+										d="M9 5l7 7-7 7"
 									/>
 								</svg>
-								<h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">
-									No scenes yet
-								</h3>
-								<p class="mt-2 text-gray-600 dark:text-gray-400">
-									Start writing by creating your first scene
+							</div>
+
+							{#if scene.content.trim()}
+								<p class="mt-3 line-clamp-3 text-sm text-gray-600">
+									{get_scene_preview(scene.content)}
 								</p>
-								<button
-									onclick={create_first_scene}
-									class="bg-paper-accent hover:bg-paper-accent-light mt-4 rounded-lg px-6 py-3 text-white transition-colors duration-200"
-								>
-									Create First Scene
-								</button>
-							</div>
-						{:else}
-							<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-								{#each recent_scenes as scene (scene.id)}
-									<button
-										onclick={() => navigate_to_scene(scene.chapter_id, scene.id)}
-										class="group rounded-lg bg-white p-6 text-left shadow-sm ring-1 ring-gray-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-md dark:bg-gray-800 dark:ring-gray-700"
-									>
-										<div class="flex items-start justify-between">
-											<div class="min-w-0 flex-1">
-												<h3
-													class="truncate text-lg font-medium text-gray-900 group-hover:text-gray-600 dark:text-gray-100 dark:group-hover:text-gray-400"
-												>
-													{scene.title}
-												</h3>
-												<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-													{scene.chapter_title}
-												</p>
-											</div>
-											<svg
-												class="h-5 w-5 flex-shrink-0 text-gray-400 transition-colors group-hover:text-gray-600 dark:group-hover:text-gray-400"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="M9 5l7 7-7 7"
-												/>
-											</svg>
-										</div>
+							{:else}
+								<p class="mt-3 text-sm text-gray-400 italic">No content yet...</p>
+							{/if}
 
-										{#if scene.content.trim()}
-											<p class="mt-3 line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
-												{get_scene_preview(scene.content)}
-											</p>
-										{:else}
-											<p class="mt-3 text-sm text-gray-400 italic">No content yet...</p>
-										{/if}
-
-										<div
-											class="mt-4 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400"
-										>
-											<span>
-												{scene.wordCount} words
-											</span>
-											<span>
-												Updated {format_date(new Date(scene.updatedAt))}
-											</span>
-										</div>
-									</button>
-								{/each}
+							<div class="mt-4 flex items-center justify-between text-xs text-gray-500">
+								<span>
+									{scene.wordCount} words
+								</span>
+								<span>
+									Updated {format_date(new Date(scene.updatedAt))}
+								</span>
 							</div>
-						{/if}
-					</div>
+						</button>
+					{/each}
 				</div>
+			{/if}
+		</div>
 
-				<CommandMenu bind:open={command_menu_open} />
-			</div>
-		</main>
+		<!-- Recent Notes -->
+		<RecentNotes />
 	</div>
 </div>
 

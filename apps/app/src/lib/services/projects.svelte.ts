@@ -20,6 +20,15 @@ export interface Chapter {
 	order: number;
 }
 
+export interface Note {
+	id: string;
+	title: string;
+	description: string;
+	createdAt: Date;
+	updatedAt: Date;
+	order: number;
+}
+
 export interface Project {
 	id: string;
 	title: string;
@@ -27,6 +36,7 @@ export interface Project {
 	createdAt: Date;
 	updatedAt: Date;
 	chapters: Chapter[];
+	notes: Note[];
 	lastOpenedSceneId?: string;
 }
 
@@ -288,6 +298,87 @@ class ProjectsService {
 			project.chapters[chapter_index].scenes.splice(scene_index, 1);
 			project.chapters[chapter_index].updatedAt = new Date();
 		});
+	}
+
+	/**
+	 * Create a new note
+	 */
+	create_note(title: string = 'Untitled Note', description: string = ''): string | null {
+		if (!this.current_project) return null;
+
+		const note_id = this.generate_id('note');
+		const now = new Date();
+
+		const new_note: Note = {
+			id: note_id,
+			title,
+			description,
+			createdAt: now,
+			updatedAt: now,
+			order: this.current_project.notes?.length || 0
+		};
+
+		this.update_current_project((project) => {
+			if (!project.notes) {
+				project.notes = [];
+			}
+			project.notes.push(new_note);
+		});
+
+		return note_id;
+	}
+
+	/**
+	 * Update a note
+	 */
+	update_note(note_id: string, updates: Partial<Omit<Note, 'id' | 'createdAt'>>): boolean {
+		return this.update_current_project((project) => {
+			if (!project.notes) return;
+
+			const note_index = project.notes.findIndex((note) => note.id === note_id);
+			if (note_index === -1) return;
+
+			const updated_note = {
+				...project.notes[note_index],
+				...updates,
+				updatedAt: new Date()
+			};
+
+			project.notes[note_index] = updated_note;
+		});
+	}
+
+	/**
+	 * Delete a note
+	 */
+	delete_note(note_id: string): boolean {
+		return this.update_current_project((project) => {
+			if (!project.notes) return;
+
+			const note_index = project.notes.findIndex((note) => note.id === note_id);
+			if (note_index === -1) return;
+
+			project.notes.splice(note_index, 1);
+		});
+	}
+
+	/**
+	 * Get all notes for the current project
+	 */
+	get_notes(): Note[] {
+		if (!this.current_project || !this.current_project.notes) return [];
+		return [...this.current_project.notes].sort((a, b) => a.order - b.order);
+	}
+
+	/**
+	 * Get recently updated notes
+	 */
+	get_recent_notes(limit: number = 3): Note[] {
+		if (!this.current_project || !this.current_project.notes) return [];
+
+		return [...this.current_project.notes]
+			.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+			.slice(0, limit);
 	}
 
 	/**

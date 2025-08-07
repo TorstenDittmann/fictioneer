@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Dialog } from 'bits-ui';
 	import { projects } from '$lib/state/projects.svelte';
+	import { layout_state } from '$lib/state/layout.svelte';
 	import { goto } from '$app/navigation';
 	import type { Scene, Chapter } from '$lib/state/projects.svelte';
 
@@ -104,12 +105,12 @@
 		items.push({
 			id: 'toggle-distraction-free',
 			title: 'Toggle Distraction Free Mode',
-			subtitle: projects.isDistractionFree
+			subtitle: layout_state.is_distraction_free
 				? 'Exit distraction free mode'
 				: 'Enter distraction free mode',
-			action: () => projects.toggleDistractionFree(),
+			action: () => layout_state.toggle_distraction_free(),
 			type: 'action',
-			icon: projects.isDistractionFree
+			icon: layout_state.is_distraction_free
 				? 'M15 12a3 3 0 11-6 0 3 3 0 016 0z'
 				: 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21'
 		});

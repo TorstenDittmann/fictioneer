@@ -6,6 +6,7 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import TitleBar from '$lib/components/title_bar.svelte';
 	import { projects } from '$lib/state/projects.svelte';
+	import { layout_state } from '$lib/state/layout.svelte';
 	import { ClerkProvider } from 'svelte-clerk/client';
 	import type { Snippet } from 'svelte';
 	import { PUBLIC_CLERK_PUBLISHABLE_KEY } from '$env/static/public';
@@ -54,8 +55,10 @@
 <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY} appearance={{ theme: dark }}>
 	{#if show_app}
 		<div class="app-wrapper dark" transition:blur={{ duration: 600, amount: 10 }}>
-			<div class="app-grid">
-				<TitleBar />
+			<div class="app-grid" class:focus-mode={layout_state.is_distraction_free}>
+				{#if !layout_state.is_distraction_free}
+					<TitleBar />
+				{/if}
 				<div class="content-area">
 					{@render children?.()}
 				</div>
@@ -83,6 +86,11 @@
 		width: 100%;
 		background: var(--paper-white-transparent);
 		overflow: hidden;
+	}
+
+	.app-grid.focus-mode {
+		grid-template-areas: 'content';
+		grid-template-rows: 1fr;
 	}
 
 	.content-area {

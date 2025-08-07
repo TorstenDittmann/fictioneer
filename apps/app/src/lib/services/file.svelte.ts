@@ -13,6 +13,15 @@ interface SerializedScene {
 	order: number;
 }
 
+interface SerializedNote {
+	id: string;
+	title: string;
+	description: string;
+	createdAt: string;
+	updatedAt: string;
+	order: number;
+}
+
 interface SerializedChapter {
 	id: string;
 	title: string;
@@ -27,6 +36,7 @@ interface SerializedProject {
 	title: string;
 	description: string;
 	chapters: SerializedChapter[];
+	notes?: SerializedNote[];
 	createdAt: string;
 	updatedAt: string;
 }
@@ -98,6 +108,7 @@ class FileService {
 						]
 					}
 				],
+				notes: [],
 				lastOpenedSceneId: scene_id
 			};
 
@@ -352,6 +363,11 @@ class FileService {
 					createdAt: scene.createdAt.toISOString(),
 					updatedAt: scene.updatedAt.toISOString()
 				}))
+			})),
+			notes: (project.notes || []).map((note) => ({
+				...note,
+				createdAt: note.createdAt.toISOString(),
+				updatedAt: note.updatedAt.toISOString()
 			}))
 		};
 	}
@@ -373,7 +389,13 @@ class FileService {
 					createdAt: new Date(scene.createdAt),
 					updatedAt: new Date(scene.updatedAt)
 				}))
-			}))
+			})),
+			notes:
+				(project.notes || []).map((note: SerializedNote) => ({
+					...note,
+					createdAt: new Date(note.createdAt),
+					updatedAt: new Date(note.updatedAt)
+				})) || []
 		};
 	}
 

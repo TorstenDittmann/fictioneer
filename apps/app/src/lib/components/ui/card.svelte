@@ -1,15 +1,15 @@
 <script lang="ts">
+	import type { ClassValue } from 'svelte/elements';
+
 	interface Props {
-		class?: string;
+		class?: ClassValue;
 		children?: import('svelte').Snippet;
 	}
 
 	let { class: additional_class = '', children }: Props = $props();
 </script>
 
-<div
-	class="rounded-lg border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 {additional_class}"
->
+<div class="rounded-lg border bg-white p-6 shadow-sm {additional_class}">
 	{#if children}
 		{@render children()}
 	{/if}

@@ -18,6 +18,15 @@ export interface Chapter {
 	order: number;
 }
 
+export interface Note {
+	id: string;
+	title: string;
+	description: string;
+	createdAt: Date;
+	updatedAt: Date;
+	order: number;
+}
+
 export interface Project {
 	id: string;
 	title: string;
@@ -25,6 +34,7 @@ export interface Project {
 	createdAt: Date;
 	updatedAt: Date;
 	chapters: Chapter[];
+	notes: Note[];
 	lastOpenedSceneId?: string;
 }
 
@@ -34,7 +44,6 @@ class Projects {
 	private trigger = $state(0);
 	private active_chapter_id = $state<string | null>(null);
 	private active_scene_id = $state<string | null>(null);
-	private is_distraction_free = $state(false);
 	private expanded_chapters = $state<string[]>([]);
 
 	constructor() {
@@ -78,10 +87,6 @@ class Projects {
 
 	get activeSceneId(): string | null {
 		return this.active_scene_id;
-	}
-
-	get isDistractionFree(): boolean {
-		return this.is_distraction_free;
 	}
 
 	get expandedChapters(): string[] {
@@ -390,15 +395,6 @@ class Projects {
 		throw new Error(`Scene ${scene_id} not found in project`);
 	}
 
-	// Focus mode
-	toggleDistractionFree() {
-		this.is_distraction_free = !this.is_distraction_free;
-	}
-
-	setDistractionFree(value: boolean) {
-		this.is_distraction_free = value;
-	}
-
 	// Chapter expansion state
 	toggleChapterExpansion(chapter_id: string) {
 		if (this.expanded_chapters.includes(chapter_id)) {
@@ -423,6 +419,44 @@ class Projects {
 		if (this.active_chapter_id && !this.expanded_chapters.includes(this.active_chapter_id)) {
 			this.expanded_chapters = [...this.expanded_chapters, this.active_chapter_id];
 		}
+	}
+
+	// Note methods
+	createNote(title: string = 'Untitled Note', description: string = ''): string {
+		const note_id = projects_service.create_note(title, description);
+		if (!note_id) {
+			throw new Error('Failed to create note');
+		}
+		this.trigger_update();
+		return note_id;
+	}
+
+	updateNote(note_id: string, updates: Partial<Omit<Note, 'id' | 'createdAt'>>) {
+		const success = projects_service.update_note(note_id, updates);
+		if (!success) {
+			throw new Error(`Failed to update note ${note_id}`);
+		}
+		this.trigger_update();
+	}
+
+	deleteNote(note_id: string) {
+		const success = projects_service.delete_note(note_id);
+		if (!success) {
+			throw new Error(`Failed to delete note ${note_id}`);
+		}
+		this.trigger_update();
+	}
+
+	get notes(): Note[] {
+		// Trigger reactivity
+		void this.trigger;
+		return projects_service.get_notes();
+	}
+
+	get recentNotes(): Note[] {
+		// Trigger reactivity
+		void this.trigger;
+		return projects_service.get_recent_notes();
 	}
 
 	// Get project statistics

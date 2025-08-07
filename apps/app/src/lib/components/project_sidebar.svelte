@@ -72,7 +72,10 @@
 	// Get current IDs from page params
 	const current_chapter_id = $derived(page.params.chapterId);
 	const current_scene_id = $derived(page.params.sceneId);
-	const is_overview_active = $derived(!current_chapter_id && !current_scene_id);
+	const is_overview_active = $derived(
+		!current_chapter_id && !current_scene_id && page.url.pathname === `/${data.project.id}`
+	);
+	const is_notes_active = $derived(page.url.pathname === `/${data.project.id}/notes`);
 
 	// Note: expanded chapters state is now managed in the projects store
 
@@ -181,24 +184,24 @@
 </script>
 
 <aside
-	class="sidebar flex h-full flex-col border-r border-gray-200 bg-white transition-all duration-300 ease-in-out dark:border-gray-700 dark:bg-gray-900"
+	class="sidebar flex h-full flex-col border-r border-gray-200 bg-white transition-all duration-300 ease-in-out"
 	class:hidden={!is_visible}
 	class:w-72={is_visible}
 	class:w-0={!is_visible}
 >
 	<!-- Header -->
-	<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+	<div class="border-b border-gray-200 bg-gray-50 p-4">
 		<!-- Project Info -->
 		<div class="space-y-3">
 			<div class="flex items-start justify-between">
 				<div class="min-w-0 flex-1">
-					<h2 class="truncate text-lg font-semibold text-gray-900 dark:text-gray-100">
+					<h2 class="truncate text-lg font-semibold text-gray-900">
 						{current_project().title}
 					</h2>
 				</div>
 				<a
 					href="/{data.project.id}/settings"
-					class="ml-2 inline-flex items-center rounded-md px-2 py-1 text-xs text-gray-600 no-underline transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+					class="ml-2 inline-flex items-center rounded-md px-2 py-1 text-xs text-gray-600 no-underline transition-colors hover:bg-gray-100 hover:text-gray-800"
 					title="Project settings"
 					aria-label="Project settings"
 				>
@@ -223,24 +226,44 @@
 
 	<!-- Overview Button -->
 	<div class="border-b border-gray-200 p-4 dark:border-gray-700">
-		<a
-			href="/{data.project.id}"
-			class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200"
-			class:bg-gray-200={is_overview_active}
-			class:text-gray-900={is_overview_active}
-			class:text-gray-700={!is_overview_active}
-			class:hover:bg-gray-100={!is_overview_active}
-		>
-			<svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="2"
-					d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-				/>
-			</svg>
-			<span>Overview</span>
-		</a>
+		<div class="space-y-1">
+			<a
+				href="/{data.project.id}"
+				class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200"
+				class:bg-gray-200={is_overview_active}
+				class:text-gray-900={is_overview_active}
+				class:text-gray-700={!is_overview_active}
+				class:hover:bg-gray-100={!is_overview_active}
+			>
+				<svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+					/>
+				</svg>
+				<span>Overview</span>
+			</a>
+			<a
+				href="/{data.project.id}/notes"
+				class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200"
+				class:bg-gray-200={is_notes_active}
+				class:text-gray-900={is_notes_active}
+				class:text-gray-700={!is_notes_active}
+				class:hover:bg-gray-100={!is_notes_active}
+			>
+				<svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+					/>
+				</svg>
+				<span>Notes</span>
+			</a>
+		</div>
 	</div>
 
 	<!-- Chapters and Scenes -->
@@ -256,22 +279,19 @@
 						<button
 							class="flex w-full items-center gap-3 border-l-4 px-4 py-3 text-left text-sm font-medium transition-colors duration-200 outline-none select-none focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:shadow-none active:ring-0 active:outline-none"
 							class:bg-gray-100={is_chapter_active(chapter.id)}
-							class:dark:bg-gray-700={is_chapter_active(chapter.id)}
 							class:border-gray-400={is_chapter_active(chapter.id)}
-							class:dark:border-gray-500={is_chapter_active(chapter.id)}
+							class:text-gray-900={is_chapter_active(chapter.id)}
 							class:border-transparent={!is_chapter_active(chapter.id)}
+							class:text-gray-700={!is_chapter_active(chapter.id)}
 							class:hover:bg-gray-100={!is_chapter_active(chapter.id)}
-							class:dark:hover:bg-gray-700={!is_chapter_active(chapter.id)}
 							onclick={() => toggle_chapter(chapter.id)}
 							aria-label="Toggle chapter {chapter.title}"
 						>
 							<div class="flex h-5 w-5 items-center justify-center">
 								<svg
-									class="h-3 w-3 text-gray-500 transition-all duration-300 ease-out dark:text-gray-400"
+									class="h-3 w-3 text-gray-500 transition-all duration-300 ease-out"
 									class:rotate-90={projects.isChapterExpanded(chapter.id)}
 									class:text-gray-700={projects.isChapterExpanded(chapter.id) ||
-										is_chapter_active(chapter.id)}
-									class:dark:text-gray-300={projects.isChapterExpanded(chapter.id) ||
 										is_chapter_active(chapter.id)}
 									fill="none"
 									stroke="currentColor"
@@ -309,7 +329,7 @@
 
 				<!-- Scenes (only show if chapter is expanded) -->
 				{#if projects.isChapterExpanded(chapter.id)}
-					<div class="ml-6 space-y-1 border-l-2 border-gray-200 dark:border-gray-700">
+					<div class="ml-6 space-y-1 border-l-2 border-gray-200">
 						{#each chapter.scenes as scene (scene.id)}
 							<div class="group relative">
 								<ContextMenu
@@ -339,7 +359,7 @@
 													d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
 												/>
 											</svg>
-											<span class="truncate font-medium text-gray-900 dark:text-gray-100">
+											<span class="truncate font-medium text-gray-900">
 												{scene.title}
 											</span>
 										</a>
@@ -369,7 +389,7 @@
 									d="M12 6v6m0 0v6m0-6h6m-6 0H6"
 								/>
 							</svg>
-							<span class="truncate font-medium text-gray-100"> Add scene </span>
+							<span class="truncate font-medium text-gray-600">Add Scene</span>
 						</button>
 					</div>
 				{/if}
@@ -379,8 +399,8 @@
 		<!-- Add chapter -->
 		<div class="mx-4 mt-4">
 			<button
-				class="flex w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-600 px-4 py-3 text-sm font-medium text-gray-400 transition-colors duration-200 hover:border-gray-500 hover:bg-gray-800 hover:text-gray-200 focus:border-gray-500 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
 				onclick={create_chapter}
+				class="group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium transition-colors duration-200 hover:bg-gray-100"
 			>
 				<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path
@@ -396,26 +416,23 @@
 	</div>
 
 	<!-- Footer -->
-	<div class="border-t border-gray-700 bg-gray-800 p-4">
+	<!-- Keyboard Shortcuts -->
+	<div class="border-t border-gray-200 bg-gray-50 p-4">
 		<div class="space-y-3">
-			<div class="text-xs font-medium text-gray-300">Keyboard shortcuts:</div>
-			<div class="space-y-1 text-xs text-gray-400">
+			<div class="text-xs font-medium text-gray-700">Keyboard Shortcuts</div>
+			<div class="space-y-1 text-xs text-gray-600">
 				<div class="flex justify-between">
-					<span>Toggle sidebar</span>
-					<kbd class="rounded bg-gray-700 px-1 py-0.5 font-mono text-xs">Ctrl+B</kbd>
-				</div>
-				<div class="flex justify-between">
-					<span>New scene</span>
-					<kbd class="rounded bg-gray-700 px-1 py-0.5 font-mono text-xs">Ctrl+N</kbd>
+					<span>New Scene</span>
+					<kbd class="rounded bg-gray-200 px-1 py-0.5 font-mono text-xs">⌘N</kbd>
 				</div>
 
 				<div class="flex justify-between">
-					<span>Command menu</span>
-					<kbd class="rounded bg-gray-700 px-1 py-0.5 font-mono text-xs">Ctrl+K</kbd>
+					<span>Focus Mode</span>
+					<kbd class="rounded bg-gray-200 px-1 py-0.5 font-mono text-xs">⌘F</kbd>
 				</div>
 				<div class="flex justify-between">
-					<span>Copilot</span>
-					<kbd class="rounded bg-gray-700 px-1 py-0.5 font-mono text-xs">⌥</kbd>
+					<span>Search</span>
+					<kbd class="rounded bg-gray-200 px-1 py-0.5 font-mono text-xs">⌘K</kbd>
 				</div>
 			</div>
 		</div>

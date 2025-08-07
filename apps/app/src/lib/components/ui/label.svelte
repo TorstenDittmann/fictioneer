@@ -9,10 +9,7 @@
 	let { class: additional_class = '', children, ...rest_props }: Props = $props();
 </script>
 
-<label
-	class="text-sm font-medium text-gray-700 dark:text-gray-300 {additional_class}"
-	{...rest_props}
->
+<label class="text-sm font-medium text-gray-700 {additional_class}" {...rest_props}>
 	{#if children}
 		{@render children()}
 	{/if}

@@ -15,7 +15,7 @@
 	line-height: 1.8;
 	font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
 	font-size: 19px;
-	color: #1f2937;
+	color: #f9fafb;
 	padding: 3rem 2rem;
 	max-width: 750px;
 	margin: 0 auto;
@@ -23,8 +23,15 @@
 	letter-spacing: 0.01em;
 }
 
-.dark .ProseMirror {
-	color: #f3f4f6;
+/* Better text selection colors */
+.ProseMirror ::selection {
+	background-color: rgba(168, 85, 247, 0.4);
+	color: #ffffff;
+}
+
+.ProseMirror ::-moz-selection {
+	background-color: rgba(168, 85, 247, 0.4);
+	color: #ffffff;
 }
 
 .ProseMirror.is-editor-empty::before {
@@ -37,16 +44,12 @@
 	font-size: 18px;
 }
 
-.dark .ProseMirror.is-editor-empty::before {
-	color: #6b7280;
-}
-
 .ProseMirror h1 {
 	font-size: 2.25rem;
 	font-weight: 700;
 	line-height: 1.2;
 	margin: 3rem 0 1.5rem 0;
-	color: #111827;
+	color: #f3f4f6;
 	font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
 	letter-spacing: -0.02em;
 }
@@ -230,17 +233,6 @@
 /* Focus styling */
 .ProseMirror.has-focus {
 	outline: none;
-}
-
-/* Selection styling */
-.ProseMirror ::selection {
-	background-color: #3b82f6;
-	color: white;
-}
-
-.dark .ProseMirror ::selection {
-	background-color: #60a5fa;
-	color: #1f2937;
 }
 
 /* Responsive adjustments */

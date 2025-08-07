@@ -71,22 +71,22 @@
 		class="absolute top-4 left-1/2 z-50 -translate-x-1/2 transform transition-all duration-200 ease-in-out"
 	>
 		<Menubar.Root
-			class="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+			class="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-lg"
 		>
 			<!-- Edit Menu -->
 			<Menubar.Menu>
 				<Menubar.Trigger
-					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:data-[state=open]:bg-gray-700"
+					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100"
 				>
 					Edit
 				</Menubar.Trigger>
 				<Menubar.Portal>
 					<Menubar.Content
-						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
 						sideOffset={6}
 					>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
 							onSelect={undo}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,7 +100,7 @@
 							Undo
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
 							onSelect={redo}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,17 +120,17 @@
 			<!-- Format Menu -->
 			<Menubar.Menu>
 				<Menubar.Trigger
-					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:data-[state=open]:bg-gray-700"
+					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100"
 				>
 					Format
 				</Menubar.Trigger>
 				<Menubar.Portal>
 					<Menubar.Content
-						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
 						sideOffset={6}
 					>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={toggle_bold}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,7 +150,7 @@
 							Bold
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={toggle_italic}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,7 +164,7 @@
 							Italic
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={toggle_underline}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +178,7 @@
 							Underline
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={toggle_strikethrough}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,9 +191,9 @@
 							</svg>
 							Strikethrough
 						</Menubar.Item>
-						<Menubar.Separator class="my-1 h-px bg-gray-200 dark:bg-gray-700" />
+						<Menubar.Separator class="my-1 h-px bg-gray-200" />
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={toggle_blockquote}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,17 +213,17 @@
 			<!-- Headings Menu -->
 			<Menubar.Menu>
 				<Menubar.Trigger
-					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:data-[state=open]:bg-gray-700"
+					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100"
 				>
 					Headings
 				</Menubar.Trigger>
 				<Menubar.Portal>
 					<Menubar.Content
-						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
 						sideOffset={6}
 					>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={set_paragraph}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -237,21 +237,21 @@
 							Paragraph
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={() => set_heading(1)}
 						>
 							<span class="mr-2 text-lg font-bold">H1</span>
 							Heading 1
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={() => set_heading(2)}
 						>
 							<span class="mr-2 text-base font-bold">H2</span>
 							Heading 2
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={() => set_heading(3)}
 						>
 							<span class="mr-2 text-sm font-bold">H3</span>
@@ -264,17 +264,17 @@
 			<!-- Lists Menu -->
 			<Menubar.Menu>
 				<Menubar.Trigger
-					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:data-[state=open]:bg-gray-700"
+					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100"
 				>
 					Lists
 				</Menubar.Trigger>
 				<Menubar.Portal>
 					<Menubar.Content
-						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
 						sideOffset={6}
 					>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={toggle_bullet_list}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -288,7 +288,7 @@
 							Bullet List
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={toggle_ordered_list}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -308,17 +308,17 @@
 			<!-- Insert Menu -->
 			<Menubar.Menu>
 				<Menubar.Trigger
-					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:data-[state=open]:bg-gray-700"
+					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100"
 				>
 					Insert
 				</Menubar.Trigger>
 				<Menubar.Portal>
 					<Menubar.Content
-						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
 						sideOffset={6}
 					>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
 							onSelect={insert_horizontal_rule}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

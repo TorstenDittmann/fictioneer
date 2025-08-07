@@ -112,7 +112,7 @@
 			editorProps: {
 				attributes: {
 					class:
-						'prose prose-stone dark:prose-invert max-w-none focus:outline-none min-h-screen p-8 text-lg leading-relaxed'
+						'prose prose-lg prose-stone max-w-none focus:outline-none min-h-screen p-8 prose-headings:font-serif prose-headings:font-bold prose-p:text-gray-800 prose-p:leading-relaxed prose-strong:text-gray-900 prose-em:text-gray-700'
 				}
 			},
 			onUpdate: ({ editor }) => {
