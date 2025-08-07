@@ -39,11 +39,11 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 
 	addOptions() {
 		return {
-			delay: 2000,
+			delay: 150,
 			minLength: 50,
 			context: {},
 			enabled: true,
-			contextWindowSize: 1000
+			contextWindowSize: 2000
 		};
 	},
 

@@ -102,8 +102,9 @@
 				Typography,
 				Underline,
 				AIWritingSuggestion.configure({
-					delay: 150,
+					delay: 0,
 					minLength: 10,
+					contextWindowSize: 2000,
 					context: writing_context,
 					enabled: true
 				})
