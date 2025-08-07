@@ -49,7 +49,7 @@
 	{onValueChange}
 >
 	<Select.Trigger
-		class="inline-flex h-10 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:ring-offset-gray-800 dark:placeholder:text-gray-400 dark:focus:ring-blue-600 {additional_class}"
+		class="inline-flex h-10 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:ring-offset-gray-800 dark:placeholder:text-gray-400 dark:focus:ring-gray-600 {additional_class}"
 	>
 		<span class="truncate">
 			{selected_item?.label || placeholder}
@@ -84,7 +84,7 @@
 							{#if selected}
 								<span class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
 									<svg
-										class="h-4 w-4 text-blue-600 dark:text-blue-400"
+										class="h-4 w-4 text-gray-600 dark:text-gray-400"
 										xmlns="http://www.w3.org/2000/svg"
 										viewBox="0 0 24 24"
 										fill="none"

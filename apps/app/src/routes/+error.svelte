@@ -65,7 +65,7 @@
 			<div class="space-y-4">
 				<a
 					href="/"
-					class="block w-full rounded-lg bg-blue-600 px-6 py-3 text-center text-white no-underline transition-colors duration-200 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+					class="bg-paper-accent hover:bg-paper-accent-light focus:ring-paper-accent block w-full rounded-lg px-6 py-3 text-center text-white no-underline transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
 				>
 					Go to Overview
 				</a>

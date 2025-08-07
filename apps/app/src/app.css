@@ -98,44 +98,25 @@ html {
 	background-color: var(--paper-gray) !important;
 }
 
-.bg-blue-100 {
-	background-color: rgba(196, 164, 124, 0.1) !important;
-}
-
-.bg-blue-600 {
+/* Paper accent colors */
+.bg-paper-accent {
 	background-color: var(--paper-accent) !important;
 }
 
-.hover\:bg-blue-700:hover {
+.hover\:bg-paper-accent-light:hover {
 	background-color: var(--paper-accent-light) !important;
 }
 
-.text-blue-600 {
+.text-paper-accent {
 	color: var(--paper-accent) !important;
 }
 
-.text-blue-300 {
-	color: var(--paper-accent-light) !important;
-}
-
-.text-blue-400 {
-	color: var(--paper-accent-light) !important;
-}
-
-.border-l-blue-500 {
-	border-left-color: var(--paper-accent) !important;
-}
-
-.border-blue-300 {
+.border-paper-accent {
 	border-color: var(--paper-accent) !important;
 }
 
-.focus\:ring-blue-500:focus {
+.focus\:ring-paper-accent:focus {
 	--tw-ring-color: var(--paper-accent) !important;
-}
-
-.bg-blue-950 {
-	background-color: rgba(196, 164, 124, 0.15) !important;
 }
 
 /* Smooth transitions for theme changes - applied only to root elements */

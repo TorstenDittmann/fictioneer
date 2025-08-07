@@ -305,7 +305,7 @@
 									<button
 										class="flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors duration-150 {index ===
 										selected_index
-											? 'bg-blue-100'
+											? 'bg-gray-100'
 											: 'hover:bg-gray-100'}"
 										onclick={() => execute_command(item)}
 										onmouseenter={() => (selected_index = index)}
@@ -314,7 +314,7 @@
 										<div
 											class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md {index ===
 											selected_index
-												? 'bg-blue-100 text-blue-600'
+												? 'bg-gray-200 text-gray-700'
 												: 'bg-gray-100 text-gray-600'}"
 										>
 											<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

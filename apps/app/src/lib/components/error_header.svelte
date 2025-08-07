@@ -7,7 +7,7 @@
 		<h1 class="text-2xl font-bold">Omnia</h1>
 		<div class="flex items-center gap-4">
 			{#if show_back_to_overview}
-				<a href="/" class="text-sm text-blue-400 no-underline hover:text-blue-200">
+				<a href="/" class="text-sm text-gray-400 no-underline hover:text-gray-300">
 					← Back to Overview
 				</a>
 			{/if}

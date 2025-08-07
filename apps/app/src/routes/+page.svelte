@@ -110,13 +110,13 @@
 				>
 					<button
 						onclick={handle_new_project}
-						class="rounded-lg bg-blue-600 px-8 py-4 text-lg font-medium text-white transition-colors duration-200 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+						class="bg-paper-accent hover:bg-paper-accent-light focus:ring-paper-accent rounded-lg px-8 py-4 text-lg font-medium text-white transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
 					>
 						Create New Project
 					</button>
 					<button
 						onclick={handle_open_project}
-						class="rounded-lg border border-gray-600 px-8 py-4 text-lg font-medium text-gray-300 transition-colors duration-200 hover:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+						class="rounded-lg border border-gray-600 px-8 py-4 text-lg font-medium text-gray-300 transition-colors duration-200 hover:bg-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
 					>
 						Open Existing Project
 					</button>
@@ -145,7 +145,7 @@
 							>
 								<button
 									onclick={() => handle_open_recent(recent_project.path)}
-									class="block w-full p-4 text-left focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+									class="block w-full p-4 text-left focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
 								>
 									<h4
 										class="mb-2 truncate text-lg font-medium text-gray-100 group-hover:text-white"

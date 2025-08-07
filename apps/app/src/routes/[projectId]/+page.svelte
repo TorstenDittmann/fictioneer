@@ -136,7 +136,7 @@
 								</button>
 								<button
 									onclick={create_first_scene}
-									class="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-700"
+									class="bg-paper-accent hover:bg-paper-accent-light rounded-lg px-4 py-2 text-white transition-colors duration-200"
 								>
 									New Scene
 								</button>
@@ -152,7 +152,7 @@
 							<div class="flex items-center">
 								<div class="flex-shrink-0">
 									<svg
-										class="h-8 w-8 text-blue-600"
+										class="h-8 w-8 text-gray-600"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -166,7 +166,7 @@
 									</svg>
 								</div>
 								<div class="ml-4">
-									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Scenes</p>
+									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">Scenes</p>
 									<p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
 										{project_stats.total_scenes}
 									</p>
@@ -194,7 +194,7 @@
 									</svg>
 								</div>
 								<div class="ml-4">
-									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Chapters</p>
+									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">Chapters</p>
 									<p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
 										{project_stats.total_chapters}
 									</p>
@@ -222,7 +222,7 @@
 									</svg>
 								</div>
 								<div class="ml-4">
-									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Words</p>
+									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">Words</p>
 									<p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
 										{project_stats.total_words.toLocaleString()}
 									</p>
@@ -290,7 +290,7 @@
 								</p>
 								<button
 									onclick={create_first_scene}
-									class="mt-4 rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors duration-200 hover:bg-blue-700"
+									class="bg-paper-accent hover:bg-paper-accent-light mt-4 rounded-lg px-6 py-3 text-white transition-colors duration-200"
 								>
 									Create First Scene
 								</button>
@@ -305,7 +305,7 @@
 										<div class="flex items-start justify-between">
 											<div class="min-w-0 flex-1">
 												<h3
-													class="truncate text-lg font-medium text-gray-900 group-hover:text-blue-600 dark:text-gray-100 dark:group-hover:text-blue-400"
+													class="truncate text-lg font-medium text-gray-900 group-hover:text-gray-600 dark:text-gray-100 dark:group-hover:text-gray-400"
 												>
 													{scene.title}
 												</h3>
@@ -314,7 +314,7 @@
 												</p>
 											</div>
 											<svg
-												class="h-5 w-5 flex-shrink-0 text-gray-400 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400"
+												class="h-5 w-5 flex-shrink-0 text-gray-400 transition-colors group-hover:text-gray-600 dark:group-hover:text-gray-400"
 												fill="none"
 												stroke="currentColor"
 												viewBox="0 0 24 24"

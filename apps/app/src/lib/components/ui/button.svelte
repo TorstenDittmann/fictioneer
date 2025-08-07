@@ -14,9 +14,9 @@
 	}: Props = $props();
 
 	const variant_classes = {
-		primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
+		primary: 'bg-paper-accent text-white hover:bg-paper-accent-light focus:ring-paper-accent',
 		secondary:
-			'border border-gray-200 bg-white text-gray-700 hover:bg-gray-100 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600',
+			'border border-gray-200 bg-white text-gray-700 hover:bg-gray-100 focus:ring-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600',
 		destructive: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
 		ghost:
 			'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-400 dark:text-gray-300 dark:hover:bg-gray-700'

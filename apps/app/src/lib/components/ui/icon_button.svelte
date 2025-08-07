@@ -5,7 +5,7 @@
 </script>
 
 <Button.Root
-	class="inline-flex h-10 w-10 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50 {additional_class}"
+	class="inline-flex h-10 w-10 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-gray-100 focus:ring-2 focus:ring-gray-500 focus:outline-none disabled:opacity-50 {additional_class}"
 	{...rest_props}
 >
 	{#if children}
