@@ -1,4 +1,4 @@
-import { createGroq, type GroqProvider } from '@ai-sdk/groq';
+import { createGroq, type GroqProvider, type GroqProviderOptions } from '@ai-sdk/groq';
 import { generateText, streamText } from 'ai';
 import dedent from 'dedent';
 import { Hono } from 'hono';
@@ -22,8 +22,7 @@ const groq = createGroq({
 });
 
 const MODELS = {
-	PREMIUM: 'moonshotai/kimi-k2-instruct',
-	NORMAL: 'llama-3.3-70b-versatile',
+	PAID: 'llama-3.3-70b-versatile',
 	FREE: 'meta-llama/llama-4-maverick-17b-128e-instruct'
 } as const satisfies Record<string, Parameters<GroqProvider>[0]>;
 
@@ -75,8 +74,31 @@ app.use(
 function is_mid_sentence(text: string): boolean {
 	const clean_text = text.replace('<CONTINUE_HERE>', '').trim();
 	if (!clean_text) return false;
-	const last_char = clean_text[clean_text.length - 1];
-	return last_char ? !['.', '!', '?', '"', "'", ')', ']', '}'].includes(last_char) : false;
+
+	// Check for ending patterns
+	const dialogue_endings = [
+		'.',
+		'!',
+		'?',
+		'."',
+		'!"',
+		".'",
+		"!'",
+		"?'",
+		'...',
+		'…',
+		'***',
+		'* * *',
+		'---'
+	];
+	for (const ending of dialogue_endings) {
+		if (clean_text.endsWith(ending)) return false;
+	}
+
+	// Em-dash at the end usually indicates interruption (mid-sentence)
+	if (clean_text.endsWith('—') || clean_text.endsWith('--')) return true;
+
+	return false;
 }
 
 function build_context_string(context: unknown): string {
@@ -113,34 +135,35 @@ function build_system_prompt(
 			: {};
 	const instruction_context =
 		ctx.instruction && typeof ctx.instruction === 'string'
-			? `\nSpecial instruction: ${ctx.instruction}`
+			? `\nAuthor's guidance: ${ctx.instruction}`
 			: '';
 
 	// Check if the text before <CONTINUE_HERE> ends mid-sentence
 	const text_before_marker = text.split('<CONTINUE_HERE>')[0] || '';
 	const is_mid_sentence_context = is_mid_sentence(text_before_marker);
 
-	const sentence_instruction = is_mid_sentence_context
-		? 'The text ends mid-sentence. Complete the current sentence first, then continue with new sentences.'
-		: 'The text ends at a complete sentence. Start with a new sentence.';
+	const continuation_style = is_mid_sentence_context
+		? 'Complete the current thought naturally, then continue the narrative.'
+		: 'Begin with a compelling new sentence that advances the story.';
 
 	return dedent`
-		You are a creative writing assistant. ${base_context}${instruction_context}
+		You are a novelist's creative writing assistant. ${base_context}${instruction_context}
 		
-		Continue writing from where the <CONTINUE_HERE> tag appears. ${sentence_instruction}
+		Your task: Continue the story from the <CONTINUE_HERE> marker. ${continuation_style}
 		
-		Rules:
-		1. The provided text contains only complete words - there are no partial or incomplete words
-		2. The <CONTINUE_HERE> tag shows exactly where to insert your text
-		3. Write naturally with varied sentence lengths (maximum 30 words per sentence)
-		4. NEVER repeat existing text - only add new content after the tag
-		5. NEVER repeat words, phrases, or ideas from the existing text
-		6. NEVER use similar vocabulary or sentence structures as what came before
-		7. Maintain the same style, tone, and narrative voice while using fresh language
-		8. Write around ${word_count} words, but prioritize natural sentence endings
-		9. End at a natural stopping point - complete your sentences
+		Writing approach:
+		• Show don't tell - use vivid sensory details and actions to convey emotions
+		• Every paragraph should advance plot, develop character, or build atmosphere
+		• Match the established voice, tense, and pacing of the existing text
+		• Vary sentence rhythm - blend short, punchy sentences with flowing descriptions
+		• Use fresh, evocative language that avoids repetition from the previous text
+		• Create smooth transitions that maintain narrative momentum
+		• Aim for approximately ${word_count} words, but prioritize natural story breaks
+		• End at a meaningful moment - a revelation, decision point, or scene transition
 		
-		Return only the text that should be inserted at <CONTINUE_HERE>, with no quotes or explanations.`;
+		Important: Continue the story seamlessly from where it left off. Don't repeat or summarize what came before.
+		
+		Return only your continuation text - no explanations or formatting.`;
 }
 
 // Health check endpoint
@@ -178,25 +201,27 @@ app.post('/api/continue', async (c) => {
 			? content.replace(recent_text, recent_text + '<CONTINUE_HERE>')
 			: content + '<CONTINUE_HERE>';
 
-		const user_prompt = dedent`
-			<text>
-			${text_with_marker}
-			</text>
-		`;
+		const user_prompt = `<text>${text_with_marker}</text>`;
 
 		if (stream) {
 			return streamText({
 				model: client,
 				system: system_prompt,
 				prompt: user_prompt,
-				temperature: 0.7
+				temperature: 0.7,
+				providerOptions: {
+					groq: {} satisfies GroqProviderOptions
+				}
 			}).toTextStreamResponse();
 		} else {
 			const result = await generateText({
 				model: client,
 				system: system_prompt,
 				prompt: user_prompt,
-				temperature: 0.7
+				temperature: 0.7,
+				providerOptions: {
+					groq: {} satisfies GroqProviderOptions
+				}
 			});
 
 			return c.text(result.text);
@@ -208,7 +233,7 @@ app.post('/api/continue', async (c) => {
 });
 
 // Start the server
-const port = process.env.PORT || 3001;
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 
 export default {
 	port: port,

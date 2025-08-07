@@ -38,22 +38,9 @@
 		editor?.chain().focus().setParagraph().run();
 	}
 
-	// List functions
-	function toggle_bullet_list() {
-		editor?.chain().focus().toggleBulletList().run();
-	}
-
-	function toggle_ordered_list() {
-		editor?.chain().focus().toggleOrderedList().run();
-	}
-
 	// Block functions
 	function toggle_blockquote() {
 		editor?.chain().focus().toggleBlockquote().run();
-	}
-
-	function insert_horizontal_rule() {
-		editor?.chain().focus().setHorizontalRule().run();
 	}
 
 	// Edit functions
@@ -256,80 +243,6 @@
 						>
 							<span class="mr-2 text-sm font-bold">H3</span>
 							Heading 3
-						</Menubar.Item>
-					</Menubar.Content>
-				</Menubar.Portal>
-			</Menubar.Menu>
-
-			<!-- Lists Menu -->
-			<Menubar.Menu>
-				<Menubar.Trigger
-					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100"
-				>
-					Lists
-				</Menubar.Trigger>
-				<Menubar.Portal>
-					<Menubar.Content
-						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
-						sideOffset={6}
-					>
-						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
-							onSelect={toggle_bullet_list}
-						>
-							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"
-								/>
-							</svg>
-							Bullet List
-						</Menubar.Item>
-						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
-							onSelect={toggle_ordered_list}
-						>
-							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M3 4h0m0 0v1m0-1h0m1 0h13M4 12h0m0 0v1m0-1h0m1 0h13m-18 7h0m0 0v1m0-1h0m1 0h13"
-								/>
-							</svg>
-							Numbered List
-						</Menubar.Item>
-					</Menubar.Content>
-				</Menubar.Portal>
-			</Menubar.Menu>
-
-			<!-- Insert Menu -->
-			<Menubar.Menu>
-				<Menubar.Trigger
-					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100"
-				>
-					Insert
-				</Menubar.Trigger>
-				<Menubar.Portal>
-					<Menubar.Content
-						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
-						sideOffset={6}
-					>
-						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
-							onSelect={insert_horizontal_rule}
-						>
-							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M20 12H4"
-								/>
-							</svg>
-							Horizontal Rule
 						</Menubar.Item>
 					</Menubar.Content>
 				</Menubar.Portal>
