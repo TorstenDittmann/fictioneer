@@ -1,58 +1,27 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
 	import type { Note } from '$lib/state/projects.svelte';
-	import { Modal, Button, Input, Textarea, Label, IconButton } from '$lib/components/ui';
+	import { Button, IconButton } from '$lib/components/ui';
 
-	let show_add_note_modal = $state(false);
-	let editing_note = $state<Note | null>(null);
-	let note_title = $state('');
-	let note_description = $state('');
-
+	const project_id = page.params.projectId;
 	const notes = $derived(projects.notes);
 
-	function open_add_note_modal() {
-		note_title = '';
-		note_description = '';
-		editing_note = null;
-		show_add_note_modal = true;
-	}
-
-	function open_edit_note_modal(note: Note) {
-		note_title = note.title;
-		note_description = note.description;
-		editing_note = note;
-		show_add_note_modal = true;
-	}
-
-	function close_modal() {
-		show_add_note_modal = false;
-		editing_note = null;
-		note_title = '';
-		note_description = '';
-	}
-
-	function auto_save() {
-		if (!note_title.trim()) return;
-
+	function create_new_note() {
 		try {
-			if (editing_note) {
-				projects.updateNote(editing_note.id, {
-					title: note_title.trim(),
-					description: note_description.trim()
-				});
-			} else {
-				const note_id = projects.createNote(note_title.trim(), note_description.trim());
-				// Update editing_note so subsequent changes update instead of create
-				if (note_id) {
-					editing_note = projects.notes.find((n) => n.id === note_id) || null;
-				}
+			const note_id = projects.createNote('Untitled Note', '');
+			if (note_id) {
+				goto(`/${project_id}/notes/${note_id}`);
 			}
 		} catch (error) {
-			console.error('Failed to save note:', error);
+			console.error('Failed to create note:', error);
 		}
 	}
 
-	function delete_note(note_id: string) {
+	function delete_note(note_id: string, event: MouseEvent) {
+		event.stopPropagation(); // Prevent navigation when clicking delete
+
 		if (confirm('Are you sure you want to delete this note?')) {
 			try {
 				projects.deleteNote(note_id);
@@ -95,14 +64,15 @@
 		// Cmd/Ctrl + N to create new note
 		if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
 			event.preventDefault();
-			open_add_note_modal();
+			create_new_note();
 		}
+	}
 
-		// Enter to save and close modal
-		if (event.key === 'Enter' && (event.metaKey || event.ctrlKey) && show_add_note_modal) {
+	// Handle keyboard navigation for note cards
+	function handle_note_keydown(event: KeyboardEvent, note: Note) {
+		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			auto_save();
-			close_modal();
+			goto(`/${project_id}/notes/${note.id}`);
 		}
 	}
 </script>
@@ -121,7 +91,7 @@
 					</p>
 				</div>
 				<div class="flex items-center gap-3">
-					<Button variant="primary" onclick={open_add_note_modal}>
+					<Button variant="primary" onclick={create_new_note}>
 						<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
 								stroke-linecap="round"
@@ -154,7 +124,7 @@
 				</svg>
 				<h3 class="mt-4 text-lg font-medium text-gray-900">No notes yet</h3>
 				<p class="mt-2 text-gray-600">Start organizing your thoughts by creating your first note</p>
-				<Button variant="secondary" onclick={open_add_note_modal} class="mt-4">
+				<Button variant="secondary" onclick={create_new_note} class="mt-4">
 					Create First Note
 				</Button>
 			</div>
@@ -162,7 +132,11 @@
 			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{#each notes as note (note.id)}
 					<div
-						class="group rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+						class="group cursor-pointer rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+						role="button"
+						tabindex="0"
+						onclick={() => goto(`/${project_id}/notes/${note.id}`)}
+						onkeydown={(event) => handle_note_keydown(event, note)}
 					>
 						<div class="flex items-start justify-between">
 							<div class="min-w-0 flex-1">
@@ -174,46 +148,27 @@
 								class="ml-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100"
 							>
 								<IconButton
-									onclick={() => open_edit_note_modal(note)}
-									aria-label="Edit note"
-									class="text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-								>
-									<!-- eslint-disable-next-line svelte/no-useless-children-snippet -->
-									{#snippet children()}
-										<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-											/>
-										</svg>
-									{/snippet}
-								</IconButton>
-								<IconButton
-									onclick={() => delete_note(note.id)}
+									onclick={(event: MouseEvent) => delete_note(note.id, event)}
 									aria-label="Delete note"
 									class="text-gray-400 hover:bg-red-100 hover:text-red-600"
 								>
-									<!-- eslint-disable-next-line svelte/no-useless-children-snippet -->
-									{#snippet children()}
-										<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-											/>
-										</svg>
-									{/snippet}
+									<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+										/>
+									</svg>
 								</IconButton>
 							</div>
 						</div>
 
 						{#if note.description.trim()}
-							<p class="mt-3 line-clamp-4 text-sm whitespace-pre-wrap text-gray-600">
-								{note.description}
-							</p>
+							<div class="mt-3 line-clamp-4 text-sm text-gray-600">
+								{note.description.substring(0, 200)}
+								{#if note.description.length > 200}...{/if}
+							</div>
 						{:else}
 							<p class="mt-3 text-sm text-gray-400 italic">No description</p>
 						{/if}
@@ -227,63 +182,6 @@
 		{/if}
 	</div>
 </div>
-
-<!-- Add/Edit Note Modal -->
-<Modal bind:open={show_add_note_modal}>
-	<!-- eslint-disable-next-line svelte/no-useless-children-snippet -->
-	{#snippet children()}
-		<div class="mb-4 flex items-center justify-between">
-			<h3 class="text-lg font-medium text-gray-900">
-				{editing_note ? 'Edit Note' : 'Add Note'}
-			</h3>
-			<IconButton
-				onclick={close_modal}
-				aria-label="Close modal"
-				class="text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-			>
-				<!-- eslint-disable-next-line svelte/no-useless-children-snippet -->
-				{#snippet children()}
-					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M6 18L18 6M6 6l12 12"
-						/>
-					</svg>
-				{/snippet}
-			</IconButton>
-		</div>
-
-		<div class="mb-4">
-			<Label for="note-title">Title</Label>
-			<Input
-				id="note-title"
-				bind:value={note_title}
-				placeholder="Enter note title..."
-				class="mt-2"
-				oninput={auto_save}
-			/>
-		</div>
-
-		<div class="mb-6">
-			<Label for="note-description">Description</Label>
-			<Textarea
-				id="note-description"
-				bind:value={note_description}
-				placeholder="Enter note description..."
-				rows={6}
-				class="mt-2"
-				oninput={auto_save}
-			/>
-		</div>
-
-		<div class="mt-3 text-xs text-gray-500">
-			Changes are saved automatically • Press <kbd class="rounded bg-gray-100 px-1 py-0.5">Esc</kbd>
-			to close
-		</div>
-	{/snippet}
-</Modal>
 
 <style>
 	.line-clamp-4 {

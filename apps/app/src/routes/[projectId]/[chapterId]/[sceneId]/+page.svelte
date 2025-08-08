@@ -31,7 +31,12 @@
 		};
 	});
 
-	function handle_editor_update() {
+	function handle_editor_update(content: string) {
+		// Update the scene content
+		projects.updateScene(data.chapter.id, data.scene.id, {
+			content: content
+		});
+
 		// Update stats immediately on content change
 		if (editor_component) {
 			const stats = editor_component.get_stats();
@@ -73,9 +78,11 @@
 				content={data.scene.content}
 				placeholder="Start writing your scene..."
 				onUpdate={handle_editor_update}
-				project={data.project}
-				chapter={data.chapter}
-				scene={data.scene}
+				enableAI={true}
+				aiContext={{
+					title: data.project.title,
+					scene_description: data.scene.title
+				}}
 			/>
 		{/key}
 	{:else}
