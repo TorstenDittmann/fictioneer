@@ -109,6 +109,10 @@ html {
 	background-color: var(--paper-gray) !important;
 }
 
+.data-\[selected\]\:bg-gray-100[data-selected] {
+	background-color: var(--paper-gray) !important;
+}
+
 /* Paper accent colors */
 .bg-paper-accent {
 	background-color: var(--paper-accent) !important;

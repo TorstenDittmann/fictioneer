@@ -33,7 +33,7 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: install dependencies (ubuntu only)
+            - name: Install dependencies (ubuntu only)
               if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
               run: |
                   sudo apt-get update
@@ -41,7 +41,7 @@ jobs:
 
             - uses: oven-sh/setup-bun@v2
 
-            - name: install Rust stable
+            - name: Install Rust stable
               uses: dtolnay/rust-toolchain@stable # Set this to dtolnay/rust-toolchain@nightly
               with:
                   # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
@@ -52,7 +52,7 @@ jobs:
               with:
                   workspaces: "./src-tauri -> target"
 
-            - name: install frontend dependencies
+            - name: Install frontend dependencies
               run: bun install --frozen-lockfile
 
             # macOS code signing setup
@@ -71,6 +71,7 @@ jobs:
                   security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
                   security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
                   security find-identity -v -p codesigning build.keychain
+
             - name: Verify Certificate
               if: matrix.platform == 'macos-latest'
               run: |
@@ -95,9 +96,3 @@ jobs:
                   releaseDraft: true
                   prerelease: false
                   args: ${{ matrix.args }}
-
-            # Clean up certificates
-            - name: Clean up macOS keychain
-              if: matrix.platform == 'macos-latest' && always()
-              run: |
-                  security delete-keychain build.keychain || true
