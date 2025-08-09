@@ -2,10 +2,14 @@
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
 	import RecentNotes from '$lib/components/recent_notes.svelte';
+	import ExportModal from '$lib/components/export_modal.svelte';
 	import { Button } from '$lib/components/ui';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
+
+	let show_rtf_export_modal = $state(false);
+	let show_txt_export_modal = $state(false);
 
 	function create_first_scene() {
 		// Create chapter if none exists
@@ -71,6 +75,14 @@
 			create_first_scene();
 		}
 	}
+
+	function handle_export_rtf() {
+		show_rtf_export_modal = true;
+	}
+
+	function handle_export_txt() {
+		show_txt_export_modal = true;
+	}
 </script>
 
 <svelte:window onkeydown={handle_keydown} />
@@ -79,24 +91,19 @@
 	<div class="mx-auto max-w-6xl p-6">
 		<!-- Header -->
 		<div class="mb-8">
-			<div class="flex items-center justify-between">
-				<div>
-					<h1 class="text-3xl font-bold text-gray-900">
-						{current_project.title}
-					</h1>
-					<p class="mt-2 text-gray-600">
-						{current_project.description || 'Project overview and recent activity'}
-					</p>
-				</div>
-				<div class="flex items-center gap-3">
-					<Button variant="secondary" onclick={create_first_scene}>New Scene</Button>
-				</div>
+			<div>
+				<h1 class="text-3xl font-bold text-gray-900">
+					{current_project.title}
+				</h1>
+				<p class="mt-2 text-gray-600">
+					{current_project.description || 'Project overview and recent activity'}
+				</p>
 			</div>
 		</div>
 
 		<!-- Project Stats -->
 		<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-300">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
 						<svg
@@ -122,7 +129,7 @@
 				</div>
 			</div>
 
-			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-300">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
 						<svg
@@ -148,7 +155,7 @@
 				</div>
 			</div>
 
-			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-300">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
 						<svg
@@ -174,7 +181,7 @@
 				</div>
 			</div>
 
-			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-300">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
 						<svg
@@ -231,7 +238,7 @@
 					{#each recent_scenes as scene (scene.id)}
 						<button
 							onclick={() => navigate_to_scene(scene.chapter_id, scene.id)}
-							class="group rounded-lg bg-white p-6 text-left shadow-sm ring-1 ring-gray-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+							class="group rounded-lg bg-white p-6 text-left shadow-sm ring-1 ring-gray-300 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
 						>
 							<div class="flex items-start justify-between">
 								<div class="min-w-0 flex-1">
@@ -281,8 +288,63 @@
 
 		<!-- Recent Notes -->
 		<RecentNotes />
+
+		<!-- Export Section -->
+		<div class="mb-8">
+			<h2 class="text-paper-text mb-6 text-xl font-semibold">Export Project</h2>
+			<div class="border-paper-border bg-paper-white rounded-lg border p-6">
+				<div class="grid gap-6 md:grid-cols-2">
+					<div>
+						<h3 class="text-paper-text mb-2 font-medium">Rich Text Format (RTF)</h3>
+						<p class="text-paper-text-light mb-4 text-sm">
+							Export your project as a formatted RTF document that preserves formatting and can be
+							opened in most word processors like Microsoft Word, Google Docs, or Pages.
+						</p>
+						<div class="text-paper-text-muted space-y-1 text-xs">
+							<div>• Preserves text formatting</div>
+							<div>• Compatible with major word processors</div>
+							<div>• Includes chapter and scene structure</div>
+						</div>
+						<div class="mt-4">
+							<Button variant="primary" onclick={handle_export_rtf}>Export as RTF</Button>
+						</div>
+					</div>
+					<div>
+						<h3 class="text-paper-text mb-2 font-medium">Plain Text (TXT)</h3>
+						<p class="text-paper-text-light mb-4 text-sm">
+							Export your project as a simple text file with minimal formatting. Perfect for
+							importing into other writing tools or for basic text editing.
+						</p>
+						<div class="text-paper-text-muted space-y-1 text-xs">
+							<div>• Universal compatibility</div>
+							<div>• Small file size</div>
+							<div>• Easy to process programmatically</div>
+						</div>
+						<div class="mt-4">
+							<Button variant="outline" onclick={handle_export_txt}>Export as TXT</Button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
+
+<!-- RTF Export Modal -->
+<ExportModal
+	bind:open={show_rtf_export_modal}
+	project={current_project}
+	format="rtf"
+	onClose={() => (show_rtf_export_modal = false)}
+/>
+
+<!-- TXT Export Modal -->
+<ExportModal
+	bind:open={show_txt_export_modal}
+	project={current_project}
+	format="txt"
+	onClose={() => (show_txt_export_modal = false)}
+/>
 
 <style>
 	.line-clamp-3 {

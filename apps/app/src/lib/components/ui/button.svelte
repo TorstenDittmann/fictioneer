@@ -2,7 +2,7 @@
 	import { Button, type ButtonRootProps } from 'bits-ui';
 
 	type Props = {
-		variant?: 'primary' | 'secondary' | 'destructive' | 'ghost';
+		variant?: 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline';
 		children?: import('svelte').Snippet;
 	} & ButtonRootProps;
 
@@ -16,9 +16,11 @@
 	const variant_classes = {
 		primary: 'bg-paper-accent text-white hover:bg-paper-accent-light focus:ring-paper-accent',
 		secondary:
-			'border border-gray-200 bg-white text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
-		destructive: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-		ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-400'
+			'border border-paper-border bg-paper-beige text-paper-text hover:bg-paper-gray focus:ring-paper-accent',
+		destructive: 'bg-paper-accent text-white hover:bg-paper-accent-light focus:ring-paper-accent',
+		ghost: 'bg-transparent text-paper-text hover:bg-paper-gray focus:ring-paper-accent',
+		outline:
+			'border border-paper-border bg-transparent text-paper-text hover:bg-paper-beige focus:ring-paper-accent'
 	};
 </script>
 

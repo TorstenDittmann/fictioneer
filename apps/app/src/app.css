@@ -9,7 +9,7 @@
 	--paper-text: #e8e5e0;
 	--paper-text-light: #d4cfc7;
 	--paper-text-muted: #a39a90;
-	--paper-border: #4a453e;
+	--paper-border: #3a3530;
 	--paper-accent: #c4a47c;
 	--paper-accent-light: #d4b890;
 
@@ -76,6 +76,17 @@ html {
 
 .border-gray-200,
 .border-gray-100 {
+	border-color: var(--paper-border) !important;
+}
+
+.ring-gray-200,
+.ring-gray-300 {
+	--tw-ring-color: var(--paper-border) !important;
+}
+
+.border,
+.border-gray-200,
+.border-gray-300 {
 	border-color: var(--paper-border) !important;
 }
 

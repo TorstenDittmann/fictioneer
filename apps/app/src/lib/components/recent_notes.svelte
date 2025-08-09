@@ -23,19 +23,14 @@
 
 	function get_note_preview(description: string): string {
 		if (!description.trim()) return 'No description';
-		return description.length > 100 ? description.slice(0, 100) + '...' : description;
+		const text = description.replace(/<[^>]*>/g, '').trim();
+		return text.length > 150 ? text.slice(0, 150) + '...' : text;
 	}
 </script>
 
 <div class="mb-8">
-	<div class="mb-6 flex items-center justify-between">
+	<div class="mb-6">
 		<h2 class="text-xl font-semibold text-gray-900">Recent Notes</h2>
-		<a
-			href="notes"
-			class="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
-		>
-			View All Notes
-		</a>
 	</div>
 
 	{#if recent_notes.length === 0}
@@ -63,26 +58,56 @@
 			</a>
 		</div>
 	{:else}
-		<div class="space-y-3">
+		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 			{#each recent_notes as note (note.id)}
-				<div class="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-200">
+				<button
+					onclick={() => (window.location.href = `notes/${note.id}`)}
+					class="group rounded-lg bg-white p-6 text-left shadow-sm ring-1 ring-gray-300 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+				>
 					<div class="flex items-start justify-between">
 						<div class="min-w-0 flex-1">
-							<h3 class="truncate text-base font-medium text-gray-900">
+							<h3 class="truncate text-lg font-medium text-gray-900 group-hover:text-gray-600">
 								{note.title}
 							</h3>
-							<p class="mt-1 text-sm text-gray-600">
-								{get_note_preview(note.description)}
-							</p>
 						</div>
-						<div class="ml-4 flex-shrink-0">
-							<span class="text-xs text-gray-500">
-								{format_date(new Date(note.updatedAt))}
-							</span>
-						</div>
+						<svg
+							class="h-5 w-5 flex-shrink-0 text-gray-400 transition-colors group-hover:text-gray-600"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M9 5l7 7-7 7"
+							/>
+						</svg>
 					</div>
-				</div>
+
+					{#if note.description.trim()}
+						<p class="mt-3 line-clamp-3 text-sm text-gray-600">
+							{get_note_preview(note.description)}
+						</p>
+					{:else}
+						<p class="mt-3 text-sm text-gray-400 italic">No description</p>
+					{/if}
+
+					<div class="mt-4 text-xs text-gray-500">
+						Updated {format_date(new Date(note.updatedAt))}
+					</div>
+				</button>
 			{/each}
 		</div>
 	{/if}
 </div>
+
+<style>
+	.line-clamp-3 {
+		display: -webkit-box;
+		line-clamp: 3;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+</style>

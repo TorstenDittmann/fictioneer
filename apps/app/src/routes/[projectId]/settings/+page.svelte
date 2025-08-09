@@ -19,18 +19,6 @@
 		});
 	}
 
-	function delete_project() {
-		if (
-			confirm(
-				`Are you sure you want to delete "${data.project.title}"? This action cannot be undone.`
-			)
-		) {
-			// In file-based system, just close the project
-			projects.closeProject();
-			goto('/');
-		}
-	}
-
 	// Handle page-specific keyboard shortcuts
 	function handle_keydown(event: KeyboardEvent) {
 		// Skip if user is typing in an input field
@@ -64,7 +52,7 @@
 		<!-- Settings Form -->
 		<div class="space-y-8">
 			<!-- Basic Information -->
-			<Card>
+			<Card class="ring-1 ring-gray-300">
 				<!-- eslint-disable-next-line svelte/no-useless-children-snippet -->
 				{#snippet children()}
 					<h2 class="mb-4 text-xl font-semibold text-gray-900">Basic Information</h2>
@@ -96,25 +84,25 @@
 			</Card>
 
 			<!-- Project Statistics -->
-			<Card>
+			<Card class="ring-1 ring-gray-300">
 				<!-- eslint-disable-next-line svelte/no-useless-children-snippet -->
 				{#snippet children()}
 					<h2 class="mb-4 text-xl font-semibold text-gray-900">Project Statistics</h2>
 
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-						<div class="rounded-md bg-gray-50 p-4">
+						<div class="rounded-md bg-gray-100 p-4">
 							<div class="text-2xl font-bold text-gray-900">
 								{stats.total_chapters}
 							</div>
 							<div class="text-sm text-gray-600">Chapters</div>
 						</div>
-						<div class="rounded-md bg-gray-50 p-4">
+						<div class="rounded-md bg-gray-100 p-4">
 							<div class="text-2xl font-bold text-gray-900">
 								{stats.total_scenes}
 							</div>
 							<div class="text-sm text-gray-600">Scenes</div>
 						</div>
-						<div class="rounded-md bg-gray-50 p-4">
+						<div class="rounded-md bg-gray-100 p-4">
 							<div class="text-2xl font-bold text-gray-900">
 								{stats.total_words.toLocaleString()}
 							</div>
@@ -123,30 +111,10 @@
 					</div>
 				{/snippet}
 			</Card>
-
-			<!-- Project Actions -->
-			<Card class="border-red-400 bg-white">
-				<!-- eslint-disable-next-line svelte/no-useless-children-snippet -->
-				{#snippet children()}
-					<h2 class="mb-4 text-xl font-semibold text-red-900">Danger Zone</h2>
-
-					<div class="space-y-4">
-						<div>
-							<h3 class="text-sm font-medium text-red-900">Delete Project</h3>
-							<p class="mt-1 text-sm text-red-800">
-								Once you delete a project, there is no going back. Please be certain.
-							</p>
-							<Button variant="destructive" onclick={delete_project} class="mt-3">
-								Delete Project
-							</Button>
-						</div>
-					</div>
-				{/snippet}
-			</Card>
 		</div>
 
 		<!-- Keyboard Shortcuts -->
-		<div class="mt-8 rounded-lg bg-gray-50 p-4">
+		<div class="mt-8 rounded-lg bg-gray-100 p-4">
 			<h3 class="text-sm font-medium text-gray-900">Keyboard Shortcuts</h3>
 			<div class="mt-2 space-y-1 text-sm text-gray-600">
 				<div class="flex justify-between">

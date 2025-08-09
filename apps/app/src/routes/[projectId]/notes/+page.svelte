@@ -49,6 +49,12 @@
 		}
 	}
 
+	function get_note_preview(description: string): string {
+		if (!description.trim()) return 'No description';
+		const text = description.replace(/<[^>]*>/g, '').trim();
+		return text.length > 200 ? text.slice(0, 200) + '...' : text;
+	}
+
 	// Handle page-specific keyboard shortcuts
 	function handle_keydown(event: KeyboardEvent) {
 		// Skip if user is typing in an input field
@@ -132,7 +138,7 @@
 			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{#each notes as note (note.id)}
 					<div
-						class="group cursor-pointer rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+						class="group cursor-pointer rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-300 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
 						role="button"
 						tabindex="0"
 						onclick={() => goto(`/${project_id}/notes/${note.id}`)}
@@ -166,8 +172,7 @@
 
 						{#if note.description.trim()}
 							<div class="mt-3 line-clamp-4 text-sm text-gray-600">
-								{note.description.substring(0, 200)}
-								{#if note.description.length > 200}...{/if}
+								{get_note_preview(note.description)}
 							</div>
 						{:else}
 							<p class="mt-3 text-sm text-gray-400 italic">No description</p>

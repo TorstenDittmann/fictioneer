@@ -16,6 +16,12 @@ async fn check_project_exists(path: String) -> Result<bool, String> {
     Ok(std::path::Path::new(&path).exists())
 }
 
+#[tauri::command]
+async fn save_export_file(path: String, contents: String) -> Result<(), String> {
+    std::fs::write(&path, contents)
+        .map_err(|e| format!("Failed to save export file {}: {}", path, e))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -23,7 +29,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             load_project_file,
             save_project_file,
-            check_project_exists
+            check_project_exists,
+            save_export_file
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {
