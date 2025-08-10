@@ -14,7 +14,7 @@ export interface UpdateState {
 }
 
 class UpdaterService {
-	private _state = $state<UpdateState>({
+	private state_internal = $state<UpdateState>({
 		is_checking: false,
 		is_downloading: false,
 		is_installing: false,
@@ -23,10 +23,10 @@ class UpdaterService {
 		download_total: 0
 	});
 
-	private _check_interval: ReturnType<typeof setInterval> | null = null;
+	private check_interval: ReturnType<typeof setInterval> | null = null;
 
 	get state(): UpdateState {
-		return this._state;
+		return this.state_internal;
 	}
 
 	start_auto_check(): void {
@@ -34,62 +34,62 @@ class UpdaterService {
 		this.check_for_updates();
 
 		// Then check every 10 minutes
-		this._check_interval = setInterval(
+		this.check_interval = setInterval(
 			() => {
 				this.check_for_updates();
 			},
 			10 * 60 * 1000
-		) as ReturnType<typeof setInterval>; // 10 minutes in milliseconds
+		);
 	}
 
 	stop_auto_check(): void {
-		if (this._check_interval) {
-			clearInterval(this._check_interval);
-			this._check_interval = null;
+		if (this.check_interval) {
+			clearInterval(this.check_interval);
+			this.check_interval = null;
 		}
 	}
 
 	async check_for_updates(): Promise<boolean> {
-		if (this._state.is_checking) {
+		if (this.state_internal.is_checking) {
 			return false;
 		}
 
-		this._state.is_checking = true;
-		this._state.error = undefined;
+		this.state_internal.is_checking = true;
+		this.state_internal.error = undefined;
 
 		try {
 			const update = await check();
 
 			if (update) {
-				this._state.update_available = true;
-				this._state.update_version = update.version;
-				this._state.update_body = update.body;
+				this.state_internal.update_available = true;
+				this.state_internal.update_version = update.version;
+				this.state_internal.update_body = update.body;
 				console.log(
 					`Found update ${update.version} from ${update.date} with notes: ${update.body}`
 				);
 				return true;
 			} else {
-				this._state.update_available = false;
+				this.state_internal.update_available = false;
 				return false;
 			}
 		} catch (error) {
 			console.error('Failed to check for updates:', error);
-			this._state.error = error instanceof Error ? error.message : 'Unknown error occurred';
+			this.state_internal.error = error instanceof Error ? error.message : 'Unknown error occurred';
 			return false;
 		} finally {
-			this._state.is_checking = false;
+			this.state_internal.is_checking = false;
 		}
 	}
 
 	async download_and_install_update(): Promise<boolean> {
-		if (!this._state.update_available || this._state.is_downloading) {
+		if (!this.state_internal.update_available || this.state_internal.is_downloading) {
 			return false;
 		}
 
-		this._state.is_downloading = true;
-		this._state.error = undefined;
-		this._state.download_progress = 0;
-		this._state.download_total = 0;
+		this.state_internal.is_downloading = true;
+		this.state_internal.error = undefined;
+		this.state_internal.download_progress = 0;
+		this.state_internal.download_total = 0;
 
 		try {
 			const update = await check();
@@ -101,19 +101,19 @@ class UpdaterService {
 			await update.downloadAndInstall((event) => {
 				switch (event.event) {
 					case 'Started':
-						this._state.download_total = event.data.contentLength ?? 0;
+						this.state_internal.download_total = event.data.contentLength ?? 0;
 						console.log(`Started downloading ${event.data.contentLength ?? 0} bytes`);
 						break;
 					case 'Progress':
-						this._state.download_progress += event.data.chunkLength;
+						this.state_internal.download_progress += event.data.chunkLength;
 						console.log(
-							`Downloaded ${this._state.download_progress} from ${this._state.download_total}`
+							`Downloaded ${this.state_internal.download_progress} from ${this.state_internal.download_total}`
 						);
 						break;
 					case 'Finished':
 						console.log('Download finished');
-						this._state.is_downloading = false;
-						this._state.is_installing = true;
+						this.state_internal.is_downloading = false;
+						this.state_internal.is_installing = true;
 						break;
 				}
 			});
@@ -126,28 +126,30 @@ class UpdaterService {
 			return true;
 		} catch (error) {
 			console.error('Failed to download and install update:', error);
-			this._state.error = error instanceof Error ? error.message : 'Unknown error occurred';
+			this.state_internal.error = error instanceof Error ? error.message : 'Unknown error occurred';
 			return false;
 		} finally {
-			this._state.is_downloading = false;
-			this._state.is_installing = false;
+			this.state_internal.is_downloading = false;
+			this.state_internal.is_installing = false;
 		}
 	}
 
 	get_download_percentage(): number {
-		if (this._state.download_total === 0) {
+		if (this.state_internal.download_total === 0) {
 			return 0;
 		}
-		return Math.round((this._state.download_progress / this._state.download_total) * 100);
+		return Math.round(
+			(this.state_internal.download_progress / this.state_internal.download_total) * 100
+		);
 	}
 
 	reset_state(): void {
-		this._state.update_available = false;
-		this._state.update_version = undefined;
-		this._state.update_body = undefined;
-		this._state.download_progress = 0;
-		this._state.download_total = 0;
-		this._state.error = undefined;
+		this.state_internal.update_available = false;
+		this.state_internal.update_version = undefined;
+		this.state_internal.update_body = undefined;
+		this.state_internal.download_progress = 0;
+		this.state_internal.download_total = 0;
+		this.state_internal.error = undefined;
 	}
 
 	destroy(): void {
