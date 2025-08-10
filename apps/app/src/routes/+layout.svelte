@@ -7,10 +7,7 @@
 	import TitleBar from '$lib/components/title_bar.svelte';
 	import { projects } from '$lib/state/projects.svelte';
 	import { layout_state } from '$lib/state/layout.svelte';
-	import { ClerkProvider } from 'svelte-clerk/client';
 	import type { Snippet } from 'svelte';
-	import { PUBLIC_CLERK_PUBLISHABLE_KEY } from '$env/static/public';
-	import { dark } from '@clerk/themes';
 	import { blur } from 'svelte/transition';
 	import { onMount } from 'svelte';
 
@@ -18,12 +15,7 @@
 
 	let show_app = $state(false);
 
-	onMount(() => {
-		// Show app after mount
-		setTimeout(() => {
-			show_app = true;
-		}, 100);
-	});
+	onMount(() => (show_app = true));
 
 	// Global keyboard shortcuts
 	function handle_keydown(event: KeyboardEvent) {
@@ -52,20 +44,18 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY} appearance={{ theme: dark }}>
-	{#if show_app}
-		<div class="app-wrapper dark" transition:blur={{ duration: 600, amount: 10 }}>
-			<div class="app-grid" class:focus-mode={layout_state.is_distraction_free}>
-				{#if !layout_state.is_distraction_free}
-					<TitleBar />
-				{/if}
-				<div class="content-area">
-					{@render children?.()}
-				</div>
+{#if show_app}
+	<div class="app-wrapper dark" transition:blur={{ duration: 600, amount: 10 }}>
+		<div class="app-grid" class:focus-mode={layout_state.is_distraction_free}>
+			{#if !layout_state.is_distraction_free}
+				<TitleBar />
+			{/if}
+			<div class="content-area">
+				{@render children?.()}
 			</div>
 		</div>
-	{/if}
-</ClerkProvider>
+	</div>
+{/if}
 
 <style>
 	.app-wrapper {

@@ -4,17 +4,11 @@ import dedent from 'dedent';
 import { Hono } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
 import { cors } from 'hono/cors';
-import { verifyToken } from '@clerk/backend';
-import type { JwtPayload } from '@clerk/types';
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY;
 
 if (!GROQ_API_KEY) {
 	throw new Error('GROQ_API_KEY environment variable is required');
-}
-if (!CLERK_SECRET_KEY) {
-	throw new Error('CLERK_SECRET_KEY environment variable is required');
 }
 
 const groq = createGroq({
@@ -44,29 +38,8 @@ app.use(
 app.use(
 	'/api/*',
 	bearerAuth({
-		verifyToken: async (token, context) => {
-			if (!token) return false;
-			if (auth_cache.has(token)) {
-				const { expires, session } = auth_cache.get(token)!;
-				if (expires > Date.now()) {
-					context.set('session', session);
-					return true;
-				}
-			}
-			try {
-				const session = await verifyToken(token, {
-					secretKey: CLERK_SECRET_KEY
-				});
-				context.set('session', session);
-				auth_cache.set(token, {
-					expires: Date.now() + 1000 * 60 * 15,
-					session
-				});
-				return true;
-			} catch (error) {
-				console.error('Token verification failed:', error);
-				return false;
-			}
+		verifyToken: async () => {
+			return true;
 		}
 	})
 );

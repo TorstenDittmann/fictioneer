@@ -1,11 +1,10 @@
 import { PUBLIC_INTELLIGENCE_SERVER_URL } from '$env/static/public';
 
-// Backend API configuration
-const BACKEND_URL = PUBLIC_INTELLIGENCE_SERVER_URL || 'http://localhost:3001/api';
+const BACKEND_URL = PUBLIC_INTELLIGENCE_SERVER_URL;
 
 export class AIWritingBackendService {
 	private current_abort_controller: AbortController | null = null;
-	private token: string | null = null;
+	private token: string = 'placeholder';
 
 	private async call_backend(
 		endpoint: string,

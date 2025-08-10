@@ -3,16 +3,6 @@
 	import { page } from '$app/state';
 	import { projects } from '$lib/state/projects.svelte.js';
 	import { getCurrentWindow } from '@tauri-apps/api/window';
-	import {
-		SignedIn,
-		SignedOut,
-		SignInButton,
-		useClerkContext,
-		UserButton
-	} from 'svelte-clerk/client';
-	import { ai_writing_backend_service } from '$lib/services/ai_writing_backend';
-
-	const ctx = useClerkContext();
 
 	let is_fullscreen = $state(false);
 	let show_back_button = $state(false);
@@ -37,12 +27,6 @@
 			return projects.fileStatus.display_title;
 		}
 		return 'Omnia';
-	});
-
-	$effect(() => {
-		ctx.session?.getToken().then((token) => {
-			ai_writing_backend_service.set_token(token);
-		});
 	});
 
 	onMount(async () => {
@@ -133,23 +117,7 @@
 	</div>
 
 	<!-- Right section -->
-	<div class="titlebar-right">
-		<SignedOut>
-			<SignInButton mode="modal" />
-		</SignedOut>
-		<SignedIn>
-			<UserButton
-				appearance={{
-					elements: {
-						avatarBox: {
-							height: '1rem',
-							width: '1rem'
-						}
-					}
-				}}
-			/>
-		</SignedIn>
-	</div>
+	<div class="titlebar-right"></div>
 </div>
 
 <style>
