@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
-	import { Input, Textarea, Button, Label, Card } from '$lib/components/ui';
+	import { Input, Textarea, Label, Card } from '$lib/components/ui';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();

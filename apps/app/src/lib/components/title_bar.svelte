@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import { projects } from '$lib/state/projects.svelte.js';
 	import { getCurrentWindow } from '@tauri-apps/api/window';
+	import TitleBarUpdateButton from './title_bar_update_button.svelte';
 
 	let is_fullscreen = $state(false);
 	let show_back_button = $state(false);
@@ -80,35 +81,46 @@
 			</div>
 
 			{#if show_back_button}
-				<a href="/" class="back-button" title="Back to Overview">
+				<a
+					href="/"
+					class="flex items-center gap-1 rounded-sm border border-gray-600 bg-transparent px-1.5 py-0.5 text-[10px] text-gray-300 transition-all duration-150 hover:border-blue-500 hover:bg-gray-700"
+					title="Back to Overview"
+				>
 					<svg
-						width="16"
-						height="16"
+						width="12"
+						height="12"
 						viewBox="0 0 24 24"
 						fill="none"
 						stroke="currentColor"
 						stroke-width="2"
+						class="flex-shrink-0"
 					>
 						<path d="M15 18l-6-6 6-6" />
 					</svg>
-					Overview
+					<span class="whitespace-nowrap">Overview</span>
 				</a>
 			{/if}
 		{:else if show_back_button}
-			<a href="/" class="back-button fullscreen" title="Back to Overview">
+			<a
+				href="/"
+				class="flex items-center gap-1 rounded-sm border border-gray-600 bg-transparent px-1.5 py-0.5 text-[10px] text-gray-300 transition-all duration-150 hover:border-blue-500 hover:bg-gray-700"
+				title="Back to Overview"
+			>
 				<svg
-					width="16"
-					height="16"
+					width="12"
+					height="12"
 					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"
 					stroke-width="2"
+					class="flex-shrink-0"
 				>
 					<path d="M15 18l-6-6 6-6" />
 				</svg>
-				Overview
+				<span class="whitespace-nowrap">Overview</span>
 			</a>
 		{/if}
+		<TitleBarUpdateButton />
 	</div>
 
 	<!-- Center section -->
@@ -195,26 +207,5 @@
 
 	.maximize:hover {
 		background-color: #00ca4e;
-	}
-
-	.back-button {
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		padding: 4px 8px;
-		font-size: 12px;
-		color: var(--paper-text);
-		text-decoration: none;
-		border-radius: 4px;
-		transition: background-color 0.15s ease;
-	}
-
-	.back-button:hover {
-		background-color: var(--paper-gray-transparent);
-	}
-
-	.back-button svg {
-		width: 14px;
-		height: 14px;
 	}
 </style>
