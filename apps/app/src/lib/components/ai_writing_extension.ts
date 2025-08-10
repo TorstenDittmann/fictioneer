@@ -168,6 +168,10 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					}
 				},
 				view(editorView) {
+					let clear_suggestion_timeout: ReturnType<typeof setTimeout> | null = null;
+					let option_key_held = false;
+					let is_clearing = false;
+
 					const generateSuggestion = async () => {
 						console.log('AI: generateSuggestion called');
 						if (!extension.options.enabled) {
@@ -273,9 +277,13 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								// Check if request was cancelled or option key released before updating UI
 								if (!ai_writing_backend_service.is_request_active() || !option_key_held) {
 									// Clear suggestion if option key was released
-									const tr = editorView.state.tr;
-									tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
-									editorView.dispatch(tr);
+									if (!is_clearing) {
+										is_clearing = true;
+										const tr = editorView.state.tr;
+										tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
+										editorView.dispatch(tr);
+										is_clearing = false;
+									}
 									break;
 								}
 								// Update typewriter span in real-time as text streams in
@@ -300,29 +308,37 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 									suggestion: full_suggestion
 								});
 								editorView.dispatch(tr);
+								is_clearing = false;
 							} else {
 								console.log('AI: No result from backend');
 								// Clear suggestion
-								tr = editorView.state.tr;
-								tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
-								editorView.dispatch(tr);
+								if (!is_clearing) {
+									is_clearing = true;
+									tr = editorView.state.tr;
+									tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
+									editorView.dispatch(tr);
+									is_clearing = false;
+								}
 							}
 						} catch (error) {
 							console.error('AI suggestion error:', error);
 
 							// Clear suggestion on error
-							const tr = editorView.state.tr;
-							tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
-							editorView.dispatch(tr);
+							if (!is_clearing) {
+								is_clearing = true;
+								const tr = editorView.state.tr;
+								tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
+								editorView.dispatch(tr);
+								is_clearing = false;
+							}
 						}
 					};
-
-					let clear_suggestion_timeout: ReturnType<typeof setTimeout> | null = null;
-					let option_key_held = false;
 
 					const check_option_key = (event: KeyboardEvent) => {
 						if (event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
 							option_key_held = true;
+							// Reset clearing state when option key is pressed again
+							is_clearing = false;
 							// Clear any pending clear timeout
 							if (clear_suggestion_timeout) {
 								clearTimeout(clear_suggestion_timeout);
@@ -373,31 +389,49 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							ai_writing_backend_service.cancel_current_request();
 
 							// Clear suggestion immediately without animation
-							const tr = editorView.state.tr;
-							tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
-							editorView.dispatch(tr);
+							if (!is_clearing) {
+								is_clearing = true;
+								const tr = editorView.state.tr;
+								tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
+								editorView.dispatch(tr);
+								is_clearing = false;
+							}
 							return;
 						}
 
-						if (!event.altKey) {
-							// Option key released - clear suggestion immediately with animation
+						if (!event.altKey && !is_clearing) {
+							// Option key released - clear suggestion with smooth animation
 							if (clear_suggestion_timeout) {
 								clearTimeout(clear_suggestion_timeout);
 							}
 
-							// Add fade-out animation before clearing
-							const suggestionElements = editorView.dom.querySelectorAll('.ai-suggestion');
-							suggestionElements.forEach((el) => {
-								const element = el as HTMLElement;
-								element.style.animation = 'ai-suggestion-fade-out 0.3s ease-in forwards';
-							});
+							is_clearing = true;
 
-							// Clear after animation completes
-							setTimeout(() => {
+							// Find typewriter elements and apply fade-out
+							const typewriterElements = editorView.dom.querySelectorAll('.ai-typewriter');
+							if (typewriterElements.length > 0) {
+								typewriterElements.forEach((el) => {
+									const element = el as HTMLElement;
+									element.style.transition = 'opacity 0.2s ease-out';
+									element.style.opacity = '0';
+								});
+
+								// Clear after animation completes
+								clear_suggestion_timeout = setTimeout(() => {
+									if (is_clearing) {
+										const tr = editorView.state.tr;
+										tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
+										editorView.dispatch(tr);
+										is_clearing = false;
+									}
+								}, 200);
+							} else {
+								// No animation needed, clear immediately
 								const tr = editorView.state.tr;
 								tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
 								editorView.dispatch(tr);
-							}, 300);
+								is_clearing = false;
+							}
 						}
 					};
 

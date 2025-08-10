@@ -70,11 +70,11 @@ class ProjectsService {
 	}
 
 	/**
-	 * Save the current project
+	 * Save the current project (manual save - bypasses throttling)
 	 */
 	async save_project(): Promise<boolean> {
 		if (!this.current_project) return false;
-		return await file_service.save_project(this.current_project);
+		return await file_service.force_save_project(this.current_project);
 	}
 
 	/**
@@ -89,6 +89,9 @@ class ProjectsService {
 	 * Close the current project
 	 */
 	async close_project(): Promise<boolean> {
+		// Flush any pending saves before closing
+		await file_service.flush_pending_saves();
+
 		const can_close = await file_service.close_project();
 		if (can_close) {
 			this.current_project = null;
@@ -526,10 +529,11 @@ class ProjectsService {
 	}
 
 	/**
-	 * Trigger auto-save
+	 * Trigger auto-save (throttled)
 	 */
 	private async trigger_auto_save(): Promise<void> {
 		if (this.current_project) {
+			console.log('Triggering throttled auto-save');
 			await file_service.trigger_auto_save_if_needed(this.current_project);
 		}
 	}

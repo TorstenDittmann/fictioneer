@@ -62,6 +62,10 @@ class FileService {
 	private readonly max_recent_projects = 10;
 	private auto_save_timeout: ReturnType<typeof setTimeout> | null = null;
 	private readonly auto_save_delay = 3000; // 3 seconds
+	private last_save_time = 0;
+	private readonly save_throttle_interval = 5000; // 5 seconds
+	private pending_save_timeout: ReturnType<typeof setTimeout> | null = null;
+	private current_project_ref: Project | null = null;
 
 	constructor() {
 		this.load_recent_projects();
@@ -195,6 +199,9 @@ class FileService {
 			return false;
 		}
 
+		// Keep reference to current project for potential force save on close
+		this.current_project_ref = project;
+
 		try {
 			await this.write_project_to_path(project, this.current_file_path);
 			return true;
@@ -239,9 +246,44 @@ class FileService {
 	}
 
 	/**
-	 * Write project data to a specific file path
+	 * Write project data to a specific file path with throttling
 	 */
 	private async write_project_to_path(project: Project, file_path: string): Promise<void> {
+		const now = Date.now();
+		const time_since_last_save = now - this.last_save_time;
+
+		if (time_since_last_save >= this.save_throttle_interval) {
+			// Enough time has passed, save immediately
+			console.log(`Save throttle: Immediate save (${time_since_last_save}ms since last save)`);
+			await this.perform_save(project, file_path);
+			this.last_save_time = now;
+		} else {
+			// Need to throttle, schedule save for later
+			const delay = this.save_throttle_interval - time_since_last_save;
+			console.log(
+				`Save throttle: Delaying save by ${delay}ms (${time_since_last_save}ms since last save)`
+			);
+
+			// Clear any existing pending save
+			if (this.pending_save_timeout) {
+				console.log('Save throttle: Clearing existing pending save');
+				clearTimeout(this.pending_save_timeout);
+			}
+
+			this.pending_save_timeout = setTimeout(async () => {
+				console.log('Save throttle: Executing delayed save');
+				await this.perform_save(project, file_path);
+				this.last_save_time = Date.now();
+				this.pending_save_timeout = null;
+			}, delay);
+		}
+	}
+
+	/**
+	 * Perform the actual save operation
+	 */
+	private async perform_save(project: Project, file_path: string): Promise<void> {
+		console.log(`Performing save to: ${file_path}`);
 		const file_data: OmniaFileData = {
 			version: this.version,
 			createdAt: project.createdAt.toISOString(),
@@ -251,6 +293,7 @@ class FileService {
 
 		const file_content = JSON.stringify(file_data, null, 2);
 		await invoke<void>('save_project_file', { path: file_path, contents: file_content });
+		console.log('Save completed successfully');
 	}
 
 	/**
@@ -291,6 +334,10 @@ class FileService {
 			clearTimeout(this.auto_save_timeout);
 			this.auto_save_timeout = null;
 		}
+		if (this.pending_save_timeout) {
+			clearTimeout(this.pending_save_timeout);
+			this.pending_save_timeout = null;
+		}
 	}
 
 	/**
@@ -327,6 +374,9 @@ class FileService {
 	 * Trigger auto-save if needed
 	 */
 	async trigger_auto_save_if_needed(project: Project): Promise<void> {
+		// Keep reference to current project for potential force save on close
+		this.current_project_ref = project;
+
 		if (this.needs_auto_save && this.current_file_path) {
 			try {
 				await this.write_project_to_path(project, this.current_file_path);
@@ -341,9 +391,64 @@ class FileService {
 	 * Close the current project (check for unsaved changes)
 	 */
 	async close_project(): Promise<boolean> {
+		// Force save any pending changes before closing
+		if (this.current_project_ref && this.current_file_path) {
+			try {
+				console.log('Close project: Force saving pending changes');
+				await this.perform_save(this.current_project_ref, this.current_file_path);
+			} catch (error) {
+				console.error('Failed to save before closing:', error);
+			}
+		}
+
 		this.clear_auto_save();
 		this.current_file_path = null;
+		this.current_project_ref = null;
 		return true;
+	}
+
+	/**
+	 * Force immediate save, bypassing throttle (for manual saves)
+	 */
+	async force_save_project(project: Project): Promise<boolean> {
+		if (!this.current_file_path) {
+			console.warn('No file path set for save');
+			return false;
+		}
+
+		try {
+			// Clear any pending throttled saves
+			if (this.pending_save_timeout) {
+				clearTimeout(this.pending_save_timeout);
+				this.pending_save_timeout = null;
+			}
+
+			console.log('Force save: Bypassing throttle for manual save');
+			await this.perform_save(project, this.current_file_path);
+			this.last_save_time = Date.now();
+			return true;
+		} catch (error) {
+			console.error('Failed to force save project:', error);
+			return false;
+		}
+	}
+
+	/**
+	 * Flush any pending throttled saves immediately
+	 */
+	async flush_pending_saves(): Promise<void> {
+		if (this.pending_save_timeout && this.current_project_ref && this.current_file_path) {
+			console.log('Flushing pending save immediately');
+			clearTimeout(this.pending_save_timeout);
+			this.pending_save_timeout = null;
+
+			try {
+				await this.perform_save(this.current_project_ref, this.current_file_path);
+				this.last_save_time = Date.now();
+			} catch (error) {
+				console.error('Failed to flush pending save:', error);
+			}
+		}
 	}
 
 	/**
