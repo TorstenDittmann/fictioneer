@@ -498,7 +498,7 @@ class ProjectsService {
 			has_unsaved_changes: file_service.has_changes,
 			display_title: this.current_project
 				? file_service.get_display_title(this.current_project.title)
-				: 'Omnia'
+				: 'Fictioneer'
 		};
 	}
 

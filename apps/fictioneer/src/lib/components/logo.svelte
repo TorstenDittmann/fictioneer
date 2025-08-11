@@ -34,7 +34,7 @@
 	<!-- Background circle -->
 	<circle cx="100" cy="100" r="90" fill="url(#logo-gradient1)" opacity="0.1" />
 
-	<!-- Main logo shape - stylized "O" for Omnia -->
+	<!-- Main logo shape - stylized "F" for Fictioneer -->
 	<g transform="translate(100, 100)">
 		<!-- Outer ring -->
 		<path

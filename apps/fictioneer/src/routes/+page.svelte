@@ -54,7 +54,7 @@
 	}
 
 	function get_filename_from_path(path: string): string {
-		return path.split('/').pop()?.replace('.omnia', '') || path;
+		return path.split('/').pop()?.replace('.fictioneer', '') || path;
 	}
 
 	const recent_projects = $derived(projects.recentProjects);
@@ -87,7 +87,7 @@
 				<div class="mx-auto mb-8 flex h-20 w-20 items-center justify-center">
 					<Logo size={80} />
 				</div>
-				<h2 class="mb-4 text-3xl font-bold">Welcome to Omnia</h2>
+				<h2 class="mb-4 text-3xl font-bold">Welcome to Fictioneer</h2>
 				<p class="mx-auto mb-8 max-w-2xl text-xl text-gray-400">
 					A minimalist writing tool designed for distraction-free creative writing.
 				</p>
@@ -182,22 +182,22 @@
 						<h4 class="mb-2 font-medium">Creating a New Project</h4>
 						<p class="text-sm text-gray-400">
 							Click "Create New Project" to start a new writing project. You'll be prompted to set a
-							title, description, and choose where to save your <code>.omnia</code> file.
+							title, description, and choose where to save your <code>.fictioneer</code> file.
 						</p>
 					</div>
 					<div class="rounded-lg border border-gray-700 p-6">
 						<h4 class="mb-2 font-medium">Opening an Existing Project</h4>
 						<p class="text-sm text-gray-400">
 							Click "Open Existing Project" to browse for and open a previously saved <code
-								>.omnia</code
+								>.fictioneer</code
 							> file. All your chapters, scenes, and content will be restored.
 						</p>
 					</div>
 					<div class="rounded-lg border border-gray-700 p-6">
 						<h4 class="mb-2 font-medium">Automatic Saving</h4>
 						<p class="text-sm text-gray-400">
-							Your work is automatically saved to your <code>.omnia</code> file as you write. No need
-							to manually save.
+							Your work is automatically saved to your <code>.fictioneer</code> file as you write. No
+							need to manually save.
 						</p>
 					</div>
 					<div class="rounded-lg border border-gray-700 p-6">

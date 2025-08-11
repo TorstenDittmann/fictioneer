@@ -41,7 +41,7 @@ interface SerializedProject {
 	updatedAt: string;
 }
 
-export interface OmniaFileData {
+export interface FictioneerFileData {
 	version: string;
 	createdAt: string;
 	updatedAt: string;
@@ -56,7 +56,7 @@ export interface RecentProject {
 
 class FileService {
 	private readonly version = '1.0.0';
-	private readonly file_extension = '.omnia';
+	private readonly file_extension = '.fictioneer';
 	private current_file_path = $state<string | null>(null);
 	private recent_projects = $state<RecentProject[]>([]);
 	private readonly max_recent_projects = 10;
@@ -133,7 +133,7 @@ class FileService {
 	}
 
 	/**
-	 * Open an existing .omnia file
+	 * Open an existing .fictioneer file
 	 */
 	async open_project(): Promise<Project | null> {
 		try {
@@ -141,8 +141,8 @@ class FileService {
 				multiple: false,
 				filters: [
 					{
-						name: 'Omnia Project Files',
-						extensions: ['omnia']
+						name: 'Fictioneer Project Files',
+						extensions: ['fictioneer']
 					}
 				]
 			});
@@ -164,11 +164,11 @@ class FileService {
 	async load_project_from_path(file_path: string): Promise<Project | null> {
 		try {
 			const file_content = await invoke<string>('load_project_file', { path: file_path });
-			const file_data: OmniaFileData = JSON.parse(file_content);
+			const file_data: FictioneerFileData = JSON.parse(file_content);
 
 			// Validate file format
-			if (!this.validate_omnia_file(file_data)) {
-				throw new Error('Invalid .omnia file format');
+			if (!this.validate_fictioneer_file(file_data)) {
+				throw new Error('Invalid .fictioneer file format');
 			}
 
 			// Check version compatibility
@@ -222,8 +222,8 @@ class FileService {
 				defaultPath: suggested_filename,
 				filters: [
 					{
-						name: 'Omnia Project Files',
-						extensions: ['omnia']
+						name: 'Fictioneer Project Files',
+						extensions: ['fictioneer']
 					}
 				]
 			});
@@ -284,7 +284,7 @@ class FileService {
 	 */
 	private async perform_save(project: Project, file_path: string): Promise<void> {
 		console.log(`Performing save to: ${file_path}`);
-		const file_data: OmniaFileData = {
+		const file_data: FictioneerFileData = {
 			version: this.version,
 			createdAt: project.createdAt.toISOString(),
 			updatedAt: new Date().toISOString(),
@@ -505,9 +505,9 @@ class FileService {
 	}
 
 	/**
-	 * Validate the structure of a .omnia file
+	 * Validate the structure of a .fictioneer file
 	 */
-	private validate_omnia_file(data: unknown): data is OmniaFileData {
+	private validate_fictioneer_file(data: unknown): data is ProjectFileData {
 		const obj = data as Record<string, unknown>;
 		return (
 			!!obj &&
@@ -555,7 +555,7 @@ class FileService {
 		if (typeof localStorage === 'undefined') return;
 
 		try {
-			const stored = localStorage.getItem('omnia_recent_projects');
+			const stored = localStorage.getItem('fictioneer_recent_projects');
 			if (stored) {
 				this.recent_projects = JSON.parse(stored);
 			}
@@ -572,7 +572,7 @@ class FileService {
 		if (typeof localStorage === 'undefined') return;
 
 		try {
-			localStorage.setItem('omnia_recent_projects', JSON.stringify(this.recent_projects));
+			localStorage.setItem('fictioneer_recent_projects', JSON.stringify(this.recent_projects));
 		} catch (error) {
 			console.error('Failed to save recent projects:', error);
 		}

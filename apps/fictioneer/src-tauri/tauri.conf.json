@@ -1,8 +1,8 @@
 {
 	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-	"productName": "Omnia",
+	"productName": "Fictioneer",
 	"version": "0.1.6",
-	"identifier": "com.omnia.dev",
+	"identifier": "app.fictioneer.desktop",
 	"build": {
 		"frontendDist": "../build",
 		"devUrl": "http://localhost:5173",
@@ -12,7 +12,7 @@
 	"app": {
 		"windows": [
 			{
-				"title": "Omnia",
+				"title": "Fictioneer",
 				"width": 1200,
 				"height": 800,
 				"minWidth": 800,
@@ -46,7 +46,9 @@
 	"plugins": {
 		"updater": {
 			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDYzNzdDRDNDQkJCRTdENDEKUldSQmZiNjdQTTEzWXdET3pPS3JpU2NneWljVjdZMGVBS2hLRUVBUW9NRlRCdXFiUXB0ZlM5aXQK",
-			"endpoints": ["https://github.com/TorstenDittmann/omnia/releases/latest/download/latest.json"]
+			"endpoints": [
+				"https://github.com/TorstenDittmann/fictioneer/releases/latest/download/latest.json"
+			]
 		}
 	}
 }

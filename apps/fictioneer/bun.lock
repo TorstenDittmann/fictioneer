@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "omnia",
+      "name": "fictioneer",
       "dependencies": {
         "@ai-sdk/groq": "^2.0.4",
         "@fontsource/libre-baskerville": "^5.2.6",

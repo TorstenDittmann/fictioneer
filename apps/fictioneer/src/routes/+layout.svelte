@@ -35,7 +35,7 @@
 <svelte:window onkeydown={handle_keydown} />
 
 <svelte:head>
-	<title>Omnia - Creative Writing Tool</title>
+	<title>Fictioneer - Creative Writing Tool</title>
 	<meta
 		name="description"
 		content="A minimalist creative writing tool for distraction-free writing"

@@ -6,28 +6,18 @@
 	import TitleBarUpdateButton from './title_bar_update_button.svelte';
 
 	let is_fullscreen = $state(false);
-	let show_back_button = $state(false);
-
-	// Update title and back button state when page changes
-	$effect(() => {
-		const pathname = page.url.pathname;
-		if (pathname === '/') {
-			show_back_button = false;
-		} else {
-			show_back_button = true;
-		}
-	});
+	const show_back_button = $derived(page.route.id?.startsWith('/[projectId]'));
 
 	// Get the display title from file service
 	const window_title = $derived(() => {
 		const pathname = page.url.pathname;
 		if (pathname === '/') {
-			return 'Omnia';
+			return 'Fictioneer';
 		}
 		if (projects.hasProject) {
 			return projects.fileStatus.display_title;
 		}
-		return 'Omnia';
+		return 'Fictioneer';
 	});
 
 	onMount(async () => {

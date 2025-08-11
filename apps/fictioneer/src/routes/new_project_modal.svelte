@@ -27,14 +27,15 @@
 
 	async function handle_choose_location() {
 		try {
-			const suggested_filename = sanitize_filename(project_title || 'Untitled Project') + '.omnia';
+			const suggested_filename =
+				sanitize_filename(project_title || 'Untitled Project') + '.fictioneer';
 
 			const file_path = await save({
 				defaultPath: suggested_filename,
 				filters: [
 					{
-						name: 'Omnia Project Files',
-						extensions: ['omnia']
+						name: 'Fictioneer Project Files',
+						extensions: ['fictioneer']
 					}
 				]
 			});

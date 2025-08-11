@@ -18,14 +18,14 @@
   <!-- Background circle -->
   <circle cx="100" cy="100" r="90" fill="url(#gradient1)" opacity="0.1"/>
   
-  <!-- Main logo shape - stylized "O" for Omnia -->
+  <!-- Main logo shape - stylized "O" for Fictioneer -->
   <g transform="translate(100, 100)">
     <!-- Outer ring -->
     <path d="M 0,-60 A 60,60 0 0,1 51.96,30 L 38.97,22.5 A 45,45 0 0,0 0,-45 Z" fill="url(#gradient1)"/>
     <path d="M 51.96,30 A 60,60 0 0,1 -51.96,30 L -38.97,22.5 A 45,45 0 0,0 38.97,22.5 Z" fill="url(#gradient2)"/>
     <path d="M -51.96,30 A 60,60 0 0,1 0,-60 L 0,-45 A 45,45 0 0,0 -38.97,22.5 Z" fill="#6366f1" opacity="0.8"/>
     
-    <!-- Inner elements forming abstract "O" -->
+    <!-- Inner elements forming abstract "O" for Fictioneer -->
     <circle cx="0" cy="0" r="25" fill="url(#centerGradient)"/>
     <circle cx="0" cy="0" r="20" fill="none" stroke="url(#gradient1)" stroke-width="2" opacity="0.5"/>
     

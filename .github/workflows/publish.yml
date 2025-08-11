@@ -46,11 +46,11 @@ jobs:
             - name: Rust cache
               uses: swatinem/rust-cache@v2
               with:
-                  workspaces: "./apps/app/src-tauri -> target"
+                  workspaces: "./apps/fictioneer/src-tauri -> target"
 
             - name: Install frontend dependencies
               run: bun install --frozen-lockfile
-              working-directory: ./apps/app
+              working-directory: ./apps/fictioneer
 
             # macOS code signing setup
             - name: Import Apple Developer Certificate
@@ -91,7 +91,7 @@ jobs:
                   APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
                   APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
               with:
-                  projectPath: ./apps/app
+                  projectPath: ./apps/fictioneer
                   tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
                   releaseName: "App v__VERSION__"
                   releaseBody: "See the assets to download this version and install."
