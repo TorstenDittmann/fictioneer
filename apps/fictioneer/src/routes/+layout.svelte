@@ -7,6 +7,8 @@
 	import TitleBar from '$lib/components/title_bar.svelte';
 	import { projects } from '$lib/state/projects.svelte';
 	import { layout_state } from '$lib/state/layout.svelte';
+	import { license_key_state } from '$lib/state/license_key.svelte';
+	import { ai_writing_backend } from '$lib/state/ai_writing_backend.svelte';
 	import type { Snippet } from 'svelte';
 	import { blur } from 'svelte/transition';
 	import { onMount } from 'svelte';
@@ -15,7 +17,11 @@
 
 	let show_app = $state(false);
 
-	onMount(() => (show_app = true));
+	onMount(async () => {
+		await license_key_state.initialize();
+		await ai_writing_backend.initialize();
+		show_app = true;
+	});
 
 	// Global keyboard shortcuts
 	function handle_keydown(event: KeyboardEvent) {

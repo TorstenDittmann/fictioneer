@@ -185,7 +185,7 @@ app.get('/health', (c) => {
 });
 
 app.post('/api/verify', async (c) => {
-	c.text('OK');
+	return c.text('OK');
 });
 
 // Continue writing endpoint

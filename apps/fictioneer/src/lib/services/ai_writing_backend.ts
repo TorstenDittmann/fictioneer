@@ -1,21 +1,26 @@
 import { PUBLIC_INTELLIGENCE_SERVER_URL } from '$env/static/public';
+import { license_key_state } from '$lib/state/license_key.svelte.js';
 
 const BACKEND_URL = PUBLIC_INTELLIGENCE_SERVER_URL;
 
 export class AIWritingBackendService {
 	private current_abort_controller: AbortController | null = null;
-	private token: string = 'placeholder';
 
 	private async call_backend(
 		endpoint: string,
 		data: unknown,
 		signal?: AbortSignal
 	): Promise<unknown> {
+		const token = license_key_state.license_key;
+		if (!token) {
+			throw new Error('No license key available. Please configure your license key in settings.');
+		}
+
 		const response = await fetch(`${BACKEND_URL}/${endpoint}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.token}`,
+				Authorization: `Bearer ${token}`,
 				Accept: 'text/plain'
 			},
 			body: JSON.stringify(data),
@@ -34,11 +39,16 @@ export class AIWritingBackendService {
 		data: unknown,
 		signal?: AbortSignal
 	): AsyncGenerator<string, void, unknown> {
+		const token = license_key_state.license_key;
+		if (!token) {
+			throw new Error('No license key available. Please configure your license key in settings.');
+		}
+
 		const response = await fetch(`${BACKEND_URL}/${endpoint}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.token}`,
+				Authorization: `Bearer ${token}`,
 				Accept: 'text/plain+stream'
 			},
 			body: JSON.stringify(data),
@@ -120,8 +130,8 @@ export class AIWritingBackendService {
 		return this.current_abort_controller !== null;
 	}
 
-	set_token(token: string | null) {
-		this.token = token;
+	get has_valid_license() {
+		return license_key_state.has_license_key && license_key_state.is_valid;
 	}
 }
 

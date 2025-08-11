@@ -4,6 +4,8 @@
 	import { projects } from '$lib/state/projects.svelte.js';
 	import { getCurrentWindow } from '@tauri-apps/api/window';
 	import TitleBarUpdateButton from './title_bar_update_button.svelte';
+	import TitleBarLicenseButton from './title_bar_license_button.svelte';
+	import AiLicenseStatus from './ai_license_status.svelte';
 
 	let is_fullscreen = $state(false);
 	const show_back_button = $derived(page.route.id?.startsWith('/[projectId]'));
@@ -119,7 +121,9 @@
 	</div>
 
 	<!-- Right section -->
-	<div class="titlebar-right"></div>
+	<div class="titlebar-right">
+		<TitleBarLicenseButton />
+	</div>
 </div>
 
 <style>

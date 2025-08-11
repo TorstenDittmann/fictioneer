@@ -2,6 +2,7 @@ import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { ai_writing_backend_service } from '$lib/services/ai_writing_backend.js';
+import { license_key_state } from '$lib/state/license_key.svelte.js';
 
 export interface AIWritingSuggestionOptions {
 	delay: number;
@@ -176,6 +177,12 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 						console.log('AI: generateSuggestion called');
 						if (!extension.options.enabled) {
 							console.log('AI: Extension disabled');
+							return;
+						}
+
+						// Check if license key is available and valid
+						if (!license_key_state.has_license_key || !license_key_state.is_valid) {
+							console.log('AI: No valid license key available');
 							return;
 						}
 

@@ -1,4 +1,5 @@
 import { ai_writing_backend_service } from '$lib/services/ai_writing_backend.js';
+import { license_key_state } from '$lib/state/license_key.svelte.js';
 
 function create_ai_writing_backend_state() {
 	const state = $state({
@@ -17,6 +18,14 @@ function create_ai_writing_backend_state() {
 		},
 		get current_suggestion() {
 			return state.current_suggestion;
+		},
+
+		get has_valid_license() {
+			return ai_writing_backend_service.has_valid_license;
+		},
+
+		async initialize() {
+			await license_key_state.initialize();
 		},
 
 		async check_health() {

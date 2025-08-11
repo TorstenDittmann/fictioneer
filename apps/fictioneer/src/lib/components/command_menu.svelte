@@ -2,7 +2,9 @@
 	import { Command, Dialog } from 'bits-ui';
 	import { projects } from '$lib/state/projects.svelte';
 	import { layout_state } from '$lib/state/layout.svelte';
+	import { license_key_state } from '$lib/state/license_key.svelte';
 	import { goto } from '$app/navigation';
+	import LicenseKeyModal from '$lib/components/license_key_modal.svelte';
 	import type { Scene, Chapter } from '$lib/state/projects.svelte';
 
 	interface Props {
@@ -11,6 +13,8 @@
 	}
 
 	let { open = $bindable(false), onOpenChange }: Props = $props();
+
+	let license_key_modal_open = $state(false);
 
 	interface CommandItem {
 		id: string;
@@ -131,6 +135,23 @@
 				? 'M15 12a3 3 0 11-6 0 3 3 0 016 0z'
 				: 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21',
 			keywords: ['distraction', 'free', 'focus', 'mode', 'toggle', 'zen']
+		});
+
+		items.push({
+			id: 'ai-license-key',
+			title: 'AI License Key',
+			subtitle: license_key_state.has_license_key
+				? license_key_state.is_valid
+					? 'License key is valid'
+					: 'License key needs verification'
+				: 'Configure AI license key',
+			action: () => {
+				license_key_modal_open = true;
+				close_menu();
+			},
+			type: 'action',
+			icon: 'M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-.91-.56-.91-1.128v-.55m5.939 4.77a4.5 4.5 0 01-7.5-2.221c0-.52.35-.99.85-1.1l.5-.1M8.25 5.25a3 3 0 00-3 3m0 0a6 6 0 007.029 5.912c.563-.097.91-.56.91-1.128v-.55m-5.939 4.77a4.5 4.5 0 007.5-2.221c0-.52-.35-.99-.85-1.1l-.5-.1',
+			keywords: ['ai', 'license', 'key', 'settings', 'configure', 'authentication']
 		});
 
 		// Add all scenes from all chapters (excluding recent ones to avoid duplicates)
@@ -539,3 +560,5 @@
 		</Dialog.Content>
 	</Dialog.Portal>
 </Dialog.Root>
+
+<LicenseKeyModal bind:open={license_key_modal_open} />

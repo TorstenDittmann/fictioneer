@@ -54,6 +54,13 @@ export interface RecentProject {
 	lastOpened: string;
 }
 
+interface ProjectFileData {
+	version: string;
+	createdAt: string;
+	updatedAt: string;
+	project: SerializedProject;
+}
+
 class FileService {
 	private readonly version = '1.0.0';
 	private readonly file_extension = '.fictioneer';
