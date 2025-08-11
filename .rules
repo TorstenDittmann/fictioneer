@@ -1,6 +1,5 @@
-Use bun.
-
 ### 1. **General Code Style**
+- **Use bun**
 - **Use Svelte 5 with runes** for all component state and reactivity.
 - **Use snake_case** for all variable, function, and file names.
 - **Do not use snake_case** for type/interface names; use **PascalCase** instead.

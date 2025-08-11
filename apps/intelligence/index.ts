@@ -4,6 +4,7 @@ import dedent from 'dedent';
 import { Hono } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
 import { cors } from 'hono/cors';
+import type { GumroadPurchaseResponse } from './types';
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
@@ -22,7 +23,7 @@ const MODELS = {
 
 const app = new Hono();
 
-const auth_cache = new Map<string, { expires: number; session: JwtPayload }>();
+const auth_cache = new Map<string, { expires: number; data: GumroadPurchaseResponse }>();
 
 app.use(
 	'*',
@@ -38,7 +39,43 @@ app.use(
 app.use(
 	'/api/*',
 	bearerAuth({
-		verifyToken: async () => {
+		verifyToken: async (token) => {
+			if (!token) return false;
+			if (auth_cache.has(token)) {
+				const cached = auth_cache.get(token);
+				if (cached && cached.expires > Date.now()) {
+					return cached.data.success;
+				}
+			}
+
+			const response = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				body: new URLSearchParams({
+					product_id: '2afaXdBrAUt6seA3ln257Q==',
+					license_key: token
+				})
+			});
+
+			if (!response.ok) return false;
+
+			const data: GumroadPurchaseResponse = await response.json();
+
+			if (!data.success) return false;
+			const { subscription_ended_at, subscription_cancelled_at, subscription_failed_at } =
+				data.purchase;
+
+			if (
+				subscription_ended_at !== null ||
+				subscription_cancelled_at !== null ||
+				subscription_failed_at !== null
+			)
+				return false;
+
+			auth_cache.set(token, { expires: Date.now() + 60 * 60 * 24, data });
+
 			return true;
 		}
 	})
@@ -145,6 +182,10 @@ app.get('/health', (c) => {
 		status: 'ok',
 		timestamp: new Date().toISOString()
 	});
+});
+
+app.post('/api/verify', async (c) => {
+	c.text('OK');
 });
 
 // Continue writing endpoint
