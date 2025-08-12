@@ -116,14 +116,14 @@
 			id: 'seamless-export',
 			title: 'Professional Export',
 			description:
-				'One click to manuscript ready formats. Export to RTF, TXT, or PDF with industry standard formatting.',
+				'One click to manuscript ready formats. Export to EPUB, RTF, or PDF with industry standard formatting.',
 			icon: 'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
 			gradient: 'from-paper-accent-light/20 to-paper-accent/20'
 		}
 	];
 </script>
 
-<section id="features" class="relative overflow-hidden px-4 py-32">
+<section id="features" class="relative overflow-hidden py-20 sm:py-32">
 	<!-- Background gradient -->
 	<div
 		class="absolute inset-0 bg-gradient-to-b from-paper-white/20 via-paper-cream/30 to-paper-white/20"
@@ -137,18 +137,19 @@
 		class="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-paper-border/50 to-transparent"
 	></div>
 
-	<div class="relative mx-auto max-w-5xl">
+	<!-- Full width on mobile, constrained on desktop -->
+	<div class="relative px-4 lg:mx-auto lg:max-w-7xl lg:px-8">
 		<!-- Section header -->
-		<div class="mb-20 text-center">
+		<div class="mb-16 text-center sm:mb-20">
 			<h2
-				class="mb-6 font-serif text-4xl text-paper-text md:text-6xl {mounted
+				class="mb-4 font-serif text-3xl text-paper-text sm:text-4xl sm:mb-6 md:text-6xl {mounted
 					? 'animate-fade-in-up'
 					: 'opacity-0'}"
 			>
 				Crafted for <span class="gradient-text">Storytellers</span>
 			</h2>
 			<p
-				class="mx-auto max-w-3xl text-xl text-paper-text-light {mounted
+				class="mx-auto max-w-3xl text-lg text-paper-text-light sm:text-xl {mounted
 					? 'animate-fade-in-up'
 					: 'opacity-0'}"
 				style="animation-delay: 0.2s"
@@ -158,29 +159,29 @@
 			</p>
 		</div>
 
-		<!-- Features list -->
-		<div class="space-y-24">
+		<!-- Features list - full width on mobile -->
+		<div class="space-y-16 sm:space-y-24">
 			{#each features as feature, i (feature.id)}
 				<div id={feature.id} class="feature-item group relative">
-					<!-- Alternating layout with enhanced animations -->
+					<!-- Full width mobile layout, alternating desktop layout -->
 					<div
-						class="flex flex-col {i % 2 === 0
+						class="flex flex-col gap-8 sm:gap-12 lg:items-center {i % 2 === 0
 							? 'lg:flex-row'
-							: 'lg:flex-row-reverse'} items-center gap-12 lg:gap-20"
+							: 'lg:flex-row-reverse'} lg:gap-20"
 					>
-						<!-- Content -->
+						<!-- Content - full width on mobile -->
 						<div
-							class="flex-1 text-center lg:text-left {visible_features.has(feature.id)
+							class="w-full text-center lg:flex-1 lg:text-left {visible_features.has(feature.id)
 								? i % 2 === 0
 									? 'animate-slide-in-left'
 									: 'animate-slide-in-right'
 								: 'opacity-0'}"
 						>
 							<div
-								class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br {feature.gradient} border border-paper-border/20 backdrop-blur-sm"
+								class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br {feature.gradient} border border-paper-border/20 backdrop-blur-sm sm:h-16 sm:w-16 sm:mb-6 sm:rounded-2xl"
 							>
 								<svg
-									class="h-8 w-8 text-paper-accent"
+									class="h-6 w-6 text-paper-accent sm:h-8 sm:w-8"
 									fill="none"
 									stroke="currentColor"
 									stroke-width="1.5"
@@ -190,26 +191,26 @@
 								</svg>
 							</div>
 
-							<h3 class="mb-4 font-serif text-3xl text-paper-text md:text-4xl">
+							<h3 class="mb-3 font-serif text-2xl text-paper-text sm:text-3xl sm:mb-4 md:text-4xl">
 								{feature.title}
 							</h3>
 
-							<p class="text-lg leading-relaxed text-paper-text-light md:text-xl">
+							<p class="mx-auto max-w-2xl text-base leading-relaxed text-paper-text-light sm:text-lg md:text-xl lg:mx-0">
 								{feature.description}
 							</p>
 						</div>
 
-						<!-- Visual placeholder with enhanced animations -->
+						<!-- Visual placeholder - full width on mobile -->
 						<div
-							class="relative flex-1 {visible_features.has(feature.id)
+							class="w-full lg:flex-1 {visible_features.has(feature.id)
 								? 'animate-scale-in'
 								: 'opacity-0'}"
 							style="animation-delay: 0.1s"
 						>
-							<div class="relative mx-auto aspect-[4/3] max-w-md">
+							<div class="relative mx-auto aspect-[4/3] max-w-full sm:max-w-md lg:max-w-lg">
 								<!-- Glass card -->
 								<div
-									class="glass relative flex h-full items-center justify-center overflow-hidden rounded-3xl p-8"
+									class="glass relative flex h-full items-center justify-center overflow-hidden rounded-2xl p-6 sm:rounded-3xl sm:p-8"
 								>
 									<!-- Animated gradient background -->
 									<div
@@ -220,10 +221,10 @@
 									<div class="relative z-10 flex h-full w-full items-center justify-center">
 										{#if feature.id === 'distraction-free'}
 											<!-- Minimalist editor visualization -->
-											<div class="w-full space-y-3">
+											<div class="w-full space-y-2 sm:space-y-3">
 												{#each [0.75, 1, 0.85, 0.65] as width, idx (width)}
 													<div
-														class="h-2 rounded-full bg-paper-text/20 transition-all duration-700 {visible_features.has(
+														class="h-1.5 rounded-full bg-paper-text/20 transition-all duration-700 sm:h-2 {visible_features.has(
 															feature.id
 														)
 															? ''
@@ -236,20 +237,20 @@
 										{:else if feature.id === 'ai-assistant'}
 											<!-- AI typewriter effect with fixed positioning -->
 											<div class="flex h-full w-full items-center">
-												<div class="w-full px-2">
-													<div class="min-h-[3rem] text-left font-mono text-sm leading-relaxed">
+												<div class="w-full px-2 sm:px-4">
+													<div class="min-h-[2.5rem] text-left font-mono text-xs leading-relaxed sm:text-sm sm:min-h-[3rem]">
 														<span class="text-paper-text">{ai_base_text}</span>
 														<span class="text-paper-accent">{ai_current_text}</span>
 														<span
-															class="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-paper-accent align-middle"
+															class="ml-0.5 inline-block h-3 w-0.5 animate-pulse bg-paper-accent align-middle sm:h-4"
 														></span>
 													</div>
 												</div>
 											</div>
 										{:else if feature.id === 'progress-tracking'}
 											<!-- Stats visualization -->
-											<div class="w-full space-y-4">
-												<div class="flex items-end justify-between gap-2">
+											<div class="w-full space-y-3 sm:space-y-4">
+												<div class="flex items-end justify-between gap-1 sm:gap-2">
 													{#each [16, 24, 20, 28, 18] as height, idx (height)}
 														<div
 															class="w-1/5 rounded-t bg-paper-accent/40 transition-all duration-700 {visible_features.has(
@@ -257,7 +258,7 @@
 															)
 																? ''
 																: 'scale-y-0'}"
-															style="height: {height * 4}px; animation-delay: {0.3 +
+															style="height: {height * 2.5}px; animation-delay: {0.3 +
 																idx * 0.1}s; transform-origin: bottom"
 														></div>
 													{/each}
@@ -265,41 +266,42 @@
 												<div class="h-px w-full bg-paper-text/20"></div>
 											</div>
 										{:else if feature.id === 'seamless-export'}
-											<!-- Export visualization -->
-											<div class="flex w-full items-center justify-center gap-4">
+											<!-- Export visualization - horizontal layout -->
+											<div class="flex w-full items-center justify-center gap-4 sm:gap-6">
+												<!-- EPUB -->
 												<div
-													class="flex h-20 w-16 items-center justify-center rounded bg-paper-text/20 {visible_features.has(
-														feature.id
-													)
-														? 'animate-scale-in'
-														: 'opacity-0'}"
-												>
-													<span class="text-xs text-paper-text/50">RTF</span>
-												</div>
-												<svg
-													class="h-6 w-6 text-paper-accent {visible_features.has(feature.id)
-														? 'animate-pulse'
-														: ''}"
-													fill="none"
-													stroke="currentColor"
-													viewBox="0 0 24 24"
-												>
-													<path
-														stroke-linecap="round"
-														stroke-linejoin="round"
-														stroke-width="2"
-														d="M13 7l5 5m0 0l-5 5m5-5H6"
-													></path>
-												</svg>
-												<div
-													class="flex h-20 w-16 items-center justify-center rounded bg-paper-accent/30 {visible_features.has(
+													class="flex h-14 w-10 items-center justify-center rounded bg-paper-text/20 sm:h-20 sm:w-16 {visible_features.has(
 														feature.id
 													)
 														? 'animate-scale-in'
 														: 'opacity-0'}"
 													style="animation-delay: 0.2s"
 												>
-													<span class="text-xs text-paper-text/70">PDF</span>
+													<span class="text-xs text-paper-text/50">EPUB</span>
+												</div>
+												
+												<!-- RTF -->
+												<div
+													class="flex h-14 w-10 items-center justify-center rounded bg-paper-accent/20 sm:h-20 sm:w-16 {visible_features.has(
+														feature.id
+													)
+														? 'animate-scale-in'
+														: 'opacity-0'}"
+													style="animation-delay: 0.4s"
+												>
+													<span class="text-xs text-paper-text/70">RTF</span>
+												</div>
+												
+												<!-- PDF -->
+												<div
+													class="flex h-14 w-10 items-center justify-center rounded bg-paper-accent/30 sm:h-20 sm:w-16 {visible_features.has(
+														feature.id
+													)
+														? 'animate-scale-in'
+														: 'opacity-0'}"
+													style="animation-delay: 0.6s"
+												>
+													<span class="text-xs text-paper-text/90">PDF</span>
 												</div>
 											</div>
 										{/if}
@@ -311,9 +313,9 @@
 
 					{#if i < features.length - 1}
 						<!-- Separator -->
-						<div class="mt-24 flex justify-center">
+						<div class="mt-16 flex justify-center sm:mt-24">
 							<div
-								class="h-16 w-px bg-gradient-to-b from-transparent via-paper-border/30 to-transparent"
+								class="h-12 w-px bg-gradient-to-b from-transparent via-paper-border/30 to-transparent sm:h-16"
 							></div>
 						</div>
 					{/if}

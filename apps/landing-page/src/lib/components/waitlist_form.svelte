@@ -48,7 +48,7 @@
 	}
 </script>
 
-<section id="waitlist" class="relative overflow-hidden px-4 py-32">
+<section id="waitlist" class="relative overflow-hidden px-4 py-20 sm:py-32">
 	<!-- Background gradient -->
 	<div
 		class="absolute inset-0 bg-gradient-to-b from-paper-white/20 via-paper-beige to-paper-cream/30"
@@ -59,13 +59,13 @@
 			<!-- Success state -->
 			<div class="text-center {mounted ? 'animate-scale-in' : 'opacity-0'}">
 				<!-- Success icon -->
-				<div class="mb-8 flex justify-center">
+				<div class="mb-6 flex justify-center sm:mb-8">
 					<div class="relative">
 						<div
-							class="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-paper-accent to-paper-accent-light"
+							class="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-paper-accent to-paper-accent-light sm:h-24 sm:w-24"
 						>
 							<svg
-								class="h-12 w-12 text-paper-beige"
+								class="h-10 w-10 text-paper-beige sm:h-12 sm:w-12"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -81,16 +81,42 @@
 					</div>
 				</div>
 
-				<h2 class="mb-4 font-serif text-4xl text-paper-text md:text-5xl">Check Your Email!</h2>
+				<h2 class="mb-4 font-serif text-3xl text-paper-text sm:text-4xl md:text-5xl">Check Your Email!</h2>
 
-				<p class="mx-auto mb-8 max-w-2xl text-xl text-paper-text-light">
+				<p class="mx-auto mb-6 max-w-2xl text-lg text-paper-text-light sm:text-xl sm:mb-8">
 					We've sent a confirmation email to <span class="font-medium text-paper-accent"
 						>{submitted_email}</span
 					>
 				</p>
 
-				<div class="space-y-3">
-					<p class="text-sm text-paper-text-muted">
+				<div class="glass mx-auto mb-6 max-w-lg rounded-xl p-4 sm:rounded-2xl sm:p-6 sm:mb-8">
+					<div class="space-y-3 sm:space-y-4">
+						<div class="flex items-start gap-3 text-left">
+							<div class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-paper-accent/20 text-sm font-bold text-paper-accent sm:h-8 sm:w-8">1</div>
+							<div>
+								<p class="font-medium text-paper-text mb-1 text-sm sm:text-base">Open your email</p>
+								<p class="text-xs text-paper-text-muted sm:text-sm">Look for an email from Gumroad</p>
+							</div>
+						</div>
+						<div class="flex items-start gap-3 text-left">
+							<div class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-paper-accent/20 text-sm font-bold text-paper-accent sm:h-8 sm:w-8">2</div>
+							<div>
+								<p class="font-medium text-paper-text mb-1 text-sm sm:text-base">Click the verification link</p>
+								<p class="text-xs text-paper-text-muted sm:text-sm">Confirm your subscription to join the waitlist</p>
+							</div>
+						</div>
+						<div class="flex items-start gap-3 text-left">
+							<div class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-paper-accent/20 text-sm font-bold text-paper-accent sm:h-8 sm:w-8">3</div>
+							<div>
+								<p class="font-medium text-paper-text mb-1 text-sm sm:text-base">You're all set!</p>
+								<p class="text-xs text-paper-text-muted sm:text-sm">We'll notify you when Fictioneer launches</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="space-y-2 sm:space-y-3">
+					<p class="text-xs text-paper-text-muted sm:text-sm">
 						Can't find the email? Check your spam folder or
 					</p>
 					<button
@@ -98,7 +124,7 @@
 							is_success = false;
 							submitted_email = '';
 						}}
-						class="font-medium text-paper-accent transition-colors hover:text-paper-accent-light"
+						class="font-medium text-paper-accent transition-colors hover:text-paper-accent-light text-sm sm:text-base"
 					>
 						Try a different email address
 					</button>
@@ -108,14 +134,14 @@
 			<!-- Form state -->
 			<div class="text-center">
 				<!-- Creator credit -->
-				<div class="mb-8 {mounted ? 'animate-fade-in-down' : 'opacity-0'}">
-					<p class="text-sm text-paper-text-muted">
+				<div class="mb-6 {mounted ? 'animate-fade-in-down' : 'opacity-0'} sm:mb-8">
+					<p class="text-xs text-paper-text-muted sm:text-sm">
 						By the creator of <span class="font-medium text-paper-accent">OmniaWrite</span>
 					</p>
 				</div>
 
 				<h2
-					class="mb-6 font-serif text-4xl text-paper-text md:text-6xl {mounted
+					class="mb-4 font-serif text-3xl text-paper-text sm:text-4xl sm:mb-6 md:text-6xl {mounted
 						? 'animate-fade-in-up'
 						: 'opacity-0'}"
 					style="animation-delay: 0.1s"
@@ -124,7 +150,7 @@
 				</h2>
 
 				<p
-					class="mx-auto mb-12 max-w-3xl text-xl text-paper-text-light md:text-2xl {mounted
+					class="mx-auto mb-10 max-w-3xl text-lg text-paper-text-light sm:text-xl sm:mb-12 md:text-2xl {mounted
 						? 'animate-fade-in-up'
 						: 'opacity-0'}"
 					style="animation-delay: 0.2s"
@@ -140,24 +166,24 @@
 				>
 					<div class="group relative">
 						<!-- Input group -->
-						<div class="glass relative flex flex-col gap-3 rounded-2xl p-2 sm:flex-row">
+						<div class="glass relative flex flex-col gap-3 rounded-xl p-2 sm:flex-row sm:rounded-2xl">
 							<input
 								type="email"
 								bind:value={email}
 								placeholder="Enter your email address"
 								required
 								disabled={is_submitting}
-								class="flex-1 rounded-xl border border-paper-border/20 bg-paper-white/10 px-6 py-4 text-paper-text placeholder-paper-text-muted transition-all outline-none focus:border-paper-accent/50 focus:bg-paper-white/20 disabled:opacity-50"
+								class="flex-1 rounded-lg border border-paper-border/20 bg-paper-white/10 px-4 py-3 text-paper-text placeholder-paper-text-muted transition-all outline-none focus:border-paper-accent/50 focus:bg-paper-white/20 disabled:opacity-50 sm:rounded-xl sm:px-6 sm:py-4"
 							/>
 
 							<button
 								type="submit"
 								disabled={is_submitting || !email}
-								class="group transform rounded-xl bg-gradient-to-r from-paper-accent to-paper-accent-light px-8 py-4 font-medium whitespace-nowrap text-paper-beige transition-all hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
+								class="group transform rounded-lg bg-gradient-to-r from-paper-accent to-paper-accent-light px-6 py-3 font-medium text-paper-beige transition-all hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-8 sm:py-4 whitespace-nowrap"
 							>
 								{#if is_submitting}
 									<span class="inline-flex items-center gap-2">
-										<svg class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+										<svg class="h-4 w-4 animate-spin sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24">
 											<circle
 												class="opacity-25"
 												cx="12"
@@ -172,13 +198,13 @@
 												d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 											></path>
 										</svg>
-										Reserving...
+										<span class="text-sm sm:text-base">Reserving...</span>
 									</span>
 								{:else}
 									<span class="inline-flex items-center gap-2">
-										Get Early Access
+										<span class="text-sm sm:text-base">Get Early Access</span>
 										<svg
-											class="h-5 w-5 transition-transform group-hover:translate-x-1"
+											class="h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5"
 											fill="none"
 											stroke="currentColor"
 											viewBox="0 0 24 24"
@@ -197,26 +223,26 @@
 					</div>
 
 					{#if error_message}
-						<div class="animate-fade-in mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-4">
-							<p class="text-sm text-red-400">{error_message}</p>
+						<div class="animate-fade-in mt-3 rounded-lg border border-red-500/20 bg-red-500/10 p-3 sm:mt-4 sm:rounded-xl sm:p-4">
+							<p class="text-xs text-red-400 sm:text-sm">{error_message}</p>
 						</div>
 					{/if}
 
-					<p class="mt-6 text-sm text-paper-text-muted">
+					<p class="mt-4 text-xs text-paper-text-muted sm:mt-6 sm:text-sm">
 						We'll send you a verification email. No spam, unsubscribe anytime.
 					</p>
 				</form>
 
 				<!-- Benefits -->
 				<div
-					class="mx-auto mt-16 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-3 {mounted
+					class="mx-auto mt-12 grid max-w-3xl grid-cols-1 gap-4 sm:mt-16 sm:grid-cols-3 sm:gap-6 {mounted
 						? 'animate-fade-in-up'
 						: 'opacity-0'}"
 					style="animation-delay: 0.4s"
 				>
-					<div class="glass hover-lift rounded-xl p-6 text-center">
+					<div class="glass hover-lift rounded-lg p-4 text-center sm:rounded-xl sm:p-6">
 						<svg
-							class="mx-auto mb-3 h-8 w-8 text-paper-accent"
+							class="mx-auto mb-2 h-6 w-6 text-paper-accent sm:mb-3 sm:h-8 sm:w-8"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -228,13 +254,13 @@
 								d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
 							></path>
 						</svg>
-						<h4 class="mb-1 font-semibold text-paper-text">Early Access</h4>
-						<p class="text-sm text-paper-text-muted">Be first to experience Fictioneer</p>
+						<h4 class="mb-1 text-sm font-semibold text-paper-text sm:text-base">Early Access</h4>
+						<p class="text-xs text-paper-text-muted sm:text-sm">Be first to experience Fictioneer</p>
 					</div>
 
-					<div class="glass hover-lift rounded-xl p-6 text-center">
+					<div class="glass hover-lift rounded-lg p-4 text-center sm:rounded-xl sm:p-6">
 						<svg
-							class="mx-auto mb-3 h-8 w-8 text-paper-accent"
+							class="mx-auto mb-2 h-6 w-6 text-paper-accent sm:mb-3 sm:h-8 sm:w-8"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -246,13 +272,13 @@
 								d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"
 							></path>
 						</svg>
-						<h4 class="mb-1 font-semibold text-paper-text">Founding Member</h4>
-						<p class="text-sm text-paper-text-muted">Special status and benefits</p>
+						<h4 class="mb-1 text-sm font-semibold text-paper-text sm:text-base">Founding Member</h4>
+						<p class="text-xs text-paper-text-muted sm:text-sm">Special status and benefits</p>
 					</div>
 
-					<div class="glass hover-lift rounded-xl p-6 text-center">
+					<div class="glass hover-lift rounded-lg p-4 text-center sm:rounded-xl sm:p-6">
 						<svg
-							class="mx-auto mb-3 h-8 w-8 text-paper-accent"
+							class="mx-auto mb-2 h-6 w-6 text-paper-accent sm:mb-3 sm:h-8 sm:w-8"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -264,8 +290,173 @@
 								d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
 							></path>
 						</svg>
-						<h4 class="mb-1 font-semibold text-paper-text">Shape the Future</h4>
-						<p class="text-sm text-paper-text-muted">Your feedback drives our features</p>
+						<h4 class="mb-1 text-sm font-semibold text-paper-text sm:text-base">Shape the Future</h4>
+						<p class="text-xs text-paper-text-muted sm:text-sm">Your feedback drives our features</p>
+					</div>
+				</div>
+			</div>
+		{:else}
+			<!-- Form state -->
+			<div class="text-center">
+				<!-- Creator credit -->
+				<div class="mb-6 {mounted ? 'animate-fade-in-down' : 'opacity-0'} sm:mb-8">
+					<p class="text-xs text-paper-text-muted sm:text-sm">
+						By the creator of <span class="font-medium text-paper-accent">OmniaWrite</span>
+					</p>
+				</div>
+
+				<h2
+					class="mb-4 font-serif text-3xl text-paper-text sm:text-4xl sm:mb-6 md:text-6xl {mounted
+						? 'animate-fade-in-up'
+						: 'opacity-0'}"
+					style="animation-delay: 0.1s"
+				>
+					Reserve Your <span class="gradient-text">Spot</span>
+				</h2>
+
+				<p
+					class="mx-auto mb-10 max-w-3xl text-lg text-paper-text-light sm:text-xl sm:mb-12 md:text-2xl {mounted
+						? 'animate-fade-in-up'
+						: 'opacity-0'}"
+					style="animation-delay: 0.2s"
+				>
+					Join writers waiting for the future of fiction writing. Get exclusive early access and
+					shape the features that matter to you.
+				</p>
+
+				<form
+					onsubmit={handleSubmit}
+					class="mx-auto max-w-xl {mounted ? 'animate-fade-in-up' : 'opacity-0'}"
+					style="animation-delay: 0.3s"
+				>
+					<div class="group relative">
+						<!-- Input group -->
+						<div class="glass relative flex flex-col gap-3 rounded-xl p-2 sm:flex-row sm:rounded-2xl">
+							<input
+								type="email"
+								bind:value={email}
+								placeholder="Enter your email address"
+								required
+								disabled={is_submitting}
+								class="flex-1 rounded-lg border border-paper-border/20 bg-paper-white/10 px-4 py-3 text-paper-text placeholder-paper-text-muted transition-all outline-none focus:border-paper-accent/50 focus:bg-paper-white/20 disabled:opacity-50 sm:rounded-xl sm:px-6 sm:py-4"
+							/>
+
+							<button
+								type="submit"
+								disabled={is_submitting || !email}
+								class="group transform rounded-lg bg-gradient-to-r from-paper-accent to-paper-accent-light px-6 py-3 font-medium text-paper-beige transition-all hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-8 sm:py-4 whitespace-nowrap"
+							>
+								{#if is_submitting}
+									<span class="inline-flex items-center gap-2">
+										<svg class="h-4 w-4 animate-spin sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24">
+											<circle
+												class="opacity-25"
+												cx="12"
+												cy="12"
+												r="10"
+												stroke="currentColor"
+												stroke-width="4"
+											></circle>
+											<path
+												class="opacity-75"
+												fill="currentColor"
+												d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+											></path>
+										</svg>
+										<span class="text-sm sm:text-base">Reserving...</span>
+									</span>
+								{:else}
+									<span class="inline-flex items-center gap-2">
+										<span class="text-sm sm:text-base">Get Early Access</span>
+										<svg
+											class="h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M13 7l5 5m0 0l-5 5m5-5H6"
+											></path>
+										</svg>
+									</span>
+								{/if}
+							</button>
+						</div>
+					</div>
+
+					{#if error_message}
+						<div class="animate-fade-in mt-3 rounded-lg border border-red-500/20 bg-red-500/10 p-3 sm:mt-4 sm:rounded-xl sm:p-4">
+							<p class="text-xs text-red-400 sm:text-sm">{error_message}</p>
+						</div>
+					{/if}
+
+					<p class="mt-4 text-xs text-paper-text-muted sm:mt-6 sm:text-sm">
+						We'll send you a verification email. No spam, unsubscribe anytime.
+					</p>
+				</form>
+
+				<!-- Benefits -->
+				<div
+					class="mx-auto mt-12 grid max-w-3xl grid-cols-1 gap-4 sm:mt-16 sm:grid-cols-3 sm:gap-6 {mounted
+						? 'animate-fade-in-up'
+						: 'opacity-0'}"
+					style="animation-delay: 0.4s"
+				>
+					<div class="glass hover-lift rounded-lg p-4 text-center sm:rounded-xl sm:p-6">
+						<svg
+							class="mx-auto mb-2 h-6 w-6 text-paper-accent sm:mb-3 sm:h-8 sm:w-8"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+							></path>
+						</svg>
+						<h4 class="mb-1 text-sm font-semibold text-paper-text sm:text-base">Early Access</h4>
+						<p class="text-xs text-paper-text-muted sm:text-sm">Be first to experience Fictioneer</p>
+					</div>
+
+					<div class="glass hover-lift rounded-lg p-4 text-center sm:rounded-xl sm:p-6">
+						<svg
+							class="mx-auto mb-2 h-6 w-6 text-paper-accent sm:mb-3 sm:h-8 sm:w-8"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"
+							></path>
+						</svg>
+						<h4 class="mb-1 text-sm font-semibold text-paper-text sm:text-base">Founding Member</h4>
+						<p class="text-xs text-paper-text-muted sm:text-sm">Special status and benefits</p>
+					</div>
+
+					<div class="glass hover-lift rounded-lg p-4 text-center sm:rounded-xl sm:p-6">
+						<svg
+							class="mx-auto mb-2 h-6 w-6 text-paper-accent sm:mb-3 sm:h-8 sm:w-8"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+							></path>
+						</svg>
+						<h4 class="mb-1 text-sm font-semibold text-paper-text sm:text-base">Shape the Future</h4>
+						<p class="text-xs text-paper-text-muted sm:text-sm">Your feedback drives our features</p>
 					</div>
 				</div>
 			</div>

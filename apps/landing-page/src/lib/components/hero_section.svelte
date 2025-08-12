@@ -6,7 +6,7 @@
 	}
 </script>
 
-<section class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-20">
+<section class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-16 sm:py-20">
 	<!-- Gradient background -->
 	<div
 		class="absolute inset-0 bg-gradient-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
@@ -17,47 +17,47 @@
 
 	<div class="relative z-10 mx-auto max-w-6xl text-center">
 		<!-- Logo with spin animation -->
-		<div class="animate-fade-in-down mb-4 flex justify-center">
+		<div class="animate-fade-in-down mb-4 flex justify-center sm:mb-6">
 			<div class="relative">
 				<img
 					src={logo}
 					alt="Fictioneer"
-					class="animate-rotate-slow relative h-20 w-20 md:h-24 md:w-24"
+					class="animate-rotate-slow relative h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24"
 				/>
 			</div>
 		</div>
 
-		<!-- App name - Made bigger -->
-		<div class="animate-fade-in mb-8" style="animation-delay: 0.05s">
-			<h2 class="font-serif text-4xl tracking-wide text-paper-accent md:text-5xl lg:text-6xl">
+		<!-- App name -->
+		<div class="animate-fade-in mb-6 sm:mb-8" style="animation-delay: 0.05s">
+			<h2 class="font-serif text-3xl tracking-wide text-paper-accent sm:text-4xl md:text-5xl lg:text-6xl">
 				Fictioneer
 			</h2>
 		</div>
 
 		<!-- Main headline -->
 		<h1
-			class="animate-fade-in-up mb-6 font-serif text-5xl leading-[0.9] tracking-tight md:text-7xl lg:text-8xl"
+			class="animate-fade-in-up mb-6 font-serif text-4xl leading-[0.9] tracking-tight sm:text-5xl md:text-7xl lg:text-8xl"
 			style="animation-delay: 0.2s"
 		>
 			<span class="block text-paper-text">Where Stories</span>
-			<span class="gradient-text mt-2 block text-6xl md:text-8xl lg:text-9xl">Come to Life</span>
+			<span class="gradient-text mt-1 block text-5xl sm:text-6xl md:text-8xl lg:text-9xl sm:mt-2">Come to Life</span>
 		</h1>
 
-		<!-- Tagline - Made smaller -->
+		<!-- Tagline -->
 		<p
-			class="animate-fade-in-up mx-auto mb-12 max-w-3xl text-lg leading-relaxed text-paper-text-light/90 md:text-xl lg:text-2xl"
+			class="animate-fade-in-up mx-auto mb-10 max-w-3xl text-base leading-relaxed text-paper-text-light/90 sm:text-lg sm:mb-12 md:text-xl lg:text-2xl"
 			style="animation-delay: 0.3s"
 		>
 			The writing environment designed for novelists who demand focus, flow, and creative freedom.
 		</p>
 
-		<!-- CTA Button - Now scrolls to waitlist -->
+		<!-- CTA Button -->
 		<div class="animate-fade-in-up flex items-center justify-center" style="animation-delay: 0.4s">
 			<button onclick={scrollToWaitlist} class="btn-primary hover-lift group">
-				<span class="flex items-center gap-2">
+				<span class="flex items-center gap-2 text-sm sm:text-base">
 					Join the Waitlist
 					<svg
-						class="h-5 w-5 transition-transform group-hover:translate-x-1"
+						class="h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -75,28 +75,28 @@
 
 		<!-- Stats -->
 		<div
-			class="animate-fade-in-up mx-auto mt-20 grid max-w-2xl grid-cols-3 gap-8"
+			class="animate-fade-in-up mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-4 sm:mt-20 sm:gap-8"
 			style="animation-delay: 0.5s"
 		>
 			<div class="text-center">
-				<div class="gradient-text text-3xl font-bold md:text-4xl">Early</div>
-				<div class="mt-1 text-sm text-paper-text-muted">Access</div>
+				<div class="gradient-text text-2xl font-bold sm:text-3xl md:text-4xl">Early</div>
+				<div class="mt-1 text-xs text-paper-text-muted sm:text-sm">Access</div>
 			</div>
 			<div class="text-center">
-				<div class="gradient-text text-3xl font-bold md:text-4xl">100%</div>
-				<div class="mt-1 text-sm text-paper-text-muted">Privacy First</div>
+				<div class="gradient-text text-2xl font-bold sm:text-3xl md:text-4xl">100%</div>
+				<div class="mt-1 text-xs text-paper-text-muted sm:text-sm">Privacy First</div>
 			</div>
 			<div class="text-center">
-				<div class="gradient-text text-3xl font-bold md:text-4xl">Zero</div>
-				<div class="mt-1 text-sm text-paper-text-muted">Distractions</div>
+				<div class="gradient-text text-2xl font-bold sm:text-3xl md:text-4xl">Zero</div>
+				<div class="mt-1 text-xs text-paper-text-muted sm:text-sm">Distractions</div>
 			</div>
 		</div>
 
 		<!-- Scroll indicator -->
-		<div class="animate-fade-in mt-20" style="animation-delay: 0.6s">
+		<div class="animate-fade-in mt-16 sm:mt-20" style="animation-delay: 0.6s">
 			<div class="flex flex-col items-center gap-2 text-paper-text-muted">
 				<span class="text-xs tracking-widest uppercase">Scroll</span>
-				<svg class="h-5 w-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<svg class="h-4 w-4 animate-bounce sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
