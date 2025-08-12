@@ -6,8 +6,8 @@
 
 <svelte:head>
 	<!-- Primary Meta Tags -->
-	<title>Fictioneer - Distraction-Free Writing App for Novelists</title>
-	<meta name="title" content="Fictioneer - Distraction-Free Writing App for Novelists" />
+	<title>Fictioneer - next generation writing tool</title>
+	<meta name="title" content="Fictioneer - next generation writing tool" />
 	<meta
 		name="description"
 		content="Write your novel without distractions. Fictioneer offers AI-powered writing assistance, progress tracking, and a beautiful minimalist interface designed for serious writers."
