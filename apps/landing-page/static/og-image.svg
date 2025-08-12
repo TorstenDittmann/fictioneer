@@ -1,0 +1,88 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2a2621;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#252118;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1f1c15;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c4a47c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4b890;stop-opacity:1" />
+    </linearGradient>
+    
+    <radialGradient id="glowGradient" cx="50%" cy="50%">
+      <stop offset="0%" style="stop-color:#c4a47c;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#c4a47c;stop-opacity:0" />
+    </radialGradient>
+    
+    <!-- Original logo gradients -->
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="centerGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f3f4f6;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Subtle glow effect -->
+  <circle cx="600" cy="160" r="250" fill="url(#glowGradient)" opacity="0.3"/>
+  
+  <!-- Actual Fictioneer Logo with original colors - moved higher -->
+  <g transform="translate(600, 140) scale(1.2)">
+    <!-- Background circle -->
+    <circle cx="0" cy="0" r="90" fill="url(#gradient1)" opacity="0.1"/>
+    
+    <!-- Main logo shape - stylized "O" for Fictioneer -->
+    <g>
+      <!-- Outer ring -->
+      <path d="M 0,-60 A 60,60 0 0,1 51.96,30 L 38.97,22.5 A 45,45 0 0,0 0,-45 Z" fill="url(#gradient1)"/>
+      <path d="M 51.96,30 A 60,60 0 0,1 -51.96,30 L -38.97,22.5 A 45,45 0 0,0 38.97,22.5 Z" fill="url(#gradient2)"/>
+      <path d="M -51.96,30 A 60,60 0 0,1 0,-60 L 0,-45 A 45,45 0 0,0 -38.97,22.5 Z" fill="#6366f1" opacity="0.8"/>
+      
+      <!-- Inner elements forming abstract "O" for Fictioneer -->
+      <circle cx="0" cy="0" r="25" fill="url(#centerGradient)"/>
+      <circle cx="0" cy="0" r="20" fill="none" stroke="url(#gradient1)" stroke-width="2" opacity="0.5"/>
+      
+      <!-- Central dot -->
+      <circle cx="0" cy="0" r="8" fill="url(#gradient1)"/>
+    </g>
+    
+    <!-- Decorative elements -->
+    <circle cx="-60" cy="-60" r="3" fill="#8b5cf6" opacity="0.3"/>
+    <circle cx="60" cy="-60" r="3" fill="#ec4899" opacity="0.3"/>
+    <circle cx="60" cy="60" r="3" fill="#6366f1" opacity="0.3"/>
+    <circle cx="-60" cy="60" r="3" fill="#8b5cf6" opacity="0.3"/>
+  </g>
+  
+  <!-- App name -->
+  <text x="600" y="350" font-family="Georgia, serif" font-size="72" font-weight="400" text-anchor="middle" fill="#c4a47c">
+    Fictioneer
+  </text>
+  
+  <!-- Tagline -->
+  <text x="600" y="410" font-family="Georgia, serif" font-size="28" font-weight="300" text-anchor="middle" fill="#d4cfc7" opacity="0.9">
+    Where Stories Come to Life
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="460" font-family="system-ui, sans-serif" font-size="18" font-weight="400" text-anchor="middle" fill="#a39a90">
+    The writing environment for novelists who demand focus and flow
+  </text>
+  
+  <!-- Additional decorative elements -->
+  <circle cx="200" cy="150" r="60" fill="url(#accentGradient)" opacity="0.05"/>
+  <circle cx="1000" cy="480" r="80" fill="url(#accentGradient)" opacity="0.05"/>
+  <circle cx="150" cy="500" r="40" fill="url(#accentGradient)" opacity="0.03"/>
+  <circle cx="1050" cy="130" r="50" fill="url(#accentGradient)" opacity="0.03"/>
+</svg>

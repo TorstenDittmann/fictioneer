@@ -5,7 +5,6 @@
 	import { getCurrentWindow } from '@tauri-apps/api/window';
 	import TitleBarUpdateButton from './title_bar_update_button.svelte';
 	import TitleBarLicenseButton from './title_bar_license_button.svelte';
-	import AiLicenseStatus from './ai_license_status.svelte';
 
 	let is_fullscreen = $state(false);
 	const show_back_button = $derived(page.route.id?.startsWith('/[projectId]'));
