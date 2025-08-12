@@ -142,7 +142,7 @@
 		<!-- Section header -->
 		<div class="mb-16 text-center sm:mb-20">
 			<h2
-				class="mb-4 font-serif text-3xl text-paper-text sm:text-4xl sm:mb-6 md:text-6xl {mounted
+				class="mb-4 font-serif text-3xl text-paper-text sm:mb-6 sm:text-4xl md:text-6xl {mounted
 					? 'animate-fade-in-up'
 					: 'opacity-0'}"
 			>
@@ -178,7 +178,7 @@
 								: 'opacity-0'}"
 						>
 							<div
-								class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br {feature.gradient} border border-paper-border/20 backdrop-blur-sm sm:h-16 sm:w-16 sm:mb-6 sm:rounded-2xl"
+								class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br {feature.gradient} border border-paper-border/20 backdrop-blur-sm sm:mb-6 sm:h-16 sm:w-16 sm:rounded-2xl"
 							>
 								<svg
 									class="h-6 w-6 text-paper-accent sm:h-8 sm:w-8"
@@ -191,11 +191,13 @@
 								</svg>
 							</div>
 
-							<h3 class="mb-3 font-serif text-2xl text-paper-text sm:text-3xl sm:mb-4 md:text-4xl">
+							<h3 class="mb-3 font-serif text-2xl text-paper-text sm:mb-4 sm:text-3xl md:text-4xl">
 								{feature.title}
 							</h3>
 
-							<p class="mx-auto max-w-2xl text-base leading-relaxed text-paper-text-light sm:text-lg md:text-xl lg:mx-0">
+							<p
+								class="mx-auto max-w-2xl text-base leading-relaxed text-paper-text-light sm:text-lg md:text-xl lg:mx-0"
+							>
 								{feature.description}
 							</p>
 						</div>
@@ -238,7 +240,9 @@
 											<!-- AI typewriter effect with fixed positioning -->
 											<div class="flex h-full w-full items-center">
 												<div class="w-full px-2 sm:px-4">
-													<div class="min-h-[2.5rem] text-left font-mono text-xs leading-relaxed sm:text-sm sm:min-h-[3rem]">
+													<div
+														class="min-h-[2.5rem] text-left font-mono text-xs leading-relaxed sm:min-h-[3rem] sm:text-sm"
+													>
 														<span class="text-paper-text">{ai_base_text}</span>
 														<span class="text-paper-accent">{ai_current_text}</span>
 														<span
@@ -279,7 +283,7 @@
 												>
 													<span class="text-xs text-paper-text/50">EPUB</span>
 												</div>
-												
+
 												<!-- RTF -->
 												<div
 													class="flex h-14 w-10 items-center justify-center rounded bg-paper-accent/20 sm:h-20 sm:w-16 {visible_features.has(
@@ -291,7 +295,7 @@
 												>
 													<span class="text-xs text-paper-text/70">RTF</span>
 												</div>
-												
+
 												<!-- PDF -->
 												<div
 													class="flex h-14 w-10 items-center justify-center rounded bg-paper-accent/30 sm:h-20 sm:w-16 {visible_features.has(

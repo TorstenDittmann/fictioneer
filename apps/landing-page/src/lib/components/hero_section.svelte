@@ -6,7 +6,9 @@
 	}
 </script>
 
-<section class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-16 sm:py-20">
+<section
+	class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-16 sm:py-20"
+>
 	<!-- Gradient background -->
 	<div
 		class="absolute inset-0 bg-gradient-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
@@ -29,7 +31,9 @@
 
 		<!-- App name -->
 		<div class="animate-fade-in mb-6 sm:mb-8" style="animation-delay: 0.05s">
-			<h2 class="font-serif text-3xl tracking-wide text-paper-accent sm:text-4xl md:text-5xl lg:text-6xl">
+			<h2
+				class="font-serif text-3xl tracking-wide text-paper-accent sm:text-4xl md:text-5xl lg:text-6xl"
+			>
 				Fictioneer
 			</h2>
 		</div>
@@ -40,12 +44,14 @@
 			style="animation-delay: 0.2s"
 		>
 			<span class="block text-paper-text">Where Stories</span>
-			<span class="gradient-text mt-1 block text-5xl sm:text-6xl md:text-8xl lg:text-9xl sm:mt-2">Come to Life</span>
+			<span class="gradient-text mt-1 block text-5xl sm:mt-2 sm:text-6xl md:text-8xl lg:text-9xl"
+				>Come to Life</span
+			>
 		</h1>
 
 		<!-- Tagline -->
 		<p
-			class="animate-fade-in-up mx-auto mb-10 max-w-3xl text-base leading-relaxed text-paper-text-light/90 sm:text-lg sm:mb-12 md:text-xl lg:text-2xl"
+			class="animate-fade-in-up mx-auto mb-10 max-w-3xl text-base leading-relaxed text-paper-text-light/90 sm:mb-12 sm:text-lg md:text-xl lg:text-2xl"
 			style="animation-delay: 0.3s"
 		>
 			The writing environment designed for novelists who demand focus, flow, and creative freedom.
@@ -96,7 +102,12 @@
 		<div class="animate-fade-in mt-16 sm:mt-20" style="animation-delay: 0.6s">
 			<div class="flex flex-col items-center gap-2 text-paper-text-muted">
 				<span class="text-xs tracking-widest uppercase">Scroll</span>
-				<svg class="h-4 w-4 animate-bounce sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<svg
+					class="h-4 w-4 animate-bounce sm:h-5 sm:w-5"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
 					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
