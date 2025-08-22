@@ -1,0 +1,15 @@
+{
+	"scripts": {
+		"dev": "wsu dev",
+		"build": "wsu build",
+		"format": "wsu run format",
+		"lint": "wsu run lint",
+		"check": "wsu run check"
+	},
+	"workspaces": [
+		"apps/*"
+	],
+	"devDependencies": {
+		"workspace-utils": "^1.0.3"
+	}
+}

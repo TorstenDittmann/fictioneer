@@ -5,7 +5,8 @@
 	"private": true,
 	"scripts": {
 		"dev": "bun run --watch index.ts",
-		"start": "bun run index.ts",
+		"build": "bun build index.ts --outdir ./build",
+		"start": "bun run ./build/",
 		"format": "prettier --write .",
 		"lint": "prettier --check ."
 	},
