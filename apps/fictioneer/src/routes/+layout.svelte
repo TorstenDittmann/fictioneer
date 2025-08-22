@@ -7,7 +7,6 @@
 	import TitleBar from '$lib/components/title_bar.svelte';
 	import { projects } from '$lib/state/projects.svelte';
 	import { layout_state } from '$lib/state/layout.svelte';
-	import { license_key_state } from '$lib/state/license_key.svelte';
 	import { ai_writing_backend } from '$lib/state/ai_writing_backend.svelte';
 	import type { Snippet } from 'svelte';
 	import { blur } from 'svelte/transition';
@@ -17,9 +16,8 @@
 
 	let show_app = $state(false);
 
-	onMount(async () => {
-		await license_key_state.initialize();
-		await ai_writing_backend.initialize();
+	onMount(() => {
+		ai_writing_backend.initialize();
 		show_app = true;
 	});
 
@@ -42,10 +40,6 @@
 
 <svelte:head>
 	<title>Fictioneer - Creative Writing Tool</title>
-	<meta
-		name="description"
-		content="A minimalist creative writing tool for distraction-free writing"
-	/>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="icon" href={favicon} />
 </svelte:head>
