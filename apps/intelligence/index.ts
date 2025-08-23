@@ -133,6 +133,80 @@ function build_context_string(context: unknown): string {
 	return parts.length > 0 ? `Context: ${parts.join('. ')}.` : '';
 }
 
+function build_alternatives_system_prompt(
+	alternative_type: string,
+	context_before: string,
+	selected_sentence: string,
+	context_after: string
+): string {
+	const base_instructions = dedent`
+		You are a novelist's creative writing assistant. Your task is to rewrite the selected sentence according to the specific instruction given.
+		
+		Context before: "${context_before}"
+		Selected sentence: "${selected_sentence}"
+		Context after: "${context_after}"
+		
+		Important guidelines:
+		• Only rewrite the selected sentence - do not modify the surrounding context
+		• Maintain narrative continuity with the before and after context
+		• Keep the same general meaning and story progression
+		• Match the tense and voice of the surrounding text
+		• Return only the rewritten sentence - no explanations or formatting
+	`;
+
+	const type_instructions = {
+		vivid: dedent`
+			${base_instructions}
+			
+			Make this sentence MORE VIVID by:
+			• Adding specific sensory details (sight, sound, touch, smell, taste)
+			• Using more concrete, evocative imagery
+			• Replacing vague words with precise, descriptive language
+			• Creating a stronger visual or emotional impact
+		`,
+		tighter: dedent`
+			${base_instructions}
+			
+			Make this sentence TIGHTER by:
+			• Eliminating unnecessary words and redundancy
+			• Using stronger, more direct verbs
+			• Combining related ideas efficiently
+			• Maintaining impact while reducing word count
+		`,
+		show_dont_tell: dedent`
+			${base_instructions}
+			
+			Rewrite to SHOW DON'T TELL by:
+			• Converting abstract statements into concrete actions or descriptions
+			• Demonstrating emotions through behavior and physical reactions
+			• Using dialogue, action, or sensory details instead of exposition
+			• Letting readers infer meaning from what characters do and say
+		`,
+		change_pov: dedent`
+			${base_instructions}
+			
+			CHANGE THE POINT OF VIEW by:
+			• If currently third person, try first person or vice versa
+			• If currently omniscient, try limited perspective
+			• Adjust pronouns and perspective accordingly
+			• Maintain the same events but from a different viewpoint
+		`,
+		simplify: dedent`
+			${base_instructions}
+			
+			SIMPLIFY THE PROSE by:
+			• Using shorter, clearer sentences
+			• Replacing complex words with simpler alternatives
+			• Reducing elaborate descriptions to essential elements
+			• Making the language more accessible while keeping the meaning
+		`
+	};
+
+	return (
+		type_instructions[alternative_type as keyof typeof type_instructions] || type_instructions.vivid
+	);
+}
+
 function build_system_prompt(
 	context: unknown,
 	text: string = '',
@@ -243,6 +317,55 @@ app.post('/api/continue', async (c) => {
 	} catch (error) {
 		console.error('Continue writing error:', error);
 		return c.json({ error: 'Failed to generate continuation' }, 500);
+	}
+});
+
+// Rephrase endpoint
+app.post('/api/rephrase', async (c) => {
+	try {
+		const body = await c.req.json();
+		const { selected_sentence, context_before = '', context_after = '' } = body;
+
+		if (!selected_sentence || typeof selected_sentence !== 'string') {
+			return c.json({ error: 'selected_sentence is required and must be a string' }, 400);
+		}
+
+		const client = groq(MODELS.FREE);
+		const alternative_types = ['vivid', 'tighter', 'show_dont_tell', 'change_pov', 'simplify'];
+
+		const alternatives = await Promise.all(
+			alternative_types.map(async (type) => {
+				const system_prompt = build_alternatives_system_prompt(
+					type,
+					context_before,
+					selected_sentence,
+					context_after
+				);
+
+				const result = await generateText({
+					model: client,
+					system: system_prompt,
+					prompt: `Rewrite this sentence: "${selected_sentence}"`,
+					temperature: 0.7,
+					providerOptions: {
+						groq: {} satisfies GroqProviderOptions
+					}
+				});
+
+				return {
+					type,
+					alternative: result.text.trim()
+				};
+			})
+		);
+
+		return c.json({
+			original: selected_sentence,
+			rephrases: alternatives
+		});
+	} catch (error) {
+		console.error('Rephrase generation error:', error);
+		return c.json({ error: 'Failed to generate rephrases' }, 500);
 	}
 });
 

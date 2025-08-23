@@ -1,6 +1,16 @@
 import { PUBLIC_INTELLIGENCE_SERVER_URL } from '$env/static/public';
 import { license_key_state } from '$lib/state/license_key.svelte.js';
 
+interface RephraseOption {
+	type: string;
+	alternative: string;
+}
+
+interface RephraseResponse {
+	original: string;
+	rephrases: RephraseOption[];
+}
+
 const BACKEND_URL = PUBLIC_INTELLIGENCE_SERVER_URL;
 
 export class AIWritingBackendService {
@@ -130,9 +140,24 @@ export class AIWritingBackendService {
 		return this.current_abort_controller !== null;
 	}
 
+	async rephrase(
+		selected_sentence: string,
+		context_before?: string,
+		context_after?: string
+	): Promise<RephraseResponse> {
+		return this.call_backend('rephrase', {
+			selected_sentence,
+			context_before: context_before || '',
+			context_after: context_after || ''
+		}) as Promise<RephraseResponse>;
+	}
+
 	get has_valid_license() {
 		return license_key_state.has_license_key && license_key_state.is_valid;
 	}
 }
 
 export const ai_writing_backend_service = new AIWritingBackendService();
+
+// Export types for use in components
+export type { RephraseOption, RephraseResponse };
