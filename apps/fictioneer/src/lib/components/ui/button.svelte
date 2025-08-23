@@ -14,13 +14,13 @@
 	}: Props = $props();
 
 	const variant_classes = {
-		primary: 'bg-paper-accent text-white hover:bg-paper-accent-light focus:ring-paper-accent',
+		primary: 'bg-accent text-text-inverse hover:bg-accent-hover focus:ring-accent',
 		secondary:
-			'border border-paper-border bg-paper-beige text-paper-text hover:bg-paper-gray focus:ring-paper-accent',
-		destructive: 'bg-paper-accent text-white hover:bg-paper-accent-light focus:ring-paper-accent',
-		ghost: 'bg-transparent text-paper-text hover:bg-paper-gray focus:ring-paper-accent',
+			'border border-border bg-background-tertiary text-text hover:bg-surface focus:ring-accent',
+		destructive: 'bg-accent text-text-inverse hover:bg-accent-hover focus:ring-accent',
+		ghost: 'bg-transparent text-text hover:bg-surface focus:ring-accent',
 		outline:
-			'border border-paper-border bg-transparent text-paper-text hover:bg-paper-beige focus:ring-paper-accent'
+			'border border-border bg-transparent text-text hover:bg-background-tertiary focus:ring-accent'
 	};
 </script>
 

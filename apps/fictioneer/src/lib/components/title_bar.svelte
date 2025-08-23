@@ -74,7 +74,7 @@
 			{#if show_back_button}
 				<a
 					href="/"
-					class="flex items-center gap-1 rounded-sm border border-gray-600 bg-transparent px-1.5 py-0.5 text-[10px] text-gray-300 transition-all duration-150 hover:border-blue-500 hover:bg-gray-700"
+					class="flex items-center gap-1 rounded-sm border border-border bg-transparent px-1.5 py-0.5 text-[10px] text-text-secondary transition-all duration-150 hover:border-accent hover:bg-surface"
 					title="Back to Overview"
 				>
 					<svg
@@ -94,7 +94,7 @@
 		{:else if show_back_button}
 			<a
 				href="/"
-				class="flex items-center gap-1 rounded-sm border border-gray-600 bg-transparent px-1.5 py-0.5 text-[10px] text-gray-300 transition-all duration-150 hover:border-blue-500 hover:bg-gray-700"
+				class="flex items-center gap-1 rounded-sm border border-border bg-transparent px-1.5 py-0.5 text-[10px] text-text-secondary transition-all duration-150 hover:border-accent hover:bg-surface"
 				title="Back to Overview"
 			>
 				<svg
@@ -128,7 +128,7 @@
 <style>
 	.titlebar {
 		height: 100%;
-		border-bottom: 1px solid var(--paper-border);
+		border-bottom: 1px solid var(--color-border);
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -151,10 +151,8 @@
 		justify-content: center;
 		font-size: 13px;
 		font-weight: 500;
-		color: var(--paper-text);
+		color: var(--color-text);
 		padding: 4px 0;
-		user-select: none;
-		-webkit-user-select: none;
 	}
 
 	.titlebar-right {

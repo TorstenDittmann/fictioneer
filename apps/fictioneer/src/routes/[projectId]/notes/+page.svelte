@@ -91,8 +91,8 @@
 		<div class="mb-8">
 			<div class="flex items-center justify-between">
 				<div>
-					<h1 class="text-3xl font-bold text-gray-900">Notes</h1>
-					<p class="mt-2 text-gray-600">
+					<h1 class="text-3xl font-bold text-text">Notes</h1>
+					<p class="mt-2 text-text-secondary">
 						Keep track of ideas, character details, plot points, and more
 					</p>
 				</div>
@@ -114,9 +114,9 @@
 
 		<!-- Notes Grid -->
 		{#if notes.length === 0}
-			<div class="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+			<div class="rounded-lg border-2 border-dashed border-border p-12 text-center">
 				<svg
-					class="mx-auto h-12 w-12 text-gray-400"
+					class="mx-auto h-12 w-12 text-text-muted"
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24"
@@ -128,8 +128,10 @@
 						d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
 					/>
 				</svg>
-				<h3 class="mt-4 text-lg font-medium text-gray-900">No notes yet</h3>
-				<p class="mt-2 text-gray-600">Start organizing your thoughts by creating your first note</p>
+				<h3 class="mt-4 text-lg font-medium text-text">No notes yet</h3>
+				<p class="mt-2 text-text-secondary">
+					Start organizing your thoughts by creating your first note
+				</p>
 				<Button variant="secondary" onclick={create_new_note} class="mt-4">
 					Create First Note
 				</Button>
@@ -138,7 +140,7 @@
 			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{#each notes as note (note.id)}
 					<div
-						class="group cursor-pointer rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-300 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+						class="group cursor-pointer rounded-lg bg-background-secondary p-6 shadow-sm ring-1 ring-border transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
 						role="button"
 						tabindex="0"
 						onclick={() => goto(`/${project_id}/notes/${note.id}`)}
@@ -146,7 +148,7 @@
 					>
 						<div class="flex items-start justify-between">
 							<div class="min-w-0 flex-1">
-								<h3 class="truncate text-lg font-medium text-gray-900">
+								<h3 class="truncate text-lg font-medium text-text">
 									{note.title}
 								</h3>
 							</div>
@@ -156,7 +158,7 @@
 								<IconButton
 									onclick={(event: MouseEvent) => delete_note(note.id, event)}
 									aria-label="Delete note"
-									class="text-gray-400 hover:bg-red-100 hover:text-red-600"
+									class="text-text-muted hover:bg-red-100 hover:text-red-600"
 								>
 									<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
@@ -171,14 +173,14 @@
 						</div>
 
 						{#if note.description.trim()}
-							<div class="mt-3 line-clamp-4 text-sm text-gray-600">
+							<div class="mt-3 line-clamp-4 text-sm text-text-secondary">
 								{get_note_preview(note.description)}
 							</div>
 						{:else}
-							<p class="mt-3 text-sm text-gray-400 italic">No description</p>
+							<p class="mt-3 text-sm text-text-muted italic">No description</p>
 						{/if}
 
-						<div class="mt-4 text-xs text-gray-500">
+						<div class="mt-4 text-xs text-text-muted">
 							Updated {format_date(new Date(note.updatedAt))}
 						</div>
 					</div>

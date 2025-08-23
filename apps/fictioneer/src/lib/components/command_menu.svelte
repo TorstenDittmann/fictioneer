@@ -214,15 +214,15 @@
 	function get_icon_color(type: CommandItem['type']): string {
 		switch (type) {
 			case 'recent':
-				return 'text-paper-accent';
+				return 'text-accent';
 			case 'navigation':
-				return 'text-paper-accent';
+				return 'text-accent';
 			case 'action':
-				return 'text-paper-accent';
+				return 'text-accent';
 			case 'scene':
-				return 'text-paper-accent';
+				return 'text-accent';
 			default:
-				return 'text-gray-500';
+				return 'text-text-muted';
 		}
 	}
 </script>
@@ -240,14 +240,14 @@
 
 			<Command.Root
 				class="flex h-full w-full flex-col overflow-hidden rounded-lg border shadow-xl"
-				style="background-color: var(--paper-white); border-color: var(--paper-border);"
+				style="background-color: var(--color-surface); border-color: var(--color-border);"
 				loop={true}
 			>
-				<div class="border-b px-4 py-3" style="border-color: var(--paper-border);">
+				<div class="border-b px-4 py-3" style="border-color: var(--color-border);">
 					<div class="flex items-center gap-3">
 						<svg
 							class="h-5 w-5"
-							style="color: var(--paper-text-muted);"
+							style="color: var(--color-text-muted);"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -261,13 +261,13 @@
 						</svg>
 						<Command.Input
 							class="flex-1 bg-transparent text-sm outline-none"
-							style="color: var(--paper-text);"
+							style="color: var(--color-text);"
 							placeholder="Search commands, scenes, and actions..."
 						/>
 						<div class="flex items-center gap-1">
 							<kbd
 								class="rounded px-2 py-1 text-xs font-medium"
-								style="background-color: var(--paper-beige); color: var(--paper-text);"
+								style="background-color: var(--color-background-tertiary); color: var(--color-text);"
 							>
 								Esc
 							</kbd>
@@ -279,12 +279,12 @@
 					<Command.Viewport>
 						<Command.Empty
 							class="flex w-full items-center justify-center p-8 text-center"
-							style="color: var(--paper-text-muted);"
+							style="color: var(--color-text-muted);"
 						>
 							<div>
 								<svg
 									class="mx-auto h-12 w-12"
-									style="color: var(--paper-text-muted);"
+									style="color: var(--color-text-muted);"
 									fill="none"
 									stroke="currentColor"
 									viewBox="0 0 24 24"
@@ -296,10 +296,10 @@
 										d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
 									/>
 								</svg>
-								<h3 class="mt-4 text-lg font-medium" style="color: var(--paper-text);">
+								<h3 class="mt-4 text-lg font-medium" style="color: var(--color-text);">
 									No results found
 								</h3>
-								<p class="mt-2" style="color: var(--paper-text-light);">
+								<p class="mt-2" style="color: var(--color-text-secondary);">
 									Try searching for something else.
 								</p>
 							</div>
@@ -309,15 +309,14 @@
 							<Command.Group>
 								<Command.GroupHeading
 									class="px-3 py-2 text-xs font-medium"
-									style="color: var(--paper-text-muted);"
+									style="color: var(--color-text-muted);"
 								>
 									{get_type_label('recent')}
 								</Command.GroupHeading>
 								<Command.GroupItems>
 									{#each grouped_items.recent as item (item.id)}
 										<Command.Item
-											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm select-none hover:bg-gray-100 data-[selected]:bg-gray-100"
-											style="color: var(--paper-text);"
+											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-[selected]:bg-background-tertiary"
 											value={item.title}
 											keywords={item.keywords}
 											onSelect={item.action}
@@ -346,7 +345,7 @@
 												{#if item.subtitle}
 													<p
 														class="item-subtitle truncate text-xs"
-														style="color: var(--paper-text-muted);"
+														style="color: var(--color-text-muted);"
 													>
 														{item.subtitle}
 													</p>
@@ -361,20 +360,19 @@
 						{#if grouped_items.navigation.length > 0}
 							<Command.Separator
 								class="h-px w-full border-t"
-								style="border-color: var(--paper-border);"
+								style="border-color: var(--color-border);"
 							/>
 							<Command.Group>
 								<Command.GroupHeading
 									class="px-3 py-2 text-xs font-medium"
-									style="color: var(--paper-text-muted);"
+									style="color: var(--color-text-muted);"
 								>
 									{get_type_label('navigation')}
 								</Command.GroupHeading>
 								<Command.GroupItems>
 									{#each grouped_items.navigation as item (item.id)}
 										<Command.Item
-											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm select-none hover:bg-gray-100 data-[selected]:bg-gray-100"
-											style="color: var(--paper-text);"
+											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-[selected]:bg-background-tertiary"
 											value={item.title}
 											keywords={item.keywords}
 											onSelect={item.action}
@@ -401,7 +399,7 @@
 													</span>
 												</div>
 												{#if item.subtitle}
-													<p class="truncate text-xs" style="color: var(--paper-text-muted);">
+													<p class="truncate text-xs" style="color: var(--color-text-muted);">
 														{item.subtitle}
 													</p>
 												{/if}
@@ -415,20 +413,19 @@
 						{#if grouped_items.action.length > 0}
 							<Command.Separator
 								class="h-px w-full border-t"
-								style="border-color: var(--paper-border);"
+								style="border-color: var(--color-border);"
 							/>
 							<Command.Group>
 								<Command.GroupHeading
 									class="px-3 py-2 text-xs font-medium"
-									style="color: var(--paper-text-muted);"
+									style="color: var(--color-text-muted);"
 								>
 									{get_type_label('action')}
 								</Command.GroupHeading>
 								<Command.GroupItems>
 									{#each grouped_items.action as item (item.id)}
 										<Command.Item
-											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm select-none hover:bg-gray-100 data-[selected]:bg-gray-100"
-											style="color: var(--paper-text);"
+											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-[selected]:bg-background-tertiary"
 											value={item.title}
 											keywords={item.keywords}
 											onSelect={item.action}
@@ -455,7 +452,7 @@
 													</span>
 												</div>
 												{#if item.subtitle}
-													<p class="truncate text-xs" style="color: var(--paper-text-muted);">
+													<p class="truncate text-xs" style="color: var(--color-text-muted);">
 														{item.subtitle}
 													</p>
 												{/if}
@@ -469,20 +466,19 @@
 						{#if grouped_items.scene.length > 0}
 							<Command.Separator
 								class="h-px w-full border-t"
-								style="border-color: var(--paper-border);"
+								style="border-color: var(--color-border);"
 							/>
 							<Command.Group>
 								<Command.GroupHeading
 									class="px-3 py-2 text-xs font-medium"
-									style="color: var(--paper-text-muted);"
+									style="color: var(--color-text-muted);"
 								>
 									{get_type_label('scene')}
 								</Command.GroupHeading>
 								<Command.GroupItems>
 									{#each grouped_items.scene as item (item.id)}
 										<Command.Item
-											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm select-none hover:bg-gray-100 data-[selected]:bg-gray-100"
-											style="color: var(--paper-text);"
+											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-[selected]:bg-background-tertiary"
 											value={item.title}
 											keywords={item.keywords}
 											onSelect={item.action}
@@ -509,7 +505,7 @@
 													</span>
 												</div>
 												{#if item.subtitle}
-													<p class="truncate text-xs" style="color: var(--paper-text-muted);">
+													<p class="truncate text-xs" style="color: var(--color-text-muted);">
 														{item.subtitle}
 													</p>
 												{/if}
@@ -522,27 +518,30 @@
 					</Command.Viewport>
 				</Command.List>
 
-				<div class="border-t px-4 py-2" style="border-color: var(--paper-border);">
+				<div class="border-t px-4 py-2" style="border-color: var(--color-border);">
 					<div
 						class="flex items-center justify-between text-xs"
-						style="color: var(--paper-text-muted);"
+						style="color: var(--color-text-muted);"
 					>
 						<div class="flex items-center gap-4">
 							<div class="flex items-center gap-1">
 								<kbd
 									class="rounded px-1.5 py-0.5 font-mono"
-									style="background-color: var(--paper-beige); color: var(--paper-text);">↑</kbd
+									style="background-color: var(--color-background-tertiary); color: var(--color-text);"
+									>↑</kbd
 								>
 								<kbd
 									class="rounded px-1.5 py-0.5 font-mono"
-									style="background-color: var(--paper-beige); color: var(--paper-text);">↓</kbd
+									style="background-color: var(--color-background-tertiary); color: var(--color-text);"
+									>↓</kbd
 								>
 								<span>to navigate</span>
 							</div>
 							<div class="flex items-center gap-1">
 								<kbd
 									class="rounded px-1.5 py-0.5 font-mono"
-									style="background-color: var(--paper-beige); color: var(--paper-text);">↵</kbd
+									style="background-color: var(--color-background-tertiary); color: var(--color-text);"
+									>↵</kbd
 								>
 								<span>to select</span>
 							</div>
@@ -550,7 +549,8 @@
 						<div class="flex items-center gap-1">
 							<kbd
 								class="rounded px-1.5 py-0.5 font-mono"
-								style="background-color: var(--paper-beige); color: var(--paper-text);">esc</kbd
+								style="background-color: var(--color-background-tertiary); color: var(--color-text);"
+								>esc</kbd
 							>
 							<span>to close</span>
 						</div>

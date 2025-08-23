@@ -92,10 +92,10 @@
 		<!-- Header -->
 		<div class="mb-8">
 			<div>
-				<h1 class="text-3xl font-bold text-gray-900">
+				<h1 class="text-3xl font-bold text-text">
 					{current_project.title}
 				</h1>
-				<p class="mt-2 text-gray-600">
+				<p class="mt-2 text-text-secondary">
 					{current_project.description || 'Project overview and recent activity'}
 				</p>
 			</div>
@@ -103,11 +103,11 @@
 
 		<!-- Project Stats -->
 		<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-300">
+			<div class="rounded-lg bg-background-secondary p-6 shadow-sm ring-1 ring-border">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
 						<svg
-							class="h-8 w-8 text-gray-600"
+							class="h-8 w-8 text-text-secondary"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -121,19 +121,19 @@
 						</svg>
 					</div>
 					<div class="ml-4">
-						<p class="text-sm font-medium text-gray-600">Scenes</p>
-						<p class="text-2xl font-semibold text-gray-900">
+						<p class="text-sm font-medium text-text-secondary">Scenes</p>
+						<p class="text-2xl font-semibold text-text">
 							{project_stats.total_scenes}
 						</p>
 					</div>
 				</div>
 			</div>
 
-			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-300">
+			<div class="rounded-lg bg-background-secondary p-6 shadow-sm ring-1 ring-border">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
 						<svg
-							class="h-8 w-8 text-green-600"
+							class="h-8 w-8 text-text-secondary"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -142,24 +142,24 @@
 								stroke-linecap="round"
 								stroke-linejoin="round"
 								stroke-width="2"
-								d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+								d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
 							/>
 						</svg>
 					</div>
 					<div class="ml-4">
-						<p class="text-sm font-medium text-gray-600">Chapters</p>
-						<p class="text-2xl font-semibold text-gray-900">
+						<p class="text-sm font-medium text-text-secondary">Chapters</p>
+						<p class="text-2xl font-semibold text-text">
 							{project_stats.total_chapters}
 						</p>
 					</div>
 				</div>
 			</div>
 
-			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-300">
+			<div class="rounded-lg bg-background-secondary p-6 shadow-sm ring-1 ring-border">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
 						<svg
-							class="h-8 w-8 text-purple-600"
+							class="h-8 w-8 text-text-secondary"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -168,24 +168,24 @@
 								stroke-linecap="round"
 								stroke-linejoin="round"
 								stroke-width="2"
-								d="M7 4v16l4.586-4.586a2 2 0 012.828 0L19 20V4a2 2 0 00-2-2H9a2 2 0 00-2 2z"
+								d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
 							/>
 						</svg>
 					</div>
 					<div class="ml-4">
-						<p class="text-sm font-medium text-gray-600">Words</p>
-						<p class="text-2xl font-semibold text-gray-900">
+						<p class="text-sm font-medium text-text-secondary">Total Words</p>
+						<p class="text-2xl font-semibold text-text">
 							{project_stats.total_words.toLocaleString()}
 						</p>
 					</div>
 				</div>
 			</div>
 
-			<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-300">
+			<div class="rounded-lg bg-background-secondary p-6 shadow-sm ring-1 ring-border">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
 						<svg
-							class="h-8 w-8 text-orange-600"
+							class="h-8 w-8 text-text-secondary"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -194,13 +194,13 @@
 								stroke-linecap="round"
 								stroke-linejoin="round"
 								stroke-width="2"
-								d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
+								d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
 							/>
 						</svg>
 					</div>
 					<div class="ml-4">
-						<p class="text-sm font-medium text-gray-600">Characters</p>
-						<p class="text-2xl font-semibold text-gray-900">
+						<p class="text-sm font-medium text-text-secondary">Last Modified</p>
+						<p class="text-lg font-semibold text-text">
 							{project_stats.total_characters.toLocaleString()}
 						</p>
 					</div>
@@ -210,12 +210,12 @@
 
 		<!-- Recent Scenes -->
 		<div class="mb-8">
-			<h2 class="mb-6 text-xl font-semibold text-gray-900">Recently Updated Scenes</h2>
+			<h2 class="mb-6 text-xl font-semibold text-text">Recently Updated Scenes</h2>
 
 			{#if recent_scenes.length === 0}
-				<div class="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+				<div class="rounded-lg border-2 border-dashed border-border p-12 text-center">
 					<svg
-						class="mx-auto h-12 w-12 text-gray-400"
+						class="mx-auto h-12 w-12 text-text-muted"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -227,8 +227,8 @@
 							d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
 						/>
 					</svg>
-					<h3 class="mt-4 text-lg font-medium text-gray-900">No scenes yet</h3>
-					<p class="mt-2 text-gray-600">Start writing by creating your first scene</p>
+					<h3 class="mt-4 text-lg font-medium text-text">No scenes yet</h3>
+					<p class="mt-2 text-text-secondary">Start writing by creating your first scene</p>
 					<Button variant="primary" onclick={create_first_scene} class="mt-4">
 						Create First Scene
 					</Button>
@@ -236,21 +236,23 @@
 			{:else}
 				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 					{#each recent_scenes as scene (scene.id)}
-						<button
-							onclick={() => navigate_to_scene(scene.chapter_id, scene.id)}
-							class="group rounded-lg bg-white p-6 text-left shadow-sm ring-1 ring-gray-300 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+						<a
+							href="/{data.project.id}/{scene.chapter_id}/{scene.id}"
+							class="group block rounded-lg bg-background-secondary p-6 text-left no-underline shadow-sm ring-1 ring-border transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
 						>
 							<div class="flex items-start justify-between">
 								<div class="min-w-0 flex-1">
-									<h3 class="truncate text-lg font-medium text-gray-900 group-hover:text-gray-600">
+									<h3
+										class="truncate text-lg font-medium text-text group-hover:text-text-secondary"
+									>
 										{scene.title}
 									</h3>
-									<p class="mt-1 text-sm text-gray-600">
+									<p class="mt-1 text-sm text-text-secondary">
 										{scene.chapter_title}
 									</p>
 								</div>
 								<svg
-									class="h-5 w-5 flex-shrink-0 text-gray-400 transition-colors group-hover:text-gray-600"
+									class="h-5 w-5 flex-shrink-0 text-text-muted transition-colors group-hover:text-text-secondary"
 									fill="none"
 									stroke="currentColor"
 									viewBox="0 0 24 24"
@@ -265,14 +267,14 @@
 							</div>
 
 							{#if scene.content.trim()}
-								<p class="mt-3 line-clamp-3 text-sm text-gray-600">
+								<p class="mt-3 line-clamp-3 text-sm text-text-secondary">
 									{get_scene_preview(scene.content)}
 								</p>
 							{:else}
-								<p class="mt-3 text-sm text-gray-400 italic">No content yet...</p>
+								<p class="mt-3 text-sm text-text-muted italic">No content yet...</p>
 							{/if}
 
-							<div class="mt-4 flex items-center justify-between text-xs text-gray-500">
+							<div class="mt-4 flex items-center justify-between text-xs text-text-muted">
 								<span>
 									{scene.wordCount} words
 								</span>
@@ -280,27 +282,27 @@
 									Updated {format_date(new Date(scene.updatedAt))}
 								</span>
 							</div>
-						</button>
+						</a>
 					{/each}
 				</div>
 			{/if}
 		</div>
 
 		<!-- Recent Notes -->
-		<RecentNotes />
+		<RecentNotes project_id={data.project.id} />
 
 		<!-- Export Section -->
 		<div class="mb-8">
-			<h2 class="text-paper-text mb-6 text-xl font-semibold">Export Project</h2>
-			<div class="border-paper-border bg-paper-white rounded-lg border p-6">
+			<h2 class="mb-6 text-xl font-semibold text-text">Export Project</h2>
+			<div class="rounded-lg border border-border bg-background-secondary p-6">
 				<div class="grid gap-6 md:grid-cols-2">
 					<div>
-						<h3 class="text-paper-text mb-2 font-medium">Rich Text Format (RTF)</h3>
-						<p class="text-paper-text-light mb-4 text-sm">
+						<h3 class="mb-2 font-medium text-text">Rich Text Format (RTF)</h3>
+						<p class="mb-4 text-sm text-text-secondary">
 							Export your project as a formatted RTF document that preserves formatting and can be
 							opened in most word processors like Microsoft Word, Google Docs, or Pages.
 						</p>
-						<div class="text-paper-text-muted space-y-1 text-xs">
+						<div class="space-y-1 text-xs text-text-muted">
 							<div>• Preserves text formatting</div>
 							<div>• Compatible with major word processors</div>
 							<div>• Includes chapter and scene structure</div>
@@ -310,12 +312,12 @@
 						</div>
 					</div>
 					<div>
-						<h3 class="text-paper-text mb-2 font-medium">Plain Text (TXT)</h3>
-						<p class="text-paper-text-light mb-4 text-sm">
+						<h3 class="mb-2 font-medium text-text">Plain Text (TXT)</h3>
+						<p class="mb-4 text-sm text-text-secondary">
 							Export your project as a simple text file with minimal formatting. Perfect for
 							importing into other writing tools or for basic text editing.
 						</p>
-						<div class="text-paper-text-muted space-y-1 text-xs">
+						<div class="space-y-1 text-xs text-text-muted">
 							<div>• Universal compatibility</div>
 							<div>• Small file size</div>
 							<div>• Easy to process programmatically</div>

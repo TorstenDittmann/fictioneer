@@ -78,7 +78,7 @@
 
 <svelte:window onkeydown={handle_keydown} />
 
-<div class="flex h-full flex-col text-gray-100">
+<div class="flex h-full flex-col text-text">
 	<!-- Main content -->
 	<main class="flex-1 overflow-y-auto">
 		<div class="mx-auto max-w-4xl px-6 py-12">
@@ -88,7 +88,7 @@
 					<Logo size={80} />
 				</div>
 				<h2 class="mb-4 text-3xl font-bold">Welcome to Fictioneer</h2>
-				<p class="mx-auto mb-8 max-w-2xl text-xl text-gray-400">
+				<p class="mx-auto mb-8 max-w-2xl text-xl text-text-muted">
 					A minimalist writing tool designed for distraction-free creative writing.
 				</p>
 
@@ -97,13 +97,13 @@
 				>
 					<button
 						onclick={handle_new_project}
-						class="bg-paper-accent hover:bg-paper-accent-light focus:ring-paper-accent rounded-lg px-8 py-4 text-lg font-medium text-white transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+						class="rounded-lg bg-accent px-8 py-4 text-lg font-medium text-text-inverse transition-colors duration-200 hover:bg-accent-hover focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:outline-none"
 					>
 						Create New Project
 					</button>
 					<button
 						onclick={handle_open_project}
-						class="rounded-lg border border-gray-600 px-8 py-4 text-lg font-medium text-gray-300 transition-colors duration-200 hover:bg-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
+						class="rounded-lg border border-border px-8 py-4 text-lg font-medium text-text-secondary transition-colors duration-200 hover:bg-surface focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:outline-none"
 					>
 						Open Existing Project
 					</button>
@@ -112,7 +112,7 @@
 
 			<!-- Recent Projects -->
 			{#if recent_projects.length > 0}
-				<div class="mt-12 border-t border-gray-700 pt-8">
+				<div class="mt-12 border-t border-border pt-8">
 					<div class="mb-6 flex items-center justify-between">
 						<h3 class="text-xl font-semibold">Recent Projects</h3>
 						<button
@@ -120,7 +120,7 @@
 								projects.recentProjects.length > 0 &&
 								confirm('Clear all recent projects?') &&
 								file_service.clear_recent_projects()}
-							class="text-sm text-gray-400 hover:text-gray-200"
+							class="text-sm text-text-muted hover:text-text-secondary"
 						>
 							Clear All
 						</button>
@@ -128,18 +128,16 @@
 					<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 						{#each recent_projects as recent_project (recent_project.path)}
 							<div
-								class="group relative rounded-lg border border-gray-700 bg-gray-800 transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] hover:border-gray-600 hover:bg-gray-700 hover:shadow-lg"
+								class="group relative rounded-lg border border-border bg-surface transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] hover:border-border-secondary hover:bg-surface-hover hover:shadow-lg"
 							>
 								<button
 									onclick={() => handle_open_recent(recent_project.path)}
-									class="block w-full p-4 text-left focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
+									class="block w-full p-4 text-left focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:outline-none"
 								>
-									<h4
-										class="mb-2 truncate text-lg font-medium text-gray-100 group-hover:text-white"
-									>
+									<h4 class="mb-2 truncate text-lg font-medium text-text group-hover:text-text">
 										{recent_project.title}
 									</h4>
-									<div class="text-sm text-gray-400">
+									<div class="text-sm text-text-muted">
 										<div class="mb-1 truncate" title={recent_project.path}>
 											{get_filename_from_path(recent_project.path)}
 										</div>
@@ -155,7 +153,7 @@
 										e.stopPropagation();
 										file_service.remove_from_recent_projects(recent_project.path);
 									}}
-									class="absolute top-2 right-2 rounded p-1 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-800 hover:text-red-400"
+									class="absolute top-2 right-2 rounded p-1 text-text-muted opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface hover:text-red-400"
 									title="Remove from recent projects"
 									aria-label="Remove from recent projects"
 								>
@@ -178,31 +176,31 @@
 			<div class="mt-12 text-left">
 				<h3 class="mb-4 text-xl font-semibold">Getting Started</h3>
 				<div class="grid gap-6 md:grid-cols-2">
-					<div class="rounded-lg border border-gray-700 p-6">
+					<div class="rounded-lg border border-border p-6">
 						<h4 class="mb-2 font-medium">Creating a New Project</h4>
-						<p class="text-sm text-gray-400">
+						<p class="text-sm text-text-muted">
 							Click "Create New Project" to start a new writing project. You'll be prompted to set a
 							title, description, and choose where to save your <code>.fictioneer</code> file.
 						</p>
 					</div>
-					<div class="rounded-lg border border-gray-700 p-6">
+					<div class="rounded-lg border border-border p-6">
 						<h4 class="mb-2 font-medium">Opening an Existing Project</h4>
-						<p class="text-sm text-gray-400">
+						<p class="text-sm text-text-muted">
 							Click "Open Existing Project" to browse for and open a previously saved <code
 								>.fictioneer</code
 							> file. All your chapters, scenes, and content will be restored.
 						</p>
 					</div>
-					<div class="rounded-lg border border-gray-700 p-6">
+					<div class="rounded-lg border border-border p-6">
 						<h4 class="mb-2 font-medium">Automatic Saving</h4>
-						<p class="text-sm text-gray-400">
+						<p class="text-sm text-text-muted">
 							Your work is automatically saved to your <code>.fictioneer</code> file as you write. No
 							need to manually save.
 						</p>
 					</div>
-					<div class="rounded-lg border border-gray-700 p-6">
+					<div class="rounded-lg border border-border p-6">
 						<h4 class="mb-2 font-medium">Keyboard Shortcuts</h4>
-						<div class="text-sm text-gray-400">
+						<div class="text-sm text-text-muted">
 							<div>⌘N - New Project</div>
 							<div>⌘O - Open Project</div>
 							<div>⌘W - Close Project</div>

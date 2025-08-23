@@ -29,28 +29,28 @@
 	let button_styles = $derived.by(() => {
 		const colors = {
 			red: {
-				bg: '#fee2e2',
-				border: '#fecaca',
+				bg: 'var(--color-surface)',
+				border: 'var(--color-border)',
 				text: '#dc2626',
-				hover: '#fef2f2'
+				hover: 'var(--color-background-tertiary)'
 			},
 			amber: {
-				bg: '#fef3c7',
-				border: '#fde68a',
+				bg: 'var(--color-surface)',
+				border: 'var(--color-border)',
 				text: '#d97706',
-				hover: '#fffbeb'
+				hover: 'var(--color-background-tertiary)'
 			},
 			green: {
-				bg: '#dcfce7',
-				border: '#bbf7d0',
+				bg: 'var(--color-surface)',
+				border: 'var(--color-border)',
 				text: '#16a34a',
-				hover: '#f0fdf4'
+				hover: 'var(--color-background-tertiary)'
 			},
 			gray: {
-				bg: '#f3f4f6',
-				border: '#d1d5db',
-				text: '#6b7280',
-				hover: '#f9fafb'
+				bg: 'var(--color-surface)',
+				border: 'var(--color-border)',
+				text: 'var(--color-text-muted)',
+				hover: 'var(--color-background-tertiary)'
 			}
 		};
 		return colors[button_color];
@@ -59,7 +59,7 @@
 
 <button
 	onclick={open_license_modal}
-	class="flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[10px] font-medium transition-all duration-150 hover:scale-105"
+	class="flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[10px] font-medium transition-all duration-150 hover:bg-background-tertiary"
 	style="background-color: {button_styles.bg}; border-color: {button_styles.border}; color: {button_styles.text};"
 	title={tooltip_text}
 	type="button"

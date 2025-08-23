@@ -25,7 +25,7 @@
 	}
 </script>
 
-<div class="bg-transparent-paper flex min-h-screen flex-col text-gray-900 dark:text-gray-100">
+<div class="bg-transparent-paper flex min-h-screen flex-col text-text">
 	<!-- Header -->
 	<ErrorHeader />
 
@@ -50,15 +50,15 @@
 				</svg>
 			</div>
 
-			<h1 class="mb-4 text-4xl font-bold text-gray-900 dark:text-gray-100">
+			<h1 class="mb-4 text-4xl font-bold text-text">
 				{page.status}
 			</h1>
 
-			<h2 class="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-300">
+			<h2 class="mb-4 text-xl font-semibold text-text-secondary">
 				{get_status_text(page.status)}
 			</h2>
 
-			<p class="mb-8 text-gray-600 dark:text-gray-400">
+			<p class="mb-8 text-text-secondary">
 				{get_error_message(page.error)}
 			</p>
 
@@ -72,18 +72,18 @@
 
 				<button
 					onclick={() => window.history.back()}
-					class="w-full rounded-lg border border-gray-300 px-6 py-3 text-gray-700 transition-colors duration-200 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+					class="w-full rounded-lg border border-border px-6 py-3 text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:outline-none"
 				>
 					Go Back
 				</button>
 			</div>
 
 			{#if page.status === 404}
-				<p class="mt-6 text-sm text-gray-500 dark:text-gray-400">
+				<p class="mt-6 text-sm text-text-muted">
 					The page you're looking for might have been moved, deleted, or doesn't exist.
 				</p>
 			{:else if page.status >= 500}
-				<p class="mt-6 text-sm text-gray-500 dark:text-gray-400">
+				<p class="mt-6 text-sm text-text-muted">
 					Something went wrong on our end. Please try again later.
 				</p>
 			{/if}

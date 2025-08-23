@@ -74,7 +74,7 @@
 		grid-template-rows: 30px 1fr;
 		height: 100%;
 		width: 100%;
-		background: var(--paper-white-transparent);
+		background: var(--color-background-transparent);
 		overflow: hidden;
 	}
 

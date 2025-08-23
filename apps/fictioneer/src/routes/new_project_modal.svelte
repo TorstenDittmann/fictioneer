@@ -94,8 +94,8 @@
 <Modal bind:open>
 	<div class="grid gap-6">
 		<div>
-			<h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Create New Project</h2>
-			<p class="text-sm text-gray-500 dark:text-gray-400">
+			<h2 class="text-lg font-semibold text-text">Create New Project</h2>
+			<p class="text-sm text-text-secondary">
 				Set up your new writing project. Choose a title, description, and save location.
 			</p>
 		</div>
@@ -140,7 +140,7 @@
 					</Button>
 				</div>
 				{#if selected_file_path}
-					<p class="text-xs text-gray-500" title={selected_file_path}>
+					<p class="text-xs text-text-muted" title={selected_file_path}>
 						{selected_file_path}
 					</p>
 				{/if}
@@ -159,9 +159,9 @@
 				</Button>
 			</div>
 
-			<div class="border-t border-gray-200 pt-4 text-center">
-				<p class="text-xs text-gray-500">
-					Press <kbd class="rounded bg-gray-100 px-1">⌘Enter</kbd> to create
+			<div class="border-t border-border pt-4 text-center">
+				<p class="text-xs text-text-muted">
+					Press <kbd class="rounded bg-background-tertiary px-1">⌘Enter</kbd> to create
 				</p>
 			</div>
 		</div>

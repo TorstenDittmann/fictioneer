@@ -47,15 +47,13 @@
 		<Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
 		<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
 			<Dialog.Content
-				class="flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
+				class="flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-background shadow-2xl"
 			>
 				<!-- Header -->
 				<div class="flex flex-shrink-0 items-center justify-between border-b px-6 py-4">
-					<Dialog.Title class="text-lg font-semibold text-gray-900">
-						Rephrase Suggestions
-					</Dialog.Title>
+					<Dialog.Title class="text-lg font-semibold text-text">Rephrase Suggestions</Dialog.Title>
 					<Dialog.Close
-						class="focus:ring-paper-accent rounded-lg p-2 text-gray-400 hover:bg-gray-100 focus:ring-2 focus:outline-none"
+						class="rounded-lg p-2 text-text-muted hover:bg-background-tertiary focus:ring-2 focus:ring-accent focus:outline-none"
 						onclick={onClose}
 					>
 						<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,8 +71,10 @@
 				<div class="flex-1 overflow-y-auto p-6">
 					<!-- Original Text -->
 					<div class="mb-6">
-						<h3 class="mb-2 text-sm font-medium text-gray-700">Original:</h3>
-						<div class="rounded-lg border bg-gray-50 p-4 text-sm text-gray-900">
+						<h3 class="mb-2 text-sm font-medium text-text-secondary">Original:</h3>
+						<div
+							class="rounded-lg border border-border bg-background-tertiary p-4 text-sm text-text"
+						>
 							{original_text}
 						</div>
 					</div>
@@ -84,24 +84,24 @@
 						<div class="flex items-center justify-center py-8">
 							<div class="flex items-center space-x-2">
 								<div
-									class="border-paper-accent h-6 w-6 animate-spin rounded-full border-2 border-t-transparent"
+									class="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent"
 								></div>
-								<span class="text-gray-600">Generating rephrases...</span>
+								<span class="text-text-secondary">Generating rephrases...</span>
 							</div>
 						</div>
 					{:else if rephrases.length > 0}
 						<!-- Rephrase Options -->
 						<div class="space-y-4">
-							<h3 class="text-sm font-medium text-gray-700">Suggestions:</h3>
+							<h3 class="text-sm font-medium text-text-secondary">Suggestions:</h3>
 							{#each rephrases as rephrase (rephrase.type)}
 								<div class="group">
 									<div class="mb-2 flex items-center justify-between">
-										<span class="text-paper-accent text-xs font-medium tracking-wide uppercase">
+										<span class="text-xs font-medium tracking-wide text-accent uppercase">
 											{get_type_label(rephrase.type)}
 										</span>
 									</div>
 									<button
-										class="focus:ring-paper-accent w-full rounded-lg border p-4 text-left text-sm text-gray-900 transition-all hover:bg-gray-100 focus:border-transparent focus:ring-2 focus:outline-none"
+										class="w-full rounded-lg border border-border p-4 text-left text-sm text-text transition-all hover:bg-background-tertiary focus:border-transparent focus:ring-2 focus:ring-accent focus:outline-none"
 										onclick={() => handle_select(rephrase.alternative)}
 									>
 										{rephrase.alternative}
@@ -111,7 +111,7 @@
 						</div>
 					{:else}
 						<!-- Empty State -->
-						<div class="flex flex-col items-center justify-center py-8 text-gray-500">
+						<div class="flex flex-col items-center justify-center py-8 text-text-muted">
 							<svg class="mb-3 h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path
 									stroke-linecap="round"
@@ -129,7 +129,7 @@
 				<div class="flex-shrink-0 border-t px-6 py-4">
 					<div class="flex justify-end">
 						<button
-							class="focus:ring-paper-accent rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:ring-2 focus:outline-none"
+							class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-background-tertiary focus:ring-2 focus:ring-accent focus:outline-none"
 							onclick={onClose}
 						>
 							Cancel

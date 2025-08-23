@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { beforeNavigate } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
 	import { layout_state } from '$lib/state/layout.svelte';
 	import Editor from '$lib/components/editor.svelte';
@@ -11,9 +12,22 @@
 
 	let editor_component = $state<Editor>();
 	let editor_stats = $state({ words: 0, characters: 0 });
+	let has_unsaved_changes = $state(false);
 
 	// Update editor stats periodically
 	let stats_interval: ReturnType<typeof setInterval>;
+
+	// Auto-save before navigation
+	beforeNavigate(async ({ cancel }) => {
+		if (has_unsaved_changes && editor_component) {
+			// Trigger a final save
+			const content = editor_component.get_content();
+			projects.updateScene(data.chapter.id, data.scene.id, {
+				content: content
+			});
+			has_unsaved_changes = false;
+		}
+	});
 
 	onMount(() => {
 		// Update stats every 2 seconds
@@ -24,14 +38,30 @@
 			}
 		}, 2000);
 
+		// Handle page unload (browser close/refresh)
+		const handle_before_unload = (event: BeforeUnloadEvent) => {
+			if (has_unsaved_changes && editor_component) {
+				const content = editor_component.get_content();
+				projects.updateScene(data.chapter.id, data.scene.id, {
+					content: content
+				});
+			}
+		};
+
+		window.addEventListener('beforeunload', handle_before_unload);
+
 		return () => {
 			if (stats_interval) {
 				clearInterval(stats_interval);
 			}
+			window.removeEventListener('beforeunload', handle_before_unload);
 		};
 	});
 
 	function handle_editor_update(content: string) {
+		// Mark as having unsaved changes
+		has_unsaved_changes = true;
+
 		// Update the scene content
 		projects.updateScene(data.chapter.id, data.scene.id, {
 			content: content
@@ -42,6 +72,9 @@
 			const stats = editor_component.get_stats();
 			editor_stats = { words: stats.words, characters: stats.characters };
 		}
+
+		// Clear the unsaved flag after a successful update
+		has_unsaved_changes = false;
 	}
 
 	// Handle page-specific keyboard shortcuts
@@ -59,6 +92,14 @@
 		// Cmd/Ctrl + N to create new scene
 		if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
 			event.preventDefault();
+			// Save current content before creating new scene
+			if (has_unsaved_changes && editor_component) {
+				const content = editor_component.get_content();
+				projects.updateScene(data.chapter.id, data.scene.id, {
+					content: content
+				});
+				has_unsaved_changes = false;
+			}
 			const new_scene_id = projects.createScene(data.chapter.id);
 			if (new_scene_id) {
 				goto(`/${data.project.id}/${data.chapter.id}/${new_scene_id}`);
@@ -90,9 +131,14 @@
 		<div class="flex h-full items-center justify-center">
 			<div class="text-center">
 				<div
-					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-200"
+					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface"
 				>
-					<svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg
+						class="h-8 w-8 text-text-muted"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
@@ -101,8 +147,8 @@
 						/>
 					</svg>
 				</div>
-				<h3 class="mb-2 text-lg font-medium text-gray-900">Scene not found</h3>
-				<p class="mb-4 text-gray-500">
+				<h3 class="mb-2 text-lg font-medium text-text">Scene not found</h3>
+				<p class="mb-4 text-text-secondary">
 					The scene you're looking for doesn't exist or has been deleted.
 				</p>
 			</div>

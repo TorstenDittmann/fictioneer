@@ -53,7 +53,7 @@
 
 <svelte:window onkeydown={handle_global_keydown} />
 
-<div class="app flex h-full flex-col text-gray-900">
+<div class="app flex h-full flex-col text-text">
 	<!-- Main content area -->
 	<div class="flex flex-1 overflow-hidden">
 		<!-- Sidebar - hidden in distraction free mode -->
@@ -76,6 +76,6 @@
 	<div
 		class="fixed top-4 right-4 z-50 rounded-lg bg-black/80 px-3 py-2 text-sm text-white backdrop-blur"
 	>
-		Focus Mode • Press <kbd class="rounded bg-white/20 px-1">Esc</kbd> to exit
+		Focus Mode • Press <kbd class="rounded bg-surface/20 px-1">Esc</kbd> to exit
 	</div>
 {/if}

@@ -113,29 +113,29 @@
 	<div class="flex h-full items-center justify-center">
 		<div class="text-center">
 			<div
-				class="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"
+				class="h-8 w-8 animate-spin rounded-full border-4 border-accent/20 border-t-accent"
 			></div>
-			<p class="mt-2 text-gray-600">Loading note...</p>
+			<p class="mt-2 text-text-secondary">Loading note...</p>
 		</div>
 	</div>
 {:else if !note}
 	<div class="flex h-full items-center justify-center">
 		<div class="text-center">
-			<h1 class="text-2xl font-bold text-gray-900">Note not found</h1>
-			<p class="mt-2 text-gray-600">The note you're looking for doesn't exist.</p>
+			<h1 class="text-2xl font-bold text-text">Note not found</h1>
+			<p class="mt-2 text-text-secondary">The note you're looking for doesn't exist.</p>
 			<Button href="/{params.projectId}/notes" class="mt-4">Back to Notes</Button>
 		</div>
 	</div>
 {:else}
 	<div class="flex h-full flex-col">
 		<!-- Header -->
-		<div class="border-b border-gray-200 bg-white px-6 py-4">
+		<div class="border-b border-border bg-surface px-6 py-4">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-4">
 					<IconButton
 						onclick={() => goto(`/${params.projectId}/notes`)}
 						aria-label="Back to notes"
-						class="text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+						class="text-text-muted hover:bg-background-tertiary hover:text-text-secondary"
 					>
 						<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
@@ -157,14 +157,14 @@
 				</div>
 				<div class="flex items-center gap-3">
 					{#if last_saved}
-						<span class="text-sm text-gray-500">
+						<span class="text-sm text-text-muted">
 							Saved {format_last_saved(last_saved)}
 						</span>
 					{/if}
 					<IconButton
 						onclick={delete_note}
 						aria-label="Delete note"
-						class="text-gray-400 hover:bg-red-100 hover:text-red-600"
+						class="text-text-muted hover:bg-red-100 hover:text-red-600"
 					>
 						<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path

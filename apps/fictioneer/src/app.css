@@ -1,141 +1,44 @@
 @import 'tailwindcss';
 
-:root {
-	/* Dark paper colors as default */
-	--paper-white: #2a2621;
-	--paper-cream: #252118;
-	--paper-beige: #1f1c15;
-	--paper-gray: #3a3630;
-	--paper-text: #e8e5e0;
-	--paper-text-light: #d4cfc7;
-	--paper-text-muted: #a39a90;
-	--paper-border: #3a3530;
-	--paper-accent: #c4a47c;
-	--paper-accent-light: #d4b890;
+@theme {
+	/* Core color tokens with semantic names */
+	--color-background: #2a2621;
+	--color-background-secondary: #252118;
+	--color-background-tertiary: #1f1c15;
+	--color-surface: #3a3630;
+	--color-surface-hover: #423e37;
+	--color-surface-active: #4a453e;
 
-	/* Transparent versions for backgrounds */
-	--paper-white-transparent: rgba(42, 38, 33, 0.85);
-	--paper-cream-transparent: rgba(37, 33, 24, 0.85);
-	--paper-beige-transparent: rgba(31, 28, 21, 0.85);
-	--paper-gray-transparent: rgba(58, 54, 48, 0.85);
+	/* Text colors */
+	--color-text: #e8e5e0;
+	--color-text-secondary: #d4cfc7;
+	--color-text-muted: #a39a90;
+	--color-text-inverse: #1f1c15;
+
+	/* Border colors */
+	--color-border: #3a3530;
+	--color-border-secondary: #4a453e;
+
+	/* Accent colors */
+	--color-accent: #c4a47c;
+	--color-accent-hover: #d4b890;
+	--color-accent-active: #9b7d5a;
+	--color-accent-muted: #8b6d4a;
+
+	/* Transparent versions for overlays */
+	--color-background-transparent: rgba(42, 38, 33, 0.85);
+	--color-background-secondary-transparent: rgba(37, 33, 24, 0.85);
+	--color-background-tertiary-transparent: rgba(31, 28, 21, 0.85);
+	--color-surface-transparent: rgba(58, 54, 48, 0.85);
+
+	/* Font family */
+	--font-family-serif: 'Libre Baskerville', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
 }
 
 html {
-	font-family: 'Libre Baskerville', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
-	color: var(--paper-text);
+	font-family: var(--font-family-serif);
+	color: var(--color-text);
 	background: transparent;
-}
-
-/* Paper theme overrides */
-.bg-white {
-	background-color: var(--paper-white) !important;
-}
-
-.bg-gray-50,
-.bg-gray-100 {
-	background-color: var(--paper-beige) !important;
-}
-
-.bg-gray-200 {
-	background-color: var(--paper-gray) !important;
-}
-
-.bg-gray-700 {
-	background-color: var(--paper-gray) !important;
-}
-
-.bg-gray-800,
-.bg-gray-900 {
-	background-color: var(--paper-white) !important;
-}
-
-.text-gray-900 {
-	color: var(--paper-text) !important;
-}
-
-.text-gray-700 {
-	color: var(--paper-text) !important;
-}
-
-.text-gray-600 {
-	color: var(--paper-text-light) !important;
-}
-
-.text-gray-500,
-.text-gray-400 {
-	color: var(--paper-text-muted) !important;
-}
-
-.text-gray-100 {
-	color: var(--paper-text) !important;
-}
-
-.text-gray-300 {
-	color: var(--paper-text-light) !important;
-}
-
-.border-gray-200,
-.border-gray-100 {
-	border-color: var(--paper-border) !important;
-}
-
-.ring-gray-200,
-.ring-gray-300 {
-	--tw-ring-color: var(--paper-border) !important;
-}
-
-.border,
-.border-gray-200,
-.border-gray-300 {
-	border-color: var(--paper-border) !important;
-}
-
-.border-gray-700,
-.border-gray-800 {
-	border-color: var(--paper-border) !important;
-}
-
-.hover\:bg-gray-100:hover,
-.hover\:bg-gray-200:hover {
-	background-color: var(--paper-gray) !important;
-}
-
-.hover\:bg-gray-300:hover {
-	background-color: var(--paper-border) !important;
-}
-
-.hover\:bg-gray-700:hover,
-.hover\:bg-gray-800:hover {
-	background-color: var(--paper-gray) !important;
-}
-
-.data-\[selected\]\:bg-gray-100[data-selected] {
-	background-color: var(--paper-gray) !important;
-}
-
-.data-\[state\=open\]\:bg-gray-100[data-state='open'] {
-	background-color: var(--paper-gray) !important;
-}
-
-/* Paper accent colors */
-.bg-paper-accent {
-	background-color: var(--paper-accent) !important;
-}
-
-.hover\:bg-paper-accent-light:hover {
-	background-color: var(--paper-accent-light) !important;
-}
-
-.text-paper-accent {
-	color: var(--paper-accent) !important;
-}
-
-.border-paper-accent {
-	border-color: var(--paper-accent) !important;
-}
-
-.focus\:ring-paper-accent:focus {
-	--tw-ring-color: var(--paper-accent) !important;
 }
 
 /* Smooth transitions for theme changes - applied only to root elements */
@@ -154,7 +57,7 @@ header {
 /* Custom scrollbar */
 * {
 	scrollbar-width: thin;
-	scrollbar-color: var(--paper-text-muted) transparent;
+	scrollbar-color: var(--color-text-muted) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -167,7 +70,7 @@ header {
 }
 
 ::-webkit-scrollbar-thumb {
-	background: var(--paper-text-muted);
+	background: var(--color-text-muted);
 	border-radius: 3px;
 	opacity: 0.3;
 }
@@ -215,6 +118,6 @@ select,
 button:focus,
 input:focus,
 textarea:focus {
-	outline: 2px solid var(--paper-accent);
+	outline: 2px solid var(--color-accent);
 	outline-offset: 2px;
 }

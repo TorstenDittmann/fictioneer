@@ -66,18 +66,18 @@
 			class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80"
 		/>
 		<Dialog.Content
-			class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed top-[50%] left-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg duration-200 sm:rounded-lg"
+			class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed top-[50%] left-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-background p-6 shadow-lg duration-200 sm:rounded-lg"
 		>
-			<Dialog.Title class="text-lg font-semibold text-gray-900">
+			<Dialog.Title class="text-lg font-semibold text-text">
 				Export as {format === 'rtf' ? 'RTF' : 'Plain Text'}
 			</Dialog.Title>
 
 			<div class="space-y-6">
 				<!-- Format Info -->
-				<div class="bg-paper-beige border-paper-border mb-6 rounded-lg border p-4">
+				<div class="mb-6 rounded-lg border border-border bg-background-tertiary p-4">
 					<div class="flex items-center">
 						<svg
-							class="text-paper-accent mr-2 h-5 w-5"
+							class="mr-2 h-5 w-5 text-accent"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -168,10 +168,10 @@
 
 				<!-- Error Display -->
 				{#if export_error}
-					<div class="bg-paper-gray border-paper-accent rounded-md border p-4">
+					<div class="rounded-md border border-accent bg-surface p-4">
 						<div class="flex">
 							<div class="flex-shrink-0">
-								<svg class="text-paper-accent h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+								<svg class="h-5 w-5 text-accent" viewBox="0 0 20 20" fill="currentColor">
 									<path
 										fill-rule="evenodd"
 										d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -180,8 +180,8 @@
 								</svg>
 							</div>
 							<div class="ml-3">
-								<h3 class="text-paper-text text-sm font-medium">Export Error</h3>
-								<div class="text-paper-text-light mt-2 text-sm">
+								<h3 class="text-sm font-medium text-text">Export Error</h3>
+								<div class="mt-2 text-sm text-text-secondary">
 									{export_error}
 								</div>
 							</div>

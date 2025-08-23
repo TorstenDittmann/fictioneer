@@ -165,11 +165,11 @@
 		class="absolute top-4 left-1/2 z-50 -translate-x-1/2 transform transition-all duration-200 ease-in-out"
 	>
 		<Menubar.Root
-			class="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-lg"
+			class="flex items-center gap-1 rounded-lg border border-border bg-surface px-3 py-2 shadow-lg"
 		>
 			<!-- Undo Button -->
 			<button
-				class="inline-flex h-9 w-9 cursor-default items-center justify-center rounded-lg text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none active:bg-white"
+				class="inline-flex h-9 w-9 cursor-default items-center justify-center rounded-lg text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none active:bg-surface"
 				onclick={undo}
 				title="Undo"
 			>
@@ -185,7 +185,7 @@
 
 			<!-- Redo Button -->
 			<button
-				class="inline-flex h-9 w-9 cursor-default items-center justify-center rounded-lg text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none active:bg-white"
+				class="inline-flex h-9 w-9 cursor-default items-center justify-center rounded-lg text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none active:bg-surface"
 				onclick={redo}
 				title="Redo"
 			>
@@ -202,17 +202,17 @@
 			<!-- Format Menu -->
 			<Menubar.Menu>
 				<Menubar.Trigger
-					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100"
+					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none data-[state=open]:bg-background-tertiary"
 				>
 					Format
 				</Menubar.Trigger>
 				<Menubar.Portal>
 					<Menubar.Content
-						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
+						class="z-50 w-48 rounded-lg border border-border bg-surface p-1 shadow-lg"
 						sideOffset={6}
 					>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-text outline-none select-none hover:bg-background-tertiary focus:bg-background-tertiary"
 							onSelect={toggle_bold}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -232,7 +232,7 @@
 							Bold
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-text outline-none select-none hover:bg-background-tertiary focus:bg-background-tertiary"
 							onSelect={toggle_italic}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,7 +246,7 @@
 							Italic
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-text outline-none select-none hover:bg-background-tertiary focus:bg-background-tertiary"
 							onSelect={toggle_underline}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,7 +260,7 @@
 							Underline
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-text outline-none select-none hover:bg-background-tertiary focus:bg-background-tertiary"
 							onSelect={toggle_strikethrough}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,9 +273,9 @@
 							</svg>
 							Strikethrough
 						</Menubar.Item>
-						<Menubar.Separator class="my-1 h-px bg-gray-200" />
+						<Menubar.Separator class="my-1 h-px bg-border" />
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-text outline-none select-none hover:bg-background-tertiary focus:bg-background-tertiary"
 							onSelect={toggle_blockquote}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,17 +295,17 @@
 			<!-- Headings Menu -->
 			<Menubar.Menu>
 				<Menubar.Trigger
-					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none data-[state=open]:bg-gray-100"
+					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none data-[state=open]:bg-background-tertiary"
 				>
 					Headings
 				</Menubar.Trigger>
 				<Menubar.Portal>
 					<Menubar.Content
-						class="z-50 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
+						class="z-50 w-48 rounded-lg border border-border bg-surface p-1 shadow-lg"
 						sideOffset={6}
 					>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-text outline-none select-none hover:bg-background-tertiary focus:bg-background-tertiary"
 							onSelect={set_paragraph}
 						>
 							<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -319,21 +319,21 @@
 							Paragraph
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-text outline-none select-none hover:bg-background-tertiary focus:bg-background-tertiary"
 							onSelect={() => set_heading(1)}
 						>
 							<span class="mr-2 text-lg font-bold">H1</span>
 							Heading 1
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-text outline-none select-none hover:bg-background-tertiary focus:bg-background-tertiary"
 							onSelect={() => set_heading(2)}
 						>
 							<span class="mr-2 text-base font-bold">H2</span>
 							Heading 2
 						</Menubar.Item>
 						<Menubar.Item
-							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-gray-900 outline-none select-none hover:bg-gray-100 focus:bg-gray-100"
+							class="flex h-8 cursor-default items-center rounded-md px-2 py-1 text-sm text-text outline-none select-none hover:bg-background-tertiary focus:bg-background-tertiary"
 							onSelect={() => set_heading(3)}
 						>
 							<span class="mr-2 text-sm font-bold">H3</span>
@@ -346,7 +346,7 @@
 			<!-- Rephrase Button (only show when text is selected) -->
 			{#if has_selection}
 				<button
-					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 focus:outline-none"
+					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none"
 					onclick={open_rephrase_modal}
 					title="Get rephrase suggestions"
 				>

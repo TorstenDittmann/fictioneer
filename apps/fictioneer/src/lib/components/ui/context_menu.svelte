@@ -29,14 +29,14 @@
 	</ContextMenu.Trigger>
 	<ContextMenu.Portal>
 		<ContextMenu.Content
-			class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-32 overflow-hidden rounded-md border border-gray-200 bg-white p-1 text-gray-950 shadow-md dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50"
+			class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-32 overflow-hidden rounded-md border border-border bg-surface p-1 text-text shadow-md"
 		>
 			{#each items as item, index (item.separator ? `separator-${index}` : item.value)}
 				{#if item.separator}
-					<ContextMenu.Separator class="-mx-1 my-1 h-px bg-gray-100 dark:bg-gray-800" />
+					<ContextMenu.Separator class="-mx-1 my-1 h-px bg-border" />
 				{:else}
 					<ContextMenu.Item
-						class={`relative flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-900 dark:data-[highlighted]:bg-gray-800 dark:data-[highlighted]:text-gray-50 ${item.destructive ? 'text-red-600 dark:text-red-400' : ''}`}
+						class={`relative flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none data-[highlighted]:bg-background-tertiary data-[highlighted]:text-text ${item.destructive ? 'text-red-400' : ''}`}
 						onSelect={() => item.value && handle_select(item.value)}
 					>
 						{#if item.icon}

@@ -49,13 +49,13 @@
 	{onValueChange}
 >
 	<Select.Trigger
-		class="inline-flex h-10 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:ring-offset-gray-800 dark:placeholder:text-gray-400 dark:focus:ring-gray-600 {additional_class}"
+		class="inline-flex h-10 w-full items-center justify-between rounded-md border border-border bg-surface px-3 py-2 text-sm text-text ring-offset-background placeholder:text-text-muted focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 {additional_class}"
 	>
 		<span class="truncate">
 			{selected_item?.label || placeholder}
 		</span>
 		<svg
-			class="h-4 w-4 text-gray-500 dark:text-gray-400"
+			class="h-4 w-4 text-text-muted"
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 24 24"
 			fill="none"
@@ -71,12 +71,12 @@
 
 	<Select.Portal>
 		<Select.Content
-			class="relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border border-gray-200 bg-white text-gray-900 shadow-md dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+			class="relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border border-border bg-surface text-text shadow-md"
 		>
 			<Select.Viewport class="p-1">
 				{#each items as item (item.value)}
 					<Select.Item
-						class="relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none hover:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-gray-100 dark:hover:bg-gray-700 dark:data-[highlighted]:bg-gray-700"
+						class="relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none hover:bg-background-tertiary data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-background-tertiary"
 						value={item.value}
 						disabled={item.disabled}
 					>
@@ -84,7 +84,7 @@
 							{#if selected}
 								<span class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
 									<svg
-										class="h-4 w-4 text-gray-600 dark:text-gray-400"
+										class="h-4 w-4 text-text-secondary"
 										xmlns="http://www.w3.org/2000/svg"
 										viewBox="0 0 24 24"
 										fill="none"

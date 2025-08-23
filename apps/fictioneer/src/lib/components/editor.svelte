@@ -115,7 +115,7 @@
 			editorProps: {
 				attributes: {
 					class:
-						'prose prose-lg prose-stone max-w-none focus:outline-none min-h-screen p-8 prose-headings:font-serif prose-headings:font-bold prose-p:text-gray-800 prose-p:leading-relaxed prose-strong:text-gray-900 prose-em:text-gray-700'
+						'prose prose-lg prose-stone max-w-none focus:outline-none min-h-screen p-8 prose-headings:font-serif prose-headings:font-bold prose-p:text-text prose-p:leading-relaxed prose-strong:text-text prose-em:text-text-secondary'
 				}
 			},
 			onUpdate: ({ editor }) => {
@@ -183,6 +183,11 @@
 			words: typeof storage.words === 'function' ? storage.words() : 0,
 			characters: typeof storage.characters === 'function' ? storage.characters() : 0
 		};
+	}
+
+	export function get_content() {
+		if (!editor) return '';
+		return editor.getHTML();
 	}
 </script>
 

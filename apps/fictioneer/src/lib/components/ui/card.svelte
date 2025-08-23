@@ -9,7 +9,9 @@
 	let { class: additional_class = '', children }: Props = $props();
 </script>
 
-<div class="rounded-lg border bg-white p-6 shadow-sm {additional_class}">
+<div
+	class="rounded-lg border border-border bg-background-secondary p-6 shadow-sm {additional_class}"
+>
 	{#if children}
 		{@render children()}
 	{/if}
