@@ -172,6 +172,7 @@
 				class="inline-flex h-9 w-9 cursor-default items-center justify-center rounded-lg text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none active:bg-surface"
 				onclick={undo}
 				title="Undo"
+				aria-label="Undo"
 			>
 				<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path
@@ -188,6 +189,7 @@
 				class="inline-flex h-9 w-9 cursor-default items-center justify-center rounded-lg text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none active:bg-surface"
 				onclick={redo}
 				title="Redo"
+				aria-label="Redo"
 			>
 				<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path

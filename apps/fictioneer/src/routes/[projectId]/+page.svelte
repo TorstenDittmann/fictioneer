@@ -30,10 +30,6 @@
 	const project_stats = $derived(projects.getProjectStats());
 	const current_project = $derived(projects.project || data.project);
 
-	function navigate_to_scene(chapter_id: string, scene_id: string) {
-		goto(`/${data.project.id}/${chapter_id}/${scene_id}`);
-	}
-
 	function format_date(date: Date): string {
 		const now = new Date();
 		const diff = now.getTime() - date.getTime();

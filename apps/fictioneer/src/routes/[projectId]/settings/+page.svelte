@@ -52,61 +52,57 @@
 		<div class="space-y-8">
 			<!-- Basic Information -->
 			<Card class="ring-1 ring-border">
-				{#snippet children()}
-					<h2 class="mb-4 text-xl font-semibold text-text">Basic Information</h2>
+				<h2 class="mb-4 text-xl font-semibold text-text">Basic Information</h2>
 
-					<div class="space-y-4">
-						<div class="grid gap-2">
-							<Label for="title">Project Title</Label>
-							<Input
-								id="title"
-								type="text"
-								bind:value={project_title}
-								oninput={save_settings}
-								placeholder="Enter project title..."
-							/>
-						</div>
-
-						<div class="grid gap-2">
-							<Label for="description">Description</Label>
-							<Textarea
-								id="description"
-								bind:value={project_description}
-								oninput={save_settings}
-								rows={4}
-								placeholder="Enter project description..."
-							/>
-						</div>
+				<div class="space-y-4">
+					<div class="grid gap-2">
+						<Label for="title">Project Title</Label>
+						<Input
+							id="title"
+							type="text"
+							bind:value={project_title}
+							oninput={save_settings}
+							placeholder="Enter project title..."
+						/>
 					</div>
-				{/snippet}
+
+					<div class="grid gap-2">
+						<Label for="description">Description</Label>
+						<Textarea
+							id="description"
+							bind:value={project_description}
+							oninput={save_settings}
+							rows={4}
+							placeholder="Enter project description..."
+						/>
+					</div>
+				</div>
 			</Card>
 
 			<!-- Project Statistics -->
 			<Card class="ring-1 ring-border">
-				{#snippet children()}
-					<h2 class="mb-4 text-xl font-semibold text-text">Project Statistics</h2>
+				<h2 class="mb-4 text-xl font-semibold text-text">Project Statistics</h2>
 
-					<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-						<div class="rounded-md bg-background-tertiary p-4">
-							<div class="text-2xl font-bold text-text">
-								{stats.total_chapters}
-							</div>
-							<div class="text-sm text-text-secondary">Chapters</div>
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+					<div class="rounded-md bg-background-tertiary p-4">
+						<div class="text-2xl font-bold text-text">
+							{stats.total_chapters}
 						</div>
-						<div class="rounded-md bg-background-tertiary p-4">
-							<div class="text-2xl font-bold text-text">
-								{stats.total_scenes}
-							</div>
-							<div class="text-sm text-text-secondary">Scenes</div>
-						</div>
-						<div class="rounded-md bg-background-tertiary p-4">
-							<div class="text-2xl font-bold text-text">
-								{stats.total_words.toLocaleString()}
-							</div>
-							<div class="text-sm text-text-secondary">Words</div>
-						</div>
+						<div class="text-sm text-text-secondary">Chapters</div>
 					</div>
-				{/snippet}
+					<div class="rounded-md bg-background-tertiary p-4">
+						<div class="text-2xl font-bold text-text">
+							{stats.total_scenes}
+						</div>
+						<div class="text-sm text-text-secondary">Scenes</div>
+					</div>
+					<div class="rounded-md bg-background-tertiary p-4">
+						<div class="text-2xl font-bold text-text">
+							{stats.total_words.toLocaleString()}
+						</div>
+						<div class="text-sm text-text-secondary">Words</div>
+					</div>
+				</div>
 			</Card>
 		</div>
 

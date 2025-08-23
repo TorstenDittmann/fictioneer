@@ -18,7 +18,7 @@
 	let stats_interval: ReturnType<typeof setInterval>;
 
 	// Auto-save before navigation
-	beforeNavigate(async ({ cancel }) => {
+	beforeNavigate(() => {
 		if (has_unsaved_changes && editor_component) {
 			// Trigger a final save
 			const content = editor_component.get_content();
@@ -38,23 +38,10 @@
 			}
 		}, 2000);
 
-		// Handle page unload (browser close/refresh)
-		const handle_before_unload = (event: BeforeUnloadEvent) => {
-			if (has_unsaved_changes && editor_component) {
-				const content = editor_component.get_content();
-				projects.updateScene(data.chapter.id, data.scene.id, {
-					content: content
-				});
-			}
-		};
-
-		window.addEventListener('beforeunload', handle_before_unload);
-
 		return () => {
 			if (stats_interval) {
 				clearInterval(stats_interval);
 			}
-			window.removeEventListener('beforeunload', handle_before_unload);
 		};
 	});
 
