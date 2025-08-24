@@ -330,7 +330,7 @@ app.post('/api/rephrase', async (c) => {
 			return c.json({ error: 'selected_sentence is required and must be a string' }, 400);
 		}
 
-		const client = groq(MODELS.FREE);
+		const client = groq(MODELS.PAID);
 		const alternative_types = ['vivid', 'tighter', 'show_dont_tell', 'change_pov', 'simplify'];
 
 		const alternatives = await Promise.all(

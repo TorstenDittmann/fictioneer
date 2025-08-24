@@ -50,7 +50,9 @@
 				class="flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-background shadow-2xl"
 			>
 				<!-- Header -->
-				<div class="flex flex-shrink-0 items-center justify-between border-b px-6 py-4">
+				<div
+					class="flex flex-shrink-0 items-center justify-between border-b border-border px-6 py-4"
+				>
 					<Dialog.Title class="text-lg font-semibold text-text">Rephrase Suggestions</Dialog.Title>
 					<Dialog.Close
 						class="rounded-lg p-2 text-text-muted hover:bg-background-tertiary focus:ring-2 focus:ring-accent focus:outline-none"
@@ -92,7 +94,6 @@
 					{:else if rephrases.length > 0}
 						<!-- Rephrase Options -->
 						<div class="space-y-4">
-							<h3 class="text-sm font-medium text-text-secondary">Suggestions:</h3>
 							{#each rephrases as rephrase (rephrase.type)}
 								<div class="group">
 									<div class="mb-2 flex items-center justify-between">
@@ -126,7 +127,7 @@
 				</div>
 
 				<!-- Footer -->
-				<div class="flex-shrink-0 border-t px-6 py-4">
+				<div class="flex-shrink-0 border-t border-border px-6 py-4">
 					<div class="flex justify-end">
 						<button
 							class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-background-tertiary focus:ring-2 focus:ring-accent focus:outline-none"
