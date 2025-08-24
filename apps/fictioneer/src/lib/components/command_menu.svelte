@@ -317,7 +317,7 @@
 									{#each grouped_items.recent as item (item.id)}
 										<Command.Item
 											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-[selected]:bg-background-tertiary"
-											value={item.title}
+											value={item.id}
 											keywords={item.keywords}
 											onSelect={item.action}
 										>
@@ -373,7 +373,7 @@
 									{#each grouped_items.navigation as item (item.id)}
 										<Command.Item
 											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-[selected]:bg-background-tertiary"
-											value={item.title}
+											value={item.id}
 											keywords={item.keywords}
 											onSelect={item.action}
 										>
@@ -426,7 +426,7 @@
 									{#each grouped_items.action as item (item.id)}
 										<Command.Item
 											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-[selected]:bg-background-tertiary"
-											value={item.title}
+											value={item.id}
 											keywords={item.keywords}
 											onSelect={item.action}
 										>
@@ -479,7 +479,7 @@
 									{#each grouped_items.scene as item (item.id)}
 										<Command.Item
 											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-[selected]:bg-background-tertiary"
-											value={item.title}
+											value={item.id}
 											keywords={item.keywords}
 											onSelect={item.action}
 										>

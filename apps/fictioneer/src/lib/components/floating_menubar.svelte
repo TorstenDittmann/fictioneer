@@ -28,10 +28,16 @@
 	// Check if text is selected
 	let has_selection = $state(false);
 
+	// Check if undo/redo are available
+	let can_undo = $state(false);
+	let can_redo = $state(false);
+
 	// Update selection state when editor selection changes
 	$effect(() => {
 		if (!editor) {
 			has_selection = false;
+			can_undo = false;
+			can_redo = false;
 			return;
 		}
 
@@ -40,11 +46,19 @@
 			has_selection = !selection.empty;
 		};
 
+		const updateHistory = () => {
+			can_undo = editor.can().undo();
+			can_redo = editor.can().redo();
+		};
+
 		editor.on('selectionUpdate', updateSelection);
+		editor.on('transaction', updateHistory);
 		updateSelection(); // Initial check
+		updateHistory(); // Initial check
 
 		return () => {
 			editor.off('selectionUpdate', updateSelection);
+			editor.off('transaction', updateHistory);
 		};
 	});
 
@@ -161,6 +175,7 @@
 </script>
 
 {#if should_show_menubar}
+	<!-- Top Formatting Bar -->
 	<div
 		class="absolute top-4 left-1/2 z-50 -translate-x-1/2 transform transition-all duration-200 ease-in-out"
 	>
@@ -169,8 +184,9 @@
 		>
 			<!-- Undo Button -->
 			<button
-				class="inline-flex h-9 w-9 cursor-default items-center justify-center rounded-lg text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none active:bg-surface"
+				class="inline-flex h-9 w-9 cursor-default items-center justify-center rounded-lg text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none active:bg-surface disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
 				onclick={undo}
+				disabled={!can_undo}
 				title="Undo"
 				aria-label="Undo"
 			>
@@ -186,8 +202,9 @@
 
 			<!-- Redo Button -->
 			<button
-				class="inline-flex h-9 w-9 cursor-default items-center justify-center rounded-lg text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none active:bg-surface"
+				class="inline-flex h-9 w-9 cursor-default items-center justify-center rounded-lg text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none active:bg-surface disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
 				onclick={redo}
+				disabled={!can_redo}
 				title="Redo"
 				aria-label="Redo"
 			>
@@ -344,26 +361,39 @@
 					</Menubar.Content>
 				</Menubar.Portal>
 			</Menubar.Menu>
-
-			<!-- Rephrase Button (only show when text is selected) -->
-			{#if has_selection}
-				<button
-					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none"
-					onclick={open_rephrase_modal}
-					title="Get rephrase suggestions"
-				>
-					<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-						/>
-					</svg>
-					Rephrase
-				</button>
-			{/if}
 		</Menubar.Root>
+	</div>
+
+	<!-- Bottom Actions Bar (only show when text is selected) -->
+	<div
+		class="absolute bottom-4 left-1/2 z-50 -translate-x-1/2 transform transition-all duration-200 ease-in-out"
+		class:opacity-100={has_selection}
+		class:opacity-0={!has_selection}
+		class:translate-y-0={has_selection}
+		class:translate-y-2={!has_selection}
+		class:pointer-events-auto={has_selection}
+		class:pointer-events-none={!has_selection}
+	>
+		<div
+			class="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 shadow-lg"
+		>
+			<!-- Rephrase Button -->
+			<button
+				class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none"
+				onclick={open_rephrase_modal}
+				title="Get rephrase suggestions"
+			>
+				<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+					/>
+				</svg>
+				Rephrase
+			</button>
+		</div>
 	</div>
 {/if}
 

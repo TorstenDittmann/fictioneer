@@ -190,9 +190,9 @@
 	class:w-0={!is_visible}
 >
 	<!-- Header -->
-	<div class="border-b border-border bg-background-tertiary-transparent p-4">
+	<div class="border-b border-border bg-background-tertiary-transparent p-2">
 		<!-- Project Info -->
-		<div class="space-y-3">
+		<div class="space-y-2">
 			<div class="flex items-start justify-between">
 				<div class="min-w-0 flex-1">
 					<h2 class="truncate text-lg font-semibold text-text">
@@ -225,17 +225,17 @@
 	</div>
 
 	<!-- Overview Button -->
-	<div class="border-b border-border p-4">
-		<div class="space-y-1">
+	<div class="border-b border-border p-2">
+		<div class="space-y-0.5">
 			<a
 				href="/{data.project.id}"
-				class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200"
+				class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium transition-colors duration-200"
 				class:bg-surface={is_overview_active}
 				class:text-text={is_overview_active}
 				class:text-text-secondary={!is_overview_active}
 				class:hover:bg-background-tertiary={!is_overview_active}
 			>
-				<svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
@@ -247,13 +247,13 @@
 			</a>
 			<a
 				href="/{data.project.id}/notes"
-				class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200"
+				class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium transition-colors duration-200"
 				class:bg-surface={is_notes_active}
 				class:text-text={is_notes_active}
 				class:text-text-secondary={!is_notes_active}
 				class:hover:bg-background-tertiary={!is_notes_active}
 			>
-				<svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
@@ -267,9 +267,9 @@
 	</div>
 
 	<!-- Chapters and Scenes -->
-	<div class="flex-1 overflow-y-auto py-2">
+	<div class="flex-1 overflow-y-auto py-1">
 		{#each current_project().chapters as chapter (chapter.id)}
-			<div class="group mb-1">
+			<div class="group mb-0.5">
 				<!-- Chapter header -->
 				<ContextMenu
 					items={chapter_menu_items}
@@ -277,7 +277,7 @@
 				>
 					<div class="w-full select-none">
 						<button
-							class="flex w-full items-center gap-3 border-l-4 px-4 py-3 text-left text-sm font-medium transition-colors duration-200 outline-none select-none focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:shadow-none active:ring-0 active:outline-none"
+							class="flex w-full items-center gap-2 border-l-4 px-3 py-2 text-left text-sm font-medium transition-colors duration-200 outline-none select-none focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:shadow-none active:ring-0 active:outline-none"
 							class:bg-background-tertiary={is_chapter_active(chapter.id)}
 							class:border-accent={is_chapter_active(chapter.id)}
 							class:text-text={is_chapter_active(chapter.id)}
@@ -287,7 +287,7 @@
 							onclick={() => toggle_chapter(chapter.id)}
 							aria-label="Toggle chapter {chapter.title}"
 						>
-							<div class="flex h-5 w-5 items-center justify-center">
+							<div class="flex h-4 w-4 items-center justify-center">
 								<svg
 									class="h-3 w-3 text-text-muted transition-all duration-300 ease-out"
 									class:rotate-90={projects.isChapterExpanded(chapter.id)}
@@ -329,7 +329,7 @@
 
 				<!-- Scenes (only show if chapter is expanded) -->
 				{#if projects.isChapterExpanded(chapter.id)}
-					<div class="ml-6 space-y-1 border-l-2 border-border">
+					<div class="ml-4 space-y-0.5 border-l-2 border-border">
 						{#each chapter.scenes as scene (scene.id)}
 							<div class="group relative">
 								<ContextMenu
@@ -340,7 +340,7 @@
 									<div class="w-full select-none">
 										<a
 											href={get_scene_url(chapter.id, scene.id)}
-											class="flex w-full items-center gap-3 border-l-2 border-transparent py-2.5 pr-3 pl-6 text-left text-sm no-underline transition-colors duration-200 outline-none select-none hover:bg-background-tertiary focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:ring-0 active:outline-none"
+											class="flex w-full items-center gap-2 border-l-2 border-transparent py-1.5 pr-2 pl-4 text-left text-sm no-underline transition-colors duration-200 outline-none select-none hover:bg-background-tertiary focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:ring-0 active:outline-none"
 											class:bg-background-tertiary={current_scene_id === scene.id}
 											class:border-accent={current_scene_id === scene.id}
 										>
@@ -368,7 +368,7 @@
 
 						<!-- Add scene -->
 						<button
-							class="flex w-full items-center gap-3 border-l-2 border-transparent py-2.5 pr-3 pl-6 text-left text-sm font-medium text-text-muted transition-colors duration-200 outline-none hover:bg-background-tertiary hover:text-text focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:ring-0 active:outline-none"
+							class="flex w-full items-center gap-2 border-l-2 border-transparent py-1.5 pr-2 pl-4 text-left text-sm font-medium text-text-muted transition-colors duration-200 outline-none hover:bg-background-tertiary hover:text-text focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:ring-0 active:outline-none"
 							onclick={(e) => {
 								e.stopPropagation();
 								create_scene(chapter.id);
@@ -395,10 +395,10 @@
 		{/each}
 
 		<!-- Add chapter -->
-		<div class="mx-4 mt-4">
+		<div class="mx-2 mt-2">
 			<button
 				onclick={create_chapter}
-				class="group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium text-text-muted transition-colors duration-200 hover:bg-background-tertiary hover:text-text-secondary"
+				class="group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-text-muted transition-colors duration-200 hover:bg-background-tertiary hover:text-text-secondary"
 			>
 				<svg
 					class="mr-2 h-4 w-4 text-text-muted"
@@ -420,10 +420,10 @@
 
 	<!-- Footer -->
 	<!-- Keyboard Shortcuts -->
-	<div class="border-t border-border bg-background-tertiary-transparent p-4">
-		<div class="space-y-3">
+	<div class="border-t border-border bg-background-tertiary-transparent p-2">
+		<div class="space-y-2">
 			<div class="text-xs font-medium text-text-secondary">Keyboard Shortcuts</div>
-			<div class="space-y-1 text-xs text-text-secondary">
+			<div class="space-y-0.5 text-xs text-text-secondary">
 				<div class="flex justify-between">
 					<span>New Scene</span>
 					<kbd class="rounded bg-surface px-1 py-0.5 font-mono text-xs">⌘N</kbd>
