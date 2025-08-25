@@ -6,9 +6,31 @@ import { invoke } from '@tauri-apps/api/core';
  * Convert HTML content to RTF format
  */
 function html_to_rtf(html: string): string {
-	// Remove HTML tags and preserve text content
-	const text = html
-		.replace(/<p[^>]*>/gi, '')
+	// First, escape special characters in the text content
+	let text = html
+		.replace(/&nbsp;/gi, ' ')
+		.replace(/&amp;/gi, '&')
+		.replace(/&lt;/gi, '<')
+		.replace(/&gt;/gi, '>')
+		.replace(/&quot;/gi, '"')
+		.replace(/&apos;/gi, "'");
+
+	// Escape RTF special characters in text content only
+	text = text
+		.replace(/\\/g, '\\\\')
+		.replace(/{/g, '\\{')
+		.replace(/}/g, '\\}')
+		.replace(/—/g, '\\u8212?')
+		.replace(/–/g, '\\u8211?')
+		.replace(/"/g, '\\u8220?')
+		.replace(/"/g, '\\u8221?')
+		.replace(/'/g, '\\u8216?')
+		.replace(/'/g, '\\u8217?')
+		.replace(/…/g, '\\u8230?');
+
+	// Now convert HTML tags to RTF codes
+	text = text
+		.replace(/<p[^>]*>/gi, '\\pard\\plain\\f0\\fs24 ')
 		.replace(/<\/p>/gi, '\\par ')
 		.replace(/<br\s*\/?>/gi, '\\par ')
 		.replace(/<h1[^>]*>/gi, '\\pard\\plain\\f0\\fs36\\b\\qc ')
@@ -39,27 +61,10 @@ function html_to_rtf(html: string): string {
 		.replace(/<\/div>/gi, '\\par ')
 		.replace(/<span[^>]*>/gi, '')
 		.replace(/<\/span>/gi, '')
-		.replace(/&nbsp;/gi, ' ')
-		.replace(/&amp;/gi, '&')
-		.replace(/&lt;/gi, '<')
-		.replace(/&gt;/gi, '>')
-		.replace(/&quot;/gi, '"')
-		.replace(/&apos;/gi, "'")
 		.replace(/\s+/g, ' ')
 		.trim();
 
-	// Escape RTF special characters
-	return text
-		.replace(/\\/g, '\\\\')
-		.replace(/{/g, '\\{')
-		.replace(/}/g, '\\}')
-		.replace(/—/g, '\\u8212?')
-		.replace(/–/g, '\\u8211?')
-		.replace(/"/g, '\\u8220?')
-		.replace(/"/g, '\\u8221?')
-		.replace(/'/g, '\\u8216?')
-		.replace(/'/g, '\\u8217?')
-		.replace(/…/g, '\\u8230?');
+	return text;
 }
 
 /**
@@ -164,8 +169,9 @@ class ExportService {
 				if (scene.content.trim()) {
 					// Convert HTML content to RTF
 					const rtf_content = html_to_rtf(scene.content);
+					rtf_parts.push('\\pard\\plain\\f0\\fs24 ');
 					rtf_parts.push(rtf_content);
-					rtf_parts.push('\\par');
+					rtf_parts.push('\\par\\par');
 				}
 
 				if (options.include_word_count) {
@@ -325,19 +331,11 @@ class ExportService {
 	}
 
 	private create_rtf_text(text: string, italic: boolean = false): string {
-		const escaped_text = text
-			.replace(/\\/g, '\\\\')
-			.replace(/{/g, '\\{')
-			.replace(/}/g, '\\}')
-			.replace(/\n/g, '\\par ')
-			.replace(/\t/g, '\\tab ')
-			.replace(/—/g, '\\u8212?')
-			.replace(/–/g, '\\u8211?')
-			.replace(/"/g, '\\u8220?')
-			.replace(/"/g, '\\u8221?')
-			.replace(/'/g, '\\u8216?')
-			.replace(/'/g, '\\u8217?')
-			.replace(/…/g, '\\u8230?');
+		// Text should already be escaped by html_to_rtf function
+		let escaped_text = text;
+
+		// Only handle line breaks and tabs if they exist
+		escaped_text = escaped_text.replace(/\n/g, '\\par ').replace(/\t/g, '\\tab ');
 
 		if (italic) {
 			return `{\\i ${escaped_text}}`;

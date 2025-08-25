@@ -347,6 +347,7 @@ app.post('/api/rephrase', async (c) => {
 					system: system_prompt,
 					prompt: `Rewrite this sentence: "${selected_sentence}"`,
 					temperature: 0.7,
+					maxTokens: 150,
 					providerOptions: {
 						groq: {} satisfies GroqProviderOptions
 					}
