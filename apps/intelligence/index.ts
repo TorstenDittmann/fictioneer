@@ -345,7 +345,7 @@ app.post('/api/rephrase', async (c) => {
 				const result = await generateText({
 					model: client,
 					system: system_prompt,
-					prompt: `Rewrite this sentence: "${selected_sentence}"`,
+					prompt: selected_sentence,
 					providerOptions: {
 						groq: {} satisfies GroqProviderOptions
 					}
