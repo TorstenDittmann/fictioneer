@@ -9,7 +9,7 @@
 	let { data }: { data: PageData } = $props();
 
 	let show_rtf_export_modal = $state(false);
-	let show_txt_export_modal = $state(false);
+	let show_epub_export_modal = $state(false);
 
 	function create_first_scene() {
 		// Create chapter if none exists
@@ -76,8 +76,8 @@
 		show_rtf_export_modal = true;
 	}
 
-	function handle_export_txt() {
-		show_txt_export_modal = true;
+	function handle_export_epub() {
+		show_epub_export_modal = true;
 	}
 </script>
 
@@ -308,18 +308,18 @@
 						</div>
 					</div>
 					<div>
-						<h3 class="mb-2 font-medium text-text">Plain Text (TXT)</h3>
+						<h3 class="mb-2 font-medium text-text">EPUB eBook</h3>
 						<p class="mb-4 text-sm text-text-secondary">
-							Export your project as a simple text file with minimal formatting. Perfect for
-							importing into other writing tools or for basic text editing.
+							Export your project as a professional EPUB eBook file that can be read on e-readers,
+							tablets, and smartphones. Includes proper formatting, navigation, and metadata.
 						</p>
 						<div class="space-y-1 text-xs text-text-muted">
-							<div>• Universal compatibility</div>
-							<div>• Small file size</div>
-							<div>• Easy to process programmatically</div>
+							<div>• Compatible with all e-readers</div>
+							<div>• Professional formatting and styling</div>
+							<div>• Includes table of contents navigation</div>
 						</div>
 						<div class="mt-4">
-							<Button variant="outline" onclick={handle_export_txt}>Export as TXT</Button>
+							<Button variant="outline" onclick={handle_export_epub}>Export as EPUB</Button>
 						</div>
 					</div>
 				</div>
@@ -336,12 +336,12 @@
 	onClose={() => (show_rtf_export_modal = false)}
 />
 
-<!-- TXT Export Modal -->
+<!-- EPUB Export Modal -->
 <ExportModal
-	bind:open={show_txt_export_modal}
+	bind:open={show_epub_export_modal}
 	project={current_project}
-	format="txt"
-	onClose={() => (show_txt_export_modal = false)}
+	format="epub"
+	onClose={() => (show_epub_export_modal = false)}
 />
 
 <style>

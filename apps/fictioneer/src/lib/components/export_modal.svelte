@@ -13,7 +13,7 @@
 	}: {
 		project: Project;
 		open: boolean;
-		format: 'rtf' | 'txt';
+		format: 'rtf' | 'txt' | 'epub';
 		onClose: () => void;
 	} = $props();
 
@@ -69,7 +69,7 @@
 			class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed top-[50%] left-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-background p-6 shadow-lg duration-200 sm:rounded-lg"
 		>
 			<Dialog.Title class="text-lg font-semibold text-text">
-				Export as {format === 'rtf' ? 'RTF' : 'Plain Text'}
+				Export as {format === 'rtf' ? 'RTF' : format === 'epub' ? 'EPUB' : 'Plain Text'}
 			</Dialog.Title>
 
 			<div class="space-y-6">
@@ -90,13 +90,19 @@
 							/>
 						</svg>
 						<h3 class="text-paper-text text-sm font-medium">
-							{format === 'rtf' ? 'Rich Text Format (RTF)' : 'Plain Text (TXT)'}
+							{format === 'rtf'
+								? 'Rich Text Format (RTF)'
+								: format === 'epub'
+									? 'EPUB eBook'
+									: 'Plain Text (TXT)'}
 						</h3>
 					</div>
 					<p class="text-paper-text-light mt-2 text-sm">
 						{format === 'rtf'
 							? 'Export your project as a formatted RTF document that preserves formatting and can be opened in most word processors like Microsoft Word, Google Docs, or Pages.'
-							: 'Export your project as a simple text file with minimal formatting. Perfect for importing into other writing tools or for basic text editing.'}
+							: format === 'epub'
+								? 'Export your project as a professional EPUB eBook file that can be read on e-readers, tablets, and smartphones. Includes proper formatting, navigation, and metadata.'
+								: 'Export your project as a simple text file with minimal formatting. Perfect for importing into other writing tools or for basic text editing.'}
 					</p>
 				</div>
 

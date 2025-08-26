@@ -22,6 +22,18 @@ async fn save_export_file(path: String, contents: String) -> Result<(), String> 
         .map_err(|e| format!("Failed to save export file {}: {}", path, e))
 }
 
+#[tauri::command]
+async fn save_export_file_base64(path: String, content: String) -> Result<(), String> {
+    use base64::{Engine as _, engine::general_purpose};
+    
+    let decoded = general_purpose::STANDARD
+        .decode(&content)
+        .map_err(|e| format!("Failed to decode base64 content: {}", e))?;
+    
+    std::fs::write(&path, decoded)
+        .map_err(|e| format!("Failed to save export file {}: {}", path, e))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -31,7 +43,8 @@ pub fn run() {
             load_project_file,
             save_project_file,
             check_project_exists,
-            save_export_file
+            save_export_file,
+            save_export_file_base64
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

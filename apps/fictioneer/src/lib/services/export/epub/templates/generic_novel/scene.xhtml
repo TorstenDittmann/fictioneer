@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>{{scene_title}}</title>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" type="text/css" href="stylesheet.css" />
+	</head>
+	<body>
+		{{#include_scene_titles}}
+		<h3 class="scene-title">{{scene_title}}</h3>
+		{{/include_scene_titles}} {{content}} {{#include_word_count}}
+		<p class="word-count">Words: {{word_count}}</p>
+		{{/include_word_count}}
+	</body>
+</html>
