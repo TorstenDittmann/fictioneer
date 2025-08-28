@@ -10,10 +10,33 @@
 	import { AIWritingSuggestion } from './ai_writing_extension.js';
 	import FloatingMenubar from './floating_menubar.svelte';
 	import './tiptap.css';
+	import { settings_state } from '$lib/state/settings.svelte';
 
 	let editor_element: HTMLDivElement | undefined = undefined;
 	let editor_container: HTMLDivElement | undefined = undefined;
 	let editor = $state<Editor | null>(null);
+	let doc_words = $state(0);
+	let doc_chars = $state(0);
+
+	const app_settings = $derived(settings_state.settings);
+
+	// Scene word target (sweet spot)
+	const target_min = 800;
+	const target_max = 1800;
+
+	const progress_percent = $derived(() => {
+		const w = doc_words || 0;
+		const pct = Math.min(Math.max((w / target_max) * 100, 0), 100);
+
+		return Math.round(pct);
+	});
+
+	const progress_color = $derived(() => {
+		const w = doc_words || 0;
+		if (w < target_min) return 'var(--color-accent-muted)';
+		if (w <= target_max) return 'var(--color-accent)';
+		return 'var(--color-accent-active)';
+	});
 
 	interface Props {
 		content?: string;
@@ -115,7 +138,9 @@
 			editorProps: {
 				attributes: {
 					class:
-						'prose prose-lg prose-stone max-w-none focus:outline-none min-h-screen p-8 prose-headings:font-serif prose-headings:font-bold prose-p:text-text prose-p:leading-relaxed prose-strong:text-text prose-em:text-text-secondary'
+						'prose prose-stone max-w-none focus:outline-none min-h-screen prose-headings:font-serif prose-headings:font-bold prose-p:text-text prose-strong:text-text prose-em:text-text-secondary',
+					style: `font-family: ${app_settings.editor.font_family}; font-size: ${app_settings.editor.font_size_px}px; line-height: ${app_settings.editor.line_height};`,
+					spellcheck: app_settings.editor.spellcheck ? 'true' : 'false'
 				}
 			},
 			onUpdate: ({ editor }) => {
@@ -126,10 +151,13 @@
 				requestAnimationFrame(() => {
 					scroll_to_cursor();
 				});
+
+				update_counts();
 			},
 			onSelectionUpdate: () => {
 				// Don't auto-scroll on selection changes (clicks)
 				// Only scroll when typing (handled in onUpdate)
+				update_counts();
 			},
 			onCreate: ({ editor }) => {
 				// Set initial content if provided
@@ -140,6 +168,7 @@
 				}
 
 				// AI context is set via extension options if enabled
+				update_counts();
 			}
 		});
 	});
@@ -158,6 +187,43 @@
 			position_cursor_at_end();
 		}
 	});
+
+	// React to editor style settings changes
+	$effect(() => {
+		if (!editor) return;
+		const dom = editor.view.dom as HTMLElement;
+		dom.style.fontFamily = app_settings.editor.font_family;
+		dom.style.fontSize = `${app_settings.editor.font_size_px}px`;
+		dom.style.lineHeight = String(app_settings.editor.line_height);
+		dom.setAttribute('spellcheck', app_settings.editor.spellcheck ? 'true' : 'false');
+	});
+
+	// Update padding based on margin
+	const content_padding_style = $derived(`padding:${app_settings.editor.page_margin_px}px;`);
+
+	function update_counts() {
+		if (!editor) return;
+		// Prefer the aggregated storage API exposed by Tiptap
+		const cc = (
+			editor.storage as unknown as {
+				characterCount?: { characters: () => number; words: () => number };
+			}
+		).characterCount;
+		if (cc) {
+			doc_words = cc.words();
+			doc_chars = cc.characters();
+			return;
+		}
+
+		// Fallback to extension instance storage if needed
+		const ext = editor.extensionManager.extensions.find((e) => e.name === 'characterCount') as
+			| { storage?: { characters?: () => number; words?: () => number } }
+			| undefined;
+		if (ext?.storage) {
+			doc_words = typeof ext.storage.words === 'function' ? ext.storage.words() : 0;
+			doc_chars = typeof ext.storage.characters === 'function' ? ext.storage.characters() : 0;
+		}
+	}
 
 	// AI context updates automatically via extension options if enabled
 
@@ -194,8 +260,30 @@
 <div class="editor-container relative h-full w-full overflow-hidden">
 	<div class="relative h-full w-full">
 		<FloatingMenubar {editor} />
-		<div bind:this={editor_container} class="editor-content h-full overflow-y-auto">
+		<div
+			bind:this={editor_container}
+			class="editor-content h-full overflow-y-auto"
+			style={content_padding_style}
+		>
 			<div bind:this={editor_element} class="editor-element"></div>
+		</div>
+
+		<div
+			class="group absolute right-3 bottom-2 z-10 flex flex-col rounded-md border border-border bg-surface px-2 py-1 text-xs text-text-secondary"
+		>
+			<div class="flex items-center gap-1">
+				<span>{doc_words.toLocaleString()} words</span>
+				<span>·</span>
+				<span>{doc_chars.toLocaleString()} chars</span>
+			</div>
+			<div
+				class="h-0 w-full overflow-hidden rounded bg-background-tertiary transition-[height,margin] duration-200 group-hover:mt-1 group-hover:h-1.5"
+			>
+				<div
+					class="h-full rounded"
+					style={`width:${progress_percent()}%; background-color:${progress_color()};`}
+				></div>
+			</div>
 		</div>
 	</div>
 </div>

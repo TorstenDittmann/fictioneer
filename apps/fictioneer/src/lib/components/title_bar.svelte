@@ -5,6 +5,9 @@
 	import { getCurrentWindow } from '@tauri-apps/api/window';
 	import TitleBarUpdateButton from './title_bar_update_button.svelte';
 	import TitleBarLicenseButton from './title_bar_license_button.svelte';
+	import SettingsModal from './settings_modal.svelte';
+
+	let settings_open = $state(false);
 
 	let is_fullscreen = $state(false);
 	const show_back_button = $derived(page.route.id?.startsWith('/[projectId]'));
@@ -121,8 +124,29 @@
 
 	<!-- Right section -->
 	<div class="titlebar-right">
+		<button
+			class="rounded-sm border border-border bg-transparent p-1 text-[10px] text-text-secondary transition-all duration-150 hover:border-accent hover:bg-surface"
+			onclick={() => (settings_open = true)}
+			title="Settings"
+		>
+			<svg
+				width="14"
+				height="14"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+			>
+				<path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+				<path
+					d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 9 3.09V3a2 2 0 1 1 4 0v.09c0 .65.39 1.24 1 1.51h0c.59.27 1.28.15 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06c-.48.54-.6 1.23-.33 1.82h0c.27.61.86 1 1.51 1H21a2 2 0 1 1 0 4h-.09c-.65 0-1.24.39-1.51 1Z"
+				/>
+			</svg>
+		</button>
 		<TitleBarLicenseButton />
 	</div>
+
+	<SettingsModal bind:open={settings_open} />
 </div>
 
 <style>

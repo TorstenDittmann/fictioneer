@@ -10,6 +10,6 @@
 		"apps/*"
 	],
 	"devDependencies": {
-		"workspace-utils": "^1.0.3"
+		"workspace-utils": "^1.0.4"
 	}
 }

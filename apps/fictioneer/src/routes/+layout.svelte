@@ -8,6 +8,7 @@
 	import { projects } from '$lib/state/projects.svelte';
 	import { layout_state } from '$lib/state/layout.svelte';
 	import { ai_writing_backend } from '$lib/state/ai_writing_backend.svelte';
+	import { settings_state } from '$lib/state/settings.svelte';
 	import type { Snippet } from 'svelte';
 	import { blur } from 'svelte/transition';
 	import { onMount } from 'svelte';
@@ -17,6 +18,7 @@
 	let show_app = $state(false);
 
 	onMount(() => {
+		settings_state.initialize();
 		ai_writing_backend.initialize();
 		show_app = true;
 	});
