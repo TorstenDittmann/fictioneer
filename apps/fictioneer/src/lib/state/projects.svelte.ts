@@ -1,3 +1,6 @@
+import type { ProgressGoals, DailyProgress, ProgressStats } from '../types/progress.js';
+import type { ProgressTrackerReference, ProjectsState } from '../types/state.js';
+
 export interface Scene {
 	id: string;
 	title: string;
@@ -36,18 +39,29 @@ export interface Project {
 	chapters: Chapter[];
 	notes: Note[];
 	lastOpenedSceneId?: string;
+	// Progress tracking fields
+	progressGoals?: ProgressGoals;
+	dailyProgress?: DailyProgress[];
+	progressStats?: ProgressStats;
 }
 
 import { projects_service } from '$lib/services/projects.svelte.js';
+import { progress_service } from '$lib/services/progress.svelte.js';
 
-class Projects {
+class Projects implements ProjectsState {
 	private trigger = $state(0);
 	private active_chapter_id = $state<string | null>(null);
 	private active_scene_id = $state<string | null>(null);
 	private expanded_chapters = $state<string[]>([]);
+	private _progressTracker: ProgressTrackerReference | null = null; // Will be injected to avoid circular dependency
 
 	constructor() {
 		this.initializeExpandedChapters();
+	}
+
+	// Set progress tracker reference for bidirectional communication
+	setProgressTrackerReference(progressTrackerRef: ProgressTrackerReference) {
+		this._progressTracker = progressTrackerRef;
 	}
 
 	private initializeExpandedChapters() {
@@ -61,6 +75,13 @@ class Projects {
 	// Trigger reactivity by updating a counter
 	private trigger_update() {
 		this.trigger = Date.now();
+		// Notify progress tracker of state changes
+		this._progressTracker?.syncWithProjectsState?.();
+	}
+
+	// Public method to trigger updates (for progress tracker coordination)
+	public triggerUpdate() {
+		this.trigger_update();
 	}
 
 	// Getters
@@ -129,6 +150,9 @@ class Projects {
 				}
 			}
 
+			// Initialize progress tracking for new project
+			this.initializeProgressTracking();
+
 			return true;
 		} catch (error) {
 			console.error('Failed to create new project:', error);
@@ -152,6 +176,9 @@ class Projects {
 					this.active_scene_id = first_scene.id;
 				}
 			}
+
+			// Initialize progress tracking for new project
+			this.initializeProgressTracking();
 
 			return true;
 		} catch (error) {
@@ -193,6 +220,10 @@ class Projects {
 			}
 
 			this.autoExpandActiveChapter();
+
+			// Update progress tracking when opening project
+			this.updateProgressTracking();
+
 			return true;
 		} catch (error) {
 			console.error('Failed to open project:', error);
@@ -233,6 +264,10 @@ class Projects {
 			}
 
 			this.autoExpandActiveChapter();
+
+			// Update progress tracking when opening project
+			this.updateProgressTracking();
+
 			return true;
 		} catch (error) {
 			console.error('Failed to open recent project:', error);
@@ -349,6 +384,10 @@ class Projects {
 		if (!success) {
 			throw new Error(`Failed to update scene ${scene_id} in chapter ${chapter_id}`);
 		}
+
+		// Trigger progress update when scene content changes
+		this.updateProgressTracking();
+
 		this.trigger_update();
 	}
 
@@ -472,6 +511,120 @@ class Projects {
 		}
 		return urls;
 	}
+
+	// Progress tracking integration methods
+	updateProgressTracking() {
+		const project = this.project;
+		if (!project) return;
+
+		// Calculate current total word count from all scenes
+		let totalWords = 0;
+		for (const chapter of project.chapters) {
+			for (const scene of chapter.scenes) {
+				totalWords += scene.wordCount;
+			}
+		}
+
+		// Get today's date
+		const today = new Date().toISOString().split('T')[0];
+
+		// Update daily progress with current word count
+		progress_service.updateDailyProgress(project, today, totalWords);
+
+		// Trigger reactivity update
+		this.trigger_update();
+	}
+
+	// Progress goal management
+	setDailyProgressGoal(target: number): boolean {
+		const project = this.project;
+		if (!project) return false;
+
+		const success = progress_service.setDailyGoal(project, target);
+		if (success) {
+			this.trigger_update();
+		}
+		return success;
+	}
+
+	setProjectProgressGoal(target: number): boolean {
+		const project = this.project;
+		if (!project) return false;
+
+		const success = progress_service.setProjectGoal(project, target);
+		if (success) {
+			this.trigger_update();
+		}
+		return success;
+	}
+
+	// Progress data getters
+	get progressGoals() {
+		const project = this.project;
+		return project?.progressGoals || null;
+	}
+
+	get dailyProgress() {
+		const project = this.project;
+		return project?.dailyProgress || [];
+	}
+
+	get progressStats() {
+		const project = this.project;
+		return project?.progressStats || null;
+	}
+
+	get todaysProgress() {
+		const project = this.project;
+		if (!project) return null;
+		return progress_service.getTodaysProgress(project);
+	}
+
+	// Initialize progress tracking for new projects
+	initializeProgressTracking(dailyGoal: number = 500, projectGoal?: number) {
+		const project = this.project;
+		if (!project) return false;
+
+		// Set up initial goals
+		const success = progress_service.setDailyGoal(project, dailyGoal);
+		if (!success) return false;
+
+		if (projectGoal) {
+			const projectSuccess = progress_service.setProjectGoal(project, projectGoal);
+			if (!projectSuccess) return false;
+		}
+
+		// Initialize empty progress arrays if they don't exist
+		if (!project.dailyProgress) {
+			project.dailyProgress = [];
+		}
+
+		// Calculate initial stats
+		project.progressStats = progress_service.calculateProgressStats(project);
+
+		this.trigger_update();
+		return true;
+	}
+
+	// Increment session count (called when user starts writing)
+	incrementWritingSession() {
+		const project = this.project;
+		if (!project) return false;
+
+		const success = progress_service.incrementSessionCount(project);
+		if (success) {
+			this.trigger_update();
+		}
+		return success;
+	}
 }
 
 export const projects = new Projects();
+
+// Set up bidirectional references between projects and progress tracker
+// This is done after both instances are created to avoid circular dependency issues
+import { progress_tracker } from './progress.svelte.js';
+
+// Set up the bidirectional references
+projects.setProgressTrackerReference(progress_tracker);
+progress_tracker.setProjectsReference(projects);
