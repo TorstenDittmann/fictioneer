@@ -125,6 +125,7 @@
 	<!-- Right section -->
 	<div class="titlebar-right">
 		<button
+			aria-label="Open settings"
 			class="rounded-sm border border-border bg-transparent p-1 text-[10px] text-text-secondary transition-all duration-150 hover:border-accent hover:bg-surface"
 			onclick={() => (settings_open = true)}
 			title="Settings"

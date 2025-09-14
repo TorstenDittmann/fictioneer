@@ -31,6 +31,30 @@ interface SerializedChapter {
 	order: number;
 }
 
+interface SerializedProgressGoals {
+	dailyWordTarget: number;
+	projectWordTarget?: number;
+	createdAt: string;
+	updatedAt: string;
+}
+
+interface SerializedDailyProgress {
+	date: string;
+	wordsWritten: number;
+	goalMet: boolean;
+	sessionsCount: number;
+	createdAt: string;
+	updatedAt: string;
+}
+
+interface SerializedProgressStats {
+	currentStreak: number;
+	longestStreak: number;
+	totalDaysActive: number;
+	averageDailyWords: number;
+	estimatedCompletionDate?: string;
+}
+
 interface SerializedProject {
 	id: string;
 	title: string;
@@ -39,6 +63,12 @@ interface SerializedProject {
 	notes?: SerializedNote[];
 	createdAt: string;
 	updatedAt: string;
+	lastOpenedSceneId?: string;
+	// Progress tracking fields
+	progressGoals?: SerializedProgressGoals;
+	dailyProgress?: SerializedDailyProgress[];
+	progressStats?: SerializedProgressStats;
+	dailyWordSnapshots?: Record<string, number>;
 }
 
 export interface FictioneerFileData {
@@ -62,7 +92,7 @@ interface ProjectFileData {
 }
 
 class FileService {
-	private readonly version = '1.0.0';
+	private readonly version = '1.1.0'; // Updated to support progress tracking
 	private readonly file_extension = '.fictioneer';
 	private current_file_path = $state<string | null>(null);
 	private recent_projects = $state<RecentProject[]>([]);
@@ -462,10 +492,13 @@ class FileService {
 	 * Serialize a project for storage
 	 */
 	private serialize_project(project: Project): SerializedProject {
-		return {
-			...project,
+		const serialized: SerializedProject = {
+			id: project.id,
+			title: project.title,
+			description: project.description,
 			createdAt: project.createdAt.toISOString(),
 			updatedAt: project.updatedAt.toISOString(),
+			lastOpenedSceneId: project.lastOpenedSceneId,
 			chapters: project.chapters.map((chapter) => ({
 				...chapter,
 				createdAt: chapter.createdAt.toISOString(),
@@ -482,16 +515,57 @@ class FileService {
 				updatedAt: note.updatedAt.toISOString()
 			}))
 		};
+
+		// Serialize progress tracking data
+		if (project.progressGoals) {
+			serialized.progressGoals = {
+				dailyWordTarget: project.progressGoals.dailyWordTarget,
+				projectWordTarget: project.progressGoals.projectWordTarget,
+				createdAt: project.progressGoals.createdAt.toISOString(),
+				updatedAt: project.progressGoals.updatedAt.toISOString()
+			};
+		}
+
+		if (project.dailyProgress) {
+			serialized.dailyProgress = project.dailyProgress.map((progress) => ({
+				date: progress.date,
+				wordsWritten: progress.wordsWritten,
+				goalMet: progress.goalMet,
+				sessionsCount: progress.sessionsCount,
+				createdAt: progress.createdAt.toISOString(),
+				updatedAt: progress.updatedAt.toISOString()
+			}));
+		}
+
+		if (project.progressStats) {
+			serialized.progressStats = {
+				currentStreak: project.progressStats.currentStreak,
+				longestStreak: project.progressStats.longestStreak,
+				totalDaysActive: project.progressStats.totalDaysActive,
+				averageDailyWords: project.progressStats.averageDailyWords,
+				estimatedCompletionDate: project.progressStats.estimatedCompletionDate?.toISOString()
+			};
+		}
+
+		// Serialize daily word snapshots
+		if (project.dailyWordSnapshots) {
+			serialized.dailyWordSnapshots = { ...project.dailyWordSnapshots };
+		}
+
+		return serialized;
 	}
 
 	/**
 	 * Deserialize a project from storage
 	 */
 	private deserialize_project(project: SerializedProject): Project {
-		return {
-			...project,
+		const deserialized: Project = {
+			id: project.id,
+			title: project.title,
+			description: project.description,
 			createdAt: new Date(project.createdAt),
 			updatedAt: new Date(project.updatedAt),
+			lastOpenedSceneId: project.lastOpenedSceneId,
 			chapters: project.chapters.map((chapter: SerializedChapter) => ({
 				...chapter,
 				createdAt: new Date(chapter.createdAt),
@@ -509,6 +583,46 @@ class FileService {
 					updatedAt: new Date(note.updatedAt)
 				})) || []
 		};
+
+		// Deserialize progress tracking data
+		if (project.progressGoals) {
+			deserialized.progressGoals = {
+				dailyWordTarget: project.progressGoals.dailyWordTarget,
+				projectWordTarget: project.progressGoals.projectWordTarget,
+				createdAt: new Date(project.progressGoals.createdAt),
+				updatedAt: new Date(project.progressGoals.updatedAt)
+			};
+		}
+
+		if (project.dailyProgress) {
+			deserialized.dailyProgress = project.dailyProgress.map((progress) => ({
+				date: progress.date,
+				wordsWritten: progress.wordsWritten,
+				goalMet: progress.goalMet,
+				sessionsCount: progress.sessionsCount,
+				createdAt: new Date(progress.createdAt),
+				updatedAt: new Date(progress.updatedAt)
+			}));
+		}
+
+		if (project.progressStats) {
+			deserialized.progressStats = {
+				currentStreak: project.progressStats.currentStreak,
+				longestStreak: project.progressStats.longestStreak,
+				totalDaysActive: project.progressStats.totalDaysActive,
+				averageDailyWords: project.progressStats.averageDailyWords,
+				estimatedCompletionDate: project.progressStats.estimatedCompletionDate
+					? new Date(project.progressStats.estimatedCompletionDate)
+					: undefined
+			};
+		}
+
+		// Deserialize daily word snapshots
+		if (project.dailyWordSnapshots) {
+			deserialized.dailyWordSnapshots = { ...project.dailyWordSnapshots };
+		}
+
+		return deserialized;
 	}
 
 	/**
@@ -516,25 +630,70 @@ class FileService {
 	 */
 	private validate_fictioneer_file(data: unknown): data is ProjectFileData {
 		const obj = data as Record<string, unknown>;
-		return (
+		const project = obj.project as Record<string, unknown>;
+
+		// Basic structure validation
+		const basic_valid =
 			!!obj &&
 			typeof obj.version === 'string' &&
 			typeof obj.createdAt === 'string' &&
 			typeof obj.updatedAt === 'string' &&
 			!!obj.project &&
-			typeof (obj.project as Record<string, unknown>).id === 'string' &&
-			typeof (obj.project as Record<string, unknown>).title === 'string' &&
-			Array.isArray((obj.project as Record<string, unknown>).chapters)
-		);
+			typeof project.id === 'string' &&
+			typeof project.title === 'string' &&
+			Array.isArray(project.chapters);
+
+		if (!basic_valid) {
+			return false;
+		}
+
+		// Optional progress tracking validation (for backward compatibility)
+		if (project.progressGoals) {
+			const goals = project.progressGoals as Record<string, unknown>;
+			if (
+				typeof goals.dailyWordTarget !== 'number' ||
+				typeof goals.createdAt !== 'string' ||
+				typeof goals.updatedAt !== 'string'
+			) {
+				return false;
+			}
+		}
+
+		if (project.dailyProgress) {
+			if (!Array.isArray(project.dailyProgress)) {
+				return false;
+			}
+			// Validate first few entries to ensure structure
+			for (let i = 0; i < Math.min(3, project.dailyProgress.length); i++) {
+				const progress = project.dailyProgress[i] as Record<string, unknown>;
+				if (
+					typeof progress.date !== 'string' ||
+					typeof progress.wordsWritten !== 'number' ||
+					typeof progress.goalMet !== 'boolean' ||
+					typeof progress.sessionsCount !== 'number'
+				) {
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**
 	 * Check if the file version is compatible
 	 */
 	private is_version_compatible(file_version: string): boolean {
-		const major_version = file_version.split('.')[0];
-		const current_major = this.version.split('.')[0];
-		return major_version === current_major;
+		const [major] = file_version.split('.').map(Number);
+		const [current_major] = this.version.split('.').map(Number);
+
+		// Same major version is compatible
+		if (major === current_major) {
+			return true;
+		}
+
+		// For now, we only support version 1.x.x
+		return major === 1 && current_major === 1;
 	}
 
 	/**
@@ -552,7 +711,7 @@ class FileService {
 	 * Generate unique ID
 	 */
 	private generate_id(prefix: string): string {
-		return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+		return `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 	}
 
 	/**

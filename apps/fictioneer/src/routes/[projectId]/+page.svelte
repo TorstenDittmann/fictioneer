@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
+	import { progress_tracker } from '$lib/state/progress.svelte';
 	import RecentNotes from '$lib/components/recent_notes.svelte';
 	import ExportModal from '$lib/components/export_modal.svelte';
+	import ProgressDashboard from '$lib/components/progress_dashboard.svelte';
 	import { Button } from '$lib/components/ui';
 	import type { PageData } from './$types';
 
@@ -29,6 +31,13 @@
 	const recent_scenes = $derived(projects.recentScenes);
 	const project_stats = $derived(projects.getProjectStats());
 	const current_project = $derived(projects.project || data.project);
+
+	// Initialize progress tracker with projects reference
+	$effect(() => {
+		if (current_project) {
+			progress_tracker.setProjectsReference(projects);
+		}
+	});
 
 	function format_date(date: Date): string {
 		const now = new Date();
@@ -202,6 +211,11 @@
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<!-- Progress Dashboard -->
+		<div class="mb-8">
+			<ProgressDashboard />
 		</div>
 
 		<!-- Recent Scenes -->

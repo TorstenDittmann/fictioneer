@@ -25,3 +25,6 @@ vite.config.ts.timestamp-*
 # tauri
 /src-tauri/target/
 /src-tauri/gen/schemas
+
+# IDE
+.kiro
