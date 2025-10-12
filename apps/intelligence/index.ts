@@ -61,7 +61,7 @@ app.use(
 
 			if (!response.ok) return false;
 
-			const data: GumroadPurchaseResponse = await response.json();
+			const data = (await response.json()) as GumroadPurchaseResponse;
 
 			if (!data.success) return false;
 			const { subscription_ended_at, subscription_cancelled_at, subscription_failed_at } =
