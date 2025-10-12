@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { projects } from '$lib/state/projects.svelte';
 	import { progress_tracker } from '$lib/state/progress.svelte';
 	import RecentNotes from '$lib/components/recent_notes.svelte';
@@ -23,7 +24,13 @@
 		// Create first scene
 		const scene_id = projects.createScene(chapter_id, 'Scene 1');
 		if (scene_id) {
-			goto(`/${data.project.id}/${chapter_id}/${scene_id}`);
+			goto(
+				resolve('/[projectId]/[chapterId]/[sceneId]', {
+					projectId: data.project.id,
+					chapterId: chapter_id,
+					sceneId: scene_id
+				})
+			);
 		}
 	}
 
@@ -247,7 +254,11 @@
 				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 					{#each recent_scenes as scene (scene.id)}
 						<a
-							href="/{data.project.id}/{scene.chapter_id}/{scene.id}"
+							href={resolve('/[projectId]/[chapterId]/[sceneId]', {
+								projectId: data.project.id,
+								chapterId: scene.chapter_id,
+								sceneId: scene.id
+							})}
 							class="group block rounded-lg bg-background-secondary p-6 text-left no-underline shadow-sm ring-1 ring-border transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
 						>
 							<div class="flex items-start justify-between">

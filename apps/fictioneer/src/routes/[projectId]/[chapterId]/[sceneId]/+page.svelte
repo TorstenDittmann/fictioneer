@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { beforeNavigate } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
 	import { layout_state } from '$lib/state/layout.svelte';
@@ -89,7 +90,13 @@
 			}
 			const new_scene_id = projects.createScene(data.chapter.id);
 			if (new_scene_id) {
-				goto(`/${data.project.id}/${data.chapter.id}/${new_scene_id}`);
+				goto(
+					resolve('/[projectId]/[chapterId]/[sceneId]', {
+						projectId: data.project.id,
+						chapterId: data.chapter.id,
+						sceneId: new_scene_id
+					})
+				);
 			}
 		}
 	}

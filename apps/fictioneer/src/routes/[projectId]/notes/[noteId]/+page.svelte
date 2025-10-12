@@ -4,6 +4,7 @@
 	import { Button, Input, IconButton } from '$lib/components/ui';
 	import Editor from '$lib/components/editor.svelte';
 	import type { PageProps } from './$types';
+	import { resolve } from '$app/paths';
 
 	let { params }: PageProps = $props();
 
@@ -23,7 +24,11 @@
 			is_loading = false;
 		} else if (!is_loading) {
 			// Note not found, redirect to notes list
-			goto(`/${params.projectId}/notes`);
+			goto(
+				resolve('/[projectId]/notes', {
+					projectId: params.projectId
+				})
+			);
 		}
 	});
 
@@ -56,7 +61,11 @@
 		if (confirm('Are you sure you want to delete this note?')) {
 			try {
 				projects.deleteNote(note.id);
-				goto(`/${params.projectId}/notes`);
+				goto(
+					resolve('/[projectId]/notes', {
+						projectId: params.projectId
+					})
+				);
 			} catch (error) {
 				console.error('Failed to delete note:', error);
 			}
@@ -99,7 +108,11 @@
 		// Escape to go back to notes list
 		if (event.key === 'Escape') {
 			event.preventDefault();
-			goto(`/${params.projectId}/notes`);
+			goto(
+				resolve('/[projectId]/notes', {
+					projectId: params.projectId
+				})
+			);
 		}
 	}
 </script>
@@ -133,7 +146,12 @@
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-4">
 					<IconButton
-						onclick={() => goto(`/${params.projectId}/notes`)}
+						onclick={() =>
+							goto(
+								resolve('/[projectId]/notes', {
+									projectId: params.projectId
+								})
+							)}
 						aria-label="Back to notes"
 						class="text-text-muted hover:bg-background-tertiary hover:text-text-secondary"
 					>

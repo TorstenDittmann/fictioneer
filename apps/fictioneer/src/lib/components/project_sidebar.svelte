@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { projects } from '$lib/state/projects.svelte';
 	import { page } from '$app/state';
 	import type { Project } from '$lib/services/projects.svelte.js';
@@ -93,13 +94,6 @@
 		projects.toggleChapterExpansion(chapter_id);
 	}
 
-	function get_scene_url(chapter_id: string, scene_id: string): string {
-		if (data.project) {
-			return `/${data.project.id}/${chapter_id}/${scene_id}`;
-		}
-		return '#';
-	}
-
 	function create_chapter() {
 		if (data.project) {
 			const chapter_id = projects.createChapter();
@@ -109,7 +103,13 @@
 				// Create first scene and navigate to it
 				const scene_id = projects.createScene(chapter_id);
 				if (scene_id) {
-					goto(`/${data.project.id}/${chapter_id}/${scene_id}`);
+					goto(
+						resolve('/[projectId]/[chapterId]/[sceneId]', {
+							projectId: data.project.id,
+							chapterId: chapter_id,
+							sceneId: scene_id
+						})
+					);
 				}
 			}
 		}
@@ -119,7 +119,13 @@
 		if (data.project) {
 			const scene_id = projects.createScene(chapter_id);
 			if (scene_id) {
-				goto(`/${data.project.id}/${chapter_id}/${scene_id}`);
+				goto(
+					resolve('/[projectId]/[chapterId]/[sceneId]', {
+						projectId: data.project.id,
+						chapterId: chapter_id,
+						sceneId: scene_id
+					})
+				);
 			}
 		}
 	}
@@ -200,7 +206,7 @@
 					</h2>
 				</div>
 				<a
-					href="/{data.project.id}/settings"
+					href={resolve('/[projectId]/settings', { projectId: data.project.id })}
 					class="ml-2 inline-flex items-center rounded-md px-2 py-1 text-xs text-text-secondary no-underline transition-colors hover:bg-surface hover:text-text"
 					title="Project settings"
 					aria-label="Project settings"
@@ -228,7 +234,7 @@
 	<div class="border-b border-border p-2">
 		<div class="space-y-0.5">
 			<a
-				href="/{data.project.id}"
+				href={resolve('/[projectId]', { projectId: data.project.id })}
 				class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium transition-colors duration-200"
 				class:bg-surface={is_overview_active}
 				class:text-text={is_overview_active}
@@ -246,7 +252,7 @@
 				<span>Overview</span>
 			</a>
 			<a
-				href="/{data.project.id}/notes"
+				href={resolve('/[projectId]/notes', { projectId: data.project.id })}
 				class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium transition-colors duration-200"
 				class:bg-surface={is_notes_active}
 				class:text-text={is_notes_active}
@@ -339,7 +345,11 @@
 								>
 									<div class="w-full select-none">
 										<a
-											href={get_scene_url(chapter.id, scene.id)}
+											href={resolve('/[projectId]/[chapterId]/[sceneId]', {
+												projectId: data.project.id,
+												chapterId: chapter.id,
+												sceneId: scene.id
+											})}
 											class="flex w-full items-center gap-2 border-l-2 border-transparent py-1.5 pr-2 pl-4 text-left text-sm no-underline transition-colors duration-200 outline-none select-none hover:bg-background-tertiary focus:shadow-none focus:ring-0 focus:outline-none focus-visible:outline-none active:ring-0 active:outline-none"
 											class:bg-background-tertiary={current_scene_id === scene.id}
 											class:border-accent={current_scene_id === scene.id}

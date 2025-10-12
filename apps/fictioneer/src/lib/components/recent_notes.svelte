@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { projects } from '$lib/state/projects.svelte';
+	import { resolve } from '$app/paths';
 
 	interface Props {
-		project_id?: string;
+		project_id: string;
 	}
 
 	let { project_id }: Props = $props();
@@ -59,7 +60,7 @@
 				Start organizing your thoughts by creating notes
 			</p>
 			<a
-				href={project_id ? `/${project_id}/notes` : 'notes'}
+				href={resolve('/[projectId]/notes', { projectId: project_id })}
 				class="mt-3 inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-medium text-text-inverse transition-colors hover:bg-accent-hover focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:outline-none disabled:opacity-50"
 			>
 				Create First Note
@@ -69,7 +70,10 @@
 		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 			{#each recent_notes as note (note.id)}
 				<a
-					href={project_id ? `/${project_id}/notes/${note.id}` : `notes/${note.id}`}
+					href={resolve('/[projectId]/notes/[noteId]', {
+						projectId: project_id,
+						noteId: note.id
+					})}
 					class="group block rounded-lg bg-background-secondary p-6 text-left no-underline shadow-sm ring-1 ring-border transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
 				>
 					<div class="flex items-start justify-between">
