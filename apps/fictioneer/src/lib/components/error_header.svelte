@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
+
 	let { show_back_to_overview = true }: { show_back_to_overview?: boolean } = $props();
 </script>
 
@@ -7,7 +9,10 @@
 		<h1 class="text-2xl font-bold">Fictioneer</h1>
 		<div class="flex items-center gap-4">
 			{#if show_back_to_overview}
-				<a href="/" class="text-sm text-text-muted no-underline hover:text-text-secondary">
+				<a
+					href={resolve('/')}
+					class="text-sm text-text-muted no-underline hover:text-text-secondary"
+				>
 					← Back to Overview
 				</a>
 			{/if}

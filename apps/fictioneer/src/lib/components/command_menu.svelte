@@ -4,6 +4,7 @@
 	import { layout_state } from '$lib/state/layout.svelte';
 	import { license_key_state } from '$lib/state/license_key.svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import LicenseKeyModal from '$lib/components/license_key_modal.svelte';
 	import type { Scene, Chapter } from '$lib/state/projects.svelte';
 
@@ -44,7 +45,13 @@
 				title: scene_data.title,
 				subtitle: `Recent • ${scene_data.chapter_title} • ${scene_data.wordCount} words`,
 				action: () => {
-					goto(`/${current_project.id}/${scene_data.chapter_id}/${scene_data.id}`);
+					goto(
+						resolve('/[projectId]/[chapterId]/[sceneId]', {
+							projectId: current_project.id,
+							chapterId: scene_data.chapter_id,
+							sceneId: scene_data.id
+						})
+					);
 					close_menu();
 				},
 				type: 'recent',
@@ -59,7 +66,11 @@
 			title: 'Project Overview',
 			subtitle: 'Go to project dashboard',
 			action: () => {
-				goto(`/${current_project.id}`);
+				goto(
+					resolve('/[projectId]', {
+						projectId: current_project.id
+					})
+				);
 				close_menu();
 			},
 			type: 'navigation',
@@ -72,7 +83,11 @@
 			title: 'Project Settings',
 			subtitle: 'Configure project preferences',
 			action: () => {
-				goto(`/${current_project.id}/settings`);
+				goto(
+					resolve('/[projectId]/settings', {
+						projectId: current_project.id
+					})
+				);
 				close_menu();
 			},
 			type: 'navigation',
@@ -87,7 +102,11 @@
 			subtitle: 'Create a new chapter',
 			action: () => {
 				projects.createChapter();
-				goto(`/${current_project.id}`);
+				goto(
+					resolve('/[projectId]', {
+						projectId: current_project.id
+					})
+				);
 				close_menu();
 			},
 			type: 'action',
@@ -103,15 +122,33 @@
 				const active_chapter = projects.activeChapter;
 				if (active_chapter) {
 					const scene_id = projects.createScene(active_chapter.id);
-					goto(`/${current_project.id}/${active_chapter.id}/${scene_id}`);
+					goto(
+						resolve('/[projectId]/[chapterId]/[sceneId]', {
+							projectId: current_project.id,
+							chapterId: active_chapter.id,
+							sceneId: scene_id
+						})
+					);
 				} else if (current_project.chapters.length > 0) {
 					const first_chapter = current_project.chapters[0];
 					const scene_id = projects.createScene(first_chapter.id);
-					goto(`/${current_project.id}/${first_chapter.id}/${scene_id}`);
+					goto(
+						resolve('/[projectId]/[chapterId]/[sceneId]', {
+							projectId: current_project.id,
+							chapterId: first_chapter.id,
+							sceneId: scene_id
+						})
+					);
 				} else {
 					const chapter_id = projects.createChapter();
 					const scene_id = projects.createScene(chapter_id);
-					goto(`/${current_project.id}/${chapter_id}/${scene_id}`);
+					goto(
+						resolve('/[projectId]/[chapterId]/[sceneId]', {
+							projectId: current_project.id,
+							chapterId: chapter_id,
+							sceneId: scene_id
+						})
+					);
 				}
 				close_menu();
 			},
@@ -164,7 +201,13 @@
 						title: scene.title,
 						subtitle: `${chapter.title} • ${scene.wordCount} words`,
 						action: () => {
-							goto(`/${current_project.id}/${chapter.id}/${scene.id}`);
+							goto(
+								resolve('/[projectId]/[chapterId]/[sceneId]', {
+									projectId: current_project.id,
+									chapterId: chapter.id,
+									sceneId: scene.id
+								})
+							);
 							close_menu();
 						},
 						type: 'scene',

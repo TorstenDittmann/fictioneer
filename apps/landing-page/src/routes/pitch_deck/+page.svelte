@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
+
 	// Static pitch deck page styled like the landing sections
 	const sections = [
 		{
@@ -148,7 +150,7 @@
 				A concise overview of the problem, solution, and path forward.
 			</p>
 			<div class="animate-fade-in-up mt-8" style="animation-delay: 0.15s">
-				<a href="/" class="btn-primary hover-lift inline-flex items-center gap-2">
+				<a href={resolve('/')} class="btn-primary hover-lift inline-flex items-center gap-2">
 					<span>Back to Home</span>
 					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path

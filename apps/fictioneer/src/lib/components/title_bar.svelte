@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 	import { projects } from '$lib/state/projects.svelte.js';
 	import { getCurrentWindow } from '@tauri-apps/api/window';
 	import TitleBarUpdateButton from './title_bar_update_button.svelte';
@@ -76,7 +77,7 @@
 
 			{#if show_back_button}
 				<a
-					href="/"
+					href={resolve('/')}
 					class="flex items-center gap-1 rounded-sm border border-border bg-transparent px-1.5 py-0.5 text-[10px] text-text-secondary transition-all duration-150 hover:border-accent hover:bg-surface"
 					title="Back to Overview"
 				>
@@ -96,7 +97,7 @@
 			{/if}
 		{:else if show_back_button}
 			<a
-				href="/"
+				href={resolve('/')}
 				class="flex items-center gap-1 rounded-sm border border-border bg-transparent px-1.5 py-0.5 text-[10px] text-text-secondary transition-all duration-150 hover:border-accent hover:bg-surface"
 				title="Back to Overview"
 			>
