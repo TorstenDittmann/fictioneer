@@ -1,18 +1,24 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { projects } from '$lib/state/projects.svelte';
 	import type { Note } from '$lib/state/projects.svelte';
 	import { Button, IconButton } from '$lib/components/ui';
+	import type { PageProps } from './$types';
 
-	const project_id = page.params.projectId;
+	let { params }: PageProps = $props();
 	const notes = $derived(projects.notes);
 
 	function create_new_note() {
 		try {
 			const note_id = projects.createNote('Untitled Note', '');
 			if (note_id) {
-				goto(`/${project_id}/notes/${note_id}`);
+				goto(
+					resolve('/[projectId]/notes/[noteId]', {
+						projectId: params.projectId,
+						noteId: note_id
+					})
+				);
 			}
 		} catch (error) {
 			console.error('Failed to create note:', error);
@@ -78,7 +84,12 @@
 	function handle_note_keydown(event: KeyboardEvent, note: Note) {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			goto(`/${project_id}/notes/${note.id}`);
+			goto(
+				resolve('/[projectId]/notes/[noteId]', {
+					projectId: params.projectId,
+					noteId: note.id
+				})
+			);
 		}
 	}
 </script>
@@ -143,7 +154,13 @@
 						class="group cursor-pointer rounded-lg bg-background-secondary p-6 shadow-sm ring-1 ring-border transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
 						role="button"
 						tabindex="0"
-						onclick={() => goto(`/${project_id}/notes/${note.id}`)}
+						onclick={() =>
+							goto(
+								resolve('/[projectId]/notes/[noteId]', {
+									projectId: params.projectId,
+									noteId: note.id
+								})
+							)}
 						onkeydown={(event) => handle_note_keydown(event, note)}
 					>
 						<div class="flex items-start justify-between">

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 	import ErrorHeader from '$lib/components/error_header.svelte';
 
 	function get_error_message(error: unknown): string {
@@ -64,7 +65,7 @@
 
 			<div class="space-y-4">
 				<a
-					href="/"
+					href={resolve('/')}
 					class="bg-paper-accent hover:bg-paper-accent-light focus:ring-paper-accent block w-full rounded-lg px-6 py-3 text-center text-white no-underline transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
 				>
 					Go to Overview

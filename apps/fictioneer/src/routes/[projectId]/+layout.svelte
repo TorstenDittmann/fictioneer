@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { projects } from '$lib/state/projects.svelte';
 	import { layout_state } from '$lib/state/layout.svelte';
 	import ProjectSidebar from '$lib/components/project_sidebar.svelte';
@@ -19,7 +20,13 @@
 		// Create first scene
 		const scene_id = projects.createScene(chapter_id, 'Scene 1');
 		if (scene_id) {
-			goto(`/${data.project.id}/${chapter_id}/${scene_id}`);
+			goto(
+				resolve('/[projectId]/[chapterId]/[sceneId]', {
+					projectId: data.project.id,
+					chapterId: chapter_id,
+					sceneId: scene_id
+				})
+			);
 		}
 	}
 

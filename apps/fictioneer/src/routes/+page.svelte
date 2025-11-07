@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { projects } from '$lib/state/projects.svelte';
 	import NewProjectModal from './new_project_modal.svelte';
 	import Logo from '$lib/components/logo.svelte';
@@ -18,7 +19,7 @@
 		if (success) {
 			const project = projects.project;
 			if (project) {
-				await goto(`/${project.id}`);
+				await goto(resolve('/[projectId]', { projectId: project.id }));
 			}
 		}
 	}
@@ -28,7 +29,7 @@
 		if (success) {
 			const project = projects.project;
 			if (project) {
-				await goto(`/${project.id}`);
+				await goto(resolve('/[projectId]', { projectId: project.id }));
 			}
 		}
 	}
@@ -38,7 +39,7 @@
 		if (success) {
 			const project = projects.project;
 			if (project) {
-				await goto(`/${project.id}`);
+				await goto(resolve('/[projectId]', { projectId: project.id }));
 			}
 		}
 	}
