@@ -203,7 +203,6 @@
 				content={note_description}
 				placeholder="Start writing your note..."
 				onUpdate={handle_editor_update}
-				enableAI={false}
 			/>
 		</div>
 	</div>

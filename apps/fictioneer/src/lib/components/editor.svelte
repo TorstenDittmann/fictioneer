@@ -6,7 +6,6 @@
 	import CharacterCount from '@tiptap/extension-character-count';
 	import Focus from '@tiptap/extension-focus';
 	import Typography from '@tiptap/extension-typography';
-	import Underline from '@tiptap/extension-underline';
 	import { AIWritingSuggestion } from './ai_writing_extension.js';
 	import FloatingMenubar from './floating_menubar.svelte';
 	import './tiptap.css';
@@ -42,7 +41,6 @@
 		content?: string;
 		placeholder?: string;
 		onUpdate?: (content: string) => void;
-		enableAI?: boolean;
 		aiContext?: {
 			title?: string;
 			scene_description?: string;
@@ -53,12 +51,10 @@
 		content = '',
 		placeholder = 'Start writing your story...',
 		onUpdate,
-		enableAI = false,
 		aiContext = {}
 	}: Props = $props();
 
-	// Conditionally include AI extension based on enableAI prop
-	let extensions = $derived([
+	const extensions = [
 		StarterKit.configure({
 			heading: {
 				levels: [1, 2, 3, 4, 5, 6]
@@ -82,20 +78,14 @@
 			mode: 'all'
 		}),
 		Typography,
-		Underline,
-		// Only include AI writing suggestion if enabled
-		...(enableAI
-			? [
-					AIWritingSuggestion.configure({
-						delay: 0,
-						minLength: 10,
-						contextWindowSize: 2000,
-						context: aiContext,
-						enabled: true
-					})
-				]
-			: [])
-	]);
+		AIWritingSuggestion.configure({
+			delay: 0,
+			minLength: 10,
+			contextWindowSize: 2000,
+			context: aiContext,
+			enabled: true
+		})
+	];
 
 	// Auto-scroll functionality to keep current line in middle
 	function scroll_to_cursor(instant = false) {

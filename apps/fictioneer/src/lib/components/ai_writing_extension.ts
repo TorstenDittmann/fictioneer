@@ -279,7 +279,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							for await (const streamed_text of ai_writing_backend_service.continue_writing(
 								context_text,
 								enhanced_context,
-								50
+								24
 							)) {
 								// Check if request was cancelled or option key released before updating UI
 								if (!ai_writing_backend_service.is_request_active() || !option_key_held) {

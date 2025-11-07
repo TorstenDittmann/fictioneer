@@ -113,7 +113,6 @@
 				content={data.scene.content}
 				placeholder="Start writing your scene..."
 				onUpdate={handle_editor_update}
-				enableAI={true}
 				aiContext={{
 					title: data.project.title,
 					scene_description: data.scene.title
