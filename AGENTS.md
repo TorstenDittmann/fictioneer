@@ -36,7 +36,7 @@
 - CI must pass `lint` and `check`. For Tauri releases, do not commit secrets; CI uses GitHub secrets for signing.
 
 ## Security & Configuration
-- Env: copy `.env.example` to `.env` per app. Required: `apps/intelligence` needs `GROQ_API_KEY`; `apps/fictioneer` needs `PUBLIC_INTELLIGENCE_SERVER_URL`.
+- Env: copy `.env.example` to `.env` per app. Required: `apps/intelligence` needs `CEREBRAS_API_KEY`; `apps/fictioneer` needs `PUBLIC_INTELLIGENCE_SERVER_URL`.
 - Never commit `.env` or credentials. Review `.github/workflows` before changing release/signing.
 
 ## Agent Notes (Automation)
