@@ -83,7 +83,7 @@
 							</h3>
 						</div>
 						<svg
-							class="h-5 w-5 flex-shrink-0 text-text-muted transition-colors group-hover:text-text-secondary"
+							class="h-5 w-5 shrink-0 text-text-muted transition-colors group-hover:text-text-secondary"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"

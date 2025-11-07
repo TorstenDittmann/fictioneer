@@ -241,7 +241,7 @@
 				class:text-text-secondary={!is_overview_active}
 				class:hover:bg-background-tertiary={!is_overview_active}
 			>
-				<svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
@@ -259,7 +259,7 @@
 				class:text-text-secondary={!is_notes_active}
 				class:hover:bg-background-tertiary={!is_notes_active}
 			>
-				<svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
@@ -355,7 +355,7 @@
 											class:border-accent={current_scene_id === scene.id}
 										>
 											<svg
-												class="h-3 w-3 flex-shrink-0 text-text-muted"
+												class="h-3 w-3 shrink-0 text-text-muted"
 												fill="none"
 												stroke="currentColor"
 												viewBox="0 0 24 24"
@@ -385,7 +385,7 @@
 							}}
 						>
 							<svg
-								class="h-3 w-3 flex-shrink-0 text-text-muted"
+								class="h-3 w-3 shrink-0 text-text-muted"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"

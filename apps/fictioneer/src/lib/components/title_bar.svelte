@@ -88,7 +88,7 @@
 						fill="none"
 						stroke="currentColor"
 						stroke-width="2"
-						class="flex-shrink-0"
+						class="shrink-0"
 					>
 						<path d="M15 18l-6-6 6-6" />
 					</svg>
@@ -108,7 +108,7 @@
 					fill="none"
 					stroke="currentColor"
 					stroke-width="2"
-					class="flex-shrink-0"
+					class="shrink-0"
 				>
 					<path d="M15 18l-6-6 6-6" />
 				</svg>

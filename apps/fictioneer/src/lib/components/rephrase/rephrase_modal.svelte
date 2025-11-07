@@ -50,9 +50,7 @@
 				class="flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-background shadow-2xl"
 			>
 				<!-- Header -->
-				<div
-					class="flex flex-shrink-0 items-center justify-between border-b border-border px-6 py-4"
-				>
+				<div class="flex shrink-0 items-center justify-between border-b border-border px-6 py-4">
 					<Dialog.Title class="text-lg font-semibold text-text">Rephrase Suggestions</Dialog.Title>
 					<Dialog.Close
 						class="rounded-lg p-2 text-text-muted hover:bg-background-tertiary focus:ring-2 focus:ring-accent focus:outline-none"
@@ -127,7 +125,7 @@
 				</div>
 
 				<!-- Footer -->
-				<div class="flex-shrink-0 border-t border-border px-6 py-4">
+				<div class="shrink-0 border-t border-border px-6 py-4">
 					<div class="flex justify-end">
 						<button
 							class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-background-tertiary focus:ring-2 focus:ring-accent focus:outline-none"

@@ -1,12 +1,21 @@
 <script lang="ts">
-	interface Tool {
+	import { resolve } from '$app/paths';
+	import type { RouteId } from '$app/types';
+
+	type Tool = {
 		title: string;
 		description: string;
-		href: string;
 		icon: string;
-		status: 'available' | 'coming_soon';
 		features: string[];
-	}
+	} & (
+		| {
+				status: 'available';
+				href: RouteId;
+		  }
+		| {
+				status: 'coming_soon';
+		  }
+	);
 
 	const tools: Tool[] = [
 		{
@@ -27,7 +36,6 @@
 			title: 'Character Name Generator',
 			description:
 				'Create memorable character names for your stories. Generate names by genre, origin, or cultural background.',
-			href: '/tools/character-name-generator',
 			icon: '👤',
 			status: 'coming_soon',
 			features: ['Cultural origins', 'Genre-specific', 'Meaning included', 'Bulk generation']
@@ -36,7 +44,6 @@
 			title: 'Plot Generator',
 			description:
 				"Overcome writer's block with AI-generated plot ideas and story structures tailored to your preferred genre.",
-			href: '/tools/plot-generator',
 			icon: '🎭',
 			status: 'coming_soon',
 			features: ['Story arcs', 'Conflict ideas', 'Character motivations', 'Twist suggestions']
@@ -45,7 +52,6 @@
 			title: 'Book Title Generator',
 			description:
 				"Generate compelling book titles that capture your story's essence and attract readers.",
-			href: '/tools/book-title-generator',
 			icon: '📖',
 			status: 'coming_soon',
 			features: ['Genre-aware', 'Multiple options', 'SEO optimized', 'Trademark check']
@@ -54,7 +60,6 @@
 			title: 'Pen Name Generator',
 			description:
 				'Create the perfect pseudonym for your writing career with our AI-powered pen name generator.',
-			href: '/tools/pen-name-generator',
 			icon: '✍️',
 			status: 'coming_soon',
 			features: ['Genre matching', 'Availability check', 'Cultural styles', 'Gender options']
@@ -62,7 +67,6 @@
 		{
 			title: 'Town Name Generator',
 			description: 'Generate realistic town and city names for your fictional worlds and stories.',
-			href: '/tools/town-name-generator',
 			icon: '🏘️',
 			status: 'coming_soon',
 			features: [
@@ -76,7 +80,6 @@
 			title: 'Fan Fiction Story Generator',
 			description:
 				'Create fan fiction stories based on your favorite universes with AI assistance.',
-			href: '/tools/fan-fiction-generator',
 			icon: '⭐',
 			status: 'coming_soon',
 			features: ['Popular fandoms', 'Character relationships', 'Canon compliance', 'AU scenarios']
@@ -85,7 +88,6 @@
 			title: 'Adult Story Generator',
 			description:
 				'Generate mature, sophisticated stories for adult audiences with nuanced themes and complex characters.',
-			href: '/tools/adult-story-generator',
 			icon: '🔞',
 			status: 'coming_soon',
 			features: ['Mature themes', 'Complex characters', 'Relationship dynamics', 'Age verification']
@@ -131,7 +133,7 @@
 <div class="min-h-screen bg-paper-beige">
 	<!-- Gradient background overlay -->
 	<div
-		class="absolute inset-0 bg-gradient-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
+		class="absolute inset-0 bg-linear-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
 	></div>
 	<div class="absolute inset-0" style="background: var(--gradient-radial)"></div>
 
@@ -141,7 +143,7 @@
 			<div class="flex items-center justify-between">
 				<div class="flex items-center space-x-3">
 					<a
-						href="/"
+						href={resolve('/')}
 						class="gradient-text transition-smooth font-serif text-2xl font-bold hover:scale-105"
 					>
 						Fictioneer
@@ -150,16 +152,16 @@
 					<span class="text-lg text-paper-text-light">AI Writing Tools</span>
 				</div>
 				<nav class="hidden space-x-6 md:flex">
-					<a href="/" class="transition-smooth text-paper-text-light hover:text-paper-accent"
-						>Home</a
+					<a
+						href={resolve('/')}
+						class="transition-smooth text-paper-text-light hover:text-paper-accent">Home</a
 					>
 					<a
-						href="/#features"
+						href="#features"
 						class="transition-smooth text-paper-text-light hover:text-paper-accent">Features</a
 					>
-					<a
-						href="/#pricing"
-						class="transition-smooth text-paper-text-light hover:text-paper-accent">Pricing</a
+					<a href="#pricing" class="transition-smooth text-paper-text-light hover:text-paper-accent"
+						>Pricing</a
 					>
 				</nav>
 			</div>
@@ -221,7 +223,7 @@
 						{#each tool.features as feature (feature)}
 							<li class="flex items-center text-sm text-paper-text-light">
 								<svg
-									class="mr-2 h-4 w-4 flex-shrink-0 text-paper-accent"
+									class="mr-2 h-4 w-4 shrink-0 text-paper-accent"
 									fill="currentColor"
 									viewBox="0 0 20 20"
 								>
@@ -239,7 +241,7 @@
 					<!-- Action Button -->
 					{#if tool.status === 'available'}
 						<a
-							href={tool.href}
+							href={resolve(tool.href)}
 							class="btn-primary hover-lift block w-full px-6 py-3 text-center font-semibold"
 						>
 							Try It Free
@@ -298,7 +300,7 @@
 				<ul class="space-y-4">
 					<li class="flex items-start">
 						<svg
-							class="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-paper-accent"
+							class="mt-0.5 mr-3 h-5 w-5 shrink-0 text-paper-accent"
 							fill="currentColor"
 							viewBox="0 0 20 20"
 						>
@@ -315,7 +317,7 @@
 					</li>
 					<li class="flex items-start">
 						<svg
-							class="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-paper-accent"
+							class="mt-0.5 mr-3 h-5 w-5 shrink-0 text-paper-accent"
 							fill="currentColor"
 							viewBox="0 0 20 20"
 						>
@@ -334,7 +336,7 @@
 					</li>
 					<li class="flex items-start">
 						<svg
-							class="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-paper-accent"
+							class="mt-0.5 mr-3 h-5 w-5 shrink-0 text-paper-accent"
 							fill="currentColor"
 							viewBox="0 0 20 20"
 						>
@@ -356,7 +358,7 @@
 				<ul class="space-y-4">
 					<li class="flex items-start">
 						<svg
-							class="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-paper-accent"
+							class="mt-0.5 mr-3 h-5 w-5 shrink-0 text-paper-accent"
 							fill="currentColor"
 							viewBox="0 0 20 20"
 						>
@@ -375,7 +377,7 @@
 					</li>
 					<li class="flex items-start">
 						<svg
-							class="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-paper-accent"
+							class="mt-0.5 mr-3 h-5 w-5 shrink-0 text-paper-accent"
 							fill="currentColor"
 							viewBox="0 0 20 20"
 						>
@@ -392,7 +394,7 @@
 					</li>
 					<li class="flex items-start">
 						<svg
-							class="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-paper-accent"
+							class="mt-0.5 mr-3 h-5 w-5 shrink-0 text-paper-accent"
 							fill="currentColor"
 							viewBox="0 0 20 20"
 						>
@@ -424,9 +426,9 @@
 				features
 			</p>
 			<div class="flex flex-col justify-center gap-4 sm:flex-row">
-				<a href="/" class="btn-primary hover-lift"> Discover Fictioneer </a>
+				<a href={resolve('/')} class="btn-primary hover-lift"> Discover Fictioneer </a>
 				<a
-					href="/#features"
+					href="#features"
 					class="glass transition-smooth rounded-lg border-2 border-paper-accent px-8 py-3 font-semibold text-paper-accent hover:bg-paper-accent hover:text-paper-beige"
 				>
 					View Features

@@ -117,7 +117,7 @@
 		<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 			<div class="rounded-lg bg-background-secondary p-6 shadow-sm ring-1 ring-border">
 				<div class="flex items-center">
-					<div class="flex-shrink-0">
+					<div class="shrink-0">
 						<svg
 							class="h-8 w-8 text-text-secondary"
 							fill="none"
@@ -143,7 +143,7 @@
 
 			<div class="rounded-lg bg-background-secondary p-6 shadow-sm ring-1 ring-border">
 				<div class="flex items-center">
-					<div class="flex-shrink-0">
+					<div class="shrink-0">
 						<svg
 							class="h-8 w-8 text-text-secondary"
 							fill="none"
@@ -169,7 +169,7 @@
 
 			<div class="rounded-lg bg-background-secondary p-6 shadow-sm ring-1 ring-border">
 				<div class="flex items-center">
-					<div class="flex-shrink-0">
+					<div class="shrink-0">
 						<svg
 							class="h-8 w-8 text-text-secondary"
 							fill="none"
@@ -195,7 +195,7 @@
 
 			<div class="rounded-lg bg-background-secondary p-6 shadow-sm ring-1 ring-border">
 				<div class="flex items-center">
-					<div class="flex-shrink-0">
+					<div class="shrink-0">
 						<svg
 							class="h-8 w-8 text-text-secondary"
 							fill="none"
@@ -273,7 +273,7 @@
 									</p>
 								</div>
 								<svg
-									class="h-5 w-5 flex-shrink-0 text-text-muted transition-colors group-hover:text-text-secondary"
+									class="h-5 w-5 shrink-0 text-text-muted transition-colors group-hover:text-text-secondary"
 									fill="none"
 									stroke="currentColor"
 									viewBox="0 0 24 24"

@@ -62,7 +62,7 @@
 				fill="none"
 				stroke="currentColor"
 				stroke-width="2"
-				class="flex-shrink-0"
+				class="shrink-0"
 			>
 				<path d="M12 2v20M5 12l7-7 7 7" />
 			</svg>

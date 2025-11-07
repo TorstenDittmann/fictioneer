@@ -95,7 +95,7 @@
 					<div class="space-y-3 sm:space-y-4">
 						<div class="flex items-start gap-3 text-left">
 							<div
-								class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-paper-accent/20 text-sm font-bold text-paper-accent sm:h-8 sm:w-8"
+								class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-paper-accent/20 text-sm font-bold text-paper-accent sm:h-8 sm:w-8"
 							>
 								1
 							</div>
@@ -108,7 +108,7 @@
 						</div>
 						<div class="flex items-start gap-3 text-left">
 							<div
-								class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-paper-accent/20 text-sm font-bold text-paper-accent sm:h-8 sm:w-8"
+								class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-paper-accent/20 text-sm font-bold text-paper-accent sm:h-8 sm:w-8"
 							>
 								2
 							</div>
@@ -123,7 +123,7 @@
 						</div>
 						<div class="flex items-start gap-3 text-left">
 							<div
-								class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-paper-accent/20 text-sm font-bold text-paper-accent sm:h-8 sm:w-8"
+								class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-paper-accent/20 text-sm font-bold text-paper-accent sm:h-8 sm:w-8"
 							>
 								3
 							</div>

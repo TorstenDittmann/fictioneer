@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { config, api_endpoints } from '$lib/config';
 
 	interface StoryOptions {
@@ -350,7 +351,7 @@
 <div class="min-h-screen bg-paper-beige">
 	<!-- Gradient background overlay -->
 	<div
-		class="absolute inset-0 bg-gradient-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
+		class="absolute inset-0 bg-linear-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
 	></div>
 	<div class="absolute inset-0" style="background: var(--gradient-radial)"></div>
 
@@ -360,7 +361,7 @@
 			<div class="flex items-center justify-between">
 				<div class="flex items-center space-x-3">
 					<a
-						href="/"
+						href={resolve('/')}
 						class="gradient-text transition-smooth font-serif text-2xl font-bold hover:scale-105"
 					>
 						Fictioneer
@@ -369,11 +370,13 @@
 					<span class="text-lg text-paper-text-light">AI Story Generator</span>
 				</div>
 				<nav class="hidden space-x-6 md:flex">
-					<a href="/" class="transition-smooth text-paper-text-light hover:text-paper-accent"
-						>Home</a
+					<a
+						href={resolve('/')}
+						class="transition-smooth text-paper-text-light hover:text-paper-accent">Home</a
 					>
-					<a href="/tools" class="transition-smooth text-paper-text-light hover:text-paper-accent"
-						>More Tools</a
+					<a
+						href={resolve('/tools')}
+						class="transition-smooth text-paper-text-light hover:text-paper-accent">More Tools</a
 					>
 				</nav>
 			</div>
@@ -501,7 +504,7 @@
 								id="story_context"
 								bind:value={story_context}
 								placeholder="Describe your story idea, characters, or any specific details you'd like included..."
-								class="glass transition-smooth min-h-[80px] w-full resize-y rounded-lg border border-paper-border bg-paper-cream/50 px-4 py-3 text-paper-text focus:border-paper-accent focus:ring-2 focus:ring-paper-accent/20"
+								class="glass transition-smooth min-h-20 w-full resize-y rounded-lg border border-paper-border bg-paper-cream/50 px-4 py-3 text-paper-text focus:border-paper-accent focus:ring-2 focus:ring-paper-accent/20"
 								disabled={generating_story}
 							></textarea>
 							<div class="mt-1 text-xs text-paper-text-muted">
@@ -604,7 +607,7 @@
 					<div class="animate-fade-in">
 						<!-- Story Text with Book-like Styling -->
 						<div
-							class="mx-auto max-w-5xl rounded-3xl border border-paper-accent/20 bg-gradient-to-br from-paper-white/10 to-paper-cream/20 p-8 shadow-2xl md:p-16"
+							class="mx-auto max-w-5xl rounded-3xl border border-paper-accent/20 bg-linear-to-br from-paper-white/10 to-paper-cream/20 p-8 shadow-2xl md:p-16"
 						>
 							<div class="story-page">
 								<div
@@ -715,9 +718,9 @@
 				Discover Fictioneer - the complete writing platform for novelists
 			</p>
 			<div class="flex flex-col justify-center gap-4 sm:flex-row">
-				<a href="/" class="btn-primary hover-lift"> Learn More About Fictioneer </a>
+				<a href={resolve('/')} class="btn-primary hover-lift"> Learn More About Fictioneer </a>
 				<a
-					href="/tools"
+					href={resolve('/tools')}
 					class="glass transition-smooth rounded-lg border-2 border-paper-accent px-8 py-3 font-semibold text-paper-accent hover:bg-paper-accent hover:text-paper-beige"
 				>
 					Explore More AI Tools

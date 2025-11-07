@@ -176,7 +176,7 @@
 				{#if export_error}
 					<div class="rounded-md border border-accent bg-surface p-4">
 						<div class="flex">
-							<div class="flex-shrink-0">
+							<div class="shrink-0">
 								<svg class="h-5 w-5 text-accent" viewBox="0 0 20 20" fill="currentColor">
 									<path
 										fill-rule="evenodd"
