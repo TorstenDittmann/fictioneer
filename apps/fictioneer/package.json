@@ -39,7 +39,7 @@
 		"vite": "^7.1.1"
 	},
 	"dependencies": {
-		"@ai-sdk/groq": "^2.0.4",
+        "@ai-sdk/cerebras": "^1.0.25",
 		"@fontsource/libre-baskerville": "^5.2.6",
 		"@tauri-apps/api": "^2.7.0",
 		"@tauri-apps/plugin-dialog": "~2.3.2",

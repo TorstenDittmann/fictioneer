@@ -1,21 +1,20 @@
-import { createGroq, type GroqProvider, type GroqProviderOptions } from '@ai-sdk/groq';
+import { createCerebras } from '@ai-sdk/cerebras';
 import { generateText, streamText } from 'ai';
 import dedent from 'dedent';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const CEREBRAS_API_KEY = Bun.env.CEREBRAS_API_KEY;
 
-if (!GROQ_API_KEY) {
-	throw new Error('GROQ_API_KEY environment variable is required');
+if (!CEREBRAS_API_KEY) {
+	throw new Error('CEREBRAS_API_KEY environment variable is required');
 }
 
-const groq = createGroq({
-	apiKey: GROQ_API_KEY
+const cerebras = createCerebras({
+	apiKey: CEREBRAS_API_KEY
 });
 
-// Using Kimi K2 model for marketing endpoints
-const MARKETING_MODEL = 'moonshotai/kimi-k2-instruct' satisfies Parameters<GroqProvider>[0];
+const MARKETING_MODEL: Parameters<typeof cerebras>[0] = 'gpt-oss-120b';
 
 const app = new Hono();
 
@@ -109,17 +108,14 @@ app.post('/api/marketing/generate-story', async (c) => {
 
 		const { genre, theme, setting, tone, word_count = 300, context } = body;
 
-		const client = groq(MARKETING_MODEL);
+		const client = cerebras(MARKETING_MODEL);
 		const system_prompt = build_story_prompt(genre, theme, setting, tone, word_count, context);
 
 		const common_options = {
 			model: client,
 			system: system_prompt,
 			prompt: 'Generate the story based on the requirements provided.',
-			temperature: 0.8,
-			providerOptions: {
-				groq: {} satisfies GroqProviderOptions
-			}
+			temperature: 0.8
 		};
 
 		const stream = c.req.header('accept') === 'text/plain+stream';

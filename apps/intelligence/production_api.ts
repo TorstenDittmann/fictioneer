@@ -1,24 +1,24 @@
-import { createGroq, type GroqProvider, type GroqProviderOptions } from '@ai-sdk/groq';
 import { generateText, streamText } from 'ai';
 import dedent from 'dedent';
 import { Hono } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
 import type { GumroadPurchaseResponse } from './types';
+import { createCerebras } from '@ai-sdk/cerebras';
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const CEREBRAS_API_KEY = Bun.env.CEREBRAS_API_KEY;
 
-if (!GROQ_API_KEY) {
-	throw new Error('GROQ_API_KEY environment variable is required');
+if (!CEREBRAS_API_KEY) {
+	throw new Error('CEREBRAS_API_KEY environment variable is required');
 }
 
-const groq = createGroq({
-	apiKey: GROQ_API_KEY
+const cerebras = createCerebras({
+	apiKey: CEREBRAS_API_KEY
 });
 
 const MODELS = {
-	PAID: 'llama-3.3-70b-versatile',
-	FREE: 'meta-llama/llama-4-maverick-17b-128e-instruct'
-} as const satisfies Record<string, Parameters<GroqProvider>[0]>;
+	SLOW: 'gpt-oss-120b',
+	FAST: 'llama-3.3-70b'
+} as const satisfies Record<string, Parameters<typeof cerebras>[0]>;
 
 const app = new Hono();
 
@@ -256,7 +256,7 @@ app.post('/api/continue', async (c) => {
 			return c.json({ error: 'Content is required and must be a string' }, 400);
 		}
 
-		const client = groq(MODELS.FREE);
+		const client = cerebras(MODELS.FAST);
 		const system_prompt = build_system_prompt(context, content, word_count);
 
 		const ctx =
@@ -277,20 +277,14 @@ app.post('/api/continue', async (c) => {
 				model: client,
 				system: system_prompt,
 				prompt: user_prompt,
-				temperature: 0.7,
-				providerOptions: {
-					groq: {} satisfies GroqProviderOptions
-				}
+				temperature: 0.7
 			}).toTextStreamResponse();
 		} else {
 			const result = await generateText({
 				model: client,
 				system: system_prompt,
 				prompt: user_prompt,
-				temperature: 0.7,
-				providerOptions: {
-					groq: {} satisfies GroqProviderOptions
-				}
+				temperature: 0.7
 			});
 
 			return c.text(result.text);
@@ -311,7 +305,7 @@ app.post('/api/rephrase', async (c) => {
 			return c.json({ error: 'selected_sentence is required and must be a string' }, 400);
 		}
 
-		const client = groq(MODELS.PAID);
+		const client = cerebras(MODELS.SLOW);
 		const alternative_types = ['vivid', 'tighter', 'show_dont_tell', 'change_pov', 'simplify'];
 
 		const alternatives = await Promise.all(
@@ -326,10 +320,7 @@ app.post('/api/rephrase', async (c) => {
 				const result = await generateText({
 					model: client,
 					system: system_prompt,
-					prompt: selected_sentence,
-					providerOptions: {
-						groq: {} satisfies GroqProviderOptions
-					}
+					prompt: selected_sentence
 				});
 
 				return {

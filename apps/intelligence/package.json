@@ -11,7 +11,7 @@
 		"lint": "prettier --check ."
 	},
 	"dependencies": {
-		"@ai-sdk/groq": "^2.0.0",
+		"@ai-sdk/cerebras": "^1.0.25",
 		"ai": "^5.0.0",
 		"dedent": "^1.5.1",
 		"hono": "^4.8.12"
