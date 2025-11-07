@@ -17,7 +17,7 @@ const cerebras = createCerebras({
 
 const MODELS = {
 	SLOW: 'gpt-oss-120b',
-	FAST: 'llama3.1-8b'
+	FAST: 'llama-3.3-70b'
 } as const satisfies Record<string, Parameters<typeof cerebras>[0]>;
 
 const app = new Hono();
