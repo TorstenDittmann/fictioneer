@@ -4,18 +4,9 @@ import dedent from 'dedent';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { aj } from './protection';
+import { openrouter } from './ai';
 
-const CEREBRAS_API_KEY = Bun.env.CEREBRAS_API_KEY;
-
-if (!CEREBRAS_API_KEY) {
-	throw new Error('CEREBRAS_API_KEY environment variable is required');
-}
-
-const cerebras = createCerebras({
-	apiKey: CEREBRAS_API_KEY
-});
-
-const MARKETING_MODEL: Parameters<typeof cerebras>[0] = 'gpt-oss-120b';
+const MARKETING_MODEL: Parameters<typeof openrouter>[0] = 'openai/gpt-oss-120b';
 
 const app = new Hono();
 
@@ -113,7 +104,7 @@ app.post('/api/marketing/generate-story', async (c) => {
 
 		const { genre, theme, setting, tone, word_count = 300, context } = body;
 
-		const client = cerebras(MARKETING_MODEL);
+		const client = openrouter(MARKETING_MODEL);
 		const system_prompt = build_story_prompt(genre, theme, setting, tone, word_count, context);
 
 		const common_options = {

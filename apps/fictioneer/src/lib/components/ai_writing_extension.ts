@@ -44,7 +44,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 			minLength: 50,
 			context: {},
 			enabled: true,
-			contextWindowSize: 2000
+			contextWindowSize: 1000
 		};
 	},
 
@@ -272,7 +272,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							for await (const streamed_text of ai_writing_backend_service.continue_writing(
 								context_text,
 								enhanced_context,
-								24
+								36
 							)) {
 								// Check if request was cancelled or option key released before updating UI
 								if (!ai_writing_backend_service.is_request_active() || !option_key_held) {

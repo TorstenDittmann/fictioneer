@@ -81,7 +81,7 @@
 		AIWritingSuggestion.configure({
 			delay: 0,
 			minLength: 10,
-			contextWindowSize: 2000,
+			contextWindowSize: 1000,
 			context: aiContext,
 			enabled: true
 		})

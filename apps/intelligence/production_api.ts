@@ -3,30 +3,21 @@ import dedent from 'dedent';
 import { Hono, type HonoRequest } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
 import type { GumroadPurchaseResponse } from './types';
-import { createDeepInfra } from '@ai-sdk/deepinfra';
 import { withTracing } from '@posthog/ai';
 import { aj } from './protection';
 import { posthog } from './tracking';
+import { openrouter } from './ai';
 
-const DEEPINFRA_API_KEY = Bun.env.DEEPINFRA_API_KEY;
-
-if (!DEEPINFRA_API_KEY) {
-	throw new Error('DEEPINFRA_API_KEY environment variable is required');
-}
-
-const deepinfra = createDeepInfra({
-	apiKey: DEEPINFRA_API_KEY
-});
-
-type Model = Parameters<typeof deepinfra>[0];
+type Model = Parameters<typeof openrouter>[0];
 
 const MODELS = {
 	SLOW: 'openai/gpt-oss-120b',
-	FAST: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo'
+	FAST: 'meta-llama/llama-3.3-70b-instruct',
+	FREE: 'meta-llama/llama-3.3-70b-instruct:free'
 } as const satisfies Record<string, Model>;
 
 function create_model(model: Model, distinct_id: GumroadPurchaseResponse['purchase']['email']) {
-	return withTracing(deepinfra(model), posthog, {
+	return withTracing(openrouter(model), posthog, {
 		posthogDistinctId: distinct_id
 	});
 }
@@ -246,7 +237,7 @@ function build_system_prompt(
 		• Vary sentence rhythm - blend short, punchy sentences with flowing descriptions
 		• Use fresh, evocative language that avoids repetition from the previous text
 		• Create smooth transitions that maintain narrative momentum
-		• Aim for maximum ${word_count} words
+		• Aim for around ${word_count} words
 		• End at a meaningful moment - a revelation, decision point, or scene transition
 		
 		Important: Continue the story seamlessly from where it left off. Don't repeat or summarize what came before.
@@ -297,14 +288,16 @@ app.post('/api/continue', async (c) => {
 				model: client,
 				system: system_prompt,
 				prompt: user_prompt,
-				temperature: 0.7
+				temperature: 0.8,
+				topP: 0.9
 			}).toTextStreamResponse();
 		} else {
 			const result = await generateText({
 				model: client,
 				system: system_prompt,
 				prompt: user_prompt,
-				temperature: 0.7
+				temperature: 0.8,
+				topP: 0.9
 			});
 
 			return c.text(result.text);
