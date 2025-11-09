@@ -25,16 +25,23 @@
 	const is_disabled = $derived(
 		update_state.is_checking || update_state.is_downloading || update_state.is_installing
 	);
+
+	const button_classes = $derived.by(() => {
+		const base = 'relative flex min-h-5 cursor-pointer items-center gap-1 overflow-hidden rounded-sm border px-1.5 py-0.5 text-[10px] transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60';
+		
+		if (update_state.update_available) {
+			return `${base} animate-pulse border-accent bg-transparent text-accent hover:border-accent hover:bg-accent hover:text-text-inverse`;
+		}
+		
+		return `${base} border-border bg-transparent text-text hover:border-accent hover:bg-surface hover:text-accent`;
+	});
 </script>
 
 {#if update_state.update_available || update_state.is_checking || update_state.is_downloading || update_state.is_installing}
 	<button
 		onclick={handle_update_click}
 		disabled={is_disabled}
-		class="relative flex min-h-5 cursor-pointer items-center gap-1 overflow-hidden rounded-sm border border-border bg-transparent px-1.5 py-0.5 text-[10px] text-text-secondary transition-all duration-150
-		       hover:border-accent hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60
-		       {update_state.update_available ? 'animate-pulse border-accent text-accent' : ''}
-		       {update_state.update_available ? 'hover:bg-accent hover:text-text-inverse' : ''}"
+		class={button_classes}
 		title={update_state.update_available
 			? `Update to ${update_state.update_version}`
 			: 'Checking for updates...'}
