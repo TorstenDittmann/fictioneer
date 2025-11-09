@@ -10,7 +10,7 @@
 	<meta name="title" content="Fictioneer - next generation writing tool" />
 	<meta
 		name="description"
-		content="Write your novel without distractions. Fictioneer offers AI-powered writing assistance, progress tracking, and a beautiful minimalist interface designed for serious writers."
+		content="Download Fictioneer for free. A distraction-free writing app for novelists with AI-powered assistance, progress tracking, and a beautiful minimalist interface."
 	/>
 	<meta
 		name="keywords"
@@ -30,7 +30,7 @@
 	<meta property="og:title" content="Fictioneer - Where Stories Come to Life" />
 	<meta
 		property="og:description"
-		content="The distraction-free writing environment for novelists. Join the waitlist for early access to the future of fiction writing."
+		content="Download Fictioneer for free. The distraction-free writing environment designed for novelists who demand focus, flow, and creative freedom."
 	/>
 	<meta property="og:image" content="https://fictioneer.app/og.png" />
 	<meta property="og:image:width" content="1200" />
@@ -45,7 +45,7 @@
 	<meta property="twitter:title" content="Fictioneer - Where Stories Come to Life" />
 	<meta
 		property="twitter:description"
-		content="The distraction-free writing environment for novelists. Join the waitlist for early access."
+		content="Download Fictioneer for free. The distraction-free writing environment designed for novelists."
 	/>
 	<meta property="twitter:image" content="https://fictioneer.app/og.png" />
 	<meta property="twitter:image:alt" content="Fictioneer - Distraction-Free Writing App" />

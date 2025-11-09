@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import logo from '$lib/assets/logo.svg';
 
-	function scrollToWaitlist() {
-		document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' });
+	function scrollToNewsletter() {
+		document.getElementById('newsletter')?.scrollIntoView({ behavior: 'smooth' });
 	}
 </script>
 
@@ -11,7 +12,7 @@
 >
 	<!-- Gradient background -->
 	<div
-		class="absolute inset-0 bg-gradient-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
+		class="absolute inset-0 bg-linear-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
 	></div>
 
 	<!-- Radial gradient overlay -->
@@ -27,15 +28,6 @@
 					class="animate-rotate-slow relative h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24"
 				/>
 			</div>
-		</div>
-
-		<!-- App name -->
-		<div class="animate-fade-in mb-6 sm:mb-8" style="animation-delay: 0.05s">
-			<h2
-				class="font-serif text-3xl tracking-wide text-paper-accent sm:text-4xl md:text-5xl lg:text-6xl"
-			>
-				Fictioneer
-			</h2>
 		</div>
 
 		<!-- Main headline -->
@@ -57,11 +49,14 @@
 			The writing environment designed for novelists who demand focus, flow, and creative freedom.
 		</p>
 
-		<!-- CTA Button -->
-		<div class="animate-fade-in-up flex items-center justify-center" style="animation-delay: 0.4s">
-			<button onclick={scrollToWaitlist} class="btn-primary hover-lift group">
+		<!-- CTA Buttons -->
+		<div
+			class="animate-fade-in-up flex flex-wrap items-center justify-center gap-4"
+			style:animation-delay="0.4s"
+		>
+			<a href={resolve('/download')} class="btn-primary hover-lift group">
 				<span class="flex items-center gap-2 text-sm sm:text-base">
-					Join the Waitlist
+					Download Free
 					<svg
 						class="h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5"
 						fill="none"
@@ -72,10 +67,16 @@
 							stroke-linecap="round"
 							stroke-linejoin="round"
 							stroke-width="2"
-							d="M13 7l5 5m0 0l-5 5m5-5H6"
+							d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
 						></path>
 					</svg>
 				</span>
+			</a>
+			<button
+				onclick={scrollToNewsletter}
+				class="group rounded-lg border-2 border-paper-accent px-6 py-3 font-medium text-paper-accent transition-all hover:bg-paper-accent/10 sm:px-8 sm:py-4"
+			>
+				<span class="flex items-center gap-2 text-sm sm:text-base"> Stay Updated </span>
 			</button>
 		</div>
 
@@ -85,8 +86,8 @@
 			style="animation-delay: 0.5s"
 		>
 			<div class="text-center">
-				<div class="gradient-text text-2xl font-bold sm:text-3xl md:text-4xl">Early</div>
-				<div class="mt-1 text-xs text-paper-text-muted sm:text-sm">Access</div>
+				<div class="gradient-text text-2xl font-bold sm:text-3xl md:text-4xl">Free</div>
+				<div class="mt-1 text-xs text-paper-text-muted sm:text-sm">Forever</div>
 			</div>
 			<div class="text-center">
 				<div class="gradient-text text-2xl font-bold sm:text-3xl md:text-4xl">100%</div>

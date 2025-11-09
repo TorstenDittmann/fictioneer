@@ -48,7 +48,7 @@
 	}
 </script>
 
-<section id="waitlist" class="relative overflow-hidden px-4 py-20 sm:py-32">
+<section id="newsletter" class="relative overflow-hidden px-4 py-20 sm:py-32">
 	<!-- Background gradient -->
 	<div
 		class="absolute inset-0 bg-gradient-to-b from-paper-white/20 via-paper-beige to-paper-cream/30"
@@ -88,7 +88,7 @@
 				<p class="mx-auto mb-6 max-w-2xl text-lg text-paper-text-light sm:mb-8 sm:text-xl">
 					We've sent a confirmation email to <span class="font-medium text-paper-accent"
 						>{submitted_email}</span
-					>
+					>. You're now subscribed to our newsletter!
 				</p>
 
 				<div class="glass mx-auto mb-6 max-w-lg rounded-xl p-4 sm:mb-8 sm:rounded-2xl sm:p-6">
@@ -117,7 +117,7 @@
 									Click the verification link
 								</p>
 								<p class="text-xs text-paper-text-muted sm:text-sm">
-									Confirm your subscription to join the waitlist
+									Confirm your newsletter subscription
 								</p>
 							</div>
 						</div>
@@ -130,7 +130,7 @@
 							<div>
 								<p class="mb-1 text-sm font-medium text-paper-text sm:text-base">You're all set!</p>
 								<p class="text-xs text-paper-text-muted sm:text-sm">
-									We'll notify you when Fictioneer launches
+									You'll receive updates, tips, and news about Fictioneer
 								</p>
 							</div>
 						</div>
@@ -168,7 +168,7 @@
 						: 'opacity-0'}"
 					style="animation-delay: 0.1s"
 				>
-					Reserve Your <span class="gradient-text">Spot</span>
+					Stay <span class="gradient-text">Updated</span>
 				</h2>
 
 				<p
@@ -177,8 +177,8 @@
 						: 'opacity-0'}"
 					style="animation-delay: 0.2s"
 				>
-					Join writers waiting for the future of fiction writing. Get exclusive early access and
-					shape the features that matter to you.
+					Subscribe to our newsletter for writing tips, feature updates, and insights from the
+					Fictioneer team.
 				</p>
 
 				<form
@@ -226,7 +226,7 @@
 									</span>
 								{:else}
 									<span class="inline-flex items-center gap-2">
-										<span class="text-sm sm:text-base">Get Early Access</span>
+										<span class="text-sm sm:text-base">Subscribe</span>
 										<svg
 											class="h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5"
 											fill="none"
@@ -255,7 +255,7 @@
 					{/if}
 
 					<p class="mt-4 text-xs text-paper-text-muted sm:mt-6 sm:text-sm">
-						We'll send you a verification email. No spam, unsubscribe anytime.
+						Get writing tips, updates, and news. No spam, unsubscribe anytime.
 					</p>
 				</form>
 
@@ -280,10 +280,8 @@
 								d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
 							></path>
 						</svg>
-						<h4 class="mb-1 text-sm font-semibold text-paper-text sm:text-base">Early Access</h4>
-						<p class="text-xs text-paper-text-muted sm:text-sm">
-							Be first to experience Fictioneer
-						</p>
+						<h4 class="mb-1 text-sm font-semibold text-paper-text sm:text-base">Writing Tips</h4>
+						<p class="text-xs text-paper-text-muted sm:text-sm">Expert advice for novelists</p>
 					</div>
 
 					<div class="glass hover-lift rounded-lg p-4 text-center sm:rounded-xl sm:p-6">
@@ -300,8 +298,8 @@
 								d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"
 							></path>
 						</svg>
-						<h4 class="mb-1 text-sm font-semibold text-paper-text sm:text-base">Founding Member</h4>
-						<p class="text-xs text-paper-text-muted sm:text-sm">Special status and benefits</p>
+						<h4 class="mb-1 text-sm font-semibold text-paper-text sm:text-base">Feature Updates</h4>
+						<p class="text-xs text-paper-text-muted sm:text-sm">Stay informed on new releases</p>
 					</div>
 
 					<div class="glass hover-lift rounded-lg p-4 text-center sm:rounded-xl sm:p-6">
@@ -319,11 +317,9 @@
 							></path>
 						</svg>
 						<h4 class="mb-1 text-sm font-semibold text-paper-text sm:text-base">
-							Shape the Future
+							Community Insights
 						</h4>
-						<p class="text-xs text-paper-text-muted sm:text-sm">
-							Your feedback drives our features
-						</p>
+						<p class="text-xs text-paper-text-muted sm:text-sm">Stories from fellow writers</p>
 					</div>
 				</div>
 			</div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import logo from '$lib/assets/logo.svg';
+	import NavigationMenu from '$lib/components/navigation_menu.svelte';
 
 	let { children } = $props();
 </script>
@@ -23,4 +24,5 @@
 	<meta name="msapplication-TileImage" content={logo} />
 </svelte:head>
 
+<NavigationMenu />
 {@render children?.()}

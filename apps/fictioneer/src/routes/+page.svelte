@@ -2,13 +2,11 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { projects } from '$lib/state/projects.svelte';
+	import { file_service } from '$lib/services/file.svelte.js';
 	import NewProjectModal from './new_project_modal.svelte';
 	import Logo from '$lib/components/logo.svelte';
 
 	let show_new_project_modal = $state(false);
-
-	// Import file service for recent projects management
-	import { file_service } from '$lib/services/file.svelte.js';
 
 	async function handle_new_project() {
 		show_new_project_modal = true;

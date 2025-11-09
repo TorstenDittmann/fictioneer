@@ -27,12 +27,13 @@
 	);
 
 	const button_classes = $derived.by(() => {
-		const base = 'relative flex min-h-5 cursor-pointer items-center gap-1 overflow-hidden rounded-sm border px-1.5 py-0.5 text-[10px] transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60';
-		
+		const base =
+			'relative flex min-h-5 cursor-pointer items-center gap-1 overflow-hidden rounded-sm border px-1.5 py-0.5 text-[10px] transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60';
+
 		if (update_state.update_available) {
 			return `${base} animate-pulse border-accent bg-transparent text-accent hover:border-accent hover:bg-accent hover:text-text-inverse`;
 		}
-		
+
 		return `${base} border-border bg-transparent text-text hover:border-accent hover:bg-surface hover:text-accent`;
 	});
 </script>

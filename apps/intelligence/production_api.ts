@@ -1,10 +1,12 @@
 import { generateText, streamText } from 'ai';
 import dedent from 'dedent';
-import { Hono } from 'hono';
+import { Hono, type HonoRequest } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
 import type { GumroadPurchaseResponse } from './types';
 import { createDeepInfra } from '@ai-sdk/deepinfra';
+import { withTracing } from '@posthog/ai';
 import { aj } from './protection';
+import { posthog } from './tracking';
 
 const DEEPINFRA_API_KEY = Bun.env.DEEPINFRA_API_KEY;
 
@@ -16,14 +18,26 @@ const deepinfra = createDeepInfra({
 	apiKey: DEEPINFRA_API_KEY
 });
 
+type Model = Parameters<typeof deepinfra>[0];
+
 const MODELS = {
 	SLOW: 'openai/gpt-oss-120b',
-	FAST: 'Qwen/Qwen2.5-72B-Instruct'
-} as const satisfies Record<string, Parameters<typeof deepinfra>[0]>;
+	FAST: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo'
+} as const satisfies Record<string, Model>;
+
+function create_model(model: Model, distinct_id: GumroadPurchaseResponse['purchase']['email']) {
+	return withTracing(deepinfra(model), posthog, {
+		posthogDistinctId: distinct_id
+	});
+}
 
 const app = new Hono();
-
 const auth_cache = new Map<string, { expires: number; data: GumroadPurchaseResponse }>();
+
+function get_purchase(request: HonoRequest): GumroadPurchaseResponse['purchase'] {
+	const token = request.header('Authorization')!.replace('Bearer ', '');
+	return auth_cache.get(token)!.data.purchase;
+}
 
 // Bearer auth middleware for all production endpoints
 app.use(
@@ -261,7 +275,8 @@ app.post('/api/continue', async (c) => {
 			return c.json({ error: 'Content is required and must be a string' }, 400);
 		}
 
-		const client = deepinfra(MODELS.FAST);
+		const { email } = get_purchase(c.req);
+		const client = create_model(MODELS.FAST, email);
 		const system_prompt = build_system_prompt(context, content, word_count);
 
 		const ctx =
@@ -314,7 +329,8 @@ app.post('/api/rephrase', async (c) => {
 			return c.json({ error: 'selected_sentence is required and must be a string' }, 400);
 		}
 
-		const client = deepinfra(MODELS.SLOW);
+		const { email } = get_purchase(c.req);
+		const client = create_model(MODELS.SLOW, email);
 		const alternative_types = ['vivid', 'tighter', 'show_dont_tell', 'change_pov', 'simplify'];
 
 		const alternatives = await Promise.all(

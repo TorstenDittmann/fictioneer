@@ -188,6 +188,72 @@ textarea:focus-visible {
 	}
 }
 
+@keyframes enter-from-right {
+	from {
+		opacity: 0;
+		transform: translateX(200px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes enter-from-left {
+	from {
+		opacity: 0;
+		transform: translateX(-200px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes exit-to-right {
+	from {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateX(200px);
+	}
+}
+
+@keyframes exit-to-left {
+	from {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateX(-200px);
+	}
+}
+
+@keyframes scale-in-menu {
+	from {
+		opacity: 0;
+		transform: scale(0.96);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes scale-out-menu {
+	from {
+		opacity: 1;
+		transform: scale(1);
+	}
+	to {
+		opacity: 0;
+		transform: scale(0.96);
+	}
+}
+
 /* Animation classes with proper initial states */
 .animate-fade-in {
 	opacity: 0;
@@ -240,6 +306,26 @@ textarea:focus-visible {
 
 .animate-rotate-slow {
 	animation: rotate-slow 20s linear infinite;
+}
+
+.animate-enter-from-right {
+	animation: enter-from-right 250ms ease;
+}
+
+.animate-enter-from-left {
+	animation: enter-from-left 250ms ease;
+}
+
+.animate-exit-to-right {
+	animation: exit-to-right 250ms ease;
+}
+
+.animate-exit-to-left {
+	animation: exit-to-left 250ms ease;
+}
+
+.animate-scale-out {
+	animation: scale-out-menu 200ms ease;
 }
 
 /* Gradient text */

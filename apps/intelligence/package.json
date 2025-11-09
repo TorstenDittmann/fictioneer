@@ -15,9 +15,11 @@
 		"@ai-sdk/deepinfra": "^1.0.27",
 		"@arcjet/bun": "^1.0.0-beta.14",
 		"@arcjet/inspect": "^1.0.0-beta.14",
+		"@posthog/ai": "^7.0.0",
 		"ai": "^5.0.68",
 		"dedent": "^1.7.0",
-		"hono": "^4.9.11"
+		"hono": "^4.9.11",
+		"posthog-node": "^5.11.2"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",

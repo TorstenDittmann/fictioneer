@@ -36,6 +36,8 @@
 		"vite": "^7.2.2"
 	},
 	"dependencies": {
-		"@fontsource/libre-baskerville": "^5.2.8"
+		"@fontsource/libre-baskerville": "^5.2.8",
+		"bits-ui": "^2.14.2",
+		"phosphor-svelte": "^3.0.1"
 	}
 }
