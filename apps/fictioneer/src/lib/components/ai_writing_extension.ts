@@ -2,7 +2,6 @@ import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { ai_writing_backend_service } from '$lib/services/ai_writing_backend.js';
-import { license_key_state } from '$lib/state/license_key.svelte.js';
 
 export interface AIWritingSuggestionOptions {
 	delay: number;
