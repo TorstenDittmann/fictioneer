@@ -40,7 +40,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 
 	addOptions() {
 		return {
-			delay: 150,
+			delay: 50,
 			minLength: 50,
 			context: {},
 			enabled: true,
@@ -172,11 +172,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					let clear_suggestion_timeout: ReturnType<typeof setTimeout> | null = null;
 					let option_key_held = false;
 					let is_clearing = false;
-					let typewriter_buffer = '';
-					let typewriter_interval: ReturnType<typeof setInterval> | null = null;
-					const CHARACTERS_PER_SECOND = 512;
-					const UPDATE_INTERVAL_MS = 2.5; // Update every 50ms
-					const CHARS_PER_UPDATE = Math.ceil((CHARACTERS_PER_SECOND * UPDATE_INTERVAL_MS) / 1000);
 
 					const generateSuggestion = async () => {
 						console.log('AI: generateSuggestion called');
@@ -280,37 +275,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 
 							let full_suggestion = '';
 							let result = '';
-							let displayed_length = 0;
-							typewriter_buffer = '';
-
-							// Clear any existing typewriter interval
-							if (typewriter_interval) {
-								clearInterval(typewriter_interval);
-								typewriter_interval = null;
-							}
-
-							// Start typewriter effect interval
-							typewriter_interval = setInterval(() => {
-								if (!option_key_held || !ai_writing_backend_service.is_request_active()) {
-									if (typewriter_interval) {
-										clearInterval(typewriter_interval);
-										typewriter_interval = null;
-									}
-									return;
-								}
-
-								// Display characters from buffer at controlled rate
-								if (displayed_length < typewriter_buffer.length) {
-									const chars_to_show = Math.min(
-										CHARS_PER_UPDATE,
-										typewriter_buffer.length - displayed_length
-									);
-									displayed_length += chars_to_show;
-									const display_text =
-										' ' + typewriter_buffer.substring(0, displayed_length).trim();
-									typewriter_span.textContent = display_text;
-								}
-							}, UPDATE_INTERVAL_MS);
 
 							for await (const streamed_text of ai_writing_backend_service.continue_writing(
 								context_text,
@@ -319,11 +283,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							)) {
 								// Check if request was cancelled or option key released before updating UI
 								if (!ai_writing_backend_service.is_request_active() || !option_key_held) {
-									// Clear typewriter interval
-									if (typewriter_interval) {
-										clearInterval(typewriter_interval);
-										typewriter_interval = null;
-									}
 									// Clear suggestion if option key was released
 									if (!is_clearing) {
 										is_clearing = true;
@@ -334,59 +293,29 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 									}
 									break;
 								}
-								// Store incoming text in buffer for controlled display
-								typewriter_buffer = streamed_text;
+								// Update typewriter span in real-time as text streams in
+								const display_text = ' ' + streamed_text.trim();
+								typewriter_span.textContent = display_text;
+								full_suggestion = display_text;
 								result = streamed_text;
-							}
-
-							// Clear the interval when streaming is done
-							if (typewriter_interval) {
-								clearInterval(typewriter_interval);
-								typewriter_interval = null;
 							}
 
 							console.log('AI: Backend result:', result);
 
 							if (result && result.trim() && option_key_held) {
-								// Wait for typewriter effect to finish displaying all text
-								const finish_typewriter = () => {
-									return new Promise<void>((resolve) => {
-										const check_interval = setInterval(() => {
-											if (displayed_length >= typewriter_buffer.length || !option_key_held) {
-												clearInterval(check_interval);
-												resolve();
-											} else {
-												// Continue displaying remaining characters
-												const chars_to_show = Math.min(
-													CHARS_PER_UPDATE,
-													typewriter_buffer.length - displayed_length
-												);
-												displayed_length += chars_to_show;
-												const display_text =
-													' ' + typewriter_buffer.substring(0, displayed_length).trim();
-												typewriter_span.textContent = display_text;
-											}
-										}, UPDATE_INTERVAL_MS);
-									});
-								};
-
-								await finish_typewriter();
-
 								// Ensure final text is set only if option key is still held
-								if (option_key_held) {
-									full_suggestion = ' ' + result.trim();
-									typewriter_span.textContent = full_suggestion;
+								full_suggestion = ' ' + result.trim();
+								typewriter_span.textContent = full_suggestion;
 
-									// Update suggestion state with final result
-									tr = editorView.state.tr;
-									tr.setMeta(suggestionPluginKey, {
-										type: 'set-suggestion',
-										decorations: decoration_set,
-										suggestion: full_suggestion
-									});
-									editorView.dispatch(tr);
-									is_clearing = false;
-								}
+								// Update suggestion state with final result
+								tr = editorView.state.tr;
+								tr.setMeta(suggestionPluginKey, {
+									type: 'set-suggestion',
+									decorations: decoration_set,
+									suggestion: full_suggestion
+								});
+								editorView.dispatch(tr);
+								is_clearing = false;
 							} else {
 								console.log('AI: No result from backend');
 								// Clear suggestion
@@ -526,10 +455,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							editorView.dom.removeEventListener('keyup', handle_key_up);
 							if (clear_suggestion_timeout) {
 								clearTimeout(clear_suggestion_timeout);
-							}
-							if (typewriter_interval) {
-								clearInterval(typewriter_interval);
-								typewriter_interval = null;
 							}
 							const pluginState = suggestionPluginKey.getState(editorView.state);
 							if (pluginState?.timeout) {

@@ -231,7 +231,7 @@ function build_system_prompt(
 		• Vary sentence rhythm - blend short, punchy sentences with flowing descriptions
 		• Use fresh, evocative language that avoids repetition from the previous text
 		• Create smooth transitions that maintain narrative momentum
-		• Aim for around ${word_count} words
+		• Aim for maximum ${word_count} words
 		• End at a meaningful moment - a revelation, decision point, or scene transition
 		
 		Important: Continue the story seamlessly from where it left off. Don't repeat or summarize what came before.
