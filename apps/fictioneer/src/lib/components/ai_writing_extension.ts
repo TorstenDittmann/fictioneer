@@ -44,7 +44,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 			minLength: 50,
 			context: {},
 			enabled: true,
-			contextWindowSize: 1000
+			contextWindowSize: 2000
 		};
 	},
 
@@ -281,16 +281,34 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							});
 							editorView.dispatch(tr);
 
+							// Animate dots appearing one by one before streaming starts
+							let dot_count = 0;
+							const dot_interval = setInterval(() => {
+								if (dot_count < 3 && option_key_held && !is_clearing) {
+									dot_count++;
+									typewriter_span.textContent = '.'.repeat(dot_count);
+								} else {
+									clearInterval(dot_interval);
+								}
+							}, 150);
+
 							console.log('AI: Calling backend with enhanced context:', enhanced_context);
 
 							let full_suggestion = '';
 							let result = '';
+							let has_received_text = false;
 
 							for await (const streamed_text of ai_writing_backend_service.continue_writing(
 								context_text,
 								enhanced_context,
 								36
 							)) {
+								// Clear dot animation once we start receiving text
+								if (!has_received_text) {
+									clearInterval(dot_interval);
+									has_received_text = true;
+								}
+
 								// Check if request was cancelled or option key released before updating UI
 								if (!ai_writing_backend_service.is_request_active() || !option_key_held) {
 									// Clear suggestion if option key was released
@@ -301,19 +319,25 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 										editorView.dispatch(tr);
 										is_clearing = false;
 									}
+									clearInterval(dot_interval);
 									break;
 								}
-								// Update typewriter span in real-time as text streams in
-								const display_text = ' ' + streamed_text.trim();
+								// Update typewriter span in real-time as text streams in, with trailing dots
+								const trimmed_text = streamed_text.trim();
+								const should_show_dots = !trimmed_text.endsWith('.');
+								const display_text = ' ' + trimmed_text + (should_show_dots ? '...' : '');
 								typewriter_span.textContent = display_text;
-								full_suggestion = display_text;
+								full_suggestion = ' ' + trimmed_text;
 								result = streamed_text;
 							}
+
+							// Clean up dot interval
+							clearInterval(dot_interval);
 
 							console.log('AI: Backend result:', result);
 
 							if (result && result.trim() && option_key_held) {
-								// Ensure final text is set only if option key is still held
+								// Ensure final text is set only if option key is still held (without trailing dots)
 								full_suggestion = ' ' + result.trim();
 								typewriter_span.textContent = full_suggestion;
 
