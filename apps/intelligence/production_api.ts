@@ -3,22 +3,22 @@ import dedent from 'dedent';
 import { Hono } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
 import type { GumroadPurchaseResponse } from './types';
-import { createCerebras } from '@ai-sdk/cerebras';
+import { createDeepInfra } from '@ai-sdk/deepinfra';
 
-const CEREBRAS_API_KEY = Bun.env.CEREBRAS_API_KEY;
+const DEEPINFRA_API_KEY = Bun.env.DEEPINFRA_API_KEY;
 
-if (!CEREBRAS_API_KEY) {
-	throw new Error('CEREBRAS_API_KEY environment variable is required');
+if (!DEEPINFRA_API_KEY) {
+	throw new Error('DEEPINFRA_API_KEY environment variable is required');
 }
 
-const cerebras = createCerebras({
-	apiKey: CEREBRAS_API_KEY
+const deepinfra = createDeepInfra({
+	apiKey: DEEPINFRA_API_KEY
 });
 
 const MODELS = {
-	SLOW: 'gpt-oss-120b',
-	FAST: 'llama-3.3-70b'
-} as const satisfies Record<string, Parameters<typeof cerebras>[0]>;
+	SLOW: 'openai/gpt-oss-120b',
+	FAST: 'Qwen/Qwen2.5-72B-Instruct'
+} as const satisfies Record<string, Parameters<typeof deepinfra>[0]>;
 
 const app = new Hono();
 
@@ -231,7 +231,7 @@ function build_system_prompt(
 		• Vary sentence rhythm - blend short, punchy sentences with flowing descriptions
 		• Use fresh, evocative language that avoids repetition from the previous text
 		• Create smooth transitions that maintain narrative momentum
-		• Aim for approximately ${word_count} words, but prioritize natural story breaks
+		• Aim for around ${word_count} words
 		• End at a meaningful moment - a revelation, decision point, or scene transition
 		
 		Important: Continue the story seamlessly from where it left off. Don't repeat or summarize what came before.
@@ -256,7 +256,7 @@ app.post('/api/continue', async (c) => {
 			return c.json({ error: 'Content is required and must be a string' }, 400);
 		}
 
-		const client = cerebras(MODELS.FAST);
+		const client = deepinfra(MODELS.FAST);
 		const system_prompt = build_system_prompt(context, content, word_count);
 
 		const ctx =
@@ -305,7 +305,7 @@ app.post('/api/rephrase', async (c) => {
 			return c.json({ error: 'selected_sentence is required and must be a string' }, 400);
 		}
 
-		const client = cerebras(MODELS.SLOW);
+		const client = deepinfra(MODELS.SLOW);
 		const alternative_types = ['vivid', 'tighter', 'show_dont_tell', 'change_pov', 'simplify'];
 
 		const alternatives = await Promise.all(
