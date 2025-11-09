@@ -1,4 +1,3 @@
-import { createCerebras } from '@ai-sdk/cerebras';
 import { generateText, streamText } from 'ai';
 import dedent from 'dedent';
 import { Hono } from 'hono';

@@ -16,10 +16,8 @@ const MODELS = {
 	FREE: 'meta-llama/llama-3.3-70b-instruct:free'
 } as const satisfies Record<string, Model>;
 
-function create_model(model: Model, distinct_id: GumroadPurchaseResponse['purchase']['email']) {
-	return withTracing(openrouter(model), posthog, {
-		posthogDistinctId: distinct_id
-	});
+function create_model(model: Model) {
+	return withTracing(openrouter(model), posthog, {});
 }
 
 const app = new Hono();
@@ -31,6 +29,7 @@ function get_purchase(request: HonoRequest): GumroadPurchaseResponse['purchase']
 }
 
 // Bearer auth middleware for all production endpoints
+/**
 app.use(
 	'*',
 	bearerAuth({
@@ -75,6 +74,7 @@ app.use(
 		}
 	})
 );
+*/
 
 function is_mid_sentence(text: string): boolean {
 	const clean_text = text.replace('<CONTINUE_HERE>', '').trim();
@@ -266,8 +266,7 @@ app.post('/api/continue', async (c) => {
 			return c.json({ error: 'Content is required and must be a string' }, 400);
 		}
 
-		const { email } = get_purchase(c.req);
-		const client = create_model(MODELS.FAST, email);
+		const client = create_model(MODELS.FREE);
 		const system_prompt = build_system_prompt(context, content, word_count);
 
 		const ctx =
@@ -310,7 +309,7 @@ app.post('/api/continue', async (c) => {
 
 // Rephrase endpoint
 app.post('/api/rephrase', async (c) => {
-	const decision = await aj.protect(c.req.raw, { requested: 3 });
+	const decision = await aj.protect(c.req.raw, { requested: 5 });
 	if (decision.isDenied() && decision.reason.isRateLimit())
 		return c.json({ error: 'Too many requests' }, 429);
 
@@ -322,8 +321,7 @@ app.post('/api/rephrase', async (c) => {
 			return c.json({ error: 'selected_sentence is required and must be a string' }, 400);
 		}
 
-		const { email } = get_purchase(c.req);
-		const client = create_model(MODELS.SLOW, email);
+		const client = create_model(MODELS.SLOW);
 		const alternative_types = ['vivid', 'tighter', 'show_dont_tell', 'change_pov', 'simplify'];
 
 		const alternatives = await Promise.all(
@@ -338,7 +336,9 @@ app.post('/api/rephrase', async (c) => {
 				const result = await generateText({
 					model: client,
 					system: system_prompt,
-					prompt: selected_sentence
+					prompt: selected_sentence,
+					temperature: 0.8,
+					topP: 0.9
 				});
 
 				return {
@@ -358,5 +358,4 @@ app.post('/api/rephrase', async (c) => {
 	}
 });
 
-// Export the Hono app for mounting in main server
 export default app;
