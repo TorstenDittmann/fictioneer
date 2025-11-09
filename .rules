@@ -53,6 +53,6 @@
 - **Dont use on:click handler; use the native onclick. this counts for all events.
 - **Dont use :global in the style blocks.
 
-- https://svelte.dev/docs/svelte/llms.txt
-- https://svelte.dev/docs/kit/llms.txt
+Use Svelte MCP.
+
 - https://bits-ui.com/llms.txt
