@@ -5,7 +5,7 @@
 	import { projects } from '$lib/state/projects.svelte.js';
 	import { getCurrentWindow } from '@tauri-apps/api/window';
 	import TitleBarUpdateButton from './title_bar_update_button.svelte';
-	import TitleBarLicenseButton from './title_bar_license_button.svelte';
+	// import TitleBarLicenseButton from './title_bar_license_button.svelte';
 	import SettingsModal from './settings_modal.svelte';
 
 	let settings_open = $state(false);
@@ -145,7 +145,7 @@
 				/>
 			</svg>
 		</button>
-		<TitleBarLicenseButton />
+		<!-- <TitleBarLicenseButton /> -->
 	</div>
 
 	<SettingsModal bind:open={settings_open} />

@@ -21,16 +21,16 @@ export class AIWritingBackendService {
 		data: unknown,
 		signal?: AbortSignal
 	): Promise<unknown> {
-		const token = license_key_state.license_key;
-		if (!token) {
-			throw new Error('No license key available. Please configure your license key in settings.');
-		}
+		// const token = license_key_state.license_key;
+		// if (!token) {
+		// 	throw new Error('No license key available. Please configure your license key in settings.');
+		// }
 
 		const response = await fetch(`${BACKEND_URL}/${endpoint}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
+				// Authorization: `Bearer ${token}`,
 				Accept: 'text/plain'
 			},
 			body: JSON.stringify(data),
@@ -49,16 +49,16 @@ export class AIWritingBackendService {
 		data: unknown,
 		signal?: AbortSignal
 	): AsyncGenerator<string, void, unknown> {
-		const token = license_key_state.license_key;
-		if (!token) {
-			throw new Error('No license key available. Please configure your license key in settings.');
-		}
+		// const token = license_key_state.license_key;
+		// if (!token) {
+		// 	throw new Error('No license key available. Please configure your license key in settings.');
+		// }
 
 		const response = await fetch(`${BACKEND_URL}/${endpoint}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
+				// Authorization: `Bearer ${token}`,
 				Accept: 'text/plain+stream'
 			},
 			body: JSON.stringify(data),

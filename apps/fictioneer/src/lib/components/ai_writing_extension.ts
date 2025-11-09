@@ -181,10 +181,10 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 						}
 
 						// Check if license key is available and valid
-						if (!license_key_state.has_license_key || !license_key_state.is_valid) {
-							console.log('AI: No valid license key available');
-							return;
-						}
+						// if (!license_key_state.has_license_key || !license_key_state.is_valid) {
+						// 	console.log('AI: No valid license key available');
+						// 	return;
+						// }
 
 						// Don't generate if option key is not held
 						if (!option_key_held) {

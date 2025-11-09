@@ -130,10 +130,10 @@
 		if (!selection_context.text.trim()) return;
 
 		// Check if license is valid
-		if (!ai_writing_backend_service.has_valid_license) {
-			alert('Please configure your license key in settings to use the rephrase feature.');
-			return;
-		}
+		// if (!ai_writing_backend_service.has_valid_license) {
+		// 	alert('Please configure your license key in settings to use the rephrase feature.');
+		// 	return;
+		// }
 
 		selected_text = selection_context.text;
 		context_before = selection_context.before;
