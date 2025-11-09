@@ -1,7 +1,6 @@
 import { generateText, streamText } from 'ai';
 import dedent from 'dedent';
 import { Hono, type HonoRequest } from 'hono';
-import { bearerAuth } from 'hono/bearer-auth';
 import type { GumroadPurchaseResponse } from './types';
 import { withTracing } from '@posthog/ai';
 import { aj } from './protection';

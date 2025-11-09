@@ -172,6 +172,23 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					let clear_suggestion_timeout: ReturnType<typeof setTimeout> | null = null;
 					let option_key_held = false;
 					let is_clearing = false;
+					const option_indicator_class = 'ai-option-active';
+					const editor_dom = editorView.dom as HTMLElement;
+					const editor_container = editor_dom.closest('.editor-container') as HTMLElement | null;
+
+					const update_option_indicator = (is_active: boolean) => {
+						const target = editor_container ?? editor_dom;
+
+						if (is_active) {
+							target.classList.add(option_indicator_class);
+							if (target !== editor_dom) {
+								editor_dom.classList.remove(option_indicator_class);
+							}
+						} else {
+							target.classList.remove(option_indicator_class);
+							editor_dom.classList.remove(option_indicator_class);
+						}
+					};
 
 					const generateSuggestion = async () => {
 						console.log('AI: generateSuggestion called');
@@ -337,6 +354,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					const check_option_key = (event: KeyboardEvent) => {
 						if (event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
 							option_key_held = true;
+							update_option_indicator(true);
 							// Reset clearing state when option key is pressed again
 							is_clearing = false;
 							// Clear any pending clear timeout
@@ -375,6 +393,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							event.code === 'AltRight'
 						) {
 							option_key_held = false;
+							update_option_indicator(false);
 						}
 
 						// Cancel request when Command key is released if there's an active request
@@ -446,6 +465,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 						destroy: () => {
 							editorView.dom.removeEventListener('keydown', check_option_key);
 							editorView.dom.removeEventListener('keyup', handle_key_up);
+							update_option_indicator(false);
 							if (clear_suggestion_timeout) {
 								clearTimeout(clear_suggestion_timeout);
 							}
