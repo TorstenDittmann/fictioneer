@@ -84,6 +84,13 @@
 	color: #64748b !important;
 }
 
+/* ProseMirror widget wrapper - prevent line height shift */
+.ProseMirror-widget {
+	line-height: 0;
+	display: inline;
+	vertical-align: baseline;
+}
+
 .ai-typewriter {
 	color: #94a3b8 !important;
 	font-style: normal !important;
@@ -92,14 +99,10 @@
 	display: inline;
 	font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif !important;
 	font-size: 19px !important;
-	line-height: 1.8 !important;
+	line-height: 0;
 	letter-spacing: 0.01em !important;
 	font-weight: normal !important;
-}
-
-.ai-typewriter:hover {
-	opacity: 1;
-	transform: scale(1.02);
+	vertical-align: baseline;
 }
 
 .dark .ai-typewriter {

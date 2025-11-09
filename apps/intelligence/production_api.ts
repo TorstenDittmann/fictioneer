@@ -4,6 +4,7 @@ import { Hono } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
 import type { GumroadPurchaseResponse } from './types';
 import { createDeepInfra } from '@ai-sdk/deepinfra';
+import { aj } from './protection';
 
 const DEEPINFRA_API_KEY = Bun.env.DEEPINFRA_API_KEY;
 
@@ -245,6 +246,10 @@ app.post('/api/verify', async (c) => {
 
 // Continue writing endpoint
 app.post('/api/continue', async (c) => {
+	const decision = await aj.protect(c.req.raw, { requested: 1 });
+	if (decision.isDenied() && decision.reason.isRateLimit())
+		return c.json({ error: 'Too many requests' }, 429);
+
 	try {
 		const body = await c.req.json();
 		const content = body?.content;
@@ -297,6 +302,10 @@ app.post('/api/continue', async (c) => {
 
 // Rephrase endpoint
 app.post('/api/rephrase', async (c) => {
+	const decision = await aj.protect(c.req.raw, { requested: 3 });
+	if (decision.isDenied() && decision.reason.isRateLimit())
+		return c.json({ error: 'Too many requests' }, 429);
+
 	try {
 		const body = await c.req.json();
 		const { selected_sentence, context_before = '', context_after = '' } = body;

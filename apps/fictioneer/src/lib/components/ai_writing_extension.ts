@@ -249,17 +249,10 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							`;
 							typewriter_span.textContent = '';
 
-							// Add hover effect
-							typewriter_span.onmouseenter = () => {
-								typewriter_span.style.opacity = '1';
-								typewriter_span.style.transform = 'scale(1.02)';
-							};
-							typewriter_span.onmouseleave = () => {
-								typewriter_span.style.opacity = '0.7';
-								typewriter_span.style.transform = 'scale(1)';
-							};
-
-							const decoration = Decoration.widget(to, () => typewriter_span);
+							const decoration = Decoration.widget(to, () => typewriter_span, {
+								side: 1,
+								ignoreSelection: true
+							});
 							const decoration_set = DecorationSet.create(state.doc, [decoration]);
 
 							// Show empty suggestion container immediately

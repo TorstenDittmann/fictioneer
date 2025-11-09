@@ -3,6 +3,7 @@ import { generateText, streamText } from 'ai';
 import dedent from 'dedent';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { aj } from './protection';
 
 const CEREBRAS_API_KEY = Bun.env.CEREBRAS_API_KEY;
 
@@ -98,6 +99,10 @@ function validate_story_input(body: any): { valid: boolean; error?: string } {
 
 // AI Story Generator endpoint
 app.post('/api/marketing/generate-story', async (c) => {
+	const decision = await aj.protect(c.req.raw, { requested: 3 });
+	if (decision.isDenied() && decision.reason.isRateLimit())
+		return c.json({ error: 'Too many requests' }, 429);
+
 	try {
 		const body = await c.req.json();
 		const validation = validate_story_input(body);
