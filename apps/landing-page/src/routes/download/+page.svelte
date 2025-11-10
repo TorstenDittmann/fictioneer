@@ -8,16 +8,6 @@
 
 	let { data }: PageProps = $props();
 
-	function handle_download(url: string) {
-		if (url === '#') {
-			alert(
-				'This download link is temporarily unavailable. Please try another option or check back later.'
-			);
-		} else {
-			window.location.href = url;
-		}
-	}
-
 	function get_icon(platform: DownloadOption['name']): Component {
 		switch (platform) {
 			case 'mac':
@@ -87,8 +77,9 @@
 					<!-- Download Versions -->
 					<div class="space-y-3">
 						{#each option.versions as version (version.arch)}
-							<button
-								onclick={() => handle_download(version.url)}
+							<!-- eslint-disable svelte/no-navigation-without-resolve-->
+							<a
+								href={version.url}
 								class="group w-full rounded-xl border border-paper-border bg-paper-beige/50 p-4 text-left transition-all hover:border-paper-accent/50 hover:bg-paper-gray/30"
 							>
 								<div class="flex items-center justify-between">
@@ -107,7 +98,7 @@
 										></path>
 									</svg>
 								</div>
-							</button>
+							</a>
 						{/each}
 					</div>
 				</div>

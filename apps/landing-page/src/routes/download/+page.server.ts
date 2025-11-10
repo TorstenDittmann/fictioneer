@@ -61,11 +61,11 @@ export const load: PageServerLoad = async ({ fetch, request }) => {
 				versions: [
 					{
 						arch: 'Apple Silicon (M1/M2/M3)',
-						url: release_data.platforms['darwin-aarch64']?.url || '#'
+						url: release_data.platforms['darwin-aarch64'].url
 					},
 					{
 						arch: 'Intel',
-						url: release_data.platforms['darwin-x86_64']?.url || '#'
+						url: release_data.platforms['darwin-x86_64'].url
 					}
 				]
 			},
@@ -76,11 +76,11 @@ export const load: PageServerLoad = async ({ fetch, request }) => {
 				versions: [
 					{
 						arch: 'Installer (MSI)',
-						url: release_data.platforms['windows-x86_64-msi']?.url || '#'
+						url: release_data.platforms['windows-x86_64-msi'].url
 					},
 					{
 						arch: 'Setup (NSIS)',
-						url: release_data.platforms['windows-x86_64-nsis']?.url || '#'
+						url: release_data.platforms['windows-x86_64-nsis'].url
 					}
 				]
 			},
@@ -91,15 +91,15 @@ export const load: PageServerLoad = async ({ fetch, request }) => {
 				versions: [
 					{
 						arch: 'AppImage (x64)',
-						url: release_data.platforms['linux-x86_64-appimage']?.url || '#'
+						url: release_data.platforms['linux-x86_64-appimage'].url
 					},
 					{
 						arch: 'Debian/Ubuntu (.deb)',
-						url: release_data.platforms['linux-x86_64-deb']?.url || '#'
+						url: release_data.platforms['linux-x86_64-deb'].url
 					},
 					{
 						arch: 'Red Hat/Fedora (.rpm)',
-						url: release_data.platforms['linux-x86_64-rpm']?.url || '#'
+						url: release_data.platforms['linux-x86_64-rpm'].url
 					}
 				]
 			}
