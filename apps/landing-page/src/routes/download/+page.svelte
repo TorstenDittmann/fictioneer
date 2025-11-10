@@ -1,39 +1,12 @@
 <script lang="ts">
-	import { onMount, type Component } from 'svelte';
+	import type { Component } from 'svelte';
 	import type { PageProps } from './$types';
 	import type { DownloadOption } from './+page.server';
 	import AppleLogo from 'phosphor-svelte/lib/AppleLogo';
 	import WindowsLogo from 'phosphor-svelte/lib/WindowsLogo';
 	import LinuxLogo from 'phosphor-svelte/lib/LinuxLogo';
 
-	type Platform = 'windows' | 'mac' | 'linux' | 'unknown';
-
 	let { data }: PageProps = $props();
-
-	let detected_platform = $state<Platform>('unknown');
-
-	function detect_platform(): Platform {
-		if (typeof window === 'undefined') return 'unknown';
-
-		const user_agent = globalThis.navigator.userAgent.toLowerCase();
-		const platform = globalThis.navigator.platform.toLowerCase();
-
-		if (platform.includes('mac') || user_agent.includes('mac')) {
-			return 'mac';
-		}
-		if (platform.includes('win') || user_agent.includes('win')) {
-			return 'windows';
-		}
-		if (platform.includes('linux') || user_agent.includes('linux')) {
-			return 'linux';
-		}
-
-		return 'unknown';
-	}
-
-	onMount(() => {
-		detected_platform = detect_platform();
-	});
 
 	function handle_download(url: string) {
 		if (url === '#') {
@@ -90,8 +63,8 @@
 				{@const Icon = get_icon(option.platform)}
 				<div
 					class="glass hover-lift scroll-mt-24 rounded-2xl p-8 transition-all"
-					class:ring-2={detected_platform === option.platform}
-					class:ring-paper-accent={detected_platform === option.platform}
+					class:ring-2={data.detected_platform === option.platform}
+					class:ring-paper-accent={data.detected_platform === option.platform}
 				>
 					<!-- Platform Header -->
 					<div class="mb-6 text-center">
@@ -102,7 +75,7 @@
 							{option.name}
 						</h3>
 						<p class="text-sm text-paper-text-muted">{option.description}</p>
-						{#if detected_platform === option.platform}
+						{#if data.detected_platform === option.platform}
 							<div
 								class="mt-3 inline-block rounded-full bg-paper-accent/20 px-3 py-1 text-xs font-medium text-paper-accent"
 							>
