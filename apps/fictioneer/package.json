@@ -39,12 +39,11 @@
 		"vite": "^7.2.2"
 	},
 	"dependencies": {
-		"@ai-sdk/cerebras": "^1.0.29",
 		"@fontsource/libre-baskerville": "^5.2.9",
 		"@tauri-apps/api": "^2.9.0",
 		"@tauri-apps/plugin-dialog": "^2.4.2",
 		"@tauri-apps/plugin-process": "~2.3.1",
-		"@tauri-apps/plugin-updater": "~2.9.0",
+		"@tauri-apps/plugin-updater": "^2.9.0",
 		"@tiptap/core": "^3.10.4",
 		"@tiptap/extension-character-count": "^3.10.4",
 		"@tiptap/extension-focus": "^3.10.4",

@@ -15,9 +15,9 @@
 		"@arcjet/inspect": "^1.0.0-beta.14",
 		"@openrouter/ai-sdk-provider": "^1.2.1",
 		"@posthog/ai": "^7.0.0",
-		"ai": "^5.0.68",
+		"ai": "^5.0.89",
 		"dedent": "^1.7.0",
-		"hono": "^4.9.11",
+		"hono": "^4.10.4",
 		"posthog-node": "^5.11.2"
 	},
 	"devDependencies": {
