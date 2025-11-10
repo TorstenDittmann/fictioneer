@@ -11,6 +11,13 @@ import { defineConfig } from 'eslint/config';
 const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
 
 export default defineConfig(
+	{
+		languageOptions: {
+			parserOptions: {
+				tsconfigRootDir: import.meta.dirname
+			}
+		}
+	},
 	includeIgnoreFile(gitignorePath),
 	js.configs.recommended,
 	...ts.configs.recommended,
@@ -34,7 +41,6 @@ export default defineConfig(
 				projectService: true,
 				extraFileExtensions: ['.svelte'],
 				parser: ts.parser,
-				tsconfigRootDir: import.meta.dirname,
 				svelteConfig
 			}
 		}

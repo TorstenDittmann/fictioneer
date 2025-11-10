@@ -40,7 +40,6 @@ html {
 	font-family: 'Libre Baskerville', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
 	color: var(--color-paper-text);
 	background: var(--color-paper-beige);
-	scroll-behavior: smooth;
 	antialiased: true;
 	text-rendering: optimizeLegibility;
 }
