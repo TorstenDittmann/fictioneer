@@ -6,9 +6,9 @@ export const aj = arcjet({
 		shield({ mode: 'LIVE' }),
 		tokenBucket({
 			mode: 'LIVE',
-			refillRate: 5,
-			interval: 10,
-			capacity: 10
+			refillRate: 2,
+			interval: 15,
+			capacity: 8
 		})
 	]
 });

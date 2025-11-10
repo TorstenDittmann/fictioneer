@@ -11,8 +11,8 @@ type Model = Parameters<typeof openrouter>[0];
 
 const MODELS = {
 	SLOW: 'openai/gpt-oss-120b',
-	FAST: 'meta-llama/llama-3.3-70b-instruct',
-	FREE: 'meta-llama/llama-3.3-70b-instruct:free'
+	FAST: 'anthropic/claude-haiku-4.5',
+	FREE: 'anthropic/claude-haiku-4.5'
 } as const satisfies Record<string, Model>;
 
 function create_model(model: Model) {
