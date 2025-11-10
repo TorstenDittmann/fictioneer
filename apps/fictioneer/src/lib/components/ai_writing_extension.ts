@@ -271,7 +271,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							`;
 							typewriter_span.textContent = '';
 
-					const decoration = Decoration.widget(cursor_position, () => typewriter_span, {
+							const decoration = Decoration.widget(cursor_position, () => typewriter_span, {
 								side: 1,
 								ignoreSelection: true
 							});
@@ -392,24 +392,24 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								clear_suggestion_timeout = null;
 							}
 
-						const { state } = editorView;
-						const { selection } = state;
-						const text_before_cursor = state.doc.textBetween(0, selection.from, '\n');
-						const context_text = get_relevant_context(
-							text_before_cursor,
-							extension.options.contextWindowSize
-						);
+							const { state } = editorView;
+							const { selection } = state;
+							const text_before_cursor = state.doc.textBetween(0, selection.from, '\n');
+							const context_text = get_relevant_context(
+								text_before_cursor,
+								extension.options.contextWindowSize
+							);
 
-						if (
-							selection.empty &&
-							context_text.length >= extension.options.minLength &&
-							!ai_writing_backend_service.is_request_active()
-						) {
-							console.log('AI: Option key held, generating suggestion');
-							generateSuggestion();
+							if (
+								selection.empty &&
+								context_text.length >= extension.options.minLength &&
+								!ai_writing_backend_service.is_request_active()
+							) {
+								console.log('AI: Option key held, generating suggestion');
+								generateSuggestion();
+							}
 						}
-				}
-			};
+					};
 
 					const handle_key_up = (event: KeyboardEvent) => {
 						// Update option key state
