@@ -14,7 +14,7 @@ export interface AIWritingSuggestionOptions {
 const suggestionPluginKey = new PluginKey('aiWritingSuggestion');
 
 /**
- * Get the last N characters from the document as context
+ * Get the last N characters from the provided text as context
  */
 function get_relevant_context(full_text: string, max_length: number): string {
 	if (full_text.length <= max_length) {
@@ -215,12 +215,18 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 						}
 
 						const { state } = editorView;
-						const { to } = state.selection;
+						const { selection } = state;
+						const cursor_position = selection.to;
 
-						// Get full text and extract relevant context
-						const full_text = state.doc.textBetween(0, state.doc.content.size, '\n');
+						if (!selection.empty) {
+							console.log('AI: Selection not collapsed, skipping generation');
+							return;
+						}
+
+						// Use only the text before the cursor to build context
+						const text_before_cursor = state.doc.textBetween(0, cursor_position, '\n');
 						const context_text = get_relevant_context(
-							full_text,
+							text_before_cursor,
 							extension.options.contextWindowSize
 						);
 
@@ -265,7 +271,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							`;
 							typewriter_span.textContent = '';
 
-							const decoration = Decoration.widget(to, () => typewriter_span, {
+					const decoration = Decoration.widget(cursor_position, () => typewriter_span, {
 								side: 1,
 								ignoreSelection: true
 							});
@@ -386,26 +392,24 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								clear_suggestion_timeout = null;
 							}
 
-							const { state } = editorView;
-							const { selection } = state;
-							const full_text = state.doc.textBetween(0, state.doc.content.size, '\n');
-							const context_text = get_relevant_context(
-								full_text,
-								extension.options.contextWindowSize
-							);
-							const isAtEnd = selection.from >= state.doc.content.size - 1;
+						const { state } = editorView;
+						const { selection } = state;
+						const text_before_cursor = state.doc.textBetween(0, selection.from, '\n');
+						const context_text = get_relevant_context(
+							text_before_cursor,
+							extension.options.contextWindowSize
+						);
 
-							if (
-								selection.empty &&
-								context_text.length >= extension.options.minLength &&
-								isAtEnd &&
-								!ai_writing_backend_service.is_request_active()
-							) {
-								console.log('AI: Option key held at end, generating suggestion');
-								generateSuggestion();
-							}
+						if (
+							selection.empty &&
+							context_text.length >= extension.options.minLength &&
+							!ai_writing_backend_service.is_request_active()
+						) {
+							console.log('AI: Option key held, generating suggestion');
+							generateSuggestion();
 						}
-					};
+				}
+			};
 
 					const handle_key_up = (event: KeyboardEvent) => {
 						// Update option key state
