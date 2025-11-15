@@ -2,6 +2,7 @@
 	import { Menubar } from 'bits-ui';
 	import type { Editor } from '@tiptap/core';
 	import RephraseModal from './rephrase/rephrase_modal.svelte';
+	import PromptModal from './prompt_modal.svelte';
 	import {
 		ai_writing_backend_service,
 		type RephraseOption
@@ -24,6 +25,11 @@
 	let context_after = $state('');
 	let rephrases = $state<RephraseOption[]>([]);
 	let rephrase_loading = $state(false);
+
+	// AI prompt modal state
+	let prompt_modal_open = $state(false);
+	let generated_content = $state('');
+	let prompt_loading = $state(false);
 
 	// Check if text is selected
 	let has_selection = $state(false);
@@ -156,6 +162,41 @@
 		} finally {
 			rephrase_loading = false;
 		}
+	}
+
+	// AI prompt functions
+	function open_prompt_modal() {
+		generated_content = '';
+		prompt_modal_open = true;
+	}
+
+	async function handle_generate_prompt(prompt: string) {
+		prompt_loading = true;
+		generated_content = '';
+
+		try {
+			let accumulated_content = '';
+			for await (const chunk of ai_writing_backend_service.start_from_prompt(prompt, {}, 150)) {
+				accumulated_content = chunk;
+			}
+			generated_content = accumulated_content;
+		} catch (error) {
+			console.error('Failed to generate content:', error);
+			alert(
+				`Failed to generate content: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+		} finally {
+			prompt_loading = false;
+		}
+	}
+
+	function insert_generated_content(content: string) {
+		if (!editor) return;
+		editor.chain().focus().insertContent(content).run();
+	}
+
+	function close_prompt_modal() {
+		prompt_modal_open = false;
 	}
 
 	function replace_selected_text(new_text: string) {
@@ -364,35 +405,48 @@
 		</Menubar.Root>
 	</div>
 
-	<!-- Bottom Actions Bar (only show when text is selected) -->
+	<!-- Bottom Actions Bar (always visible) -->
 	<div
 		class="absolute bottom-4 left-1/2 z-50 -translate-x-1/2 transform transition-all duration-200 ease-in-out"
-		class:opacity-100={has_selection}
-		class:opacity-0={!has_selection}
-		class:translate-y-0={has_selection}
-		class:translate-y-2={!has_selection}
-		class:pointer-events-auto={has_selection}
-		class:pointer-events-none={!has_selection}
 	>
 		<div
 			class="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 shadow-lg"
 		>
-			<!-- Rephrase Button -->
+			<!-- AI Prompt Button -->
 			<button
 				class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none"
-				onclick={open_rephrase_modal}
-				title="Get rephrase suggestions"
+				onclick={open_prompt_modal}
+				title="Generate content with AI"
 			>
 				<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
 						stroke-width="2"
-						d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+						d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
 					/>
 				</svg>
-				Rephrase
+				AI Prompt
 			</button>
+
+			<!-- Rephrase Button (only show when text is selected) -->
+			{#if has_selection}
+				<button
+					class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium text-text-secondary transition-colors duration-200 hover:bg-background-tertiary focus:outline-none"
+					onclick={open_rephrase_modal}
+					title="Get rephrase suggestions"
+				>
+					<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+						/>
+					</svg>
+					Rephrase
+				</button>
+			{/if}
 		</div>
 	</div>
 {/if}
@@ -406,5 +460,18 @@
 		loading={rephrase_loading}
 		onClose={close_rephrase_modal}
 		onSelect={replace_selected_text}
+	/>
+{/if}
+
+<!-- AI Prompt Modal -->
+{#if prompt_modal_open}
+	<PromptModal
+		bind:open={prompt_modal_open}
+		loading={prompt_loading}
+		{generated_content}
+		onClose={close_prompt_modal}
+		onGenerate={handle_generate_prompt}
+		onAccept={insert_generated_content}
+		onReject={() => {}}
 	/>
 {/if}

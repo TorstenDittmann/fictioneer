@@ -10,9 +10,9 @@ import { openrouter } from './ai';
 type Model = Parameters<typeof openrouter>[0];
 
 const MODELS = {
-	SLOW: 'openai/gpt-oss-120b',
+	SLOW: 'openrouter/sherlock-think-alpha',
 	FAST: 'anthropic/claude-haiku-4.5',
-	FREE: 'anthropic/claude-haiku-4.5'
+	FREE: 'openrouter/sherlock-dash-alpha'
 } as const satisfies Record<string, Model>;
 
 function create_model(model: Model) {
@@ -204,7 +204,8 @@ function build_alternatives_system_prompt(
 function build_system_prompt(
 	context: unknown,
 	text: string = '',
-	word_count: number = 100
+	word_count: number = 100,
+	recent_text: string = ''
 ): string {
 	const base_context = build_context_string(context);
 	const ctx =
@@ -224,6 +225,10 @@ function build_system_prompt(
 		? 'Complete the current thought naturally, then continue the narrative.'
 		: 'Begin with a compelling new sentence that advances the story.';
 
+	const recent_text_warning = recent_text
+		? `\n\nThe text immediately before <CONTINUE_HERE> is: "${recent_text}"\nDo NOT repeat this text. Your response should start with NEW words that come AFTER "${recent_text}".`
+		: '';
+
 	return dedent`
 		You are a novelist's creative writing assistant. ${base_context}${instruction_context}
 		
@@ -239,7 +244,8 @@ function build_system_prompt(
 		• Aim for around ${word_count} words
 		• End at a meaningful moment - a revelation, decision point, or scene transition
 		
-		Important: Continue the story seamlessly from where it left off. Don't repeat or summarize what came before.
+		CRITICAL: The <CONTINUE_HERE> marker shows where to continue from. Write ONLY what comes AFTER this marker.
+		Do NOT repeat any text that appears before the marker. Start with fresh, new content that continues the narrative.${recent_text_warning}
 		
 		Return only your continuation text - no explanations or formatting.`;
 }
@@ -266,7 +272,6 @@ app.post('/api/continue', async (c) => {
 		}
 
 		const client = create_model(MODELS.FREE);
-		const system_prompt = build_system_prompt(context, content, word_count);
 
 		const ctx =
 			context && typeof context === 'object' && context !== null
@@ -274,6 +279,8 @@ app.post('/api/continue', async (c) => {
 				: {};
 		const recent_text =
 			ctx.recent_text && typeof ctx.recent_text === 'string' ? ctx.recent_text : '';
+
+		const system_prompt = build_system_prompt(context, content, word_count, recent_text);
 
 		const text_with_marker = recent_text
 			? content.replace(recent_text, recent_text + '<CONTINUE_HERE>')
@@ -308,9 +315,9 @@ app.post('/api/continue', async (c) => {
 
 // Rephrase endpoint
 app.post('/api/rephrase', async (c) => {
-	const decision = await aj.protect(c.req.raw, { requested: 5 });
-	if (decision.isDenied() && decision.reason.isRateLimit())
-		return c.json({ error: 'Too many requests' }, 429);
+	// const decision = await aj.protect(c.req.raw, { requested: 5 });
+	// if (decision.isDenied() && decision.reason.isRateLimit())
+	// 	return c.json({ error: 'Too many requests' }, 429);
 
 	try {
 		const body = await c.req.json();
@@ -354,6 +361,68 @@ app.post('/api/rephrase', async (c) => {
 	} catch (error) {
 		console.error('Rephrase generation error:', error);
 		return c.json({ error: 'Failed to generate rephrases' }, 500);
+	}
+});
+
+// Start writing from prompt endpoint
+app.post('/api/start', async (c) => {
+	const decision = await aj.protect(c.req.raw, { requested: 1 });
+	if (decision.isDenied() && decision.reason.isRateLimit())
+		return c.json({ error: 'Too many requests' }, 429);
+
+	try {
+		const body = await c.req.json();
+		const prompt = body?.prompt;
+		const context = body?.context || {};
+		const word_count = typeof body?.word_count === 'number' ? body.word_count : 150;
+		const stream = c.req.header('accept') === 'text/plain+stream';
+
+		if (!prompt || typeof prompt !== 'string') {
+			return c.json({ error: 'Prompt is required and must be a string' }, 400);
+		}
+
+		const client = create_model(MODELS.FREE);
+
+		// Build system prompt for starting from prompt
+		const system_prompt = `You are a creative writing assistant helping a fiction author. The user has provided a prompt to start writing from. 
+
+Context: ${JSON.stringify(context, null, 2)}
+
+Generate creative, engaging fiction writing based on the prompt. Write in a natural, flowing style appropriate for fiction. Aim for approximately ${word_count} words.
+
+Focus on:
+- Natural narrative flow
+- Engaging prose
+- Character voice and perspective
+- Scene setting and atmosphere
+- Forward momentum in the story
+
+Return only the generated text without any explanations or metadata.`;
+
+		const user_prompt = `<prompt>${prompt}</prompt>`;
+
+		if (stream) {
+			return streamText({
+				model: client,
+				system: system_prompt,
+				prompt: user_prompt,
+				temperature: 0.8,
+				topP: 0.9
+			}).toTextStreamResponse();
+		} else {
+			const result = await generateText({
+				model: client,
+				system: system_prompt,
+				prompt: user_prompt,
+				temperature: 0.8,
+				topP: 0.9
+			});
+
+			return c.text(result.text);
+		}
+	} catch (error) {
+		console.error('Start writing error:', error);
+		return c.json({ error: 'Failed to generate content from prompt' }, 500);
 	}
 });
 

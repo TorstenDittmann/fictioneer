@@ -120,6 +120,37 @@ export class AIWritingBackendService {
 		}
 	}
 
+	async *start_from_prompt(
+		prompt: string,
+		context: unknown = {},
+		word_count: number = 150
+	): AsyncGenerator<string, void, unknown> {
+		// Cancel any existing request
+		this.cancel_current_request();
+
+		// Create new abort controller for this request
+		this.current_abort_controller = new AbortController();
+
+		try {
+			let accumulated_text = '';
+			for await (const chunk of this.call_backend_stream(
+				'start',
+				{
+					prompt,
+					context,
+					word_count
+				},
+				this.current_abort_controller?.signal
+			)) {
+				accumulated_text += chunk;
+				yield accumulated_text;
+			}
+		} finally {
+			// Clean up abort controller on completion
+			this.current_abort_controller = null;
+		}
+	}
+
 	cancel_current_request(): void {
 		if (this.current_abort_controller) {
 			this.current_abort_controller.abort();

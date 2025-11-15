@@ -263,7 +263,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							// Create streaming typewriter container
 							const typewriter_span = document.createElement('span');
 							typewriter_span.className = 'ai-typewriter';
-							typewriter_span.title = 'AI is generating text... Release ⌘ to cancel';
 							typewriter_span.style.cssText = `
 								color: #94a3b8;
 								font-style: italic;
