@@ -1,8 +1,10 @@
-import { PUBLIC_INTELLIGENCE_SERVER_URL } from '$env/static/public';
+import { env } from '$env/dynamic/public';
+
+const DEFAULT_INTELLIGENCE_URL = 'https://intelligence.fictioneer.app';
 
 export const config = {
 	intelligence_api: {
-		base_url: PUBLIC_INTELLIGENCE_SERVER_URL
+		base_url: env.PUBLIC_INTELLIGENCE_SERVER_URL ?? DEFAULT_INTELLIGENCE_URL
 	}
 };
 

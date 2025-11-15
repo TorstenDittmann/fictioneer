@@ -1,7 +1,26 @@
 <script lang="ts">
-	import HeroSection from '$lib/components/hero_section.svelte';
+	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
+	import ImmersiveHero from '$lib/components/immersive_hero.svelte';
 	import FeaturesSection from '$lib/components/features_section.svelte';
 	import WaitlistForm from '$lib/components/waitlist_form.svelte';
+	import { LenisController } from '$lib/utils/lenis_controller';
+
+	let smooth_scroll = $state(0);
+
+	onMount(() => {
+		if (!browser) return;
+		const lenis = new LenisController({ lerp: 0.09 });
+		const unsubscribe = lenis.subscribe((value) => {
+			smooth_scroll = value;
+			document.documentElement.style.setProperty('--lenis-scroll', value.toFixed(2));
+		});
+
+		return () => {
+			unsubscribe();
+			lenis.destroy();
+		};
+	});
 </script>
 
 <svelte:head>
@@ -59,9 +78,8 @@
 </svelte:head>
 
 <div class="min-h-screen bg-paper-beige">
-	<!-- Main content - one continuous flow -->
 	<main>
-		<HeroSection />
+		<ImmersiveHero scroll_position={smooth_scroll} />
 		<FeaturesSection />
 		<WaitlistForm />
 	</main>
