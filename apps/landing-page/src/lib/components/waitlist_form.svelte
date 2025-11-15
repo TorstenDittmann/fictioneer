@@ -50,9 +50,7 @@
 
 <section id="newsletter" class="relative overflow-hidden px-4 py-20 sm:py-32">
 	<!-- Background gradient -->
-	<div
-		class="absolute inset-0 bg-gradient-to-b from-paper-white/20 via-paper-beige to-paper-cream/30"
-	></div>
+	<div class="absolute inset-0 bg-linear-to-b from-white via-paper-gray/20 to-white"></div>
 
 	<div class="relative mx-auto max-w-4xl">
 		{#if is_success}
@@ -62,10 +60,10 @@
 				<div class="mb-6 flex justify-center sm:mb-8">
 					<div class="relative">
 						<div
-							class="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-paper-accent to-paper-accent-light sm:h-24 sm:w-24"
+							class="relative flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-paper-accent via-paper-accent-light to-paper-accent-pink sm:h-24 sm:w-24"
 						>
 							<svg
-								class="h-10 w-10 text-paper-beige sm:h-12 sm:w-12"
+								class="h-10 w-10 text-white sm:h-12 sm:w-12"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -166,7 +164,7 @@
 					class="mb-4 font-serif text-3xl text-paper-text sm:mb-6 sm:text-4xl md:text-6xl {mounted
 						? 'animate-fade-in-up'
 						: 'opacity-0'}"
-					style="animation-delay: 0.1s"
+					style:animation-delay="0.1s"
 				>
 					Stay <span class="gradient-text">Updated</span>
 				</h2>
@@ -175,7 +173,7 @@
 					class="mx-auto mb-10 max-w-3xl text-lg text-paper-text-light sm:mb-12 sm:text-xl md:text-2xl {mounted
 						? 'animate-fade-in-up'
 						: 'opacity-0'}"
-					style="animation-delay: 0.2s"
+					style:animation-delay="0.2s"
 				>
 					Subscribe to our newsletter for writing tips, feature updates, and insights from the
 					Fictioneer team.
@@ -184,12 +182,12 @@
 				<form
 					onsubmit={handleSubmit}
 					class="mx-auto max-w-xl {mounted ? 'animate-fade-in-up' : 'opacity-0'}"
-					style="animation-delay: 0.3s"
+					style:animation-delay="0.3s"
 				>
 					<div class="group relative">
 						<!-- Input group -->
 						<div
-							class="glass relative flex flex-col gap-3 rounded-xl p-2 sm:flex-row sm:rounded-2xl"
+							class="glass relative flex flex-col gap-3 rounded-xl p-2 shadow-sm sm:flex-row sm:rounded-2xl"
 						>
 							<input
 								type="email"
@@ -197,13 +195,13 @@
 								placeholder="Enter your email address"
 								required
 								disabled={is_submitting}
-								class="flex-1 rounded-lg border border-paper-border/20 bg-paper-white/10 px-4 py-3 text-paper-text placeholder-paper-text-muted transition-all outline-none focus:border-paper-accent/50 focus:bg-paper-white/20 disabled:opacity-50 sm:rounded-xl sm:px-6 sm:py-4"
+								class="flex-1 rounded-lg border border-paper-border bg-white px-4 py-3 text-paper-text placeholder-paper-text-muted transition-all outline-none focus:border-paper-accent focus:ring-2 focus:ring-paper-accent/20 disabled:opacity-50 sm:rounded-xl sm:px-6 sm:py-4"
 							/>
 
 							<button
 								type="submit"
 								disabled={is_submitting || !email}
-								class="group transform rounded-lg bg-gradient-to-r from-paper-accent to-paper-accent-light px-6 py-3 font-medium whitespace-nowrap text-paper-beige transition-all hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-8 sm:py-4"
+								class="group transform rounded-lg bg-linear-to-r from-paper-accent via-paper-accent-light to-paper-accent-pink px-6 py-3 font-medium whitespace-nowrap text-white transition-all hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-8 sm:py-4"
 							>
 								{#if is_submitting}
 									<span class="inline-flex items-center gap-2">
@@ -264,9 +262,9 @@
 					class="mx-auto mt-12 grid max-w-3xl grid-cols-1 gap-4 sm:mt-16 sm:grid-cols-3 sm:gap-6 {mounted
 						? 'animate-fade-in-up'
 						: 'opacity-0'}"
-					style="animation-delay: 0.4s"
+					style:animation-delay="0.4s"
 				>
-					<div class="glass hover-lift rounded-lg p-4 text-center sm:rounded-xl sm:p-6">
+					<div class="glass hover-lift rounded-lg p-4 text-center shadow-sm sm:rounded-xl sm:p-6">
 						<svg
 							class="mx-auto mb-2 h-6 w-6 text-paper-accent sm:mb-3 sm:h-8 sm:w-8"
 							fill="none"
@@ -284,7 +282,7 @@
 						<p class="text-xs text-paper-text-muted sm:text-sm">Expert advice for novelists</p>
 					</div>
 
-					<div class="glass hover-lift rounded-lg p-4 text-center sm:rounded-xl sm:p-6">
+					<div class="glass hover-lift rounded-lg p-4 text-center shadow-sm sm:rounded-xl sm:p-6">
 						<svg
 							class="mx-auto mb-2 h-6 w-6 text-paper-accent sm:mb-3 sm:h-8 sm:w-8"
 							fill="none"
@@ -302,7 +300,7 @@
 						<p class="text-xs text-paper-text-muted sm:text-sm">Stay informed on new releases</p>
 					</div>
 
-					<div class="glass hover-lift rounded-lg p-4 text-center sm:rounded-xl sm:p-6">
+					<div class="glass hover-lift rounded-lg p-4 text-center shadow-sm sm:rounded-xl sm:p-6">
 						<svg
 							class="mx-auto mb-2 h-6 w-6 text-paper-accent sm:mb-3 sm:h-8 sm:w-8"
 							fill="none"

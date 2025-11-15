@@ -76,7 +76,7 @@
 			</h1>
 			<p
 				class="animate-fade-in-up mx-auto max-w-2xl text-base text-paper-text-light/90 sm:text-lg md:text-xl"
-				style="animation-delay: 0.1s"
+				style:animation-delay="0.1s"
 			>
 				Write your novel for free. Unlock advanced AI tools when you're ready to level up your
 				writing.
@@ -90,7 +90,7 @@
 					class="animate-fade-in-up relative rounded-2xl border p-8 transition-all {plan.highlighted
 						? 'hover-lift border-paper-accent bg-paper-cream shadow-xl'
 						: 'border-paper-border bg-paper-cream/30'}"
-					style="animation-delay: {0.2 + idx * 0.1}s"
+					style:animation-delay="{0.2 + idx * 0.1}s"
 				>
 					<!-- Highlighted Badge -->
 					{#if plan.highlighted}
@@ -169,7 +169,7 @@
 		<div class="mx-auto mt-20 max-w-4xl">
 			<h2
 				class="animate-fade-in-up mb-10 text-center text-3xl font-bold text-paper-text"
-				style="animation-delay: 0.4s"
+				style:animation-delay="0.4s"
 			>
 				Frequently Asked Questions
 			</h2>
@@ -177,7 +177,7 @@
 			<div class="space-y-6">
 				<div
 					class="animate-fade-in-up rounded-2xl border border-paper-border bg-paper-cream/30 p-6"
-					style="animation-delay: 0.5s"
+					style:animation-delay="0.5s"
 				>
 					<h3 class="mb-2 text-lg font-semibold text-paper-text">Is Fictioneer really free?</h3>
 					<p class="text-paper-text-light">
@@ -189,7 +189,7 @@
 
 				<div
 					class="animate-fade-in-up rounded-2xl border border-paper-border bg-paper-cream/30 p-6"
-					style="animation-delay: 0.6s"
+					style:animation-delay="0.6s"
 				>
 					<h3 class="mb-2 text-lg font-semibold text-paper-text">
 						What do I get with the AI Tools subscription?
@@ -203,7 +203,7 @@
 
 				<div
 					class="animate-fade-in-up rounded-2xl border border-paper-border bg-paper-cream/30 p-6"
-					style="animation-delay: 0.7s"
+					style:animation-delay="0.7s"
 				>
 					<h3 class="mb-2 text-lg font-semibold text-paper-text">Can I cancel anytime?</h3>
 					<p class="text-paper-text-light">
@@ -215,7 +215,7 @@
 
 				<div
 					class="animate-fade-in-up rounded-2xl border border-paper-border bg-paper-cream/30 p-6"
-					style="animation-delay: 0.8s"
+					style:animation-delay="0.8s"
 				>
 					<h3 class="mb-2 text-lg font-semibold text-paper-text">
 						What payment methods do you accept?
@@ -228,7 +228,7 @@
 
 				<div
 					class="animate-fade-in-up rounded-2xl border border-paper-border bg-paper-cream/30 p-6"
-					style="animation-delay: 0.9s"
+					style:animation-delay="0.9s"
 				>
 					<h3 class="mb-2 text-lg font-semibold text-paper-text">Do you offer refunds?</h3>
 					<p class="text-paper-text-light">
@@ -242,7 +242,7 @@
 		<!-- CTA Section -->
 		<div
 			class="animate-fade-in-up mx-auto mt-20 max-w-3xl rounded-2xl border border-paper-accent/30 bg-paper-cream/50 p-8 text-center backdrop-blur-sm"
-			style="animation-delay: 1s"
+			style:animation-delay="1s"
 		>
 			<h2 class="mb-4 text-2xl font-bold text-paper-text">Ready to start writing?</h2>
 			<p class="mb-6 text-paper-text-light">

@@ -133,9 +133,9 @@
 <div class="min-h-screen bg-paper-beige">
 	<header class="relative overflow-hidden px-4 py-16 sm:py-20">
 		<div
-			class="absolute inset-0 bg-gradient-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
+			class="absolute inset-0 bg-linear-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
 		></div>
-		<div class="absolute inset-0" style="background: var(--gradient-radial)"></div>
+		<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
 		<div class="relative mx-auto max-w-5xl text-center">
 			<h1
 				class="animate-fade-in-up mb-3 font-serif text-4xl leading-[0.9] tracking-tight sm:text-6xl md:text-7xl"
@@ -145,11 +145,11 @@
 			</h1>
 			<p
 				class="animate-fade-in-up mx-auto mt-4 max-w-2xl text-base text-paper-text-light/90 sm:text-lg md:text-xl"
-				style="animation-delay: 0.1s"
+				style:animation-delay="0.1s"
 			>
 				A concise overview of the problem, solution, and path forward.
 			</p>
-			<div class="animate-fade-in-up mt-8" style="animation-delay: 0.15s">
+			<div class="animate-fade-in-up mt-8" style:animation-delay="0.15s">
 				<a href={resolve('/')} class="btn-primary hover-lift inline-flex items-center gap-2">
 					<span>Back to Home</span>
 					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,7 +167,7 @@
 
 	<main class="relative px-4 pb-24 sm:pb-32">
 		<div
-			class="absolute top-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-paper-border/50 to-transparent"
+			class="absolute top-0 left-0 h-px w-full bg-linear-to-r from-transparent via-paper-border/50 to-transparent"
 		></div>
 		<div class="mx-auto grid max-w-5xl gap-8 sm:gap-10">
 			{#each sections as s, i (s.id)}
@@ -206,7 +206,7 @@
 					{#if i < sections.length - 1}
 						<div class="mt-8 flex justify-center sm:mt-10">
 							<div
-								class="h-12 w-px bg-gradient-to-b from-transparent via-paper-border/30 to-transparent sm:h-16"
+								class="h-12 w-px bg-linear-to-b from-transparent via-paper-border/30 to-transparent sm:h-16"
 							></div>
 						</div>
 					{/if}

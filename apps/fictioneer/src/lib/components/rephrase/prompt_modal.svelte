@@ -18,7 +18,7 @@
 		onGenerate,
 		onInsert
 	}: Props = $props();
-	
+
 	let prompt_input = $state('');
 
 	function handle_generate() {
@@ -35,16 +35,12 @@
 
 <Dialog.Root bind:open>
 	<Dialog.Portal>
-		<Dialog.Overlay
-			class="fixed inset-0 z-50 bg-black/50"
-		/>
+		<Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
 		<Dialog.Content
-			class="fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] rounded-lg border border-border bg-surface p-6 shadow-xl"
+			class="fixed top-[50%] left-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] rounded-lg border border-border bg-surface p-6 shadow-xl"
 		>
 			<div class="mb-4">
-				<Dialog.Title class="text-lg font-semibold text-text">
-					AI Writing Assistant
-				</Dialog.Title>
+				<Dialog.Title class="text-lg font-semibold text-text">AI Writing Assistant</Dialog.Title>
 				<Dialog.Description class="text-sm text-text-secondary">
 					Describe what you'd like to generate
 				</Dialog.Description>

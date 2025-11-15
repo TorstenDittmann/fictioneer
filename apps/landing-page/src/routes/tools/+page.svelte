@@ -135,7 +135,7 @@
 	<div
 		class="absolute inset-0 bg-linear-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
 	></div>
-	<div class="absolute inset-0" style="background: var(--gradient-radial)"></div>
+	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
 
 	<!-- Header -->
 	<header class="glass relative z-10 border-b border-paper-border">
@@ -200,7 +200,7 @@
 			{#each tools as tool, index (tool.title)}
 				<div
 					class="glass hover-lift transition-smooth group animate-fade-in relative rounded-2xl border border-paper-border p-8"
-					style="animation-delay: {index * 0.1}s"
+					style:animation-delay="{index * 0.1}s"
 				>
 					{#if tool.status === 'coming_soon'}
 						<div class="absolute top-4 right-4">

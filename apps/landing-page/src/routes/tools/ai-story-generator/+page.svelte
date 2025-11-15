@@ -353,7 +353,7 @@
 	<div
 		class="absolute inset-0 bg-linear-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
 	></div>
-	<div class="absolute inset-0" style="background: var(--gradient-radial)"></div>
+	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
 
 	<!-- Header -->
 	<header class="glass relative z-10 border-b border-paper-border">
@@ -424,7 +424,7 @@
 						<!-- Form Grid -->
 						<div class="grid gap-6 md:grid-cols-2">
 							<!-- Genre Selection -->
-							<div class="animate-fade-in" style="animation-delay: 0.1s">
+							<div class="animate-fade-in" style:animation-delay="0.1s">
 								<label for="genre" class="mb-3 block text-sm font-medium text-paper-text-light">
 									Genre
 								</label>
@@ -441,7 +441,7 @@
 							</div>
 
 							<!-- Theme Selection -->
-							<div class="animate-fade-in" style="animation-delay: 0.2s">
+							<div class="animate-fade-in" style:animation-delay="0.2s">
 								<label for="theme" class="mb-3 block text-sm font-medium text-paper-text-light">
 									Theme
 								</label>
@@ -458,7 +458,7 @@
 							</div>
 
 							<!-- Setting -->
-							<div class="animate-fade-in" style="animation-delay: 0.3s">
+							<div class="animate-fade-in" style:animation-delay="0.3s">
 								<label for="setting" class="mb-3 block text-sm font-medium text-paper-text-light">
 									Setting
 								</label>
@@ -475,7 +475,7 @@
 							</div>
 
 							<!-- Tone -->
-							<div class="animate-fade-in" style="animation-delay: 0.4s">
+							<div class="animate-fade-in" style:animation-delay="0.4s">
 								<label for="tone" class="mb-3 block text-sm font-medium text-paper-text-light">
 									Tone
 								</label>
@@ -493,7 +493,7 @@
 						</div>
 
 						<!-- Story Context -->
-						<div class="animate-fade-in" style="animation-delay: 0.5s">
+						<div class="animate-fade-in" style:animation-delay="0.5s">
 							<label
 								for="story_context"
 								class="mb-3 block text-sm font-medium text-paper-text-light"
@@ -513,7 +513,7 @@
 						</div>
 
 						<!-- Word Count -->
-						<div class="animate-fade-in" style="animation-delay: 0.6s">
+						<div class="animate-fade-in" style:animation-delay="0.6s">
 							<label for="word_count" class="mb-3 block text-sm font-medium text-paper-text-light">
 								Approximate Word Count: <span class="gradient-text font-semibold"
 									>{word_count} words</span
@@ -537,7 +537,7 @@
 						</div>
 
 						<!-- Generate Button -->
-						<div class="animate-fade-in" style="animation-delay: 0.7s">
+						<div class="animate-fade-in" style:animation-delay="0.7s">
 							<button
 								type="submit"
 								disabled={generating_story}
@@ -674,7 +674,7 @@
 		</div>
 
 		<!-- Features Section -->
-		<div class="animate-fade-in-up mt-24" style="animation-delay: 0.8s">
+		<div class="animate-fade-in-up mt-24" style:animation-delay="0.8s">
 			<h2 class="mb-16 text-center font-serif text-3xl font-bold text-paper-text">
 				Why Use Our AI Story Generator?
 			</h2>
@@ -709,7 +709,7 @@
 		<!-- CTA Section -->
 		<div
 			class="glass animate-fade-in-up glow mt-24 rounded-2xl border border-paper-accent/30 p-12 text-center"
-			style="animation-delay: 1s"
+			style:animation-delay="1s"
 		>
 			<h2 class="mb-4 font-serif text-3xl font-bold text-paper-text">
 				Ready for More Writing Tools?

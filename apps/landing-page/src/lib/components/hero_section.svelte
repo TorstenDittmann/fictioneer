@@ -1,64 +1,46 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import logo from '$lib/assets/logo.svg';
-
-	function scrollToNewsletter() {
-		document.getElementById('newsletter')?.scrollIntoView({ behavior: 'smooth' });
-	}
 </script>
 
-<section
-	class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-16 sm:py-20"
->
-	<!-- Gradient background -->
-	<div
-		class="absolute inset-0 bg-linear-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
-	></div>
-
+<section class="relative overflow-hidden px-4 py-24 sm:py-32 lg:py-40">
 	<!-- Radial gradient overlay -->
-	<div class="absolute inset-0" style="background: var(--gradient-radial)"></div>
+	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
 
-	<div class="relative z-10 mx-auto max-w-6xl text-center">
-		<!-- Logo with spin animation -->
-		<div class="animate-fade-in-down mb-4 flex justify-center sm:mb-6">
-			<div class="relative">
-				<img
-					src={logo}
-					alt="Fictioneer"
-					class="animate-rotate-slow relative h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24"
-				/>
-			</div>
+	<div class="relative z-10 mx-auto max-w-5xl text-center">
+		<!-- Logo -->
+		<div class="animate-fade-in-down mb-8 flex justify-center">
+			<img src={logo} alt="Fictioneer" class="h-16 w-16 sm:h-20 sm:w-20" />
 		</div>
 
 		<!-- Main headline -->
 		<h1
-			class="animate-fade-in-up mb-6 font-serif text-4xl leading-[0.9] tracking-tight sm:text-5xl md:text-7xl lg:text-8xl"
-			style="animation-delay: 0.2s"
+			class="animate-fade-in-up mb-6 font-serif text-5xl leading-tight tracking-tight text-paper-text sm:text-6xl lg:text-7xl xl:text-8xl"
+			style:animation-delay="0.1s"
 		>
-			<span class="block text-paper-text">Where Stories</span>
-			<span class="gradient-text mt-1 block text-5xl sm:mt-2 sm:text-6xl md:text-8xl lg:text-9xl"
-				>Come to Life</span
-			>
+			Where Stories<br />
+			<span class="gradient-text">Come to Life</span>
 		</h1>
 
-		<!-- Tagline -->
+		<!-- Subheadline -->
 		<p
-			class="animate-fade-in-up mx-auto mb-10 max-w-3xl text-base leading-relaxed text-paper-text-light/90 sm:mb-12 sm:text-lg md:text-xl lg:text-2xl"
-			style="animation-delay: 0.3s"
+			class="animate-fade-in-up mx-auto mb-12 max-w-2xl text-lg leading-relaxed text-paper-text-light sm:text-xl lg:text-2xl"
+			style:animation-delay="0.2s"
 		>
-			The writing environment designed for novelists who demand focus, flow, and creative freedom.
+			Distraction-free writing software designed for novelists who demand focus, flow, and creative
+			freedom. Available for Windows, Mac, and Linux.
 		</p>
 
 		<!-- CTA Buttons -->
 		<div
-			class="animate-fade-in-up flex flex-wrap items-center justify-center gap-4"
-			style:animation-delay="0.4s"
+			class="animate-fade-in-up mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row"
+			style:animation-delay="0.3s"
 		>
-			<a href={resolve('/download')} class="btn-primary hover-lift group">
-				<span class="flex items-center gap-2 text-sm sm:text-base">
+			<a href={resolve('/download')} class="btn-primary hover-lift group w-full sm:w-auto">
+				<span class="flex items-center justify-center gap-2 text-base sm:text-lg">
 					Download Free
 					<svg
-						class="h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5"
+						class="h-5 w-5 transition-transform group-hover:translate-x-1"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -72,51 +54,48 @@
 					</svg>
 				</span>
 			</a>
-			<button
-				onclick={scrollToNewsletter}
-				class="group rounded-lg border-2 border-paper-accent px-6 py-3 font-medium text-paper-accent transition-all hover:bg-paper-accent/10 sm:px-8 sm:py-4"
+		</div>
+
+		<!-- Hero image/screenshot placeholder -->
+		<div class="animate-scale-in relative mx-auto max-w-5xl" style:animation-delay="0.4s">
+			<div
+				class="glass relative overflow-hidden rounded-2xl border border-paper-border p-2 sm:rounded-3xl sm:p-3"
 			>
-				<span class="flex items-center gap-2 text-sm sm:text-base"> Stay Updated </span>
-			</button>
-		</div>
-
-		<!-- Stats -->
-		<div
-			class="animate-fade-in-up mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-4 sm:mt-20 sm:gap-8"
-			style="animation-delay: 0.5s"
-		>
-			<div class="text-center">
-				<div class="gradient-text text-2xl font-bold sm:text-3xl md:text-4xl">Free</div>
-				<div class="mt-1 text-xs text-paper-text-muted sm:text-sm">Forever</div>
-			</div>
-			<div class="text-center">
-				<div class="gradient-text text-2xl font-bold sm:text-3xl md:text-4xl">100%</div>
-				<div class="mt-1 text-xs text-paper-text-muted sm:text-sm">Privacy First</div>
-			</div>
-			<div class="text-center">
-				<div class="gradient-text text-2xl font-bold sm:text-3xl md:text-4xl">Zero</div>
-				<div class="mt-1 text-xs text-paper-text-muted sm:text-sm">Distractions</div>
-			</div>
-		</div>
-
-		<!-- Scroll indicator -->
-		<div class="animate-fade-in mt-16 sm:mt-20" style="animation-delay: 0.6s">
-			<div class="flex flex-col items-center gap-2 text-paper-text-muted">
-				<span class="text-xs tracking-widest uppercase">Scroll</span>
-				<svg
-					class="h-4 w-4 animate-bounce sm:h-5 sm:w-5"
-					fill="none"
-					stroke="currentColor"
-					viewBox="0 0 24 24"
+				<!-- Screenshot placeholder -->
+				<div
+					class="relative aspect-16/10 w-full overflow-hidden rounded-xl bg-paper-gray sm:rounded-2xl"
 				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M19 14l-7 7m0 0l-7-7m7 7V3"
-					></path>
-				</svg>
+					<!-- Gradient overlay -->
+					<div
+						class="absolute inset-0 bg-linear-to-br from-paper-accent/5 via-transparent to-paper-accent-light/5"
+					></div>
+
+					<!-- Mock editor content -->
+					<div class="relative flex h-full items-center justify-center p-8 sm:p-12 lg:p-16">
+						<div class="w-full max-w-2xl space-y-4 text-left">
+							<div class="h-3 w-3/4 rounded-full bg-paper-text/10"></div>
+							<div class="h-3 w-full rounded-full bg-paper-text/10"></div>
+							<div class="h-3 w-5/6 rounded-full bg-paper-text/10"></div>
+							<div class="h-3 w-4/5 rounded-full bg-paper-text/10"></div>
+							<div class="mt-6 h-3 w-2/3 rounded-full bg-paper-text/10"></div>
+							<div class="h-3 w-full rounded-full bg-paper-text/10"></div>
+							<div class="h-3 w-3/4 rounded-full bg-paper-text/10"></div>
+						</div>
+					</div>
+
+					<!-- Floating element -->
+					<div
+						class="absolute top-8 right-8 rounded-lg bg-white/80 px-4 py-2 shadow-lg backdrop-blur-sm"
+					>
+						<span class="text-xs text-paper-text-muted">Screenshot placeholder</span>
+					</div>
+				</div>
 			</div>
+
+			<!-- Glow effect -->
+			<div
+				class="absolute -inset-4 -z-10 bg-linear-to-t from-paper-accent/10 via-transparent to-transparent opacity-50 blur-3xl"
+			></div>
 		</div>
 	</div>
 </section>
