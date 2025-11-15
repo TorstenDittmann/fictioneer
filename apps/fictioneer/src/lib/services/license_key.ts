@@ -1,6 +1,7 @@
-import { PUBLIC_INTELLIGENCE_SERVER_URL } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 
-const BACKEND_URL = PUBLIC_INTELLIGENCE_SERVER_URL;
+const DEFAULT_INTELLIGENCE_URL = 'https://intelligence.fictioneer.app';
+const BACKEND_URL = env.PUBLIC_INTELLIGENCE_SERVER_URL ?? DEFAULT_INTELLIGENCE_URL;
 const LICENSE_KEY_STORAGE_KEY = 'fictioneer_license_key';
 
 export interface LicenseKeyVerificationResult {

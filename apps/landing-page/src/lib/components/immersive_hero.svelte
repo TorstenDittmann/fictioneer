@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 
 	type HeroProps = {
@@ -76,7 +76,7 @@
 	}
 
 	onMount(() => {
-		if (!browser) return;
+		if (!browser || typeof requestAnimationFrame !== 'function') return;
 		const animateGlow = () => {
 			glow_rotation += 0.005;
 			raf_id = requestAnimationFrame(animateGlow);
@@ -84,12 +84,10 @@
 		raf_id = requestAnimationFrame(animateGlow);
 
 		return () => {
-			cancelAnimationFrame(raf_id);
+			if (typeof cancelAnimationFrame === 'function') {
+				cancelAnimationFrame(raf_id);
+			}
 		};
-	});
-
-	onDestroy(() => {
-		cancelAnimationFrame(raf_id);
 	});
 </script>
 

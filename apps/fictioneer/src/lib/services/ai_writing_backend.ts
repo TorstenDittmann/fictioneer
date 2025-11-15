@@ -1,4 +1,4 @@
-import { PUBLIC_INTELLIGENCE_SERVER_URL } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 import { license_key_state } from '$lib/state/license_key.svelte.js';
 
 interface RephraseOption {
@@ -11,7 +11,8 @@ interface RephraseResponse {
 	rephrases: RephraseOption[];
 }
 
-const BACKEND_URL = PUBLIC_INTELLIGENCE_SERVER_URL;
+const DEFAULT_INTELLIGENCE_URL = 'https://intelligence.fictioneer.app';
+const BACKEND_URL = env.PUBLIC_INTELLIGENCE_SERVER_URL ?? DEFAULT_INTELLIGENCE_URL;
 
 export class AIWritingBackendService {
 	private current_abort_controller: AbortController | null = null;
