@@ -1,12 +1,71 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { SvelteSet } from 'svelte/reactivity';
 
-	let mounted = $state(false);
-	let visible_features = $state(new Set());
-	let ai_current_text = $state('');
-	let ai_completion_index = $state(0);
-	let ai_typing = $state(false);
+	const feature_clusters = [
+		{
+			title: 'Distraction-free studio',
+			description:
+				'A tactile, cinematic canvas where scenes float in 3D space, letting you stitch chapters without modal clutter.',
+			badge: 'Focus Stack',
+			metric: 'Zero distractions'
+		},
+		{
+			title: 'AI writing companion',
+			description:
+				'Context aware completions that preserve your tone, surface character notes, and keep lore synced as you draft.',
+			badge: 'Resonant AI',
+			metric: 'Voice-safe'
+		},
+		{
+			title: 'Progress intelligence',
+			description:
+				'Beautiful streaks, milestone pulses, and pacing charts that react live as you type. Motivation without guilt.',
+			badge: 'Story Pulse',
+			metric: '+37% flow time'
+		},
+		{
+			title: 'Pro-ready exports',
+			description:
+				'One tap EPUB, PDF, and DOCX pipelines with polished typography, margin control, and cover-ready templates.',
+			badge: 'Delivery Lab',
+			metric: 'EPUB · PDF · DOCX'
+		}
+	];
+
+	const motion_highlights = [
+		{ title: 'Scene bubbles', detail: 'Drag-and-drop arcs across depth' },
+		{ title: 'Mood gradients', detail: 'Color-code emotion beats' },
+		{ title: 'Audio focus', detail: 'Ambient scoring for sessions' }
+	];
+
+	const timeline_moments = [
+		{
+			title: 'Blueprint',
+			description:
+				'Sketch acts, characters, and beats with layered cards that orbit your manuscript.'
+		},
+		{
+			title: 'Write in flow',
+			description:
+				'Lenis-powered smooth scrolling keeps your POV anchored so scenes feel cinematic.'
+		},
+		{
+			title: 'Collaborate with AI',
+			description:
+				'Tap contextual suggestions, alternate takes, and tone coaching without leaving focus.'
+		},
+		{
+			title: 'Ship everywhere',
+			description:
+				'Export to every major format with one click and keep brand-ready templates on standby.'
+		}
+	];
+
+	const scene_cards = [
+		{ title: 'Outline arcs', detail: 'Timeline + cards blended into space' },
+		{ title: 'Dialogue polish', detail: 'AI tone shifts and cadence hints' },
+		{ title: 'World bible', detail: 'Link characters, items, and lore nodes' }
+	];
 
 	const ai_base_text = 'She opened the door and';
 	const ai_completions = [
@@ -22,62 +81,47 @@
 		' knew everything had changed forever.'
 	];
 
+	let ai_current_text = $state('');
+	let ai_completion_index = $state(0);
+	let ai_typing = $state(false);
+	let pointer = $state({ x: 0, y: 0 });
+	let parallax_ratio = $state(0);
+	let section_ref: HTMLElement | null = null;
+
 	onMount(() => {
-		mounted = true;
+		ai_typing = true;
+		typewriterLoop();
 
-		// Intersection observer for feature animations
-		const observer = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						visible_features.add(entry.target.id);
-						visible_features = new SvelteSet(visible_features);
+		const handleScroll = () => {
+			if (!section_ref) return;
+			const rect = section_ref.getBoundingClientRect();
+			const viewport = window.innerHeight || 1;
+			const progress = 1 - Math.min(Math.max(rect.top / viewport, 0), 1);
+			parallax_ratio = progress;
+		};
 
-						// Start AI typing animation when visible
-						if (entry.target.id === 'ai-assistant' && !ai_typing) {
-							startAiTyping();
-						}
-					}
-				});
-			},
-			{ threshold: 0.2, rootMargin: '0px 0px -100px 0px' }
-		);
+		window.addEventListener('scroll', handleScroll, { passive: true });
+		handleScroll();
 
-		document.querySelectorAll('.feature-item').forEach((el) => {
-			observer.observe(el);
-		});
-
-		return () => observer.disconnect();
+		return () => {
+			ai_typing = false;
+			window.removeEventListener('scroll', handleScroll);
+		};
 	});
 
-	function startAiTyping() {
-		ai_typing = true;
-		typewriterEffect();
-	}
-
-	async function typewriterEffect() {
+	async function typewriterLoop() {
 		while (ai_typing) {
-			// Reset to base text
 			ai_current_text = '';
-			await sleep(300);
-
-			// Type out the completion
 			const completion = ai_completions[ai_completion_index];
 			for (let i = 0; i <= completion.length; i++) {
 				ai_current_text = completion.substring(0, i);
-				await sleep(25);
+				await sleep(22);
 			}
-
-			// Pause to show complete text
-			await sleep(1500);
-
-			// Backspace effect
+			await sleep(1200);
 			for (let i = completion.length; i >= 0; i--) {
 				ai_current_text = completion.substring(0, i);
-				await sleep(15);
+				await sleep(14);
 			}
-
-			// Move to next completion
 			ai_completion_index = (ai_completion_index + 1) % ai_completions.length;
 			await sleep(200);
 		}
@@ -87,244 +131,368 @@
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
-	const features = [
-		{
-			id: 'distraction-free',
-			title: 'Distraction Free Writing',
-			description:
-				'A pristine canvas for your words. Our minimalist interface melts away, leaving only you and your story in perfect harmony.',
-			icon: 'M12 20l9-11h-6V4l-9 11h6v5z',
-			gradient: 'from-paper-accent/20 to-paper-accent-light/20'
-		},
-		{
-			id: 'ai-assistant',
-			title: 'AI Writing Companion',
-			description:
-				'Break through creative barriers with an AI that understands context and respects your unique voice. Never face a blank page alone.',
-			icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
-			gradient: 'from-paper-accent/20 to-paper-accent-light/20'
-		},
-		{
-			id: 'progress-tracking',
-			title: 'Progress Analytics',
-			description:
-				'Track your journey with beautiful visualizations. Word counts, writing streaks, and milestone celebrations.',
-			icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-			gradient: 'from-paper-accent-light/20 to-paper-accent/20'
-		},
-		{
-			id: 'seamless-export',
-			title: 'Professional Export',
-			description:
-				'One click to manuscript ready formats. Export to EPUB, RTF, or PDF with industry standard formatting.',
-			icon: 'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-			gradient: 'from-paper-accent-light/20 to-paper-accent/20'
-		}
-	];
+	function handlePointerMove(event: PointerEvent) {
+		const target = event.currentTarget as HTMLElement | null;
+		if (!target) return;
+		const rect = target.getBoundingClientRect();
+		const x = (event.clientX - rect.left) / rect.width - 0.5;
+		const y = (event.clientY - rect.top) / rect.height - 0.5;
+		pointer = { x, y };
+	}
+
+	function resetPointer() {
+		pointer = { x: 0, y: 0 };
+	}
 </script>
 
-<section id="features" class="relative overflow-hidden py-20 sm:py-32">
-	<!-- Background gradient -->
-	<div
-		class="absolute inset-0 bg-gradient-to-b from-paper-white/20 via-paper-cream/30 to-paper-white/20"
-	></div>
+<section id="features" class="cosmic-lab" bind:this={section_ref}>
+	<div class="lab-backdrop">
+		<span class="halo halo-one" style:transform={`translateY(${-parallax_ratio * 40}px)`}></span>
+		<span class="halo halo-two" style:transform={`translateY(${-parallax_ratio * 80}px)`}></span>
+	</div>
 
-	<!-- Decorative elements -->
-	<div
-		class="absolute top-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-paper-border/50 to-transparent"
-	></div>
-	<div
-		class="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-paper-border/50 to-transparent"
-	></div>
+	<div class="lab-header">
+		<p class="eyebrow">Immersive workspace</p>
+		<h2>
+			Built to feel like <span>a creative playground</span>
+		</h2>
+		<p>
+			Parallax scenes, floating notes, and tactile controls make the landing page feel like a
+			cinematic control room while highlighting everything Fictioneer can do.
+		</p>
+	</div>
 
-	<!-- Full width on mobile, constrained on desktop -->
-	<div class="relative px-4 lg:mx-auto lg:max-w-7xl lg:px-8">
-		<!-- Section header -->
-		<div class="mb-16 text-center sm:mb-20">
-			<h2
-				class="mb-4 font-serif text-3xl text-paper-text sm:mb-6 sm:text-4xl md:text-6xl {mounted
-					? 'animate-fade-in-up'
-					: 'opacity-0'}"
-			>
-				Crafted for <span class="gradient-text">Storytellers</span>
-			</h2>
-			<p
-				class="mx-auto max-w-3xl text-lg text-paper-text-light sm:text-xl {mounted
-					? 'animate-fade-in-up'
-					: 'opacity-0'}"
-				style="animation-delay: 0.2s"
-			>
-				Every pixel, every interaction, every feature meticulously designed to amplify your creative
-				flow
-			</p>
+	<div class="lab-grid" onpointermove={handlePointerMove} onpointerleave={resetPointer}>
+		<div
+			class="lab-stage"
+			style:transform={`rotateX(${pointer.y * 10}deg) rotateY(${pointer.x * 16}deg)`}
+		>
+			<div class="lab-hologram">
+				<p class="prompt">{ai_base_text}</p>
+				<p class="completion">
+					{ai_current_text}
+					<span class="cursor"></span>
+				</p>
+			</div>
+			<div class="scene-stack">
+				{#each scene_cards as card, i (card.title)}
+					<div class="scene-card" style={`--depth: ${i}`}>
+						<p class="scene-title">{card.title}</p>
+						<p class="scene-detail">{card.detail}</p>
+					</div>
+				{/each}
+			</div>
+			<div class="lab-rings">
+				{#each motion_highlights as highlight, i (highlight.title)}
+					<div class="ring-card" style:animation-delay={`${i * 0.3}s`}>
+						<p class="ring-title">{highlight.title}</p>
+						<p class="ring-detail">{highlight.detail}</p>
+					</div>
+				{/each}
+			</div>
 		</div>
 
-		<!-- Features list - full width on mobile -->
-		<div class="space-y-16 sm:space-y-24">
-			{#each features as feature, i (feature.id)}
-				<div id={feature.id} class="feature-item group relative">
-					<!-- Full width mobile layout, alternating desktop layout -->
-					<div
-						class="flex flex-col gap-8 sm:gap-12 lg:items-center {i % 2 === 0
-							? 'lg:flex-row'
-							: 'lg:flex-row-reverse'} lg:gap-20"
-					>
-						<!-- Content - full width on mobile -->
-						<div
-							class="w-full text-center lg:flex-1 lg:text-left {visible_features.has(feature.id)
-								? i % 2 === 0
-									? 'animate-slide-in-left'
-									: 'animate-slide-in-right'
-								: 'opacity-0'}"
-						>
-							<div
-								class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br {feature.gradient} border border-paper-border/20 backdrop-blur-sm sm:mb-6 sm:h-16 sm:w-16 sm:rounded-2xl"
-							>
-								<svg
-									class="h-6 w-6 text-paper-accent sm:h-8 sm:w-8"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="1.5"
-									viewBox="0 0 24 24"
-								>
-									<path stroke-linecap="round" stroke-linejoin="round" d={feature.icon}></path>
-								</svg>
-							</div>
-
-							<h3 class="mb-3 font-serif text-2xl text-paper-text sm:mb-4 sm:text-3xl md:text-4xl">
-								{feature.title}
-							</h3>
-
-							<p
-								class="mx-auto max-w-2xl text-base leading-relaxed text-paper-text-light sm:text-lg md:text-xl lg:mx-0"
-							>
-								{feature.description}
-							</p>
-						</div>
-
-						<!-- Visual placeholder - full width on mobile -->
-						<div
-							class="w-full lg:flex-1 {visible_features.has(feature.id)
-								? 'animate-scale-in'
-								: 'opacity-0'}"
-							style="animation-delay: 0.1s"
-						>
-							<div class="relative mx-auto aspect-[4/3] max-w-full sm:max-w-md lg:max-w-lg">
-								<!-- Glass card -->
-								<div
-									class="glass relative flex h-full items-center justify-center overflow-hidden rounded-2xl p-6 sm:rounded-3xl sm:p-8"
-								>
-									<!-- Animated gradient background -->
-									<div
-										class="absolute inset-0 bg-gradient-to-br {feature.gradient} opacity-30"
-									></div>
-
-									<!-- Feature visualization -->
-									<div class="relative z-10 flex h-full w-full items-center justify-center">
-										{#if feature.id === 'distraction-free'}
-											<!-- Minimalist editor visualization -->
-											<div class="w-full space-y-2 sm:space-y-3">
-												{#each [0.75, 1, 0.85, 0.65] as width, idx (width)}
-													<div
-														class="h-1.5 rounded-full bg-paper-text/20 transition-all duration-700 sm:h-2 {visible_features.has(
-															feature.id
-														)
-															? ''
-															: 'scale-x-0'}"
-														style="width: {width * 100}%; animation-delay: {0.3 +
-															idx * 0.1}s; transform-origin: left"
-													></div>
-												{/each}
-											</div>
-										{:else if feature.id === 'ai-assistant'}
-											<!-- AI typewriter effect with fixed positioning -->
-											<div class="flex h-full w-full items-center">
-												<div class="w-full px-2 sm:px-4">
-													<div
-														class="min-h-[2.5rem] text-left font-mono text-xs leading-relaxed sm:min-h-[3rem] sm:text-sm"
-													>
-														<span class="text-paper-text">{ai_base_text}</span>
-														<span class="text-paper-accent">{ai_current_text}</span>
-														<span
-															class="ml-0.5 inline-block h-3 w-0.5 animate-pulse bg-paper-accent align-middle sm:h-4"
-														></span>
-													</div>
-												</div>
-											</div>
-										{:else if feature.id === 'progress-tracking'}
-											<!-- Stats visualization -->
-											<div class="w-full space-y-3 sm:space-y-4">
-												<div class="flex items-end justify-between gap-1 sm:gap-2">
-													{#each [16, 24, 20, 28, 18] as height, idx (height)}
-														<div
-															class="w-1/5 rounded-t bg-paper-accent/40 transition-all duration-700 {visible_features.has(
-																feature.id
-															)
-																? ''
-																: 'scale-y-0'}"
-															style="height: {height * 2.5}px; animation-delay: {0.3 +
-																idx * 0.1}s; transform-origin: bottom"
-														></div>
-													{/each}
-												</div>
-												<div class="h-px w-full bg-paper-text/20"></div>
-											</div>
-										{:else if feature.id === 'seamless-export'}
-											<!-- Export visualization - horizontal layout -->
-											<div class="flex w-full items-center justify-center gap-4 sm:gap-6">
-												<!-- EPUB -->
-												<div
-													class="flex h-14 w-10 items-center justify-center rounded bg-paper-text/20 sm:h-20 sm:w-16 {visible_features.has(
-														feature.id
-													)
-														? 'animate-scale-in'
-														: 'opacity-0'}"
-													style="animation-delay: 0.2s"
-												>
-													<span class="text-xs text-paper-text/50">EPUB</span>
-												</div>
-
-												<!-- RTF -->
-												<div
-													class="flex h-14 w-10 items-center justify-center rounded bg-paper-accent/20 sm:h-20 sm:w-16 {visible_features.has(
-														feature.id
-													)
-														? 'animate-scale-in'
-														: 'opacity-0'}"
-													style="animation-delay: 0.4s"
-												>
-													<span class="text-xs text-paper-text/70">RTF</span>
-												</div>
-
-												<!-- PDF -->
-												<div
-													class="flex h-14 w-10 items-center justify-center rounded bg-paper-accent/30 sm:h-20 sm:w-16 {visible_features.has(
-														feature.id
-													)
-														? 'animate-scale-in'
-														: 'opacity-0'}"
-													style="animation-delay: 0.6s"
-												>
-													<span class="text-xs text-paper-text/90">PDF</span>
-												</div>
-											</div>
-										{/if}
-									</div>
-								</div>
-							</div>
-						</div>
+		<div class="lab-details">
+			{#each feature_clusters as feature (feature.title)}
+				<article class="detail-card">
+					<div class="detail-head">
+						<span class="badge">{feature.badge}</span>
+						<span class="metric">{feature.metric}</span>
 					</div>
-
-					{#if i < features.length - 1}
-						<!-- Separator -->
-						<div class="mt-16 flex justify-center sm:mt-24">
-							<div
-								class="h-12 w-px bg-gradient-to-b from-transparent via-paper-border/30 to-transparent sm:h-16"
-							></div>
-						</div>
-					{/if}
-				</div>
+					<h3>{feature.title}</h3>
+					<p>{feature.description}</p>
+				</article>
 			{/each}
 		</div>
 	</div>
+
+	<div class="timeline-shell">
+		{#each timeline_moments as moment, i (moment.title)}
+			<div class="timeline-card" style:animation-delay={`${i * 0.1}s`}>
+				<div class="timeline-index">{String(i + 1).padStart(2, '0')}</div>
+				<h4>{moment.title}</h4>
+				<p>{moment.description}</p>
+			</div>
+		{/each}
+	</div>
 </section>
+
+<style>
+	.cosmic-lab {
+		position: relative;
+		padding: clamp(4rem, 8vw, 8rem) 1.5rem clamp(4rem, 8vw, 9rem);
+		overflow: hidden;
+	}
+
+	.lab-backdrop {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+	}
+
+	.halo {
+		position: absolute;
+		width: 120%;
+		height: 120%;
+		top: -10%;
+		left: -10%;
+		border-radius: 50%;
+		background: radial-gradient(circle, rgba(196, 164, 124, 0.15), transparent 65%);
+		filter: blur(80px);
+	}
+
+	.halo-two {
+		background: radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 60%);
+	}
+
+	.lab-header {
+		position: relative;
+		text-align: center;
+		max-width: 720px;
+		margin: 0 auto 3rem;
+	}
+
+	.lab-header .eyebrow {
+		text-transform: uppercase;
+		letter-spacing: 0.4em;
+		font-size: 0.75rem;
+		color: var(--color-paper-text-muted);
+	}
+
+	.lab-header h2 {
+		font-size: clamp(2.2rem, 5vw, 3.8rem);
+		margin: 1rem 0;
+	}
+
+	.lab-header h2 span {
+		color: var(--color-paper-accent);
+	}
+
+	.lab-header p {
+		color: var(--color-paper-text-light);
+	}
+
+	.lab-grid {
+		position: relative;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: clamp(2rem, 4vw, 4rem);
+		align-items: stretch;
+	}
+
+	.lab-stage {
+		position: relative;
+		min-height: 460px;
+		border-radius: 36px;
+		padding: 2.5rem;
+		background: linear-gradient(135deg, rgba(196, 164, 124, 0.2), rgba(23, 20, 16, 0.9));
+		border: 1px solid rgba(196, 164, 124, 0.2);
+		box-shadow: 0 40px 80px rgba(0, 0, 0, 0.45);
+		transform-style: preserve-3d;
+		transition: transform 0.3s ease;
+		overflow: hidden;
+	}
+
+	.lab-hologram {
+		position: relative;
+		padding: 1.5rem;
+		border-radius: 24px;
+		background: rgba(10, 8, 6, 0.7);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		box-shadow: inset 0 0 30px rgba(196, 164, 124, 0.1);
+		margin-bottom: 1.5rem;
+	}
+
+	.lab-hologram .prompt {
+		font-size: 0.9rem;
+		color: var(--color-paper-text-muted);
+	}
+
+	.lab-hologram .completion {
+		font-family: 'Libre Baskerville', serif;
+		font-size: 1.2rem;
+		color: var(--color-paper-accent);
+		min-height: 2.6rem;
+	}
+
+	.cursor {
+		display: inline-block;
+		width: 0.45rem;
+		height: 1.4rem;
+		margin-left: 0.35rem;
+		background: var(--color-paper-accent);
+		animation: cursorBlink 1.2s steps(2) infinite;
+	}
+
+	.scene-stack {
+		position: relative;
+		display: grid;
+		gap: 1rem;
+	}
+
+	.scene-card {
+		position: relative;
+		padding: 1.2rem;
+		border-radius: 20px;
+		background: rgba(23, 20, 16, 0.8);
+		border: 1px solid rgba(196, 164, 124, 0.2);
+		box-shadow: 0 calc(var(--depth) * 10px) calc(var(--depth) * 20px) rgba(0, 0, 0, 0.3);
+		transform: translateZ(calc(var(--depth) * 24px)) translateY(calc(var(--depth) * -6px));
+	}
+
+	.scene-title {
+		text-transform: uppercase;
+		letter-spacing: 0.2em;
+		font-size: 0.7rem;
+		color: var(--color-paper-text-muted);
+	}
+
+	.scene-detail {
+		margin-top: 0.45rem;
+		color: var(--color-paper-text);
+	}
+
+	.lab-rings {
+		position: absolute;
+		inset: 1.5rem;
+		display: grid;
+		grid-template-columns: repeat(2, minmax(120px, 1fr));
+		gap: 0.75rem;
+		pointer-events: none;
+	}
+
+	.ring-card {
+		padding: 0.85rem;
+		border-radius: 16px;
+		background: rgba(10, 8, 6, 0.8);
+		border: 1px solid rgba(196, 164, 124, 0.25);
+		animation: ringFloat 5s ease-in-out infinite;
+	}
+
+	.ring-title {
+		font-size: 0.75rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--color-paper-text-muted);
+	}
+
+	.ring-detail {
+		margin-top: 0.35rem;
+		color: var(--color-paper-text);
+	}
+
+	.lab-details {
+		display: grid;
+		gap: 1.25rem;
+	}
+
+	.detail-card {
+		padding: 1.5rem;
+		border-radius: 24px;
+		background: rgba(10, 8, 6, 0.7);
+		border: 1px solid rgba(196, 164, 124, 0.15);
+		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+	}
+
+	.detail-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.75rem;
+	}
+
+	.badge {
+		padding: 0.35rem 0.8rem;
+		border-radius: 999px;
+		border: 1px solid rgba(196, 164, 124, 0.4);
+		font-size: 0.75rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.metric {
+		font-size: 0.9rem;
+		color: var(--color-paper-text-muted);
+	}
+
+	.detail-card h3 {
+		font-size: 1.5rem;
+		margin-bottom: 0.4rem;
+	}
+
+	.detail-card p {
+		color: var(--color-paper-text-light);
+	}
+
+	.timeline-shell {
+		position: relative;
+		margin-top: clamp(3rem, 6vw, 5rem);
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 1rem;
+	}
+
+	.timeline-card {
+		padding: 1.4rem;
+		border-radius: 20px;
+		background: rgba(10, 8, 6, 0.7);
+		border: 1px solid rgba(196, 164, 124, 0.15);
+		animation: timelineRise 0.8s ease forwards;
+		opacity: 0;
+		transform: translateY(20px);
+	}
+
+	.timeline-index {
+		font-size: 0.85rem;
+		letter-spacing: 0.3em;
+		text-transform: uppercase;
+		color: var(--color-paper-text-muted);
+		margin-bottom: 0.5rem;
+	}
+
+	.timeline-card h4 {
+		font-size: 1.3rem;
+		margin-bottom: 0.35rem;
+	}
+
+	.timeline-card p {
+		color: var(--color-paper-text-light);
+	}
+
+	@keyframes cursorBlink {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0;
+		}
+	}
+
+	@keyframes ringFloat {
+		0%,
+		100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-8px);
+		}
+	}
+
+	@keyframes timelineRise {
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@media (max-width: 768px) {
+		.lab-stage {
+			padding: 2rem;
+		}
+
+		.lab-rings {
+			grid-template-columns: repeat(1, 1fr);
+		}
+	}
+</style>
