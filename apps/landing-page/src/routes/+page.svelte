@@ -1,7 +1,19 @@
 <script lang="ts">
-	import HeroSection from '$lib/components/hero_section.svelte';
+	import ImmersiveHero from '$lib/components/immersive_hero.svelte';
 	import FeaturesSection from '$lib/components/features_section.svelte';
 	import WaitlistForm from '$lib/components/waitlist_form.svelte';
+	import { onMount } from 'svelte';
+	import { initialize_lenis } from '$lib/utils/micro_lenis';
+
+	onMount(() => {
+		const destroy = initialize_lenis({
+			lerp: 0.12,
+			smoothWheel: true,
+			smoothTouch: true
+		});
+
+		return () => destroy();
+	});
 </script>
 
 <svelte:head>
@@ -58,10 +70,9 @@
 	<meta name="apple-mobile-web-app-title" content="Fictioneer" />
 </svelte:head>
 
-<div class="min-h-screen bg-paper-beige">
-	<!-- Main content - one continuous flow -->
-	<main>
-		<HeroSection />
+<div class="relative overflow-hidden bg-paper-beige">
+	<main class="relative flex min-h-screen flex-col">
+		<ImmersiveHero />
 		<FeaturesSection />
 		<WaitlistForm />
 	</main>

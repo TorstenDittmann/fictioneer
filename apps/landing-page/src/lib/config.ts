@@ -1,8 +1,10 @@
-import { PUBLIC_INTELLIGENCE_SERVER_URL } from '$env/static/public';
+import { env } from '$env/dynamic/public';
+
+const public_intelligence_url = env.PUBLIC_INTELLIGENCE_SERVER_URL ?? '';
 
 export const config = {
 	intelligence_api: {
-		base_url: PUBLIC_INTELLIGENCE_SERVER_URL
+		base_url: public_intelligence_url
 	}
 };
 
