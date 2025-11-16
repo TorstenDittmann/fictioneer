@@ -7,6 +7,7 @@
 	import CommandMenu from '$lib/components/command_menu.svelte';
 	import type { Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
+	import { scale } from 'svelte/transition';
 
 	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 
@@ -79,8 +80,9 @@
 </div>
 
 <!-- Focus Mode Indicator -->
-{#if layout_state.is_distraction_free}
+{#if layout_state.is_distraction_free && layout_state.focus_hint_visible}
 	<div
+		transition:scale
 		class="fixed top-4 right-4 z-50 rounded-lg bg-black/80 px-3 py-2 text-sm text-white backdrop-blur"
 	>
 		Focus Mode • Press <kbd class="rounded bg-surface/20 px-1">Esc</kbd> to exit

@@ -10,7 +10,7 @@ import { openrouter } from './ai';
 type Model = Parameters<typeof openrouter>[0];
 
 const MODELS = {
-	SLOW: 'openrouter/sherlock-think-alpha',
+	SLOW: 'openai/gpt-oss-120b',
 	FAST: 'anthropic/claude-haiku-4.5',
 	FREE: 'openrouter/sherlock-dash-alpha'
 } as const satisfies Record<string, Model>;

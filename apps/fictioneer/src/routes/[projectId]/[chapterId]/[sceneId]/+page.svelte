@@ -3,20 +3,13 @@
 	import { resolve } from '$app/paths';
 	import { beforeNavigate } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
-	import { layout_state } from '$lib/state/layout.svelte';
 	import Editor from '$lib/components/editor.svelte';
-
-	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
 	let editor_component = $state<Editor>();
-	let editor_stats = $state({ words: 0, characters: 0 });
 	let has_unsaved_changes = $state(false);
-
-	// Update editor stats periodically
-	let stats_interval: ReturnType<typeof setInterval>;
 
 	// Auto-save before navigation
 	beforeNavigate(() => {
@@ -30,22 +23,6 @@
 		}
 	});
 
-	onMount(() => {
-		// Update stats every 2 seconds
-		stats_interval = setInterval(() => {
-			if (editor_component) {
-				const stats = editor_component.get_stats();
-				editor_stats = { words: stats.words, characters: stats.characters };
-			}
-		}, 2000);
-
-		return () => {
-			if (stats_interval) {
-				clearInterval(stats_interval);
-			}
-		};
-	});
-
 	function handle_editor_update(content: string) {
 		// Mark as having unsaved changes
 		has_unsaved_changes = true;
@@ -54,12 +31,6 @@
 		projects.updateScene(data.chapter.id, data.scene.id, {
 			content: content
 		});
-
-		// Update stats immediately on content change
-		if (editor_component) {
-			const stats = editor_component.get_stats();
-			editor_stats = { words: stats.words, characters: stats.characters };
-		}
 
 		// Clear the unsaved flag after a successful update
 		has_unsaved_changes = false;
@@ -148,13 +119,3 @@
 		</div>
 	{/if}
 </main>
-
-<!-- Focus mode stats overlay -->
-{#if layout_state.is_distraction_free}
-	<div class="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 transform">
-		<div class="bg-opacity-20 rounded-full bg-black px-4 py-2 text-sm text-white backdrop-blur-sm">
-			{editor_stats.words}
-			{editor_stats.words === 1 ? 'word' : 'words'} • {editor_stats.characters} characters
-		</div>
-	</div>
-{/if}
