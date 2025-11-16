@@ -39,10 +39,7 @@
 			>
 				Download <span class="gradient-text">Fictioneer</span>
 			</h1>
-			<p
-				class="mx-auto max-w-2xl text-base text-paper-text-light/90 sm:text-lg md:text-xl"
-				style:animation-delay="0.1s"
-			>
+			<p class="mx-auto max-w-2xl text-base text-paper-text-light/90 sm:text-lg md:text-xl">
 				Get started with the writing environment designed for novelists. Available for all major
 				platforms.
 			</p>
@@ -106,10 +103,7 @@
 		</div>
 
 		<div class="mt-16 grid gap-8 md:grid-cols-2">
-			<div
-				class="animate-fade-in-up rounded-2xl border border-paper-border bg-paper-cream/30 p-8 backdrop-blur-sm"
-				style:animation-delay="0.6s"
-			>
+			<div class="rounded-2xl border border-paper-border bg-paper-cream/30 p-8 backdrop-blur-sm">
 				<h3 class="mb-4 text-xl font-bold text-paper-text">System Requirements</h3>
 				<ul class="space-y-3 text-paper-text-light">
 					<li class="flex items-start gap-2">
@@ -262,31 +256,5 @@
 			</div>
 		</div>
 
-		<!-- Help Section -->
-		<div
-			class="animate-fade-in-up mt-16 rounded-2xl border border-paper-border bg-paper-cream/30 p-8 text-center backdrop-blur-sm"
-			style:animation-delay="0.8s"
-		>
-			<h3 class="mb-3 text-xl font-bold text-paper-text">Need Help?</h3>
-			<p class="mb-6 text-paper-text-light">
-				Having trouble downloading or installing? Check our documentation or reach out to support.
-			</p>
-			<div class="flex flex-wrap justify-center gap-4">
-				<button
-					type="button"
-					onclick={() => alert('Documentation coming soon!')}
-					class="inline-flex items-center gap-2 rounded-lg border border-paper-accent px-6 py-3 font-medium text-paper-accent transition-colors hover:bg-paper-accent/10"
-				>
-					Documentation
-				</button>
-				<button
-					type="button"
-					onclick={() => alert('Support coming soon!')}
-					class="inline-flex items-center gap-2 rounded-lg border border-paper-border px-6 py-3 font-medium text-paper-text transition-colors hover:bg-paper-gray/30"
-				>
-					Contact Support
-				</button>
-			</div>
-		</div>
 	</div>
 </div>
