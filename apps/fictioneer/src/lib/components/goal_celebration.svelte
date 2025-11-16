@@ -235,7 +235,7 @@
 
 <!-- Confetti Animation (CSS-only) -->
 {#if showConfetti}
-	<div class="pointer-events-none fixed inset-0 z-[60] overflow-hidden">
+	<div class="pointer-events-none fixed inset-0 z-60 overflow-hidden">
 		<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
 		{#each Array(50) as _, i (i)}
 			<div
@@ -301,7 +301,7 @@
 
 					{#if celebrationData.isPersonalBest}
 						<div
-							class="rounded-lg bg-gradient-to-r from-yellow-100 to-yellow-200 p-3 dark:from-yellow-900/30 dark:to-yellow-800/30"
+							class="rounded-lg bg-linear-to-r from-yellow-100 to-yellow-200 p-3 dark:from-yellow-900/30 dark:to-yellow-800/30"
 						>
 							<p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
 								🏆 New Personal Best!
