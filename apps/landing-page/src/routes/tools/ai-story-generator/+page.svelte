@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { config, api_endpoints } from '$lib/config';
+	import { client } from '$lib/config';
 
 	interface StoryOptions {
 		genres: Array<{ value: string; label: string }>;
@@ -221,22 +221,21 @@
 		}
 
 		try {
-			const response = await fetch(
-				`${config.intelligence_api.base_url}${api_endpoints.story_generator.generate}`,
+			const response = await client.api.marketing['generate-story'].$post(
 				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Accept: 'text/plain+stream'
-					},
-					body: JSON.stringify({
+					json: {
 						genre: selected_genre,
 						theme: selected_theme,
 						setting: selected_setting,
 						tone: selected_tone,
 						word_count: word_count,
 						context: story_context
-					})
+					}
+				},
+				{
+					headers: {
+						Accept: 'text/plain+stream'
+					}
 				}
 			);
 
@@ -251,7 +250,6 @@
 				throw new Error(error_data.error || 'Failed to generate story');
 			}
 
-			// Handle streaming response
 			if (response.body) {
 				const reader = response.body.getReader();
 				const decoder = new TextDecoder();

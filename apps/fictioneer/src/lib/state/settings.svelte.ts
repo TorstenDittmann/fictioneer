@@ -32,7 +32,7 @@ function get_default_settings(): AppSettings {
 		shortcut_profile: 'default',
 		intelligence_server_url: null,
 		editor: {
-			font_family: 'Libre Baskerville, serif',
+			font_family: 'iA Writer Duo, monospace',
 			font_size_px: 18,
 			line_height: 1.75,
 			page_margin_px: 32,

@@ -13,7 +13,8 @@
 	const st = $derived(settings_state.settings);
 
 	const font_options = [
-		{ label: 'Libre Baskerville (Serif)', value: 'Libre Baskerville, serif' },
+		{ label: 'iA Writer Duo (Monospace)', value: 'iA Writer Duo, monospace' },
+		{ label: 'Quattrocento (Serif)', value: 'Quattrocento, serif' },
 		{ label: 'Georgia (Serif)', value: 'Georgia, serif' },
 		{ label: 'Times New Roman (Serif)', value: '"Times New Roman", Times, serif' },
 		{ label: 'Merriweather (Serif)', value: 'Merriweather, serif' },

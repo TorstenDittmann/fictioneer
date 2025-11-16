@@ -1,6 +1,5 @@
-@import '@fontsource/libre-baskerville/400.css';
-@import '@fontsource/libre-baskerville/400-italic.css';
-@import '@fontsource/libre-baskerville/700.css';
+@import '@fontsource/quattrocento/400.css';
+@import '@fontsource/quattrocento/700.css';
 @import 'tailwindcss';
 
 @theme {
@@ -37,15 +36,25 @@
 		transparent 70%
 	);
 	--gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+	--gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+
+	/* Fonts */
+	--font-serif: 'Quattrocento', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
 }
 
 /* Base styles */
 html {
-	font-family: 'Libre Baskerville', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
+	font-family: var(--font-serif);
 	color: var(--color-paper-text);
 	background: var(--color-paper-beige);
 	antialiased: true;
 	text-rendering: optimizeLegibility;
+}
+
+@layer components {
+	.font-serif {
+		font-family: var(--font-serif);
+	}
 }
 
 body {
@@ -380,6 +389,10 @@ textarea:focus-visible {
 .btn-primary:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:hover::before {
+	opacity: 1;
 }
 
 .btn-primary span {

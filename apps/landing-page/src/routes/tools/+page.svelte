@@ -36,39 +36,44 @@
 			title: 'Character Name Generator',
 			description:
 				'Create memorable character names for your stories. Generate names by genre, origin, or cultural background.',
+			href: '/tools/character-name-generator',
 			icon: '👤',
-			status: 'coming_soon',
+			status: 'available',
 			features: ['Cultural origins', 'Genre-specific', 'Meaning included', 'Bulk generation']
 		},
 		{
 			title: 'Plot Generator',
 			description:
 				"Overcome writer's block with AI-generated plot ideas and story structures tailored to your preferred genre.",
+			href: '/tools/plot-generator',
 			icon: '🎭',
-			status: 'coming_soon',
+			status: 'available',
 			features: ['Story arcs', 'Conflict ideas', 'Character motivations', 'Twist suggestions']
 		},
 		{
 			title: 'Book Title Generator',
 			description:
 				"Generate compelling book titles that capture your story's essence and attract readers.",
+			href: '/tools/book-title-generator',
 			icon: '📖',
-			status: 'coming_soon',
+			status: 'available',
 			features: ['Genre-aware', 'Multiple options', 'SEO optimized', 'Trademark check']
 		},
 		{
 			title: 'Pen Name Generator',
 			description:
 				'Create the perfect pseudonym for your writing career with our AI-powered pen name generator.',
+			href: '/tools/pen-name-generator',
 			icon: '✍️',
-			status: 'coming_soon',
+			status: 'available',
 			features: ['Genre matching', 'Availability check', 'Cultural styles', 'Gender options']
 		},
 		{
 			title: 'Town Name Generator',
 			description: 'Generate realistic town and city names for your fictional worlds and stories.',
+			href: '/tools/town-name-generator',
 			icon: '🏘️',
-			status: 'coming_soon',
+			status: 'available',
 			features: [
 				'Geographic styles',
 				'Fantasy & realistic',
@@ -80,16 +85,18 @@
 			title: 'Fan Fiction Story Generator',
 			description:
 				'Create fan fiction stories based on your favorite universes with AI assistance.',
+			href: '/tools/fan-fiction-story-generator',
 			icon: '⭐',
-			status: 'coming_soon',
+			status: 'available',
 			features: ['Popular fandoms', 'Character relationships', 'Canon compliance', 'AU scenarios']
 		},
 		{
 			title: 'Adult Story Generator',
 			description:
 				'Generate mature, sophisticated stories for adult audiences with nuanced themes and complex characters.',
+			href: '/tools/adult-story-generator',
 			icon: '🔞',
-			status: 'coming_soon',
+			status: 'available',
 			features: ['Mature themes', 'Complex characters', 'Relationship dynamics', 'Age verification']
 		}
 	];

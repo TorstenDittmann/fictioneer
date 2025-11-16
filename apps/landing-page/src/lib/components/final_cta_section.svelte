@@ -64,7 +64,7 @@
 
 			<a
 				href="#newsletter"
-				class="group w-full rounded-lg border-2 border-paper-accent bg-white px-8 py-4 font-medium text-paper-accent shadow-sm transition-all hover:bg-paper-accent/5 sm:w-auto"
+				class="group w-full rounded-lg border-2 border-paper-accent bg-white px-8 py-3 font-medium text-paper-accent shadow-sm transition-all hover:bg-paper-accent/5 sm:w-auto"
 			>
 				<span class="flex items-center justify-center gap-2 text-base sm:text-lg">
 					Stay Updated

@@ -1,3 +1,6 @@
+@import '@fontsource/quattrocento/400.css';
+@import '@fontsource/quattrocento/700.css';
+@import '@fontsource/ia-writer-duo/400.css';
 @import 'tailwindcss';
 
 @theme {
@@ -32,13 +35,20 @@
 	--color-surface-transparent: rgba(58, 54, 48, 0.85);
 
 	/* Font family */
-	--font-family-serif: 'Libre Baskerville', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
+	--font-family-serif: 'Quattrocento', 'Georgia', 'Times New Roman', 'Book Antiqua', serif;
+	--font-family-monospace: 'iA Writer Duo', 'Monaco', 'Courier New', monospace;
 }
 
 html {
 	font-family: var(--font-family-serif);
 	color: var(--color-text);
 	background: transparent;
+}
+
+@layer components {
+	.font-mono {
+		font-family: var(--font-family-monospace);
+	}
 }
 
 /* Smooth transitions for theme changes - applied only to root elements */

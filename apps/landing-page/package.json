@@ -17,6 +17,7 @@
 	"devDependencies": {
 		"@eslint/compat": "^1.4.1",
 		"@eslint/js": "^9.39.1",
+		"@fictioneer/intelligence": "workspace:*",
 		"@sveltejs/adapter-node": "^5.4.0",
 		"@sveltejs/kit": "^2.48.4",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
@@ -36,7 +37,10 @@
 		"vite": "^7.2.2"
 	},
 	"dependencies": {
+		"@fontsource/ia-writer-duo": "^5.2.5",
+		"@fontsource/ia-writer-quattro": "^5.2.5",
 		"@fontsource/libre-baskerville": "^5.2.9",
+		"@fontsource/quattrocento": "^5.2.8",
 		"bits-ui": "^2.14.2",
 		"phosphor-svelte": "^3.0.1"
 	}

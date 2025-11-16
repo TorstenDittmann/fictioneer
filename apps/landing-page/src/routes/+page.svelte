@@ -32,7 +32,7 @@
 	<meta property="og:title" content="Fictioneer - Where Stories Come to Life" />
 	<meta
 		property="og:description"
-		content="Download Fictioneer for free. Distraction-free writing software designed for novelists who demand focus, flow, and creative freedom. Available for Windows, Mac, and Linux."
+		content="Download Fictioneer for free. Distraction-free writing software designed for novelists. Available for Windows, Mac, and Linux."
 	/>
 	<meta property="og:image" content="https://fictioneer.app/og.png" />
 	<meta property="og:image:width" content="1200" />

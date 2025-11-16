@@ -1,8 +1,5 @@
 <script lang="ts">
 	import '../app.css';
-	import '@fontsource/libre-baskerville/400.css';
-	import '@fontsource/libre-baskerville/700.css';
-	import '@fontsource/libre-baskerville/400-italic.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import TitleBar from '$lib/components/title_bar.svelte';
 	import { projects } from '$lib/state/projects.svelte';

@@ -1,13 +1,4 @@
 import { PUBLIC_INTELLIGENCE_SERVER_URL } from '$env/static/public';
+import { create_client } from '@fictioneer/intelligence/client';
 
-export const config = {
-	intelligence_api: {
-		base_url: PUBLIC_INTELLIGENCE_SERVER_URL
-	}
-};
-
-export const api_endpoints = {
-	story_generator: {
-		generate: '/api/marketing/generate-story'
-	}
-};
+export const client = create_client(PUBLIC_INTELLIGENCE_SERVER_URL);

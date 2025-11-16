@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '@fontsource/ia-writer-duo/400.css';
 	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 
@@ -12,16 +13,16 @@
 
 	const ai_base_text = 'She opened the door and';
 	const ai_completions = [
-		' gasped at the sight before her.',
-		' found nothing but darkness.',
-		' smiled at the familiar face.',
-		' heard footsteps approaching quickly.',
-		' felt a cold breeze rush past.',
-		' saw her childhood home again.',
-		' discovered a hidden garden blooming.',
-		' stepped into another world entirely.',
-		' realized she was too late.',
-		' knew everything had changed forever.'
+		" gasped at her grandmother's journal, secrets hidden for decades finally revealed.",
+		" found a 1952 newspaper clipping mentioning her grandfather's mysterious disappearance that day.",
+		" smiled recognizing her ancestor's brilliant inventions, centuries ahead of their time.",
+		" heard footsteps. An old man warned: they'll come for you if found.",
+		' felt cold air and heard whispers from the shadows saying: not yet.',
+		' saw her childhood home transformed, rooms arranged impossibly, memories suddenly questioned.',
+		' discovered a compartment matching her wrist tattoo, filled with impossible artifacts.',
+		' stepped into a crystalline city among stars where beings welcomed her back.',
+		' realized too late as infinite versions of herself ran out of time.',
+		' knew her past and future were connected in an impossible causal loop.'
 	];
 
 	onMount(() => {
@@ -62,27 +63,27 @@
 		while (ai_typing) {
 			// Reset to empty
 			ai_current_text = '';
-			await sleep(300);
+			await sleep(100);
 
 			// Type out the completion
 			const completion = ai_completions[ai_completion_index];
 			for (let i = 0; i <= completion.length; i++) {
 				ai_current_text = completion.substring(0, i);
-				await sleep(30);
+				await sleep(20);
 			}
 
 			// Pause to show complete text
-			await sleep(2000);
+			await sleep(2500);
 
 			// Backspace effect
 			for (let i = completion.length; i >= 0; i--) {
 				ai_current_text = completion.substring(0, i);
-				await sleep(15);
+				await sleep(10);
 			}
 
 			// Move to next completion
 			ai_completion_index = (ai_completion_index + 1) % ai_completions.length;
-			await sleep(200);
+			await sleep(100);
 		}
 	}
 
@@ -111,10 +112,12 @@
 		</div>
 
 		<!-- Bento Grid -->
-		<div class="grid gap-4 sm:gap-6 lg:grid-cols-3 lg:grid-rows-[repeat(3,minmax(180px,auto))]">
+		<div
+			class="grid gap-4 sm:gap-6 lg:auto-rows-[minmax(180px,auto)] lg:grid-cols-6 lg:grid-rows-[auto_auto_auto_auto]"
+		>
 			<!-- Large card - Project Structure -->
 			<div
-				class="feature-card lg:col-span-2 lg:row-span-2 {visible_cards.has('structure')
+				class="feature-card lg:col-span-3 lg:row-span-2 {visible_cards.has('structure')
 					? 'animate-scale-in'
 					: 'opacity-0'}"
 				data-card-id="structure"
@@ -218,7 +221,9 @@
 
 			<!-- Small card - AI Completion with animation -->
 			<div
-				class="feature-card {visible_cards.has('ai') ? 'animate-scale-in' : 'opacity-0'}"
+				class="feature-card lg:col-span-3 lg:row-span-1 {visible_cards.has('ai')
+					? 'animate-scale-in'
+					: 'opacity-0'}"
 				data-card-id="ai"
 				style:animation-delay="0.1s"
 			>
@@ -250,7 +255,10 @@
 					<!-- AI typewriter visualization -->
 					<div class="mt-auto">
 						<div class="rounded-lg bg-paper-gray/50 p-4">
-							<div class="min-h-16 font-mono text-xs leading-relaxed text-paper-text sm:text-sm">
+							<div
+								class="min-h-20 text-xs leading-relaxed text-paper-text sm:text-sm"
+								style="font-family: 'iA Writer Duo', monospace;"
+							>
 								<span class="text-paper-text-light">{ai_base_text}</span>
 								<span class="gradient-text font-medium">{ai_current_text}</span>
 								<span
@@ -264,7 +272,9 @@
 
 			<!-- Small card - Progress Tracking -->
 			<div
-				class="feature-card {visible_cards.has('progress') ? 'animate-scale-in' : 'opacity-0'}"
+				class="feature-card lg:col-span-3 {visible_cards.has('progress')
+					? 'animate-scale-in'
+					: 'opacity-0'}"
 				data-card-id="progress"
 				style:animation-delay="0.15s"
 			>
@@ -301,6 +311,11 @@
 							<div class="h-16 w-full rounded-t bg-paper-accent-light/25"></div>
 							<div class="h-24 w-full rounded-t bg-paper-accent-light/40"></div>
 							<div class="h-14 w-full rounded-t bg-paper-accent-pink/20"></div>
+							<div class="h-18 w-full rounded-t bg-paper-accent/35"></div>
+							<div class="h-22 w-full rounded-t bg-paper-accent-light/35"></div>
+							<div class="h-20 w-full rounded-t bg-paper-accent-pink/30"></div>
+							<div class="h-26 w-full rounded-t bg-paper-accent/40"></div>
+							<div class="h-16 w-full rounded-t bg-paper-accent-light/30"></div>
 						</div>
 					</div>
 				</div>
@@ -308,7 +323,7 @@
 
 			<!-- Small card - Distraction Free -->
 			<div
-				class="feature-card lg:col-span-1 lg:row-span-1 {visible_cards.has('distraction-free')
+				class="feature-card lg:col-span-2 {visible_cards.has('distraction-free')
 					? 'animate-scale-in'
 					: 'opacity-0'}"
 				data-card-id="distraction-free"
@@ -371,7 +386,7 @@
 
 			<!-- Small card - Project Notes -->
 			<div
-				class="feature-card lg:col-span-1 lg:row-span-1 {visible_cards.has('notes')
+				class="feature-card lg:col-span-2 {visible_cards.has('notes')
 					? 'animate-scale-in'
 					: 'opacity-0'}"
 				data-card-id="notes"
@@ -380,7 +395,7 @@
 				<div
 					class="glass group relative h-full overflow-hidden rounded-2xl p-6 shadow-sm sm:rounded-3xl sm:p-8"
 				>
-					<div class="flex flex-col gap-6">
+					<div class="mb-6">
 						<div
 							class="mb-4 flex w-full items-center gap-3 rounded-xl bg-linear-to-br from-paper-accent/10 to-paper-accent-light/10 p-3"
 						>
@@ -399,10 +414,12 @@
 							</svg>
 							<h3 class="font-serif text-lg text-paper-text sm:text-xl">Project Notes</h3>
 						</div>
-						<p class="mb-4 text-sm text-paper-text-light">Keep your story details organized</p>
+						<p class="text-sm text-paper-text-light">Keep your story details organized</p>
+					</div>
 
+					<div class="mt-auto">
 						<!-- Notes visualization -->
-						<div class="mt-auto grid grid-cols-2 gap-2">
+						<div class="grid grid-cols-2 gap-2">
 							<div class="flex flex-col justify-between rounded-lg bg-paper-accent/10 p-2">
 								<div class="space-y-1">
 									<div class="h-1 w-full rounded-full bg-paper-accent/30"></div>
@@ -431,6 +448,20 @@
 								</div>
 								<div class="mt-2 text-xs font-medium text-paper-accent">Timeline</div>
 							</div>
+							<div class="flex flex-col justify-between rounded-lg bg-paper-accent-light/10 p-2">
+								<div class="space-y-1">
+									<div class="h-1 w-full rounded-full bg-paper-accent-light/30"></div>
+									<div class="h-1 w-4/5 rounded-full bg-paper-accent-light/20"></div>
+								</div>
+								<div class="mt-2 text-xs font-medium text-paper-accent-light">Scenes</div>
+							</div>
+							<div class="flex flex-col justify-between rounded-lg bg-paper-accent-pink/10 p-2">
+								<div class="space-y-1">
+									<div class="h-1 w-full rounded-full bg-paper-accent-pink/30"></div>
+									<div class="h-1 w-2/3 rounded-full bg-paper-accent-pink/20"></div>
+								</div>
+								<div class="mt-2 text-xs font-medium text-paper-accent-pink">Dialogue</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -438,7 +469,7 @@
 
 			<!-- Small card - Export Options -->
 			<div
-				class="feature-card lg:col-span-1 lg:row-span-1 {visible_cards.has('export')
+				class="feature-card lg:col-span-2 {visible_cards.has('export')
 					? 'animate-scale-in'
 					: 'opacity-0'}"
 				data-card-id="export"

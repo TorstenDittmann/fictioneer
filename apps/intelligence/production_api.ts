@@ -19,7 +19,6 @@ function create_model(model: Model) {
 	return withTracing(openrouter(model), posthog, {});
 }
 
-const app = new Hono();
 const auth_cache = new Map<string, { expires: number; data: GumroadPurchaseResponse }>();
 
 function get_purchase(request: HonoRequest): GumroadPurchaseResponse['purchase'] {
@@ -27,7 +26,6 @@ function get_purchase(request: HonoRequest): GumroadPurchaseResponse['purchase']
 	return auth_cache.get(token)!.data.purchase;
 }
 
-// Bearer auth middleware for all production endpoints
 /**
 app.use(
 	'*',
@@ -249,142 +247,136 @@ function build_system_prompt(
 		
 		Return only your continuation text - no explanations or formatting.`;
 }
+const app = new Hono()
+	.post('/api/verify', async (c) => {
+		return c.text('OK');
+	})
+	.post('/api/continue', async (c) => {
+		const decision = await aj.protect(c.req.raw, { requested: 1 });
+		if (decision.isDenied() && decision.reason.isRateLimit())
+			return c.json({ error: 'Too many requests' }, 429);
 
-app.post('/api/verify', async (c) => {
-	return c.text('OK');
-});
+		try {
+			const body = await c.req.json();
+			const content = body?.content;
+			const context = body?.context || {};
+			const word_count = typeof body?.word_count === 'number' ? body.word_count : 100;
+			const stream = c.req.header('accept') === 'text/plain+stream';
 
-// Continue writing endpoint
-app.post('/api/continue', async (c) => {
-	const decision = await aj.protect(c.req.raw, { requested: 1 });
-	if (decision.isDenied() && decision.reason.isRateLimit())
-		return c.json({ error: 'Too many requests' }, 429);
+			if (!content || typeof content !== 'string') {
+				return c.json({ error: 'Content is required and must be a string' }, 400);
+			}
 
-	try {
-		const body = await c.req.json();
-		const content = body?.content;
-		const context = body?.context || {};
-		const word_count = typeof body?.word_count === 'number' ? body.word_count : 100;
-		const stream = c.req.header('accept') === 'text/plain+stream';
+			const client = create_model(MODELS.FREE);
 
-		if (!content || typeof content !== 'string') {
-			return c.json({ error: 'Content is required and must be a string' }, 400);
-		}
+			const ctx =
+				context && typeof context === 'object' && context !== null
+					? (context as Record<string, unknown>)
+					: {};
+			const recent_text =
+				ctx.recent_text && typeof ctx.recent_text === 'string' ? ctx.recent_text : '';
 
-		const client = create_model(MODELS.FREE);
+			const system_prompt = build_system_prompt(context, content, word_count, recent_text);
 
-		const ctx =
-			context && typeof context === 'object' && context !== null
-				? (context as Record<string, unknown>)
-				: {};
-		const recent_text =
-			ctx.recent_text && typeof ctx.recent_text === 'string' ? ctx.recent_text : '';
+			const text_with_marker = recent_text
+				? content.replace(recent_text, recent_text + '<CONTINUE_HERE>')
+				: content + '<CONTINUE_HERE>';
 
-		const system_prompt = build_system_prompt(context, content, word_count, recent_text);
+			const user_prompt = `<text>${text_with_marker}</text>`;
 
-		const text_with_marker = recent_text
-			? content.replace(recent_text, recent_text + '<CONTINUE_HERE>')
-			: content + '<CONTINUE_HERE>';
-
-		const user_prompt = `<text>${text_with_marker}</text>`;
-
-		if (stream) {
-			return streamText({
-				model: client,
-				system: system_prompt,
-				prompt: user_prompt,
-				temperature: 0.8,
-				topP: 0.9
-			}).toTextStreamResponse();
-		} else {
-			const result = await generateText({
-				model: client,
-				system: system_prompt,
-				prompt: user_prompt,
-				temperature: 0.8,
-				topP: 0.9
-			});
-
-			return c.text(result.text);
-		}
-	} catch (error) {
-		console.error('Continue writing error:', error);
-		return c.json({ error: 'Failed to generate continuation' }, 500);
-	}
-});
-
-// Rephrase endpoint
-app.post('/api/rephrase', async (c) => {
-	// const decision = await aj.protect(c.req.raw, { requested: 5 });
-	// if (decision.isDenied() && decision.reason.isRateLimit())
-	// 	return c.json({ error: 'Too many requests' }, 429);
-
-	try {
-		const body = await c.req.json();
-		const { selected_sentence, context_before = '', context_after = '' } = body;
-
-		if (!selected_sentence || typeof selected_sentence !== 'string') {
-			return c.json({ error: 'selected_sentence is required and must be a string' }, 400);
-		}
-
-		const client = create_model(MODELS.SLOW);
-		const alternative_types = ['vivid', 'tighter', 'show_dont_tell', 'change_pov', 'simplify'];
-
-		const alternatives = await Promise.all(
-			alternative_types.map(async (type) => {
-				const system_prompt = build_alternatives_system_prompt(
-					type,
-					context_before,
-					selected_sentence,
-					context_after
-				);
-
+			if (stream) {
+				return streamText({
+					model: client,
+					system: system_prompt,
+					prompt: user_prompt,
+					temperature: 0.8,
+					topP: 0.9
+				}).toTextStreamResponse();
+			} else {
 				const result = await generateText({
 					model: client,
 					system: system_prompt,
-					prompt: selected_sentence,
+					prompt: user_prompt,
 					temperature: 0.8,
 					topP: 0.9
 				});
 
-				return {
-					type,
-					alternative: result.text.trim()
-				};
-			})
-		);
-
-		return c.json({
-			original: selected_sentence,
-			rephrases: alternatives
-		});
-	} catch (error) {
-		console.error('Rephrase generation error:', error);
-		return c.json({ error: 'Failed to generate rephrases' }, 500);
-	}
-});
-
-// Start writing from prompt endpoint
-app.post('/api/start', async (c) => {
-	const decision = await aj.protect(c.req.raw, { requested: 1 });
-	if (decision.isDenied() && decision.reason.isRateLimit())
-		return c.json({ error: 'Too many requests' }, 429);
-
-	try {
-		const body = await c.req.json();
-		const prompt = body?.prompt;
-		const context = body?.context || {};
-		const word_count = typeof body?.word_count === 'number' ? body.word_count : 150;
-		const stream = c.req.header('accept') === 'text/plain+stream';
-
-		if (!prompt || typeof prompt !== 'string') {
-			return c.json({ error: 'Prompt is required and must be a string' }, 400);
+				return c.text(result.text);
+			}
+		} catch (error) {
+			console.error('Continue writing error:', error);
+			return c.json({ error: 'Failed to generate continuation' }, 500);
 		}
+	})
+	.post('/api/rephrase', async (c) => {
+		// const decision = await aj.protect(c.req.raw, { requested: 5 });
+		// if (decision.isDenied() && decision.reason.isRateLimit())
+		// 	return c.json({ error: 'Too many requests' }, 429);
 
-		const client = create_model(MODELS.FREE);
+		try {
+			const body = await c.req.json();
+			const { selected_sentence, context_before = '', context_after = '' } = body;
 
-		// Build system prompt for starting from prompt
-		const system_prompt = `You are a creative writing assistant helping a fiction author. The user has provided a prompt to start writing from. 
+			if (!selected_sentence || typeof selected_sentence !== 'string') {
+				return c.json({ error: 'selected_sentence is required and must be a string' }, 400);
+			}
+
+			const client = create_model(MODELS.SLOW);
+			const alternative_types = ['vivid', 'tighter', 'show_dont_tell', 'change_pov', 'simplify'];
+
+			const alternatives = await Promise.all(
+				alternative_types.map(async (type) => {
+					const system_prompt = build_alternatives_system_prompt(
+						type,
+						context_before,
+						selected_sentence,
+						context_after
+					);
+
+					const result = await generateText({
+						model: client,
+						system: system_prompt,
+						prompt: selected_sentence,
+						temperature: 0.8,
+						topP: 0.9
+					});
+
+					return {
+						type,
+						alternative: result.text.trim()
+					};
+				})
+			);
+
+			return c.json({
+				original: selected_sentence,
+				rephrases: alternatives
+			});
+		} catch (error) {
+			console.error('Rephrase generation error:', error);
+			return c.json({ error: 'Failed to generate rephrases' }, 500);
+		}
+	})
+	.post('/api/start', async (c) => {
+		const decision = await aj.protect(c.req.raw, { requested: 1 });
+		if (decision.isDenied() && decision.reason.isRateLimit())
+			return c.json({ error: 'Too many requests' }, 429);
+
+		try {
+			const body = await c.req.json();
+			const prompt = body?.prompt;
+			const context = body?.context || {};
+			const word_count = typeof body?.word_count === 'number' ? body.word_count : 150;
+			const stream = c.req.header('accept') === 'text/plain+stream';
+
+			if (!prompt || typeof prompt !== 'string') {
+				return c.json({ error: 'Prompt is required and must be a string' }, 400);
+			}
+
+			const client = create_model(MODELS.FREE);
+
+			// Build system prompt for starting from prompt
+			const system_prompt = `You are a creative writing assistant helping a fiction author. The user has provided a prompt to start writing from. 
 
 Context: ${JSON.stringify(context, null, 2)}
 
@@ -399,31 +391,31 @@ Focus on:
 
 Return only the generated text without any explanations or metadata.`;
 
-		const user_prompt = `<prompt>${prompt}</prompt>`;
+			const user_prompt = `<prompt>${prompt}</prompt>`;
 
-		if (stream) {
-			return streamText({
-				model: client,
-				system: system_prompt,
-				prompt: user_prompt,
-				temperature: 0.8,
-				topP: 0.9
-			}).toTextStreamResponse();
-		} else {
-			const result = await generateText({
-				model: client,
-				system: system_prompt,
-				prompt: user_prompt,
-				temperature: 0.8,
-				topP: 0.9
-			});
+			if (stream) {
+				return streamText({
+					model: client,
+					system: system_prompt,
+					prompt: user_prompt,
+					temperature: 0.8,
+					topP: 0.9
+				}).toTextStreamResponse();
+			} else {
+				const result = await generateText({
+					model: client,
+					system: system_prompt,
+					prompt: user_prompt,
+					temperature: 0.8,
+					topP: 0.9
+				});
 
-			return c.text(result.text);
+				return c.text(result.text);
+			}
+		} catch (error) {
+			console.error('Start writing error:', error);
+			return c.json({ error: 'Failed to generate content from prompt' }, 500);
 		}
-	} catch (error) {
-		console.error('Start writing error:', error);
-		return c.json({ error: 'Failed to generate content from prompt' }, 500);
-	}
-});
+	});
 
 export default app;

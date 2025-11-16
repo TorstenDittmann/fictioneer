@@ -27,8 +27,8 @@
 			class="animate-fade-in-up mx-auto mb-12 max-w-2xl text-lg leading-relaxed text-paper-text-light sm:text-xl lg:text-2xl"
 			style:animation-delay="0.2s"
 		>
-			Distraction-free writing software designed for novelists who demand focus, flow, and creative
-			freedom. Available for Windows, Mac, and Linux.
+			Distraction-free writing software designed for novelists. Available for Windows, Mac, and
+			Linux.
 		</p>
 
 		<!-- CTA Buttons -->
