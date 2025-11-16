@@ -19,25 +19,17 @@
 				<h4 class="mb-4 font-semibold text-paper-text">Product</h4>
 				<ul class="space-y-2">
 					<li>
-						<a
-							href="#features"
-							class="text-sm text-paper-text-light transition-colors hover:text-paper-accent"
-						>
+						<a href="#features" class="text-sm text-paper-text-light hover:text-paper-accent">
 							Features
 						</a>
 					</li>
 					<li>
-						<a
-							href="#waitlist"
-							class="text-sm text-paper-text-light transition-colors hover:text-paper-accent"
-						>
+						<a href="#waitlist" class="text-sm text-paper-text-light hover:text-paper-accent">
 							Join Waitlist
 						</a>
 					</li>
 					<li>
-						<button
-							class="text-left text-sm text-paper-text-light transition-colors hover:text-paper-accent"
-						>
+						<button class="text-left text-sm text-paper-text-light hover:text-paper-accent">
 							Pricing (Coming Soon)
 						</button>
 					</li>
@@ -49,23 +41,17 @@
 				<h4 class="mb-4 font-semibold text-paper-text">Support</h4>
 				<ul class="space-y-2">
 					<li>
-						<button
-							class="text-left text-sm text-paper-text-light transition-colors hover:text-paper-accent"
-						>
+						<button class="text-left text-sm text-paper-text-light hover:text-paper-accent">
 							Documentation
 						</button>
 					</li>
 					<li>
-						<button
-							class="text-left text-sm text-paper-text-light transition-colors hover:text-paper-accent"
-						>
+						<button class="text-left text-sm text-paper-text-light hover:text-paper-accent">
 							Contact
 						</button>
 					</li>
 					<li>
-						<button
-							class="text-left text-sm text-paper-text-light transition-colors hover:text-paper-accent"
-						>
+						<button class="text-left text-sm text-paper-text-light hover:text-paper-accent">
 							Blog
 						</button>
 					</li>
@@ -82,10 +68,10 @@
 			</p>
 
 			<div class="flex gap-6">
-				<button class="text-sm text-paper-text-muted transition-colors hover:text-paper-accent">
+				<button class="text-sm text-paper-text-muted hover:text-paper-accent">
 					Privacy Policy
 				</button>
-				<button class="text-sm text-paper-text-muted transition-colors hover:text-paper-accent">
+				<button class="text-sm text-paper-text-muted hover:text-paper-accent">
 					Terms of Service
 				</button>
 			</div>

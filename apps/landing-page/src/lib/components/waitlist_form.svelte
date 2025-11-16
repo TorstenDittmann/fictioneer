@@ -144,7 +144,7 @@
 							is_success = false;
 							submitted_email = '';
 						}}
-						class="text-sm font-medium text-paper-accent transition-colors hover:text-paper-accent-light sm:text-base"
+						class="text-sm font-medium text-paper-accent hover:text-paper-accent-light sm:text-base"
 					>
 						Try a different email address
 					</button>
@@ -201,7 +201,7 @@
 							<button
 								type="submit"
 								disabled={is_submitting || !email}
-								class="group transform rounded-lg bg-linear-to-r from-paper-accent via-paper-accent-light to-paper-accent-pink px-6 py-3 font-medium whitespace-nowrap text-white transition-all hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-8 sm:py-4"
+								class="rounded-lg bg-linear-to-r from-paper-accent via-paper-accent-light to-paper-accent-pink px-6 py-3 font-medium whitespace-nowrap text-white disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-8 sm:py-4"
 							>
 								{#if is_submitting}
 									<span class="inline-flex items-center gap-2">
@@ -226,7 +226,7 @@
 									<span class="inline-flex items-center gap-2">
 										<span class="text-sm sm:text-base">Subscribe</span>
 										<svg
-											class="h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5"
+											class="h-4 w-4 sm:h-5 sm:w-5"
 											fill="none"
 											stroke="currentColor"
 											viewBox="0 0 24 24"

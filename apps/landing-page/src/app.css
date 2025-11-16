@@ -383,16 +383,11 @@ textarea:focus-visible {
 	color: white;
 	font-weight: 500;
 	border-radius: 12px;
-	transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	transition: background-color 0.2s ease;
 }
 
 .btn-primary:hover {
-	transform: translateY(-2px);
-	box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
-}
-
-.btn-primary:hover::before {
-	opacity: 1;
+	background: var(--color-paper-accent-light);
 }
 
 .btn-primary span {

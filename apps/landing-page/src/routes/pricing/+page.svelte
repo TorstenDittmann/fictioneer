@@ -155,7 +155,7 @@
 					<!-- CTA Button -->
 					<a
 						href={resolve(plan.cta_href)}
-						class="block w-full rounded-lg py-3 text-center text-sm font-medium transition-all {plan.highlighted
+						class="block w-full rounded-lg py-3 text-center text-sm font-medium {plan.highlighted
 							? 'bg-paper-accent text-paper-beige hover:bg-paper-accent-light'
 							: 'border border-paper-accent text-paper-accent hover:bg-paper-accent/10'}"
 					>
@@ -251,7 +251,7 @@
 			<div class="flex flex-wrap justify-center gap-4">
 				<a
 					href={resolve('/download')}
-					class="inline-flex items-center gap-2 rounded-lg bg-paper-accent px-8 py-3 font-medium text-paper-beige transition-all hover:bg-paper-accent-light"
+					class="inline-flex items-center gap-2 rounded-lg bg-paper-accent px-8 py-3 font-medium text-paper-beige hover:bg-paper-accent-light"
 				>
 					Download Free
 					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,7 +265,7 @@
 				</a>
 				<a
 					href="#subscribe"
-					class="inline-flex items-center gap-2 rounded-lg border border-paper-border px-8 py-3 font-medium text-paper-text transition-all hover:bg-paper-gray/30"
+					class="inline-flex items-center gap-2 rounded-lg border border-paper-border px-8 py-3 font-medium text-paper-text hover:bg-paper-gray/30"
 				>
 					Try AI Tools
 				</a>

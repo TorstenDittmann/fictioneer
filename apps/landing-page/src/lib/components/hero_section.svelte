@@ -36,15 +36,10 @@
 			class="animate-fade-in-up mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row"
 			style:animation-delay="0.3s"
 		>
-			<a href={resolve('/download')} class="btn-primary hover-lift group w-full sm:w-auto">
+			<a href={resolve('/download')} class="btn-primary w-full sm:w-auto">
 				<span class="flex items-center justify-center gap-2 text-base sm:text-lg">
 					Download Free
-					<svg
-						class="h-5 w-5 transition-transform group-hover:translate-x-1"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
+					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"

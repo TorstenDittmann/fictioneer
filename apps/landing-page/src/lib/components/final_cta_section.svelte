@@ -43,15 +43,10 @@
 				: 'opacity-0'}"
 			style:animation-delay="0.2s"
 		>
-			<a href={resolve('/download')} class="btn-primary hover-lift group w-full sm:w-auto">
+			<a href={resolve('/download')} class="btn-primary w-full sm:w-auto">
 				<span class="flex items-center justify-center gap-2 text-base sm:text-lg">
 					Download Free
-					<svg
-						class="h-5 w-5 transition-transform group-hover:translate-y-1"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
+					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
@@ -64,16 +59,11 @@
 
 			<a
 				href="#newsletter"
-				class="group w-full rounded-lg border-2 border-paper-accent bg-white px-8 py-3 font-medium text-paper-accent shadow-sm transition-all hover:bg-paper-accent/5 sm:w-auto"
+				class="w-full rounded-lg border-2 border-paper-accent bg-white px-8 py-3 font-medium text-paper-accent shadow-sm hover:bg-paper-accent/5 sm:w-auto"
 			>
 				<span class="flex items-center justify-center gap-2 text-base sm:text-lg">
 					Stay Updated
-					<svg
-						class="h-5 w-5 transition-transform group-hover:translate-x-1"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
+					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"

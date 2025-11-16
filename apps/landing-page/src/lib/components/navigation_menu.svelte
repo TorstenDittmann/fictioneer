@@ -89,7 +89,7 @@
 	<li>
 		<NavigationMenu.Link
 			{href}
-			class="block space-y-1 rounded-lg p-3 leading-none no-underline transition-colors select-none hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
+			class="block space-y-1 rounded-lg p-3 leading-none no-underline select-none hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
 		>
 			<div class="flex items-center gap-2 text-base leading-none font-medium text-paper-text">
 				<Icon />
@@ -106,7 +106,7 @@
 	<li>
 		<NavigationMenu.Link
 			{href}
-			class="block space-y-1 rounded-lg p-3 leading-none no-underline transition-colors select-none hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
+			class="block space-y-1 rounded-lg p-3 leading-none no-underline select-none hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
 		>
 			<div class="text-base leading-none font-medium text-paper-text">{title}</div>
 			<p class="line-clamp-2 text-base leading-snug text-paper-text-muted">
@@ -120,7 +120,7 @@
 	<li>
 		<NavigationMenu.Link
 			{href}
-			class="block space-y-1 rounded-lg p-3 leading-none no-underline transition-colors select-none hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
+			class="block space-y-1 rounded-lg p-3 leading-none no-underline select-none hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
 		>
 			<div class="text-base leading-none font-medium text-paper-text">{title}</div>
 			<p class="line-clamp-2 text-base leading-snug text-paper-text-muted">
@@ -141,7 +141,7 @@
 				<NavigationMenu.Item>
 					<NavigationMenu.Link
 						href={resolve('/')}
-						class="group inline-flex h-10 w-max items-center justify-center gap-3 rounded-lg px-4 py-2 text-base font-bold text-paper-text transition-colors hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
+						class="inline-flex h-10 w-max items-center justify-center gap-3 rounded-lg px-4 py-2 text-base font-bold text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
 					>
 						<img src={logo} alt="Fictioneer Logo" class="h-8 w-8" />
 						Fictioneer
@@ -151,7 +151,7 @@
 				<NavigationMenu.Item>
 					<NavigationMenu.Link
 						href="/pricing"
-						class="group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-base font-medium text-paper-text transition-colors hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
+						class="inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-base font-medium text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
 					>
 						Pricing
 					</NavigationMenu.Link>
@@ -159,11 +159,11 @@
 
 				<NavigationMenu.Item value="download">
 					<NavigationMenu.Trigger
-						class="group inline-flex h-10 w-max items-center justify-center gap-1 rounded-lg px-4 py-2 text-base font-medium text-paper-text transition-colors hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none data-[state=open]:bg-paper-gray/60"
+						class="inline-flex h-10 w-max items-center justify-center gap-1 rounded-lg px-4 py-2 text-base font-medium text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none data-[state=open]:bg-paper-gray/60"
 					>
 						Download
 						<svg
-							class="relative h-3 w-3 transition-transform duration-200 group-data-[state=open]:rotate-180"
+							class="relative h-3 w-3"
 							aria-hidden="true"
 							fill="none"
 							stroke="currentColor"
@@ -192,11 +192,11 @@
 
 				<NavigationMenu.Item value="other">
 					<NavigationMenu.Trigger
-						class="group inline-flex h-10 w-max items-center justify-center gap-1 rounded-lg px-4 py-2 text-base font-medium text-paper-text transition-colors hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none data-[state=open]:bg-paper-gray/60"
+						class="inline-flex h-10 w-max items-center justify-center gap-1 rounded-lg px-4 py-2 text-base font-medium text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none data-[state=open]:bg-paper-gray/60"
 					>
 						Other
 						<svg
-							class="relative h-3 w-3 transition-transform duration-200 group-data-[state=open]:rotate-180"
+							class="relative h-3 w-3"
 							aria-hidden="true"
 							fill="none"
 							stroke="currentColor"

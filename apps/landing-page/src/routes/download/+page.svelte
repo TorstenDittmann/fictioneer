@@ -77,12 +77,12 @@
 							<!-- eslint-disable svelte/no-navigation-without-resolve-->
 							<a
 								href={version.url}
-								class="group block w-full rounded-xl border border-paper-border bg-paper-beige/50 p-4 text-left transition-all hover:border-paper-accent/50 hover:bg-paper-gray/30"
+								class="block w-full rounded-xl border border-paper-border bg-paper-beige/50 p-4 text-left hover:border-paper-accent/50 hover:bg-paper-gray/30"
 							>
 								<div class="flex items-center justify-between">
 									<span class="font-medium text-paper-text">{version.arch}</span>
 									<svg
-										class="h-4 w-4 text-paper-accent transition-transform group-hover:translate-x-1"
+										class="h-4 w-4 text-paper-accent"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -255,6 +255,5 @@
 				</ul>
 			</div>
 		</div>
-
 	</div>
 </div>

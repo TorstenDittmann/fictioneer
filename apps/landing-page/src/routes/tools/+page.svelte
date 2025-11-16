@@ -149,27 +149,16 @@
 		<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center space-x-3">
-					<a
-						href={resolve('/')}
-						class="gradient-text transition-smooth font-serif text-2xl font-bold hover:scale-105"
-					>
+					<a href={resolve('/')} class="gradient-text font-serif text-2xl font-bold">
 						Fictioneer
 					</a>
 					<span class="text-paper-text-muted">|</span>
 					<span class="text-lg text-paper-text-light">AI Writing Tools</span>
 				</div>
 				<nav class="hidden space-x-6 md:flex">
-					<a
-						href={resolve('/')}
-						class="transition-smooth text-paper-text-light hover:text-paper-accent">Home</a
-					>
-					<a
-						href="#features"
-						class="transition-smooth text-paper-text-light hover:text-paper-accent">Features</a
-					>
-					<a href="#pricing" class="transition-smooth text-paper-text-light hover:text-paper-accent"
-						>Pricing</a
-					>
+					<a href={resolve('/')} class="text-paper-text-light hover:text-paper-accent">Home</a>
+					<a href="#features" class="text-paper-text-light hover:text-paper-accent">Features</a>
+					<a href="#pricing" class="text-paper-text-light hover:text-paper-accent">Pricing</a>
 				</nav>
 			</div>
 		</div>
@@ -249,7 +238,7 @@
 					{#if tool.status === 'available'}
 						<a
 							href={resolve(tool.href)}
-							class="btn-primary hover-lift block w-full px-6 py-3 text-center font-semibold"
+							class="btn-primary block w-full px-6 py-3 text-center font-semibold"
 						>
 							Try It Free
 						</a>

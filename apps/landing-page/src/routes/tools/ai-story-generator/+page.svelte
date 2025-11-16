@@ -358,23 +358,16 @@
 		<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center space-x-3">
-					<a
-						href={resolve('/')}
-						class="gradient-text transition-smooth font-serif text-2xl font-bold hover:scale-105"
-					>
+					<a href={resolve('/')} class="gradient-text font-serif text-2xl font-bold">
 						Fictioneer
 					</a>
 					<span class="text-paper-text-muted">|</span>
 					<span class="text-lg text-paper-text-light">AI Story Generator</span>
 				</div>
 				<nav class="hidden space-x-6 md:flex">
-					<a
-						href={resolve('/')}
-						class="transition-smooth text-paper-text-light hover:text-paper-accent">Home</a
-					>
-					<a
-						href={resolve('/tools')}
-						class="transition-smooth text-paper-text-light hover:text-paper-accent">More Tools</a
+					<a href={resolve('/')} class="text-paper-text-light hover:text-paper-accent">Home</a>
+					<a href={resolve('/tools')} class="text-paper-text-light hover:text-paper-accent"
+						>More Tools</a
 					>
 				</nav>
 			</div>
@@ -539,7 +532,7 @@
 							<button
 								type="submit"
 								disabled={generating_story}
-								class="btn-primary hover-lift w-full px-6 py-4 font-semibold disabled:transform-none disabled:cursor-not-allowed disabled:opacity-50"
+								class="btn-primary w-full px-6 py-4 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								{#if generating_story}
 									<span class="flex items-center justify-center">
@@ -584,7 +577,7 @@
 				{#if generated_story && !is_streaming}
 					<button
 						onclick={copy_story_to_clipboard}
-						class="glass transition-smooth ml-6 rounded-lg border border-paper-accent/30 px-4 py-2 text-sm text-paper-text-light hover:border-paper-accent hover:bg-paper-accent/10"
+						class="glass ml-6 rounded-lg border border-paper-accent/30 px-4 py-2 text-sm text-paper-text-light hover:border-paper-accent hover:bg-paper-accent/10"
 					>
 						<span class="flex items-center gap-2"> 📋 Copy Story </span>
 					</button>
@@ -716,10 +709,10 @@
 				Discover Fictioneer - the complete writing platform for novelists
 			</p>
 			<div class="flex flex-col justify-center gap-4 sm:flex-row">
-				<a href={resolve('/')} class="btn-primary hover-lift"> Learn More About Fictioneer </a>
+				<a href={resolve('/')} class="btn-primary"> Learn More About Fictioneer </a>
 				<a
 					href={resolve('/tools')}
-					class="glass transition-smooth rounded-lg border-2 border-paper-accent px-8 py-3 font-semibold text-paper-accent hover:bg-paper-accent hover:text-paper-beige"
+					class="glass rounded-lg border-2 border-paper-accent px-8 py-3 font-semibold text-paper-accent hover:bg-paper-accent hover:text-paper-beige"
 				>
 					Explore More AI Tools
 				</a>
