@@ -36,12 +36,13 @@
 		"typescript-eslint": "^8.46.3",
 		"vite": "^7.2.2"
 	},
-	"dependencies": {
-		"@fontsource/ia-writer-duo": "^5.2.5",
-		"@fontsource/ia-writer-quattro": "^5.2.5",
-		"@fontsource/libre-baskerville": "^5.2.9",
-		"@fontsource/quattrocento": "^5.2.8",
-		"bits-ui": "^2.14.2",
-		"phosphor-svelte": "^3.0.1"
-	}
+"dependencies": {
+"@fontsource/ia-writer-duo": "^5.2.5",
+"@fontsource/ia-writer-quattro": "^5.2.5",
+"@fontsource/libre-baskerville": "^5.2.9",
+"@fontsource/quattrocento": "^5.2.8",
+"bits-ui": "^2.14.2",
+"phosphor-svelte": "^3.0.1",
+"svelte-exmarkdown": "^5.2.0"
+}
 }
