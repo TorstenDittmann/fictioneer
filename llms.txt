@@ -101,3 +101,14 @@ Regular updates bring new features and improvements based on real writer feedbac
 Fictioneer isn't just another writing app—it's a carefully crafted environment where stories come to life. By combining distraction-free design with intelligent features, it helps writers do what they do best: tell compelling stories.
 
 Whether you're crafting your first novel or your fifteenth, Fictioneer provides the perfect balance of simplicity and power to support your creative journey.
+
+## Landing Page Design Language (LLM Reference)
+
+- Visual theme: premium glassmorphism + soft neo-futurism; frosted glass cards on pastel gradients with airy white space, subtle grain, and glowing edges.
+- Palette: misty blues, lilac, blush, and warm white; accents use #8b9bff, #b6d4ff, #f7c8ff, and ink text for contrast; gradients run top-left to bottom-right with gentle light blooms.
+- Typography: Space Grotesk for headlines (tight letter spacing, bold weight, large sizes), Manrope for body and UI copy; use generous line-height and clear hierarchy.
+- Components: translucent panels with 1px white/60 borders, soft inner shadows, 16–28px corner radii; pills and chips in semi-transparent glass with faint glow; CTA buttons use layered gradients (accent → light → pink) with pill rounding and hover lift.
+- Layout: centered grid with floating cards, overlapping shapes, and aurora blobs; maintain generous padding, 64–96px section spacing, and clear column structure; prefer balanced split hero with text left, media/screenshot right.
+- Motion: micro-interactions through scale/translate lifts, fade-up entrances with short delays, and gentle blurs; keep durations 220–320ms with smooth easings; shimmer or gradient sheens for highlights.
+- Iconography & accents: thin-line monospace-style icons, geometric dots/orbs, translucent separators; avoid heavy outlines or dark blocks.
+- Imagery: use framed screenshot mockups with glass borders and subtle glow; avoid illustrative cartoons.

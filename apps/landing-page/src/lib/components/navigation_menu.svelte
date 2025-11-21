@@ -131,27 +131,28 @@
 {/snippet}
 
 <nav
-	class="fixed top-0 right-0 left-0 z-50 border-b border-paper-border bg-paper-beige-transparent backdrop-blur-md"
+	class="fixed top-0 right-0 left-0 z-50"
 >
-	<div class="mx-auto flex max-w-7xl items-center px-6 py-4">
+	<div class="absolute inset-0 bg-gradient-to-b from-white/80 via-white/55 to-white/40 backdrop-blur-xl"></div>
+	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
+	<div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,140,255,0.12),transparent_45%)]"></div>
+
+	<div class="relative mx-auto flex max-w-7xl items-center gap-4 px-6 py-4">
+		<a
+			href={resolve('/')}
+			class="glass inline-flex items-center gap-3 rounded-full px-4 py-2 text-sm font-semibold text-paper-text shadow-sm transition-smooth hover:-translate-y-0.5 hover:shadow-lg"
+		>
+			<img src={logo} alt="Fictioneer Logo" class="h-8 w-8" />
+			<span class="tracking-tight">Fictioneer</span>
+		</a>
+
 		<!-- Navigation Menu - Centered -->
 		<NavigationMenu.Root class="relative z-10 flex flex-1 justify-center">
-			<NavigationMenu.List class="flex list-none items-center gap-1">
-				<!-- Home Link -->
-				<NavigationMenu.Item>
-					<NavigationMenu.Link
-						href={resolve('/')}
-						class="inline-flex h-10 w-max items-center justify-center gap-3 rounded-lg px-4 py-2 text-base font-bold text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
-					>
-						<img src={logo} alt="Fictioneer Logo" class="h-8 w-8" />
-						Fictioneer
-					</NavigationMenu.Link>
-				</NavigationMenu.Item>
-
+			<NavigationMenu.List class="glass-strong flex list-none items-center gap-1 rounded-full px-2 py-1">
 				<NavigationMenu.Item>
 					<NavigationMenu.Link
 						href="/pricing"
-						class="inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-base font-medium text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
+						class="inline-flex h-11 w-max items-center justify-center rounded-full px-4 text-sm font-semibold text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
 					>
 						Pricing
 					</NavigationMenu.Link>
@@ -159,7 +160,7 @@
 
 				<NavigationMenu.Item value="download">
 					<NavigationMenu.Trigger
-						class="inline-flex h-10 w-max items-center justify-center gap-1 rounded-lg px-4 py-2 text-base font-medium text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none data-[state=open]:bg-paper-gray/60"
+						class="inline-flex h-11 w-max items-center justify-center gap-1 rounded-full px-4 text-sm font-semibold text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none data-[state=open]:bg-white/50"
 					>
 						Download
 						<svg
@@ -181,7 +182,7 @@
 						class="data-[motion=from-end]:animate-enter-from-right data-[motion=from-start]:animate-enter-from-left data-[motion=to-end]:animate-exit-to-right data-[motion=to-start]:animate-exit-to-left absolute top-0 left-0 w-full sm:w-auto"
 					>
 						<ul
-							class="m-0 grid list-none gap-2 rounded-xl border border-paper-border bg-paper-cream p-4 shadow-lg sm:w-[320px]"
+							class="m-0 grid list-none gap-2 rounded-2xl border border-white/60 bg-white/70 p-4 shadow-xl backdrop-blur-xl sm:w-[320px]"
 						>
 							{#each download_links as link (link.title)}
 								{@render download_link(link)}
@@ -192,7 +193,7 @@
 
 				<NavigationMenu.Item value="other">
 					<NavigationMenu.Trigger
-						class="inline-flex h-10 w-max items-center justify-center gap-1 rounded-lg px-4 py-2 text-base font-medium text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none data-[state=open]:bg-paper-gray/60"
+						class="inline-flex h-11 w-max items-center justify-center gap-1 rounded-full px-4 text-sm font-semibold text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none data-[state=open]:bg-white/50"
 					>
 						Other
 						<svg
@@ -214,10 +215,10 @@
 						class="data-[motion=from-end]:animate-enter-from-right data-[motion=from-start]:animate-enter-from-left data-[motion=to-end]:animate-exit-to-right data-[motion=to-start]:animate-exit-to-left absolute top-0 left-0 w-full sm:w-auto"
 					>
 						<div
-							class="rounded-xl border border-paper-border bg-paper-cream p-4 shadow-lg sm:w-[520px]"
+							class="rounded-2xl border border-white/60 bg-white/75 p-4 shadow-2xl backdrop-blur-xl sm:w-[520px]"
 						>
 							<!-- Regular Links -->
-							<ul class="m-0 mb-4 grid list-none gap-2 border-b border-paper-border pb-4">
+							<ul class="m-0 mb-4 grid list-none gap-2 border-b border-paper-gray pb-4">
 								{#each other_links as link (link.href)}
 									{@render other_link(link)}
 								{/each}
@@ -226,7 +227,7 @@
 							<!-- Web Tools Submenu -->
 							<div>
 								<div
-									class="mb-2 px-3 text-xs font-semibold tracking-wider text-paper-text-muted uppercase"
+									class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-paper-text-muted"
 								>
 									Web Tools
 								</div>
@@ -244,17 +245,31 @@
 				<NavigationMenu.Indicator
 					class="data-[state=visible]:animate-fade-in data-[state=hidden]:animate-fade-out top-full z-10 flex h-2 items-end justify-center overflow-hidden transition-all duration-200 data-[state=hidden]:opacity-0"
 				>
-					<div class="relative top-[70%] h-2 w-2 rotate-45 rounded-tl-sm bg-paper-border"></div>
+					<div class="relative top-[70%] h-2 w-2 rotate-45 rounded-tl-sm bg-white/70"></div>
 				</NavigationMenu.Indicator>
 			</NavigationMenu.List>
 
 			<!-- Viewport -->
 			<div class="absolute top-full left-0 flex w-full justify-center perspective-[2000px]">
 				<NavigationMenu.Viewport
-					class="origin-top-center data-[state=open]:animate-scale-in data-[state=closed]:animate-scale-out relative mt-2 overflow-hidden rounded-xl transition-all duration-200"
+					class="origin-top-center data-[state=open]:animate-scale-in data-[state=closed]:animate-scale-out relative mt-3 overflow-hidden rounded-2xl border border-white/70 shadow-xl backdrop-blur-xl transition-all duration-200"
 					style="width: var(--bits-navigation-menu-viewport-width); height: var(--bits-navigation-menu-viewport-height);"
 				/>
 			</div>
 		</NavigationMenu.Root>
+
+		<a href={resolve('/download')} class="hidden sm:inline-flex btn-primary text-sm">
+			<span class="flex items-center gap-2">
+				Download
+				<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+					></path>
+				</svg>
+			</span>
+		</a>
 	</div>
 </nav>
