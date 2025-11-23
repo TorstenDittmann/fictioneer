@@ -10,14 +10,18 @@
 </script>
 
 <section class="relative overflow-hidden px-4 py-24 sm:py-32 lg:py-40">
-	<div class="absolute inset-0 bg-gradient-to-b from-white via-paper-gray/30 to-white"></div>
+	<div class="absolute inset-0 bg-linear-to-b from-white via-paper-gray/30 to-white"></div>
 	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
-	<div class="aurora-blob left-6 top-8 h-64 w-64 bg-[rgba(124,140,255,0.22)]"></div>
+	<div class="aurora-blob top-8 left-6 h-64 w-64 bg-[rgba(124,140,255,0.22)]"></div>
 	<div class="aurora-blob right-6 bottom-0 h-72 w-72 bg-[rgba(161,241,210,0.2)]"></div>
 
 	<div class="relative z-10 mx-auto max-w-4xl">
-		<div class="glass-strong relative overflow-hidden rounded-[32px] border border-white/60 p-10 text-center shadow-2xl sm:p-14">
-			<div class="absolute inset-0 bg-gradient-to-br from-paper-accent/12 via-white/60 to-paper-accent-light/14"></div>
+		<div
+			class="glass-strong relative overflow-hidden rounded-[32px] border border-white/60 p-10 text-center shadow-2xl sm:p-14"
+		>
+			<div
+				class="absolute inset-0 bg-linear-to-br from-paper-accent/12 via-white/60 to-paper-accent-light/14"
+			></div>
 			<div class="relative">
 				<div class="pill mx-auto w-max shadow-md">
 					<span class="h-2 w-2 rounded-full bg-paper-accent"></span>
@@ -39,7 +43,8 @@
 					style:animation-delay="0.1s"
 				>
 					Download Fictioneer today and experience the writing software you've been searching for.
-					Available for Windows, Mac, and Linux. Free forever, no strings attached.
+					Available for Windows, Mac, and Linux. Free forever with optional AI subscriptions when
+					you want more.
 				</p>
 
 				<div

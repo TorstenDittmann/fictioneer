@@ -27,7 +27,8 @@
 	--color-paper-gray-transparent: rgba(231, 236, 246, 0.5);
 
 	/* Gradients */
-	--gradient-radial: radial-gradient(ellipse 90% 70% at 20% 10%, rgba(124, 140, 255, 0.2), transparent),
+	--gradient-radial:
+		radial-gradient(ellipse 90% 70% at 20% 10%, rgba(124, 140, 255, 0.2), transparent),
 		radial-gradient(ellipse 70% 50% at 80% 0%, rgba(154, 215, 255, 0.25), transparent),
 		radial-gradient(ellipse 70% 60% at 50% 120%, rgba(245, 168, 255, 0.2), transparent);
 	--gradient-glow: radial-gradient(circle at 50% 50%, rgba(124, 140, 255, 0.35), transparent 60%);
@@ -36,7 +37,8 @@
 	--gradient-night: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.6));
 
 	/* Fonts */
-	--font-serif: 'Space Grotesk', 'Manrope', 'Inter', 'Helvetica Neue', system-ui, -apple-system, sans-serif;
+	--font-serif:
+		'Space Grotesk', 'Manrope', 'Inter', 'Helvetica Neue', system-ui, -apple-system, sans-serif;
 }
 
 :root {
@@ -88,10 +90,10 @@
 html {
 	font-family: var(--font-serif);
 	color: var(--color-paper-text);
-	background: radial-gradient(circle at 20% 20%, rgba(124, 140, 255, 0.14), transparent 28%),
+	background:
+		radial-gradient(circle at 20% 20%, rgba(124, 140, 255, 0.14), transparent 28%),
 		radial-gradient(circle at 80% 10%, rgba(245, 168, 255, 0.18), transparent 30%),
-		radial-gradient(circle at 70% 80%, rgba(161, 241, 210, 0.18), transparent 40%),
-		#eaf0fb;
+		radial-gradient(circle at 70% 80%, rgba(161, 241, 210, 0.18), transparent 40%), #eaf0fb;
 	antialiased: true;
 	text-rendering: optimizeLegibility;
 }
@@ -457,15 +459,15 @@ textarea:focus-visible {
 .btn-primary {
 	position: relative;
 	padding: 0.9rem 2.25rem;
-	background: var(--gradient-primary);
-	color: #0f172a;
+	background: linear-gradient(120deg, #3c53f5 0%, #5f75ff 45%, #d14abc 100%);
+	color: #ffffff;
 	font-weight: 600;
 	border-radius: 9999px;
 	transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 	box-shadow:
-		0 15px 40px rgba(124, 140, 255, 0.35),
-		0 6px 24px rgba(15, 23, 42, 0.12);
-	border: 1px solid rgba(255, 255, 255, 0.45);
+		0 16px 44px rgba(111, 130, 255, 0.5),
+		0 10px 30px rgba(15, 23, 42, 0.18);
+	border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
 .btn-primary:hover {
@@ -521,8 +523,11 @@ textarea:focus-visible {
 }
 
 .grid-overlay {
-	background-image: linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
 		linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-	background-size: 120px 120px, 120px 120px;
+	background-size:
+		120px 120px,
+		120px 120px;
 	mask-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.8), transparent 75%);
 }

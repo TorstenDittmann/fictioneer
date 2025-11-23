@@ -184,23 +184,16 @@
 	let is_streaming = $state(false);
 	let stream_completed = $state(false);
 
-	// Reference for scrolling to results
-	let story_section: HTMLElement;
-
 	// Derived state for current themes
 	let current_themes = $derived(story_options?.themes_by_genre[selected_genre] || []);
 
-	// Update selected theme when genre changes
-	$effect(() => {
-		if (
-			story_options &&
-			selected_genre &&
-			current_themes.length > 0 &&
-			!current_themes.includes(selected_theme)
-		) {
-			selected_theme = current_themes[0];
+	function handle_genre_change(value: string) {
+		selected_genre = value;
+		const themes = story_options?.themes_by_genre[value] || [];
+		if (themes.length > 0 && !themes.includes(selected_theme)) {
+			selected_theme = themes[0];
 		}
-	});
+	}
 
 	async function generate_story() {
 		if (generating_story) return;
@@ -213,12 +206,11 @@
 		stream_completed = false;
 
 		// Scroll to story section immediately
-		if (story_section) {
-			story_section.scrollIntoView({
-				behavior: 'smooth',
-				block: 'start'
-			});
-		}
+		const story_section = document.getElementById('story-section');
+		story_section?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'start'
+		});
 
 		try {
 			const response = await client.api.marketing['generate-story'].$post(
@@ -353,27 +345,6 @@
 	></div>
 	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
 
-	<!-- Header -->
-	<header class="glass relative z-10 border-b border-paper-border">
-		<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-			<div class="flex items-center justify-between">
-				<div class="flex items-center space-x-3">
-					<a href={resolve('/')} class="gradient-text font-serif text-2xl font-bold">
-						Fictioneer
-					</a>
-					<span class="text-paper-text-muted">|</span>
-					<span class="text-lg text-paper-text-light">AI Story Generator</span>
-				</div>
-				<nav class="hidden space-x-6 md:flex">
-					<a href={resolve('/')} class="text-paper-text-light hover:text-paper-accent">Home</a>
-					<a href={resolve('/tools')} class="text-paper-text-light hover:text-paper-accent"
-						>More Tools</a
-					>
-				</nav>
-			</div>
-		</div>
-	</header>
-
 	<main class="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 		<!-- Hero Section -->
 		<div class="animate-fade-in-up mb-16 text-center">
@@ -421,7 +392,9 @@
 								</label>
 								<select
 									id="genre"
-									bind:value={selected_genre}
+									value={selected_genre}
+									onchange={(event) =>
+										handle_genre_change((event.target as HTMLSelectElement).value)}
 									class="glass transition-smooth w-full appearance-none rounded-lg border border-paper-border bg-paper-cream/50 px-4 py-3 text-paper-text focus:border-paper-accent focus:ring-2 focus:ring-paper-accent/20"
 									disabled={generating_story}
 								>
@@ -569,7 +542,7 @@
 		</div>
 
 		<!-- Generated Story Display -->
-		<div class="animate-fade-in-up" bind:this={story_section}>
+		<div id="story-section" class="animate-fade-in-up">
 			<div class="mb-8 flex items-center justify-center">
 				<h2 class="text-center font-serif text-3xl font-semibold text-paper-text">
 					Your Generated Story

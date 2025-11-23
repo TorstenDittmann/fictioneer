@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import type { RouteId } from '$app/types';
+	import FaqSection from '$lib/components/faq_section.svelte';
 
 	type Feature = {
 		text: string;
@@ -156,7 +157,7 @@
 					<a
 						href={resolve(plan.cta_href)}
 						class="block w-full rounded-lg py-3 text-center text-sm font-medium {plan.highlighted
-							? 'bg-paper-accent text-paper-beige hover:bg-paper-accent-light'
+							? 'btn-primary text-white'
 							: 'border border-paper-accent text-paper-accent hover:bg-paper-accent/10'}"
 					>
 						{plan.cta_text}
@@ -165,78 +166,10 @@
 			{/each}
 		</div>
 
-		<!-- FAQ Section -->
-		<div class="mx-auto mt-20 max-w-4xl">
-			<h2
-				class="animate-fade-in-up mb-10 text-center text-3xl font-bold text-paper-text"
-				style:animation-delay="0.4s"
-			>
-				Frequently Asked Questions
-			</h2>
-
-			<div class="space-y-6">
-				<div
-					class="animate-fade-in-up rounded-2xl border border-paper-border bg-paper-cream/30 p-6"
-					style:animation-delay="0.5s"
-				>
-					<h3 class="mb-2 text-lg font-semibold text-paper-text">Is Fictioneer really free?</h3>
-					<p class="text-paper-text-light">
-						Yes! Fictioneer is completely free to download and use. You get unlimited access to our
-						distraction-free writing interface, progress tracking, and basic AI features. No credit
-						card required, no trial period – it's free forever.
-					</p>
-				</div>
-
-				<div
-					class="animate-fade-in-up rounded-2xl border border-paper-border bg-paper-cream/30 p-6"
-					style:animation-delay="0.6s"
-				>
-					<h3 class="mb-2 text-lg font-semibold text-paper-text">
-						What do I get with the AI Tools subscription?
-					</h3>
-					<p class="text-paper-text-light">
-						The AI Tools subscription unlocks advanced AI features like story generation, character
-						building, plot outlining, and unlimited AI-powered suggestions. These tools are designed
-						to help you overcome writer's block and develop richer stories.
-					</p>
-				</div>
-
-				<div
-					class="animate-fade-in-up rounded-2xl border border-paper-border bg-paper-cream/30 p-6"
-					style:animation-delay="0.7s"
-				>
-					<h3 class="mb-2 text-lg font-semibold text-paper-text">Can I cancel anytime?</h3>
-					<p class="text-paper-text-light">
-						Absolutely. You can cancel your AI Tools subscription at any time. No questions asked.
-						If you cancel, you'll continue to have access until the end of your billing period, and
-						you can still use the free version of Fictioneer forever.
-					</p>
-				</div>
-
-				<div
-					class="animate-fade-in-up rounded-2xl border border-paper-border bg-paper-cream/30 p-6"
-					style:animation-delay="0.8s"
-				>
-					<h3 class="mb-2 text-lg font-semibold text-paper-text">
-						What payment methods do you accept?
-					</h3>
-					<p class="text-paper-text-light">
-						We accept all major credit cards (Visa, Mastercard, American Express) and other payment
-						methods through our secure payment processor. All payments are encrypted and secure.
-					</p>
-				</div>
-
-				<div
-					class="animate-fade-in-up rounded-2xl border border-paper-border bg-paper-cream/30 p-6"
-					style:animation-delay="0.9s"
-				>
-					<h3 class="mb-2 text-lg font-semibold text-paper-text">Do you offer refunds?</h3>
-					<p class="text-paper-text-light">
-						We offer a 30-day money-back guarantee. If you're not satisfied with the AI Tools
-						subscription within the first 30 days, contact us for a full refund.
-					</p>
-				</div>
-			</div>
+		<div class="mx-auto mt-20 max-w-5xl">
+			<FaqSection
+				intro="Everything about pricing, billing, and the AI Tools subscription in one place."
+			/>
 		</div>
 
 		<!-- CTA Section -->

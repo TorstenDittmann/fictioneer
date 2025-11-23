@@ -130,17 +130,19 @@
 	</li>
 {/snippet}
 
-<nav
-	class="fixed top-0 right-0 left-0 z-50"
->
-	<div class="absolute inset-0 bg-gradient-to-b from-white/80 via-white/55 to-white/40 backdrop-blur-xl"></div>
+<nav class="fixed top-0 right-0 left-0 z-50">
+	<div
+		class="absolute inset-0 bg-linear-to-b from-white/80 via-white/55 to-white/40 backdrop-blur-xl"
+	></div>
 	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
-	<div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,140,255,0.12),transparent_45%)]"></div>
+	<div
+		class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,140,255,0.12),transparent_45%)]"
+	></div>
 
 	<div class="relative mx-auto flex max-w-7xl items-center gap-4 px-6 py-4">
 		<a
 			href={resolve('/')}
-			class="glass inline-flex items-center gap-3 rounded-full px-4 py-2 text-sm font-semibold text-paper-text shadow-sm transition-smooth hover:-translate-y-0.5 hover:shadow-lg"
+			class="glass transition-smooth inline-flex items-center gap-3 rounded-full px-4 py-2 text-sm font-semibold text-paper-text shadow-sm hover:-translate-y-0.5 hover:shadow-lg"
 		>
 			<img src={logo} alt="Fictioneer Logo" class="h-8 w-8" />
 			<span class="tracking-tight">Fictioneer</span>
@@ -148,7 +150,9 @@
 
 		<!-- Navigation Menu - Centered -->
 		<NavigationMenu.Root class="relative z-10 flex flex-1 justify-center">
-			<NavigationMenu.List class="glass-strong flex list-none items-center gap-1 rounded-full px-2 py-1">
+			<NavigationMenu.List
+				class="glass-strong flex list-none items-center gap-1 rounded-full px-2 py-1"
+			>
 				<NavigationMenu.Item>
 					<NavigationMenu.Link
 						href="/pricing"
@@ -227,7 +231,7 @@
 							<!-- Web Tools Submenu -->
 							<div>
 								<div
-									class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-paper-text-muted"
+									class="mb-2 px-3 text-xs font-semibold tracking-wider text-paper-text-muted uppercase"
 								>
 									Web Tools
 								</div>
@@ -258,7 +262,7 @@
 			</div>
 		</NavigationMenu.Root>
 
-		<a href={resolve('/download')} class="hidden sm:inline-flex btn-primary text-sm">
+		<a href={resolve('/download')} class="btn-primary hidden text-sm sm:inline-flex">
 			<span class="flex items-center gap-2">
 				Download
 				<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

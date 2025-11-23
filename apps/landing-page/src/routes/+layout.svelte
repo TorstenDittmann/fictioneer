@@ -25,4 +25,4 @@
 </svelte:head>
 
 <NavigationMenu />
-{@render children?.()}
+<main class="pt-24 sm:pt-28">{@render children?.()}</main>

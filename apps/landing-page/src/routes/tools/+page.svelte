@@ -144,26 +144,6 @@
 	></div>
 	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
 
-	<!-- Header -->
-	<header class="glass relative z-10 border-b border-paper-border">
-		<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-			<div class="flex items-center justify-between">
-				<div class="flex items-center space-x-3">
-					<a href={resolve('/')} class="gradient-text font-serif text-2xl font-bold">
-						Fictioneer
-					</a>
-					<span class="text-paper-text-muted">|</span>
-					<span class="text-lg text-paper-text-light">AI Writing Tools</span>
-				</div>
-				<nav class="hidden space-x-6 md:flex">
-					<a href={resolve('/')} class="text-paper-text-light hover:text-paper-accent">Home</a>
-					<a href="#features" class="text-paper-text-light hover:text-paper-accent">Features</a>
-					<a href="#pricing" class="text-paper-text-light hover:text-paper-accent">Pricing</a>
-				</nav>
-			</div>
-		</div>
-	</header>
-
 	<main class="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 		<!-- Hero Section -->
 		<div class="animate-fade-in-up mb-20 text-center">
