@@ -4,7 +4,7 @@
   "workspaces": {
     "": {
       "devDependencies": {
-        "workspace-utils": "^1.0.4",
+        "workspace-utils": "^1.0.6",
       },
     },
     "apps/fictioneer": {

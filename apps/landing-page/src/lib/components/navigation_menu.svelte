@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { NavigationMenu } from 'bits-ui';
-	import logo from '$lib/assets/logo.svg';
 	import AppleLogo from 'phosphor-svelte/lib/AppleLogo';
 	import WindowsLogo from 'phosphor-svelte/lib/WindowsLogo';
 	import LinuxLogo from 'phosphor-svelte/lib/LinuxLogo';
 	import type { Component } from 'svelte';
-	import { resolve } from '$app/paths';
+	import { asset, resolve } from '$app/paths';
 
 	type DownloadLink = {
 		title: string;
@@ -144,7 +143,7 @@
 			href={resolve('/')}
 			class="glass transition-smooth inline-flex items-center gap-3 rounded-full px-4 py-2 text-sm font-semibold text-paper-text shadow-sm hover:-translate-y-0.5 hover:shadow-lg"
 		>
-			<img src={logo} alt="Fictioneer Logo" class="h-8 w-8" />
+			<img src={asset('/logo.svg')} alt="Fictioneer Logo" class="h-8 w-8" />
 			<span class="tracking-tight">Fictioneer</span>
 		</a>
 

@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
-	import logo from '$lib/assets/logo.svg';
+	import { asset, resolve } from '$app/paths';
 </script>
 
 <section class="relative overflow-hidden px-4 pt-28 pb-20 sm:pt-36 sm:pb-32 lg:pt-40">
@@ -101,7 +100,7 @@
 									<div
 										class="flex h-full w-full items-center justify-center rounded-full bg-white/90"
 									>
-										<img src={logo} alt="Fictioneer" class="h-6 w-6" />
+										<img src={asset('/logo.svg')} alt="Fictioneer" class="h-6 w-6" />
 									</div>
 								</div>
 								<div>

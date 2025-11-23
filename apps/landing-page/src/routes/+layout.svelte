@@ -1,9 +1,10 @@
 <script lang="ts">
 	import '../app.css';
-	import logo from '$lib/assets/logo.svg';
 	import NavigationMenu from '$lib/components/navigation_menu.svelte';
+	import { asset } from '$app/paths';
 
 	let { children } = $props();
+	const logo = asset('/logo.svg');
 </script>
 
 <svelte:head>
