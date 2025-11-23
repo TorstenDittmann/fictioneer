@@ -1,5 +1,4 @@
 <script lang="ts">
-	import '@fontsource/ia-writer-duo/400.css';
 	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 
