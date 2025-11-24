@@ -43,8 +43,6 @@
 					style:animation-delay="0.1s"
 				>
 					Download Fictioneer today and experience the writing software you've been searching for.
-					Available for Windows, Mac, and Linux. Free forever with optional AI subscriptions when
-					you want more.
 				</p>
 
 				<div
@@ -80,50 +78,6 @@
 							</svg>
 						</span>
 					</a>
-				</div>
-
-				<div
-					class="mt-14 grid grid-cols-1 gap-4 text-sm text-paper-text-muted sm:grid-cols-3 sm:gap-6 {mounted
-						? 'animate-fade-in'
-						: 'opacity-0'}"
-					style:animation-delay="0.3s"
-				>
-					<div class="glass rounded-2xl border border-white/50 px-4 py-3 text-center shadow-sm">
-						<div class="flex items-center justify-center gap-2">
-							<svg class="h-5 w-5 text-paper-accent" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-									clip-rule="evenodd"
-								></path>
-							</svg>
-							<span>No credit card required</span>
-						</div>
-					</div>
-					<div class="glass rounded-2xl border border-white/50 px-4 py-3 text-center shadow-sm">
-						<div class="flex items-center justify-center gap-2">
-							<svg class="h-5 w-5 text-paper-accent" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-									clip-rule="evenodd"
-								></path>
-							</svg>
-							<span>Free forever</span>
-						</div>
-					</div>
-					<div class="glass rounded-2xl border border-white/50 px-4 py-3 text-center shadow-sm">
-						<div class="flex items-center justify-center gap-2">
-							<svg class="h-5 w-5 text-paper-accent" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-									clip-rule="evenodd"
-								></path>
-							</svg>
-							<span>100% private</span>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>
