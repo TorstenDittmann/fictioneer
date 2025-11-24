@@ -12,7 +12,7 @@ type Model = Parameters<typeof openrouter>[0];
 const MODELS = {
 	SLOW: 'openai/gpt-oss-120b',
 	FAST: 'anthropic/claude-haiku-4.5',
-	FREE: 'openrouter/sherlock-dash-alpha'
+	FREE: 'x-ai/grok-4.1-fast'
 } as const satisfies Record<string, Model>;
 
 function create_model(model: Model) {
@@ -290,7 +290,14 @@ const app = new Hono()
 					system: system_prompt,
 					prompt: user_prompt,
 					temperature: 0.8,
-					topP: 0.9
+					topP: 0.9,
+					providerOptions: {
+						openrouter: {
+							reasoning: {
+								enabled: false
+							}
+						}
+					}
 				}).toTextStreamResponse();
 			} else {
 				const result = await generateText({
@@ -298,7 +305,14 @@ const app = new Hono()
 					system: system_prompt,
 					prompt: user_prompt,
 					temperature: 0.8,
-					topP: 0.9
+					topP: 0.9,
+					providerOptions: {
+						openrouter: {
+							reasoning: {
+								enabled: false
+							}
+						}
+					}
 				});
 
 				return c.text(result.text);
