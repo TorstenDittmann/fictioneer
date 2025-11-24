@@ -1,5 +1,6 @@
 import { PUBLIC_INTELLIGENCE_SERVER_URL } from '$env/static/public';
 import { license_key_state } from '$lib/state/license_key.svelte.js';
+import { create_client } from '@fictioneer/intelligence/client';
 
 interface RephraseOption {
 	type: string;
@@ -11,31 +12,16 @@ interface RephraseResponse {
 	rephrases: RephraseOption[];
 }
 
-const BACKEND_URL = PUBLIC_INTELLIGENCE_SERVER_URL;
+export const client = create_client(PUBLIC_INTELLIGENCE_SERVER_URL);
 
 export class AIWritingBackendService {
 	private current_abort_controller: AbortController | null = null;
 
-	private async call_backend(
-		endpoint: string,
-		data: unknown,
-		signal?: AbortSignal
-	): Promise<unknown> {
+	private async call_backend(response: Response): Promise<unknown> {
 		// const token = license_key_state.license_key;
 		// if (!token) {
 		// 	throw new Error('No license key available. Please configure your license key in settings.');
 		// }
-
-		const response = await fetch(`${BACKEND_URL}/${endpoint}`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				// Authorization: `Bearer ${token}`,
-				Accept: 'text/plain'
-			},
-			body: JSON.stringify(data),
-			signal
-		});
 
 		if (!response.ok) {
 			throw new Error(`Backend request failed: ${response.statusText}`);
@@ -44,27 +30,12 @@ export class AIWritingBackendService {
 		return await response.json();
 	}
 
-	private async *call_backend_stream(
-		endpoint: string,
-		data: unknown,
-		signal?: AbortSignal
-	): AsyncGenerator<string, void, unknown> {
+	private async *call_backend_stream(response: Response): AsyncGenerator<string, void, unknown> {
 		// const token = license_key_state.license_key;
 		// if (!token) {
 		// 	throw new Error('No license key available. Please configure your license key in settings.');
 		// }
-
-		const response = await fetch(`${BACKEND_URL}/${endpoint}`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				// Authorization: `Bearer ${token}`,
-				Accept: 'text/plain+stream'
-			},
-			body: JSON.stringify(data),
-			signal
-		});
-
+		console.log(response);
 		if (!response.ok) {
 			throw new Error(`Backend request failed: ${response.statusText}`);
 		}
@@ -103,13 +74,25 @@ export class AIWritingBackendService {
 		try {
 			let accumulated_text = '';
 			for await (const chunk of this.call_backend_stream(
-				'continue',
-				{
-					content,
-					context,
-					word_count
-				},
-				this.current_abort_controller?.signal
+				await client.api.continue.$post(
+					{
+						json: {
+							content,
+							context,
+							word_count
+						}
+					},
+					{
+						init: {
+							signal: this.current_abort_controller?.signal
+						},
+						headers: {
+							'Content-Type': 'application/json',
+							// Authorization: `Bearer ${token}`,
+							Accept: 'text/plain+stream'
+						}
+					}
+				)
 			)) {
 				accumulated_text += chunk;
 				yield accumulated_text;
@@ -134,13 +117,25 @@ export class AIWritingBackendService {
 		try {
 			let accumulated_text = '';
 			for await (const chunk of this.call_backend_stream(
-				'start',
-				{
-					prompt,
-					context,
-					word_count
-				},
-				this.current_abort_controller?.signal
+				await client.api.start.$post(
+					{
+						json: {
+							prompt,
+							context,
+							word_count
+						}
+					},
+					{
+						init: {
+							signal: this.current_abort_controller?.signal
+						},
+						headers: {
+							'Content-Type': 'application/json',
+							// Authorization: `Bearer ${token}`,
+							Accept: 'text/plain+stream'
+						}
+					}
+				)
 			)) {
 				accumulated_text += chunk;
 				yield accumulated_text;
@@ -160,7 +155,7 @@ export class AIWritingBackendService {
 
 	async check_health(): Promise<boolean> {
 		try {
-			const response = await fetch(`${BACKEND_URL}/health`);
+			const response = await client.health.$get();
 			return response.ok;
 		} catch {
 			return false;
@@ -176,11 +171,15 @@ export class AIWritingBackendService {
 		context_before?: string,
 		context_after?: string
 	): Promise<RephraseResponse> {
-		return this.call_backend('rephrase', {
-			selected_sentence,
-			context_before: context_before || '',
-			context_after: context_after || ''
-		}) as Promise<RephraseResponse>;
+		return this.call_backend(
+			await client.api.rephrase.$post({
+				json: {
+					selected_sentence,
+					context_before: context_before || '',
+					context_after: context_after || ''
+				}
+			})
+		) as Promise<RephraseResponse>;
 	}
 
 	get has_valid_license() {

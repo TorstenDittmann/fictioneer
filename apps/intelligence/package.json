@@ -15,14 +15,14 @@
 		"lint": "prettier --check ."
 	},
 	"dependencies": {
-		"@arcjet/bun": "^1.0.0-beta.14",
-		"@arcjet/inspect": "^1.0.0-beta.14",
-		"@openrouter/ai-sdk-provider": "^1.2.1",
-		"@posthog/ai": "^7.0.0",
-		"ai": "^5.0.89",
+		"@arcjet/bun": "^1.0.0-beta.15",
+		"@arcjet/inspect": "^1.0.0-beta.15",
+		"@openrouter/ai-sdk-provider": "^1.2.5",
+		"@posthog/ai": "^7.2.0",
+		"ai": "^5.0.101",
 		"dedent": "^1.7.0",
-		"hono": "^4.10.4",
-		"posthog-node": "^5.11.2"
+		"hono": "^4.10.6",
+		"posthog-node": "^5.14.0"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",
