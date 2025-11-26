@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { logger } from 'hono/logger';	
 import { PostHog } from 'posthog-node';
 import marketing_api from './marketing_api';
 import production_api from './production_api';
@@ -10,6 +11,7 @@ const client = new PostHog('phc_Rnfc8HPFJ1Duqo23ykhIYTivNNB8Mn5v6NqbVUxLJkS', {
 });
 
 const app = new Hono()
+	.use(logger())
 	.use(
 		'*',
 		cors({
