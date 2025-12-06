@@ -10,7 +10,7 @@
 
 <svelte:head>
 	<!-- Favicon -->
-	<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+	<link rel="icon" type="image/svg+xml" href={logo} />
 
 	<!-- Apple Touch Icons -->
 	<link rel="apple-touch-icon" sizes="180x180" href={logo} />
