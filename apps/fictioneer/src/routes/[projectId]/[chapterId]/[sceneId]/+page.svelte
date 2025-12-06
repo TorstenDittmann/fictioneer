@@ -84,6 +84,7 @@
 				content={data.scene.content}
 				placeholder="Start writing your scene..."
 				onUpdate={handle_editor_update}
+				os_type={data.os_type}
 				aiContext={{
 					title: data.project.title,
 					scene_description: data.scene.title

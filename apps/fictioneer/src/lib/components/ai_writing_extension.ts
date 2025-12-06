@@ -9,6 +9,7 @@ export interface AIWritingSuggestionOptions {
 	context: unknown;
 	enabled: boolean;
 	contextWindowSize: number;
+	platformOS: string;
 }
 
 const suggestionPluginKey = new PluginKey('aiWritingSuggestion');
@@ -43,13 +44,17 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 			minLength: 50,
 			context: {},
 			enabled: true,
-			contextWindowSize: 2000
+			contextWindowSize: 2000,
+			platformOS: 'unknown'
 		};
 	},
 
 	addProseMirrorPlugins() {
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		const extension = this;
+		const platform_os = extension.options.platformOS;
+		const normalized_os = platform_os.toLowerCase();
+		const is_darwin = normalized_os === 'darwin' || normalized_os === 'macos';
 
 		return [
 			new Plugin({
@@ -148,6 +153,26 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 
 								return true;
 							}
+						}
+
+						// Accept suggestion with Ctrl+Enter on Windows/Linux
+						if (
+							!is_darwin &&
+							event.key === 'Enter' &&
+							pluginState?.suggestion &&
+							event.ctrlKey &&
+							!event.altKey &&
+							!event.metaKey &&
+							!event.shiftKey
+						) {
+							event.preventDefault();
+
+							const { from, to } = view.state.selection;
+							const tr = view.state.tr.insertText(pluginState.suggestion, from, to);
+							tr.setMeta(suggestionPluginKey, { type: 'clear-suggestion' });
+							view.dispatch(tr);
+
+							return true;
 						}
 
 						// Only handle other keys if suggestion exists
@@ -376,10 +401,15 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					};
 
 					const check_option_key = (event: KeyboardEvent) => {
-						if (event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+						const allow_ctrl_trigger = !is_darwin;
+						const is_option_trigger =
+							(event.altKey && !event.metaKey && !event.shiftKey) ||
+							(allow_ctrl_trigger && event.ctrlKey && !event.metaKey && !event.shiftKey);
+
+						if (is_option_trigger) {
 							option_key_held = true;
 							update_option_indicator(true);
-							// Reset clearing state when option key is pressed again
+							// Reset clearing state when trigger key is pressed again
 							is_clearing = false;
 							// Clear any pending clear timeout
 							if (clear_suggestion_timeout) {
@@ -400,7 +430,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								context_text.length >= extension.options.minLength &&
 								!ai_writing_backend_service.is_request_active()
 							) {
-								console.log('AI: Option key held, generating suggestion');
+								console.log('AI: Suggestion trigger held, generating suggestion');
 								generateSuggestion();
 							}
 						}
@@ -412,7 +442,11 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							event.key === 'Alt' ||
 							event.key === 'Option' ||
 							event.code === 'AltLeft' ||
-							event.code === 'AltRight'
+							event.code === 'AltRight' ||
+							(!is_darwin &&
+								(event.key === 'Control' ||
+									event.code === 'ControlLeft' ||
+									event.code === 'ControlRight'))
 						) {
 							option_key_held = false;
 							update_option_indicator(false);
@@ -440,7 +474,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							return;
 						}
 
-						if (!event.altKey && !is_clearing) {
+						if (!event.altKey && (!event.ctrlKey || is_darwin) && !is_clearing) {
 							// Option key released - clear suggestion with smooth animation
 							if (clear_suggestion_timeout) {
 								clearTimeout(clear_suggestion_timeout);

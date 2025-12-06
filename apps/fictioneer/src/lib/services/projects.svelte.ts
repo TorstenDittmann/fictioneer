@@ -1,7 +1,7 @@
-/* eslint-disable svelte/prefer-svelte-reactivity */
 import { file_service } from './file.svelte.js';
 import { progress_service } from './progress.svelte.js';
 import type { ProgressGoals, DailyProgress, ProgressStats } from '../types/progress.js';
+import { SvelteDate } from 'svelte/reactivity';
 
 export interface Scene {
 	id: string;
@@ -747,7 +747,7 @@ class ProjectsService {
 		}
 
 		// If no snapshot for today, calculate from yesterday's ending total
-		const yesterday = new Date();
+		const yesterday = new SvelteDate();
 		yesterday.setDate(yesterday.getDate() - 1);
 		const yesterday_date = yesterday.toISOString().split('T')[0];
 

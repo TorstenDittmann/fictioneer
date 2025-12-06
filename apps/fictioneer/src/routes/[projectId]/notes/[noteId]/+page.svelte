@@ -6,7 +6,7 @@
 	import type { PageProps } from './$types';
 	import { resolve } from '$app/paths';
 
-	let { params }: PageProps = $props();
+	let { params, data }: PageProps = $props();
 
 	let note_title = $state('');
 	let note_description = $state('');
@@ -202,6 +202,7 @@
 			<Editor
 				content={note_description}
 				placeholder="Start writing your note..."
+				os_type={data.os_type ?? null}
 				onUpdate={handle_editor_update}
 			/>
 		</div>

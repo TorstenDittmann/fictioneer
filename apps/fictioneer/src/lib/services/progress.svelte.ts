@@ -1,4 +1,4 @@
-/* eslint-disable svelte/prefer-svelte-reactivity */
+import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import type {
 	ProgressGoals,
 	DailyProgress,
@@ -137,7 +137,7 @@ class ProgressService {
 
 			if (remainingWords > 0) {
 				const daysToComplete = Math.ceil(remainingWords / averageDailyWords);
-				estimatedCompletionDate = new Date();
+				estimatedCompletionDate = new SvelteDate();
 				estimatedCompletionDate.setDate(estimatedCompletionDate.getDate() + daysToComplete);
 			}
 		}
@@ -160,7 +160,7 @@ class ProgressService {
 		}
 
 		const endDate = new Date();
-		const startDate = new Date();
+		const startDate = new SvelteDate();
 		startDate.setDate(endDate.getDate() - days + 1);
 
 		return project.dailyProgress
@@ -204,11 +204,11 @@ class ProgressService {
 	getChartData(project: Project, days: number = 30): ChartDataPoint[] {
 		const dailyGoal = project.progressGoals?.dailyWordTarget || 500;
 		const endDate = new Date();
-		const startDate = new Date();
+		const startDate = new SvelteDate();
 		startDate.setDate(endDate.getDate() - days + 1);
 
 		const chartData: ChartDataPoint[] = [];
-		const progressMap = new Map<string, DailyProgress>();
+		const progressMap = new SvelteMap<string, DailyProgress>();
 
 		// Create a map of existing progress data
 		if (project.dailyProgress) {
@@ -216,7 +216,7 @@ class ProgressService {
 		}
 
 		// Generate data points for each day in the range
-		for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+		for (let d = new SvelteDate(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
 			const dateStr = this.formatDate(d);
 			const progress = progressMap.get(dateStr);
 			const isToday = dateStr === this.formatDate(new Date());

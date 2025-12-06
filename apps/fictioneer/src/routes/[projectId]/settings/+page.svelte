@@ -7,6 +7,8 @@
 
 	let project_title = $state(data.project.title);
 	let project_description = $state(data.project.description || '');
+	const is_darwin =
+		data.os_type?.toLowerCase() === 'darwin' || data.os_type?.toLowerCase() === 'macos';
 
 	// Get project stats as derived value
 	const stats = $derived(projects.getProjectStats());
@@ -114,6 +116,21 @@
 					<span>Save changes</span>
 					<kbd class="rounded bg-surface px-1 py-0.5 font-mono text-xs">⌘S</kbd>
 				</div>
+				{#if is_darwin}
+					<div class="flex justify-between">
+						<span>AI suggestions (hold)</span>
+						<kbd class="rounded bg-surface px-1 py-0.5 font-mono text-xs">⌥</kbd>
+					</div>
+				{:else}
+					<div class="flex justify-between">
+						<span>AI suggestions (hold)</span>
+						<kbd class="rounded bg-surface px-1 py-0.5 font-mono text-xs">Ctrl</kbd>
+					</div>
+					<div class="flex justify-between">
+						<span>Accept suggestion</span>
+						<kbd class="rounded bg-surface px-1 py-0.5 font-mono text-xs">Ctrl+Enter</kbd>
+					</div>
+				{/if}
 				<div class="flex justify-between">
 					<span>Focus Mode</span>
 					<kbd class="rounded bg-surface px-1 py-0.5 font-mono text-xs">⌘F</kbd>

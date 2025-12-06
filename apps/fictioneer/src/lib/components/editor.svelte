@@ -45,13 +45,15 @@
 			title?: string;
 			scene_description?: string;
 		};
+		os_type?: string;
 	}
 
 	let {
 		content = '',
 		placeholder = 'Start writing your story...',
 		onUpdate,
-		aiContext = {}
+		aiContext = {},
+		os_type = 'unknown'
 	}: Props = $props();
 
 	const extensions = [
@@ -83,7 +85,8 @@
 			minLength: 10,
 			contextWindowSize: 2000,
 			context: aiContext,
-			enabled: true
+			enabled: true,
+			platformOS: os_type
 		})
 	];
 

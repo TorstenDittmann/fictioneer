@@ -221,7 +221,7 @@
 		class="absolute top-4 left-1/2 z-50 -translate-x-1/2 transform transition-all duration-200 ease-in-out"
 	>
 		<Menubar.Root
-			class="flex items-center gap-1 rounded-lg border border-border bg-surface px-3 py-2 shadow-lg"
+			class="floating-panel flex items-center gap-1 rounded-lg border border-border bg-surface px-3 py-2 shadow-lg"
 		>
 			<!-- Undo Button -->
 			<button
@@ -410,7 +410,7 @@
 		class="absolute bottom-4 left-1/2 z-50 -translate-x-1/2 transform transition-all duration-200 ease-in-out"
 	>
 		<div
-			class="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 shadow-lg"
+			class="floating-panel flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 shadow-lg"
 		>
 			<!-- AI Prompt Button -->
 			<button
@@ -475,3 +475,13 @@
 		onReject={() => {}}
 	/>
 {/if}
+
+<style>
+	.floating-panel {
+		background-color: #ffffff;
+		backdrop-filter: blur(12px) saturate(1.06);
+		-webkit-backdrop-filter: blur(12px) saturate(1.06);
+		border: 1px solid var(--color-border);
+		box-shadow: var(--shadow-lg);
+	}
+</style>

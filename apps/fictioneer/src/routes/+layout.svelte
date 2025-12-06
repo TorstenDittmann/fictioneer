@@ -6,11 +6,11 @@
 	import { layout_state } from '$lib/state/layout.svelte';
 	import { ai_writing_backend } from '$lib/state/ai_writing_backend.svelte';
 	import { settings_state } from '$lib/state/settings.svelte';
-	import type { Snippet } from 'svelte';
 	import { blur } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import type { LayoutProps } from './$types';
 
-	let { children }: { children: Snippet } = $props();
+	let { children }: LayoutProps = $props();
 
 	let show_app = $state(false);
 

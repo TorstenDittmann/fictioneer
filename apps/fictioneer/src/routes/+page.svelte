@@ -5,8 +5,12 @@
 	import { file_service } from '$lib/services/file.svelte.js';
 	import NewProjectModal from './new_project_modal.svelte';
 	import Logo from '$lib/components/logo.svelte';
+	import type { PageData } from './$types';
 
+	let { data }: { data: PageData } = $props();
 	let show_new_project_modal = $state(false);
+	const is_darwin =
+		data.os_type?.toLowerCase() === 'darwin' || data.os_type?.toLowerCase() === 'macos';
 
 	async function handle_new_project() {
 		show_new_project_modal = true;
@@ -203,6 +207,10 @@
 							<div>⌘N - New Project</div>
 							<div>⌘O - Open Project</div>
 							<div>⌘W - Close Project</div>
+							<div>{is_darwin ? '⌥' : 'Ctrl'} (hold) - AI Suggestions</div>
+							{#if !is_darwin}
+								<div>Ctrl+Enter - Accept suggestion</div>
+							{/if}
 						</div>
 					</div>
 				</div>

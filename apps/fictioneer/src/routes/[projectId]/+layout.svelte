@@ -66,7 +66,7 @@
 	<div class="flex flex-1 overflow-hidden">
 		<!-- Sidebar - hidden in distraction free mode -->
 		{#if !layout_state.is_distraction_free}
-			<ProjectSidebar {data} is_visible={true} />
+			<ProjectSidebar {data} is_visible={true} os_type={data.os_type} />
 		{/if}
 
 		<!-- Main content -->

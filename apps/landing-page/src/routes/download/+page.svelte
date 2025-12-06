@@ -82,7 +82,7 @@
 					<!-- Platform Header -->
 					<div class="mb-6 text-center">
 						<div
-							class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-paper-accent/10 to-paper-iris/10 text-paper-accent"
+							class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-paper-accent/10 to-paper-iris/10 text-paper-accent"
 						>
 							<Icon class="h-7 w-7" weight="regular" />
 						</div>

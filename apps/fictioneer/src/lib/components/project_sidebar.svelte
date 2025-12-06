@@ -11,9 +11,11 @@
 			project: Project;
 		};
 		is_visible?: boolean;
+		os_type?: string | null;
 	}
 
-	let { data, is_visible = true }: Props = $props();
+	let { data, is_visible = true, os_type = null }: Props = $props();
+	const is_darwin = os_type?.toLowerCase() === 'darwin' || os_type?.toLowerCase() === 'macos';
 
 	// Modal state
 	let chapter_modal_open = $state(false);
@@ -438,6 +440,21 @@
 					<span>New Scene</span>
 					<kbd class="rounded bg-surface px-1 py-0.5 font-mono text-xs">⌘N</kbd>
 				</div>
+				{#if is_darwin}
+					<div class="flex justify-between">
+						<span>AI Suggestions (hold)</span>
+						<kbd class="rounded bg-surface px-1 py-0.5 font-mono text-xs">⌥</kbd>
+					</div>
+				{:else}
+					<div class="flex justify-between">
+						<span>AI Suggestions (hold)</span>
+						<kbd class="rounded bg-surface px-1 py-0.5 font-mono text-xs">Ctrl</kbd>
+					</div>
+					<div class="flex justify-between">
+						<span>Accept suggestion</span>
+						<kbd class="rounded bg-surface px-1 py-0.5 font-mono text-xs">Ctrl+Enter</kbd>
+					</div>
+				{/if}
 
 				<div class="flex justify-between">
 					<span>Focus Mode</span>
