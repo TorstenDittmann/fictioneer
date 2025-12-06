@@ -303,8 +303,8 @@
 							/>
 						</svg>
 						<Command.Input
-							class="flex-1 bg-transparent text-sm outline-none"
-							style="color: var(--color-text);"
+							class="flex-1 bg-transparent text-sm outline-none focus:border-none focus:ring-0 focus:outline-none"
+							style="color: var(--color-text); box-shadow: none !important;"
 							placeholder="Search commands, scenes, and actions..."
 						/>
 						<div class="flex items-center gap-1">

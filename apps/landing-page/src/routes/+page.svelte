@@ -54,18 +54,14 @@
 
 	<!-- Additional Meta Tags -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta name="theme-color" content="#c4a47c" />
+	<meta name="theme-color" content="#6366f1" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 	<meta name="apple-mobile-web-app-title" content="Fictioneer" />
 </svelte:head>
 
-<div class="min-h-screen bg-white">
-	<main>
-		<HeroSection />
-		<FeaturesSection />
-		<SocialProofSection />
-		<FinalCtaSection />
-		<WaitlistForm />
-	</main>
-</div>
+<HeroSection />
+<FeaturesSection />
+<SocialProofSection />
+<FinalCtaSection />
+<WaitlistForm />

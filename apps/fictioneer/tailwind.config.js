@@ -15,8 +15,8 @@ export default {
 					'Cantarell',
 					'sans-serif'
 				],
-				serif: ['Libre Baskerville', 'Georgia', 'Times New Roman', 'serif'],
-				mono: ['Monaco', 'Menlo', 'Ubuntu Mono', 'monospace']
+				serif: ['Quattrocento', 'Georgia', 'Times New Roman', 'serif'],
+				mono: ['iA Writer Duo', 'SF Mono', 'Fira Code', 'Monaco', 'monospace']
 			}
 		}
 	},

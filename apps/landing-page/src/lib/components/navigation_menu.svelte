@@ -50,22 +50,22 @@
 		{
 			title: 'AI Story Generator',
 			href: '/tools/ai-story-generator',
-			description: 'Generate creative story ideas and plot points with AI.'
+			description: 'Generate creative story ideas with AI.'
 		},
 		{
 			title: 'Character Builder',
 			href: '/tools#character-builder',
-			description: 'Create detailed character profiles and backstories.'
+			description: 'Create detailed character profiles.'
 		},
 		{
 			title: 'Plot Outliner',
 			href: '/tools#plot-outliner',
-			description: 'Structure your story with AI-powered outlining tools.'
+			description: 'Structure your story with AI tools.'
 		},
 		{
 			title: 'Writing Prompts',
 			href: '/tools#prompts',
-			description: 'Get inspired with AI-generated writing prompts.'
+			description: 'Get inspired with AI prompts.'
 		}
 	];
 
@@ -73,12 +73,12 @@
 		{
 			title: 'Blog',
 			href: '/blog',
-			description: 'Writing tips, updates, and insights from our team.'
+			description: 'Writing tips, updates, and insights.'
 		},
 		{
 			title: 'FAQ',
 			href: '/faq',
-			description: 'Frequently asked questions about Fictioneer.'
+			description: 'Frequently asked questions.'
 		}
 	];
 </script>
@@ -88,15 +88,17 @@
 	<li>
 		<NavigationMenu.Link
 			{href}
-			class="block space-y-1 rounded-lg p-3 leading-none no-underline select-none hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
+			class="group flex items-center gap-3 rounded-xl p-3 transition-all duration-200 hover:bg-paper-beige/60"
 		>
-			<div class="flex items-center gap-2 text-base leading-none font-medium text-paper-text">
-				<Icon />
-				{title}
+			<div
+				class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-paper-accent/10 to-paper-iris/10 text-paper-accent transition-all duration-200 group-hover:from-paper-accent/20 group-hover:to-paper-iris/20"
+			>
+				<Icon class="h-5 w-5" weight="regular" />
 			</div>
-			<p class="text-base leading-snug text-paper-text-muted">
-				{description}
-			</p>
+			<div class="flex-1">
+				<div class="text-sm font-semibold text-paper-text">{title}</div>
+				<p class="text-xs text-paper-text-muted">{description}</p>
+			</div>
 		</NavigationMenu.Link>
 	</li>
 {/snippet}
@@ -105,12 +107,10 @@
 	<li>
 		<NavigationMenu.Link
 			{href}
-			class="block space-y-1 rounded-lg p-3 leading-none no-underline select-none hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
+			class="group block rounded-xl p-3 transition-all duration-200 hover:bg-paper-beige/60"
 		>
-			<div class="text-base leading-none font-medium text-paper-text">{title}</div>
-			<p class="line-clamp-2 text-base leading-snug text-paper-text-muted">
-				{description}
-			</p>
+			<div class="text-sm font-semibold text-paper-text">{title}</div>
+			<p class="mt-0.5 text-xs leading-relaxed text-paper-text-muted">{description}</p>
 		</NavigationMenu.Link>
 	</li>
 {/snippet}
@@ -119,43 +119,40 @@
 	<li>
 		<NavigationMenu.Link
 			{href}
-			class="block space-y-1 rounded-lg p-3 leading-none no-underline select-none hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
+			class="group block rounded-xl p-3 transition-all duration-200 hover:bg-paper-beige/60"
 		>
-			<div class="text-base leading-none font-medium text-paper-text">{title}</div>
-			<p class="line-clamp-2 text-base leading-snug text-paper-text-muted">
-				{description}
-			</p>
+			<div class="text-sm font-semibold text-paper-text">{title}</div>
+			<p class="mt-0.5 text-xs leading-relaxed text-paper-text-muted">{description}</p>
 		</NavigationMenu.Link>
 	</li>
 {/snippet}
 
-<nav class="fixed top-0 right-0 left-0 z-50">
+<nav class="fixed top-0 right-0 left-0 z-50 px-4 pt-4">
 	<div
-		class="absolute inset-0 bg-linear-to-b from-white/80 via-white/55 to-white/40 backdrop-blur-xl"
-	></div>
-	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
-	<div
-		class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,140,255,0.12),transparent_45%)]"
-	></div>
-
-	<div class="relative mx-auto flex max-w-7xl items-center gap-4 px-6 py-4">
+		class="glass-strong mx-auto flex max-w-5xl items-center justify-between rounded-2xl px-4 py-2.5"
+	>
+		<!-- Logo -->
 		<a
 			href={resolve('/')}
-			class="glass transition-smooth inline-flex items-center gap-3 rounded-full px-4 py-2 text-sm font-semibold text-paper-text shadow-sm hover:-translate-y-0.5 hover:shadow-lg"
+			class="group flex items-center gap-2.5 rounded-xl px-2 py-1.5 transition-all duration-200 hover:bg-paper-beige/50"
 		>
-			<img src={asset('/logo.svg')} alt="Fictioneer Logo" class="h-8 w-8" />
-			<span class="tracking-tight">Fictioneer</span>
+			<div
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-paper-accent to-paper-iris p-0.5"
+			>
+				<div class="flex h-full w-full items-center justify-center rounded-[10px] bg-white">
+					<img src={asset('/logo.svg')} alt="Fictioneer Logo" class="h-5 w-5" />
+				</div>
+			</div>
+			<span class="text-[15px] font-semibold tracking-tight text-paper-text">Fictioneer</span>
 		</a>
 
-		<!-- Navigation Menu - Centered -->
-		<NavigationMenu.Root class="relative z-10 flex flex-1 justify-center">
-			<NavigationMenu.List
-				class="glass-strong flex list-none items-center gap-1 rounded-full px-2 py-1"
-			>
+		<!-- Navigation Menu - Center -->
+		<NavigationMenu.Root class="relative z-10 hidden md:flex">
+			<NavigationMenu.List class="flex items-center gap-1">
 				<NavigationMenu.Item>
 					<NavigationMenu.Link
 						href="/pricing"
-						class="inline-flex h-11 w-max items-center justify-center rounded-full px-4 text-sm font-semibold text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none"
+						class="inline-flex h-9 items-center rounded-lg px-3.5 text-sm font-medium text-paper-text-light transition-all duration-200 hover:bg-paper-beige/60 hover:text-paper-text"
 					>
 						Pricing
 					</NavigationMenu.Link>
@@ -163,12 +160,11 @@
 
 				<NavigationMenu.Item value="download">
 					<NavigationMenu.Trigger
-						class="inline-flex h-11 w-max items-center justify-center gap-1 rounded-full px-4 text-sm font-semibold text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none data-[state=open]:bg-white/50"
+						class="group inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium text-paper-text-light transition-all duration-200 hover:bg-paper-beige/60 hover:text-paper-text data-[state=open]:bg-paper-beige/60 data-[state=open]:text-paper-text"
 					>
 						Download
 						<svg
-							class="relative h-3 w-3"
-							aria-hidden="true"
+							class="h-3.5 w-3.5 text-paper-text-muted transition-transform duration-200 group-data-[state=open]:rotate-180"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -184,9 +180,7 @@
 					<NavigationMenu.Content
 						class="data-[motion=from-end]:animate-enter-from-right data-[motion=from-start]:animate-enter-from-left data-[motion=to-end]:animate-exit-to-right data-[motion=to-start]:animate-exit-to-left absolute top-0 left-0 w-full sm:w-auto"
 					>
-						<ul
-							class="m-0 grid list-none gap-2 rounded-2xl border border-white/60 bg-white/70 p-4 shadow-xl backdrop-blur-xl sm:w-[320px]"
-						>
+						<ul class="w-[300px] space-y-1 p-2">
 							{#each download_links as link (link.title)}
 								{@render download_link(link)}
 							{/each}
@@ -196,12 +190,11 @@
 
 				<NavigationMenu.Item value="other">
 					<NavigationMenu.Trigger
-						class="inline-flex h-11 w-max items-center justify-center gap-1 rounded-full px-4 text-sm font-semibold text-paper-text hover:bg-paper-gray/60 focus:bg-paper-gray/60 focus:outline-none data-[state=open]:bg-white/50"
+						class="group inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium text-paper-text-light transition-all duration-200 hover:bg-paper-beige/60 hover:text-paper-text data-[state=open]:bg-paper-beige/60 data-[state=open]:text-paper-text"
 					>
-						Other
+						Resources
 						<svg
-							class="relative h-3 w-3"
-							aria-hidden="true"
+							class="h-3.5 w-3.5 text-paper-text-muted transition-transform duration-200 group-data-[state=open]:rotate-180"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -217,24 +210,22 @@
 					<NavigationMenu.Content
 						class="data-[motion=from-end]:animate-enter-from-right data-[motion=from-start]:animate-enter-from-left data-[motion=to-end]:animate-exit-to-right data-[motion=to-start]:animate-exit-to-left absolute top-0 left-0 w-full sm:w-auto"
 					>
-						<div
-							class="rounded-2xl border border-white/60 bg-white/75 p-4 shadow-2xl backdrop-blur-xl sm:w-[520px]"
-						>
+						<div class="w-[320px] p-3">
 							<!-- Regular Links -->
-							<ul class="m-0 mb-4 grid list-none gap-2 border-b border-paper-gray pb-4">
+							<ul class="mb-3 space-y-1 border-b border-paper-border pb-3">
 								{#each other_links as link (link.href)}
 									{@render other_link(link)}
 								{/each}
 							</ul>
 
-							<!-- Web Tools Submenu -->
+							<!-- Web Tools -->
 							<div>
 								<div
-									class="mb-2 px-3 text-xs font-semibold tracking-wider text-paper-text-muted uppercase"
+									class="mb-2 px-3 text-[11px] font-semibold tracking-wider text-paper-text-muted uppercase"
 								>
-									Web Tools
+									AI Tools
 								</div>
-								<ul class="m-0 grid list-none gap-2 sm:grid-cols-2">
+								<ul class="space-y-1">
 									{#each web_tools as tool (tool.href)}
 										{@render web_tool_link(tool)}
 									{/each}
@@ -246,22 +237,24 @@
 
 				<!-- Indicator -->
 				<NavigationMenu.Indicator
-					class="data-[state=visible]:animate-fade-in data-[state=hidden]:animate-fade-out top-full z-10 flex h-2 items-end justify-center overflow-hidden transition-all duration-200 data-[state=hidden]:opacity-0"
+					class="data-[state=hidden]:animate-fade-out data-[state=visible]:animate-fade-in top-full z-10 flex h-2.5 items-end justify-center overflow-hidden transition-all duration-200 data-[state=hidden]:opacity-0"
 				>
-					<div class="relative top-[70%] h-2 w-2 rotate-45 rounded-tl-sm bg-white/70"></div>
+					<div
+						class="relative top-[60%] h-2.5 w-2.5 rotate-45 rounded-tl-sm bg-white shadow-sm"
+					></div>
 				</NavigationMenu.Indicator>
 			</NavigationMenu.List>
 
 			<!-- Viewport -->
-			<div class="absolute top-full left-0 flex w-full justify-center perspective-[2000px]">
+			<div class="absolute top-full right-0 left-0 flex justify-center perspective-[2000px]">
 				<NavigationMenu.Viewport
-					class="origin-top-center data-[state=open]:animate-scale-in data-[state=closed]:animate-scale-out relative mt-3 overflow-hidden rounded-2xl border border-white/70 shadow-xl backdrop-blur-xl transition-all duration-200"
-					style="width: var(--bits-navigation-menu-viewport-width); height: var(--bits-navigation-menu-viewport-height);"
+					class="data-[state=closed]:animate-scale-out data-[state=open]:animate-scale-in relative mt-2 h-[var(--bits-navigation-menu-viewport-height)] w-[var(--bits-navigation-menu-viewport-width)] origin-top overflow-hidden rounded-2xl border border-paper-border bg-white/95 shadow-xl backdrop-blur-xl transition-[width,height] duration-200"
 				/>
 			</div>
 		</NavigationMenu.Root>
 
-		<a href={resolve('/download')} class="btn-primary hidden text-sm sm:inline-flex">
+		<!-- CTA Button -->
+		<a href={resolve('/download')} class="btn-primary hidden px-5 py-2 text-sm sm:inline-flex">
 			<span class="flex items-center gap-2">
 				Download
 				<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -274,5 +267,20 @@
 				</svg>
 			</span>
 		</a>
+
+		<!-- Mobile Menu Button -->
+		<button
+			class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-paper-text-light transition-colors hover:bg-paper-beige/60 md:hidden"
+			aria-label="Menu"
+		>
+			<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M4 6h16M4 12h16M4 18h16"
+				/>
+			</svg>
+		</button>
 	</div>
 </nav>

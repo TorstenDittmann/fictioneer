@@ -30,71 +30,88 @@
 	/>
 </svelte:head>
 
-<div class="min-h-screen bg-paper-beige pt-24 pb-16">
-	<div class="mx-auto max-w-7xl px-6">
+<div class="relative min-h-screen overflow-hidden">
+	<!-- Background -->
+	<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>
+	<div
+		class="aurora-blob-subtle top-[5%] left-[15%] h-[400px] w-[400px] rounded-full bg-paper-accent/15"
+	></div>
+	<div
+		class="aurora-blob-subtle right-[10%] bottom-[15%] h-[450px] w-[450px] rounded-full bg-paper-iris/10"
+	></div>
+
+	<div class="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-24">
 		<!-- Hero Section -->
 		<div class="mb-16 text-center">
+			<div class="pill animate-fade-in mx-auto mb-6 w-max">
+				<span class="h-1.5 w-1.5 rounded-full bg-paper-lime"></span>
+				Available now
+			</div>
+
 			<h1
-				class="mb-6 font-serif text-4xl leading-tight tracking-tight text-paper-text sm:text-5xl md:text-6xl"
+				class="animate-fade-in-up mb-4 font-serif text-3xl tracking-tight text-paper-text sm:text-4xl lg:text-5xl"
 			>
 				Download <span class="gradient-text">Fictioneer</span>
 			</h1>
-			<p class="mx-auto max-w-2xl text-base text-paper-text-light/90 sm:text-lg md:text-xl">
+			<p
+				class="animate-fade-in-up mx-auto max-w-2xl text-lg text-paper-text-light"
+				style:animation-delay="0.1s"
+			>
 				Get started with the writing environment designed for novelists. Available for all major
 				platforms.
 			</p>
 		</div>
 
-		<div class="grid gap-8 md:grid-cols-3">
-			{#each data.download_options as option (option.platform)}
+		<!-- Download Cards -->
+		<div class="mb-16 grid gap-5 md:grid-cols-3">
+			{#each data.download_options as option, idx (option.platform)}
 				{@const Icon = get_icon(option.platform)}
 				<div
-					class="glass hover-lift scroll-mt-24 rounded-2xl p-8 transition-all"
-					class:ring-2={data.detected_platform === option.platform}
-					class:ring-paper-accent={data.detected_platform === option.platform}
+					class="animate-fade-in-up card-elevated relative overflow-hidden p-6 transition-all duration-300 hover:scale-[1.02] {data.detected_platform ===
+					option.platform
+						? 'ring-2 ring-paper-accent'
+						: ''}"
+					style:animation-delay="{0.15 + idx * 0.08}s"
 				>
+					{#if data.detected_platform === option.platform}
+						<div class="absolute top-3 right-3">
+							<span class="badge">Detected</span>
+						</div>
+					{/if}
+
 					<!-- Platform Header -->
 					<div class="mb-6 text-center">
-						<div class="mb-3 flex justify-center">
-							<Icon class="h-12 w-12 text-paper-accent" weight="fill" />
+						<div
+							class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-paper-accent/10 to-paper-iris/10 text-paper-accent"
+						>
+							<Icon class="h-7 w-7" weight="regular" />
 						</div>
-						<h3 class="mb-2 text-2xl font-bold text-paper-text">
-							{option.name}
-						</h3>
+						<h3 class="mb-1 font-serif text-xl font-semibold text-paper-text">{option.name}</h3>
 						<p class="text-sm text-paper-text-muted">{option.description}</p>
-						{#if data.detected_platform === option.platform}
-							<div
-								class="mt-3 inline-block rounded-full bg-paper-accent/20 px-3 py-1 text-xs font-medium text-paper-accent"
-							>
-								Detected Platform
-							</div>
-						{/if}
 					</div>
 
 					<!-- Download Versions -->
-					<div class="space-y-3">
+					<div class="space-y-2">
 						{#each option.versions as version (version.arch)}
 							<!-- eslint-disable svelte/no-navigation-without-resolve-->
 							<a
 								href={version.url}
-								class="block w-full rounded-xl border border-paper-border bg-paper-beige/50 p-4 text-left hover:border-paper-accent/50 hover:bg-paper-gray/30"
+								class="group flex items-center justify-between rounded-xl border border-paper-border bg-paper-beige/30 p-3 transition-all hover:border-paper-accent/30 hover:bg-paper-beige/60"
 							>
-								<div class="flex items-center justify-between">
-									<span class="font-medium text-paper-text">{version.arch}</span>
-									<svg
-										class="h-4 w-4 text-paper-accent"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-										></path>
-									</svg>
-								</div>
+								<span class="text-sm font-medium text-paper-text">{version.arch}</span>
+								<svg
+									class="h-4 w-4 text-paper-text-muted transition-colors group-hover:text-paper-accent"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+									></path>
+								</svg>
 							</a>
 						{/each}
 					</div>
@@ -102,156 +119,58 @@
 			{/each}
 		</div>
 
-		<div class="mt-16 grid gap-8 md:grid-cols-2">
-			<div class="rounded-2xl border border-paper-border bg-paper-cream/30 p-8 backdrop-blur-sm">
-				<h3 class="mb-4 text-xl font-bold text-paper-text">System Requirements</h3>
-				<ul class="space-y-3 text-paper-text-light">
-					<li class="flex items-start gap-2">
-						<svg
-							class="mt-1 h-5 w-5 shrink-0 text-paper-accent"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
-						<span><strong>macOS:</strong> 11.0 Big Sur or later</span>
-					</li>
-					<li class="flex items-start gap-2">
-						<svg
-							class="mt-1 h-5 w-5 shrink-0 text-paper-accent"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
-						<span><strong>Windows:</strong> Windows 10 version 1809 or later</span>
-					</li>
-					<li class="flex items-start gap-2">
-						<svg
-							class="mt-1 h-5 w-5 shrink-0 text-paper-accent"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
-						<span><strong>Linux:</strong> Ubuntu 20.04, Fedora 34, or equivalent</span>
-					</li>
-					<li class="flex items-start gap-2">
-						<svg
-							class="mt-1 h-5 w-5 shrink-0 text-paper-accent"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
-						<span><strong>Memory:</strong> 4GB RAM minimum, 8GB recommended</span>
-					</li>
-					<li class="flex items-start gap-2">
-						<svg
-							class="mt-1 h-5 w-5 shrink-0 text-paper-accent"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
-						<span><strong>Storage:</strong> 500MB available disk space</span>
-					</li>
+		<!-- Info Cards -->
+		<div class="grid gap-5 md:grid-cols-2">
+			<!-- System Requirements -->
+			<div class="animate-fade-in-up card overflow-hidden p-6" style:animation-delay="0.4s">
+				<h3 class="mb-4 font-serif text-lg font-semibold text-paper-text">System Requirements</h3>
+				<ul class="space-y-3">
+					{#each [{ bold: 'macOS:', text: '11.0 Big Sur or later' }, { bold: 'Windows:', text: 'Windows 10 version 1809 or later' }, { bold: 'Linux:', text: 'Ubuntu 20.04, Fedora 34, or equivalent' }, { bold: 'Memory:', text: '4GB RAM minimum, 8GB recommended' }, { bold: 'Storage:', text: '500MB available disk space' }] as req (req.bold)}
+						<li class="flex items-start gap-2.5">
+							<div
+								class="mt-1 flex h-4 w-4 items-center justify-center rounded-full bg-paper-accent/15 text-paper-accent"
+							>
+								<svg
+									class="h-2.5 w-2.5"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="3"
+									viewBox="0 0 24 24"
+								>
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+							</div>
+							<span class="text-sm text-paper-text-light">
+								<strong class="text-paper-text">{req.bold}</strong>
+								{req.text}
+							</span>
+						</li>
+					{/each}
 				</ul>
 			</div>
 
-			<div class="rounded-2xl border border-paper-border bg-paper-cream/30 p-8 backdrop-blur-sm">
-				<h3 class="mb-4 text-xl font-bold text-paper-text">What's Included</h3>
-				<ul class="space-y-3 text-paper-text-light">
-					<li class="flex items-start gap-2">
-						<svg
-							class="mt-1 h-5 w-5 shrink-0 text-paper-accent"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
-						<span>Distraction-free writing interface</span>
-					</li>
-					<li class="flex items-start gap-2">
-						<svg
-							class="mt-1 h-5 w-5 shrink-0 text-paper-accent"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
-						<span>AI-powered writing assistance</span>
-					</li>
-					<li class="flex items-start gap-2">
-						<svg
-							class="mt-1 h-5 w-5 shrink-0 text-paper-accent"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
-						<span>Progress tracking & analytics</span>
-					</li>
-					<li class="flex items-start gap-2">
-						<svg
-							class="mt-1 h-5 w-5 shrink-0 text-paper-accent"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
-						<span>Cloud sync & local storage</span>
-					</li>
-					<li class="flex items-start gap-2">
-						<svg
-							class="mt-1 h-5 w-5 shrink-0 text-paper-accent"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-								clip-rule="evenodd"
-							></path>
-						</svg>
-						<span>Export to multiple formats</span>
-					</li>
+			<!-- What's Included -->
+			<div class="animate-fade-in-up card overflow-hidden p-6" style:animation-delay="0.45s">
+				<h3 class="mb-4 font-serif text-lg font-semibold text-paper-text">What's Included</h3>
+				<ul class="space-y-3">
+					{#each ['Distraction-free writing interface', 'AI-powered writing assistance', 'Progress tracking & analytics', 'Cloud sync & local storage', 'Export to multiple formats'] as feature (feature)}
+						<li class="flex items-start gap-2.5">
+							<div
+								class="mt-1 flex h-4 w-4 items-center justify-center rounded-full bg-paper-accent/15 text-paper-accent"
+							>
+								<svg
+									class="h-2.5 w-2.5"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="3"
+									viewBox="0 0 24 24"
+								>
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+							</div>
+							<span class="text-sm text-paper-text-light">{feature}</span>
+						</li>
+					{/each}
 				</ul>
 			</div>
 		</div>

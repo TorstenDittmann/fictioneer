@@ -21,7 +21,7 @@
 		{
 			title: 'AI Story Generator',
 			description:
-				'Generate unique, creative stories with AI. Choose your genre, theme, characters, and setting to create engaging fiction instantly.',
+				'Generate unique, creative stories with AI. Choose your genre, theme, and setting.',
 			href: '/tools/ai-story-generator',
 			icon: '📚',
 			status: 'available',
@@ -34,8 +34,7 @@
 		},
 		{
 			title: 'Character Name Generator',
-			description:
-				'Create memorable character names for your stories. Generate names by genre, origin, or cultural background.',
+			description: 'Create memorable character names by genre, origin, or cultural background.',
 			href: '/tools/character-name-generator',
 			icon: '👤',
 			status: 'available',
@@ -43,8 +42,7 @@
 		},
 		{
 			title: 'Plot Generator',
-			description:
-				"Overcome writer's block with AI-generated plot ideas and story structures tailored to your preferred genre.",
+			description: "Overcome writer's block with AI-generated plot ideas tailored to your genre.",
 			href: '/tools/plot-generator',
 			icon: '🎭',
 			status: 'available',
@@ -52,8 +50,7 @@
 		},
 		{
 			title: 'Book Title Generator',
-			description:
-				"Generate compelling book titles that capture your story's essence and attract readers.",
+			description: "Generate compelling book titles that capture your story's essence.",
 			href: '/tools/book-title-generator',
 			icon: '📖',
 			status: 'available',
@@ -61,8 +58,7 @@
 		},
 		{
 			title: 'Pen Name Generator',
-			description:
-				'Create the perfect pseudonym for your writing career with our AI-powered pen name generator.',
+			description: 'Create the perfect pseudonym for your writing career with AI.',
 			href: '/tools/pen-name-generator',
 			icon: '✍️',
 			status: 'available',
@@ -70,7 +66,7 @@
 		},
 		{
 			title: 'Town Name Generator',
-			description: 'Generate realistic town and city names for your fictional worlds and stories.',
+			description: 'Generate realistic town and city names for your fictional worlds.',
 			href: '/tools/town-name-generator',
 			icon: '🏘️',
 			status: 'available',
@@ -83,8 +79,7 @@
 		},
 		{
 			title: 'Fan Fiction Story Generator',
-			description:
-				'Create fan fiction stories based on your favorite universes with AI assistance.',
+			description: 'Create fan fiction stories based on your favorite universes.',
 			href: '/tools/fan-fiction-story-generator',
 			icon: '⭐',
 			status: 'available',
@@ -92,8 +87,7 @@
 		},
 		{
 			title: 'Adult Story Generator',
-			description:
-				'Generate mature, sophisticated stories for adult audiences with nuanced themes and complex characters.',
+			description: 'Generate mature stories for adult audiences with nuanced themes.',
 			href: '/tools/adult-story-generator',
 			icon: '🔞',
 			status: 'available',
@@ -106,108 +100,111 @@
 	<title>Free AI Writing Tools - Story Generators & Writing Assistants | Fictioneer</title>
 	<meta
 		name="description"
-		content="Discover our collection of free AI writing tools. Generate stories, characters, plots, book titles, and more. Perfect for writers, authors, and creative minds seeking inspiration."
+		content="Discover our collection of free AI writing tools. Generate stories, characters, plots, book titles, and more."
 	/>
 	<meta
 		name="keywords"
-		content="AI writing tools, story generator, character generator, plot generator, book title generator, pen name generator, writing assistant, free writing tools"
+		content="AI writing tools, story generator, character generator, plot generator, book title generator, pen name generator, writing assistant"
 	/>
 	<link rel="canonical" href="https://fictioneer.app/tools" />
 
-	<!-- Open Graph -->
 	<meta
 		property="og:title"
 		content="Free AI Writing Tools - Story Generators & More | Fictioneer"
 	/>
 	<meta
 		property="og:description"
-		content="Explore our suite of free AI writing tools. Generate stories, characters, plots, and more to fuel your creativity."
+		content="Explore our suite of free AI writing tools. Generate stories, characters, plots, and more."
 	/>
 	<meta property="og:url" content="https://fictioneer.app/tools" />
 	<meta property="og:type" content="website" />
 
-	<!-- Twitter -->
 	<meta
 		name="twitter:title"
 		content="Free AI Writing Tools - Story Generators & More | Fictioneer"
 	/>
 	<meta
 		name="twitter:description"
-		content="Explore our suite of free AI writing tools. Generate stories, characters, plots, and more to fuel your creativity."
+		content="Explore our suite of free AI writing tools. Generate stories, characters, plots, and more."
 	/>
 </svelte:head>
 
-<div class="min-h-screen bg-paper-beige">
-	<!-- Gradient background overlay -->
+<div class="relative min-h-screen overflow-hidden">
+	<!-- Background -->
+	<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>
 	<div
-		class="absolute inset-0 bg-linear-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
+		class="aurora-blob-subtle top-[10%] left-[5%] h-[400px] w-[400px] rounded-full bg-paper-accent/15"
 	></div>
-	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
+	<div
+		class="aurora-blob-subtle right-[10%] bottom-[10%] h-[500px] w-[500px] rounded-full bg-paper-iris/10"
+	></div>
 
-	<main class="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+	<main class="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-24">
 		<!-- Hero Section -->
-		<div class="animate-fade-in-up mb-20 text-center">
-			<div class="mb-6">
-				<span class="animate-float text-6xl">🎨</span>
+		<div class="animate-fade-in-up mb-16 text-center">
+			<div class="pill mx-auto mb-6 w-max">
+				<span class="h-1.5 w-1.5 rounded-full bg-paper-accent"></span>
+				Free to use
 			</div>
-			<h1 class="mb-6 font-serif text-4xl font-bold md:text-6xl">
-				<span class="text-paper-text">Free AI</span>
-				<span class="gradient-text mt-2 block">Writing Tools</span>
+
+			<h1 class="mb-4 font-serif text-3xl tracking-tight text-paper-text sm:text-4xl lg:text-5xl">
+				Free AI <span class="gradient-text">Writing Tools</span>
 			</h1>
-			<p class="mx-auto mb-8 max-w-3xl text-xl leading-relaxed text-paper-text-light">
+			<p class="mx-auto mb-8 max-w-2xl text-lg text-paper-text-light">
 				Unleash your creativity with our collection of AI-powered writing tools. Generate stories,
-				characters, plots, and more to fuel your imagination and overcome writer's block.
+				characters, plots, and more.
 			</p>
-			<div class="flex flex-wrap items-center justify-center gap-4 text-sm text-paper-text-muted">
-				<span class="glass rounded-full border border-paper-accent/30 px-4 py-2">
-					<span class="text-paper-accent">✨</span> Completely Free
+
+			<div class="flex flex-wrap items-center justify-center gap-3">
+				<span
+					class="rounded-full border border-paper-border bg-white/60 px-4 py-2 text-sm text-paper-text-light backdrop-blur-sm"
+				>
+					<span class="mr-1.5 text-paper-accent">✨</span> Completely Free
 				</span>
-				<span class="glass rounded-full border border-paper-accent/30 px-4 py-2">
-					<span class="text-paper-accent">🤖</span> AI-Powered
+				<span
+					class="rounded-full border border-paper-border bg-white/60 px-4 py-2 text-sm text-paper-text-light backdrop-blur-sm"
+				>
+					<span class="mr-1.5 text-paper-accent">🤖</span> AI-Powered
 				</span>
-				<span class="glass rounded-full border border-paper-accent/30 px-4 py-2">
-					<span class="text-paper-accent">🚀</span> No Registration
+				<span
+					class="rounded-full border border-paper-border bg-white/60 px-4 py-2 text-sm text-paper-text-light backdrop-blur-sm"
+				>
+					<span class="mr-1.5 text-paper-accent">🚀</span> No Registration
 				</span>
 			</div>
 		</div>
 
 		<!-- Tools Grid -->
-		<div class="mb-20 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+		<div class="mb-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 			{#each tools as tool, index (tool.title)}
 				<div
-					class="glass hover-lift transition-smooth group animate-fade-in relative rounded-2xl border border-paper-border p-8"
-					style:animation-delay="{index * 0.1}s"
+					class="animate-fade-in-up card-elevated group relative overflow-hidden p-6 transition-all duration-300 hover:scale-[1.02]"
+					style:animation-delay="{index * 0.05}s"
 				>
 					{#if tool.status === 'coming_soon'}
 						<div class="absolute top-4 right-4">
-							<span
-								class="glass rounded-full border border-paper-accent/30 bg-paper-accent/20 px-3 py-1 text-xs font-medium text-paper-accent"
-							>
-								Coming Soon
-							</span>
+							<span class="badge">Coming Soon</span>
 						</div>
 					{/if}
 
-					<div class="mb-6 text-center">
-						<div class="animate-glow-pulse mb-4 text-4xl">{tool.icon}</div>
-						<h3 class="mb-3 font-serif text-xl font-semibold text-paper-text">{tool.title}</h3>
+					<div class="mb-4 text-center">
+						<div class="mb-3 text-4xl">{tool.icon}</div>
+						<h3 class="mb-2 font-serif text-lg font-semibold text-paper-text">{tool.title}</h3>
 						<p class="text-sm leading-relaxed text-paper-text-light">{tool.description}</p>
 					</div>
 
 					<!-- Features List -->
-					<ul class="mb-6 space-y-2">
+					<ul class="mb-5 space-y-2">
 						{#each tool.features as feature (feature)}
 							<li class="flex items-center text-sm text-paper-text-light">
 								<svg
-									class="mr-2 h-4 w-4 shrink-0 text-paper-accent"
-									fill="currentColor"
-									viewBox="0 0 20 20"
+									class="mr-2 h-3.5 w-3.5 shrink-0 text-paper-accent"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									viewBox="0 0 24 24"
 								>
-									<path
-										fill-rule="evenodd"
-										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-										clip-rule="evenodd"
-									/>
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
 								</svg>
 								{feature}
 							</li>
@@ -216,17 +213,11 @@
 
 					<!-- Action Button -->
 					{#if tool.status === 'available'}
-						<a
-							href={resolve(tool.href)}
-							class="btn-primary block w-full px-6 py-3 text-center font-semibold"
-						>
+						<a href={resolve(tool.href)} class="btn-primary block w-full text-center text-sm">
 							Try It Free
 						</a>
 					{:else}
-						<button
-							disabled
-							class="glass block w-full cursor-not-allowed rounded-lg border border-paper-border px-6 py-3 text-center font-semibold text-paper-text-muted"
-						>
+						<button disabled class="btn-ghost block w-full cursor-not-allowed text-sm opacity-50">
 							Coming Soon
 						</button>
 					{/if}

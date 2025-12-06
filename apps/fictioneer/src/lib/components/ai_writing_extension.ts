@@ -263,11 +263,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							// Create streaming typewriter container
 							const typewriter_span = document.createElement('span');
 							typewriter_span.className = 'ai-typewriter';
-							typewriter_span.style.cssText = `
-								color: #94a3b8;
-								font-style: italic;
-								opacity: 0.7;
-							`;
 							typewriter_span.textContent = '';
 
 							const decoration = Decoration.widget(cursor_position, () => typewriter_span, {
@@ -326,10 +321,11 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 									clearInterval(dot_interval);
 									break;
 								}
-								// Update typewriter span in real-time as text streams in, with trailing dots
+								// Update typewriter span directly (no transaction needed for DOM-only update)
 								const trimmed_text = streamed_text.trim();
 								const should_show_dots = !trimmed_text.endsWith('.');
 								const display_text = ' ' + trimmed_text + (should_show_dots ? '...' : '');
+								// Direct DOM update - synchronous for immediate visual feedback
 								typewriter_span.textContent = display_text;
 								full_suggestion = ' ' + trimmed_text;
 								result = streamed_text;

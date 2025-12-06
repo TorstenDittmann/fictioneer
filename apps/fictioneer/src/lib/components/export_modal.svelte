@@ -89,7 +89,7 @@
 								d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 							/>
 						</svg>
-						<h3 class="text-paper-text text-sm font-medium">
+						<h3 class="text-sm font-medium text-paper-text">
 							{format === 'rtf'
 								? 'Rich Text Format (RTF)'
 								: format === 'epub'
@@ -97,7 +97,7 @@
 									: 'Plain Text (TXT)'}
 						</h3>
 					</div>
-					<p class="text-paper-text-light mt-2 text-sm">
+					<p class="mt-2 text-sm text-paper-text-light">
 						{format === 'rtf'
 							? 'Export your project as a formatted RTF document that preserves formatting and can be opened in most word processors like Microsoft Word, Google Docs, or Pages.'
 							: format === 'epub'
@@ -108,51 +108,51 @@
 
 				<!-- Export Options -->
 				<div>
-					<div class="text-paper-text mb-2 block text-sm font-medium">Include in Export</div>
+					<div class="mb-2 block text-sm font-medium text-paper-text">Include in Export</div>
 					<div class="space-y-2">
 						<label class="flex cursor-pointer items-center">
 							<input
 								id="include-title"
 								type="checkbox"
 								bind:checked={export_options.include_title}
-								class="text-paper-accent focus:ring-paper-accent border-paper-border h-4 w-4 rounded"
+								class="h-4 w-4 rounded border-paper-border text-paper-accent focus:ring-paper-accent"
 							/>
-							<span class="text-paper-text ml-2 text-sm">Project Title</span>
+							<span class="ml-2 text-sm text-paper-text">Project Title</span>
 						</label>
 						<label class="flex cursor-pointer items-center">
 							<input
 								id="include-chapters"
 								type="checkbox"
 								bind:checked={export_options.include_chapter_titles}
-								class="text-paper-accent focus:ring-paper-accent border-paper-border h-4 w-4 rounded"
+								class="h-4 w-4 rounded border-paper-border text-paper-accent focus:ring-paper-accent"
 							/>
-							<span class="text-paper-text ml-2 text-sm">Chapter Titles</span>
+							<span class="ml-2 text-sm text-paper-text">Chapter Titles</span>
 						</label>
 						<label class="flex cursor-pointer items-center">
 							<input
 								id="include-scenes"
 								type="checkbox"
 								bind:checked={export_options.include_scene_titles}
-								class="text-paper-accent focus:ring-paper-accent border-paper-border h-4 w-4 rounded"
+								class="h-4 w-4 rounded border-paper-border text-paper-accent focus:ring-paper-accent"
 							/>
-							<span class="text-paper-text ml-2 text-sm">Scene Titles</span>
+							<span class="ml-2 text-sm text-paper-text">Scene Titles</span>
 						</label>
 						<label class="flex cursor-pointer items-center">
 							<input
 								id="include-wordcount"
 								type="checkbox"
 								bind:checked={export_options.include_word_count}
-								class="text-paper-accent focus:ring-paper-accent border-paper-border h-4 w-4 rounded"
+								class="h-4 w-4 rounded border-paper-border text-paper-accent focus:ring-paper-accent"
 							/>
-							<span class="text-paper-text ml-2 text-sm">Word Count (per scene)</span>
+							<span class="ml-2 text-sm text-paper-text">Word Count (per scene)</span>
 						</label>
 					</div>
 				</div>
 
 				<!-- Project Info -->
-				<div class="bg-paper-beige rounded-lg p-4">
-					<h4 class="text-paper-text mb-2 text-sm font-medium">Project Summary</h4>
-					<div class="text-paper-text-light space-y-1 text-sm">
+				<div class="rounded-lg bg-paper-beige p-4">
+					<h4 class="mb-2 text-sm font-medium text-paper-text">Project Summary</h4>
+					<div class="space-y-1 text-sm text-paper-text-light">
 						<div><strong>Title:</strong> {project.title}</div>
 						<div><strong>Chapters:</strong> {project.chapters.length}</div>
 						<div>
@@ -196,7 +196,7 @@
 				{/if}
 
 				<!-- Actions -->
-				<div class="border-paper-border flex justify-end space-x-3 border-t pt-4">
+				<div class="flex justify-end space-x-3 border-t border-paper-border pt-4">
 					<Button variant="secondary" onclick={handle_cancel} disabled={is_exporting}>
 						Cancel
 					</Button>

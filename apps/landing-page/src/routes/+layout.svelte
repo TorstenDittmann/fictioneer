@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import NavigationMenu from '$lib/components/navigation_menu.svelte';
+	import Footer from '$lib/components/footer.svelte';
 	import { asset } from '$app/paths';
 
 	let { children } = $props();
@@ -18,12 +19,15 @@
 	<link rel="apple-touch-icon" sizes="76x76" href={logo} />
 
 	<!-- Mask icon for Safari -->
-	<link rel="mask-icon" href={logo} color="#c4a47c" />
+	<link rel="mask-icon" href={logo} color="#6366f1" />
 
 	<!-- Microsoft Tiles -->
-	<meta name="msapplication-TileColor" content="#2a2621" />
+	<meta name="msapplication-TileColor" content="#6366f1" />
 	<meta name="msapplication-TileImage" content={logo} />
 </svelte:head>
 
 <NavigationMenu />
-<main class="pt-24 sm:pt-28">{@render children?.()}</main>
+<main class="pt-20">
+	{@render children?.()}
+</main>
+<Footer />

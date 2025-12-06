@@ -4,7 +4,6 @@
 
 	interface StoryOptions {
 		genres: Array<{ value: string; label: string }>;
-
 		settings: Array<{ value: string; label: string }>;
 		tones: Array<{ value: string; label: string }>;
 		themes_by_genre: Record<string, string[]>;
@@ -22,7 +21,6 @@
 			{ value: 'adventure', label: 'Adventure' },
 			{ value: 'thriller', label: 'Thriller' }
 		],
-
 		settings: [
 			{ value: 'modern', label: 'Modern day' },
 			{ value: 'historical', label: 'Historical period' },
@@ -170,21 +168,17 @@
 	let generated_story: GeneratedStory | null = $state(null);
 	let error_message = $state('');
 
-	// Form state
 	let selected_genre = $state('fantasy');
 	let selected_theme = $state('Good vs evil');
-
 	let selected_setting = $state('fantasy_world');
 	let selected_tone = $state('serious');
 	let word_count = $state(300);
 	let story_context = $state('');
 
-	// Streaming state
 	let streaming_text = $state('');
 	let is_streaming = $state(false);
 	let stream_completed = $state(false);
 
-	// Derived state for current themes
 	let current_themes = $derived(story_options?.themes_by_genre[selected_genre] || []);
 
 	function handle_genre_change(value: string) {
@@ -205,12 +199,8 @@
 		is_streaming = true;
 		stream_completed = false;
 
-		// Scroll to story section immediately
 		const story_section = document.getElementById('story-section');
-		story_section?.scrollIntoView({
-			behavior: 'smooth',
-			block: 'start'
-		});
+		story_section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
 		try {
 			const response = await client.api.marketing['generate-story'].$post(
@@ -224,11 +214,7 @@
 						context: story_context
 					}
 				},
-				{
-					headers: {
-						Accept: 'text/plain+stream'
-					}
-				}
+				{ headers: { Accept: 'text/plain+stream' } }
 			);
 
 			if (!response.ok) {
@@ -249,20 +235,15 @@
 				try {
 					while (true) {
 						const { done, value } = await reader.read();
-
 						if (done) {
 							stream_completed = true;
 							break;
 						}
-
 						const chunk = decoder.decode(value, { stream: true });
 						streaming_text += chunk;
-
-						// Add a small delay for typewriter effect
 						await new Promise((resolve) => setTimeout(resolve, 30));
 					}
 
-					// Create final story object
 					generated_story = {
 						story: streaming_text,
 						metadata: {
@@ -279,8 +260,7 @@
 			}
 		} catch (error) {
 			console.error('Error generating story:', error);
-			error_message =
-				error instanceof Error ? error.message : 'Failed to generate story. Please try again.';
+			error_message = error instanceof Error ? error.message : 'Failed to generate story.';
 			is_streaming = false;
 			streaming_text = '';
 		} finally {
@@ -291,15 +271,9 @@
 
 	function copy_story_to_clipboard() {
 		if (!generated_story) return;
-
-		navigator.clipboard
-			.writeText(generated_story.story)
-			.then(() => {
-				// Could add a toast notification here
-			})
-			.catch((err) => {
-				console.error('Failed to copy story:', err);
-			});
+		navigator.clipboard.writeText(generated_story.story).catch((err) => {
+			console.error('Failed to copy story:', err);
+		});
 	}
 </script>
 
@@ -307,536 +281,336 @@
 	<title>Free AI Story Generator - Create Unique Stories Instantly | Fictioneer</title>
 	<meta
 		name="description"
-		content="Generate unique, creative stories with our free AI story generator. Choose your genre, theme, characters, and setting. Perfect for writers looking for inspiration or fun creative exercises."
+		content="Generate unique, creative stories with our free AI story generator. Choose your genre, theme, and setting."
 	/>
 	<meta
 		name="keywords"
-		content="AI story generator, free story generator, creative writing, story ideas, fiction generator, writing prompts, AI writing tool"
+		content="AI story generator, free story generator, creative writing, story ideas, fiction generator"
 	/>
 	<link rel="canonical" href="https://fictioneer.app/tools/ai-story-generator" />
-
-	<!-- Open Graph -->
 	<meta
 		property="og:title"
 		content="Free AI Story Generator - Create Unique Stories | Fictioneer"
 	/>
 	<meta
 		property="og:description"
-		content="Generate creative stories instantly with AI. Choose your genre, theme, and settings to create unique fiction."
+		content="Generate creative stories instantly with AI. Choose your genre, theme, and settings."
 	/>
 	<meta property="og:url" content="https://fictioneer.app/tools/ai-story-generator" />
 	<meta property="og:type" content="website" />
-
-	<!-- Twitter -->
 	<meta
 		name="twitter:title"
 		content="Free AI Story Generator - Create Unique Stories | Fictioneer"
 	/>
-	<meta
-		name="twitter:description"
-		content="Generate creative stories instantly with AI. Choose your genre, theme, and settings to create unique fiction."
-	/>
+	<meta name="twitter:description" content="Generate creative stories instantly with AI." />
 </svelte:head>
 
-<div class="min-h-screen bg-paper-beige">
-	<!-- Gradient background overlay -->
+<div class="relative min-h-screen overflow-hidden">
+	<!-- Background -->
+	<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>
 	<div
-		class="absolute inset-0 bg-linear-to-br from-paper-beige via-paper-cream/50 to-paper-white/30"
+		class="aurora-blob-subtle top-[5%] left-[10%] h-[400px] w-[400px] rounded-full bg-paper-accent/15"
 	></div>
-	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
+	<div
+		class="aurora-blob-subtle right-[5%] bottom-[10%] h-[500px] w-[500px] rounded-full bg-paper-iris/10"
+	></div>
 
-	<main class="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+	<main class="relative z-10 mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:py-24">
 		<!-- Hero Section -->
-		<div class="animate-fade-in-up mb-16 text-center">
-			<div class="mb-6">
-				<span class="animate-float text-6xl">📚</span>
+		<div class="animate-fade-in-up mb-12 text-center">
+			<div class="pill mx-auto mb-6 w-max">
+				<span class="h-1.5 w-1.5 rounded-full bg-paper-accent"></span>
+				Free to use
 			</div>
-			<h1 class="mb-6 font-serif text-4xl font-bold md:text-6xl">
-				<span class="text-paper-text">AI Story</span>
-				<span class="gradient-text mt-2 block">Generator</span>
+
+			<h1 class="mb-4 font-serif text-3xl tracking-tight text-paper-text sm:text-4xl lg:text-5xl">
+				AI Story <span class="gradient-text">Generator</span>
 			</h1>
-			<p class="mx-auto mb-8 max-w-3xl text-xl leading-relaxed text-paper-text-light">
-				Create unique, engaging stories with the power of AI. Choose your genre, theme, characters,
-				and setting to generate creative fiction instantly.
+			<p class="mx-auto max-w-2xl text-lg text-paper-text-light">
+				Create unique, engaging stories with AI. Choose your genre, theme, and settings.
 			</p>
-			<div class="flex flex-wrap items-center justify-center gap-4 text-sm text-paper-text-muted">
-				<span class="glass rounded-full border border-paper-accent/30 px-4 py-2">
-					<span class="text-paper-accent">✨</span> Completely Free
-				</span>
-			</div>
 		</div>
 
 		<!-- Story Generator Form -->
-		<div class="mb-16">
-			<div
-				class="glass hover-lift animate-fade-in-up mx-auto max-w-4xl rounded-2xl border border-paper-border p-8"
-			>
-				<h2 class="mb-8 text-center font-serif text-2xl font-semibold text-paper-text">
+		<div class="animate-fade-in-up mb-16" style:animation-delay="0.1s">
+			<div class="card-elevated overflow-hidden p-6 sm:p-8">
+				<h2 class="mb-6 text-center font-serif text-xl font-semibold text-paper-text">
 					Customize Your Story
 				</h2>
 
-				<div class="animate-fade-in-up">
-					<form
-						onsubmit={(e) => {
-							e.preventDefault();
-							generate_story();
-						}}
-						class="space-y-8"
+				<form
+					onsubmit={(e) => {
+						e.preventDefault();
+						generate_story();
+					}}
+					class="space-y-6"
+				>
+					<div class="grid gap-5 sm:grid-cols-2">
+						<!-- Genre -->
+						<div>
+							<label for="genre" class="mb-2 block text-sm font-medium text-paper-text-light"
+								>Genre</label
+							>
+							<select
+								id="genre"
+								value={selected_genre}
+								onchange={(e) => handle_genre_change((e.target as HTMLSelectElement).value)}
+								class="input"
+								disabled={generating_story}
+							>
+								{#each story_options.genres as genre (genre.value)}
+									<option value={genre.value}>{genre.label}</option>
+								{/each}
+							</select>
+						</div>
+
+						<!-- Theme -->
+						<div>
+							<label for="theme" class="mb-2 block text-sm font-medium text-paper-text-light"
+								>Theme</label
+							>
+							<select
+								id="theme"
+								bind:value={selected_theme}
+								class="input"
+								disabled={generating_story}
+							>
+								{#each current_themes as theme (theme)}
+									<option value={theme}>{theme}</option>
+								{/each}
+							</select>
+						</div>
+
+						<!-- Setting -->
+						<div>
+							<label for="setting" class="mb-2 block text-sm font-medium text-paper-text-light"
+								>Setting</label
+							>
+							<select
+								id="setting"
+								bind:value={selected_setting}
+								class="input"
+								disabled={generating_story}
+							>
+								{#each story_options.settings as setting (setting.value)}
+									<option value={setting.value}>{setting.label}</option>
+								{/each}
+							</select>
+						</div>
+
+						<!-- Tone -->
+						<div>
+							<label for="tone" class="mb-2 block text-sm font-medium text-paper-text-light"
+								>Tone</label
+							>
+							<select
+								id="tone"
+								bind:value={selected_tone}
+								class="input"
+								disabled={generating_story}
+							>
+								{#each story_options.tones as tone (tone.value)}
+									<option value={tone.value}>{tone.label}</option>
+								{/each}
+							</select>
+						</div>
+					</div>
+
+					<!-- Story Context -->
+					<div>
+						<label for="story_context" class="mb-2 block text-sm font-medium text-paper-text-light">
+							Story Context <span class="text-paper-text-muted">(Optional)</span>
+						</label>
+						<textarea
+							id="story_context"
+							bind:value={story_context}
+							placeholder="Describe your story idea, characters, or specific details..."
+							class="input min-h-24 resize-y"
+							disabled={generating_story}
+						></textarea>
+					</div>
+
+					<!-- Word Count -->
+					<div>
+						<label for="word_count" class="mb-2 block text-sm font-medium text-paper-text-light">
+							Word Count: <span class="font-semibold text-paper-accent">{word_count}</span>
+						</label>
+						<input
+							id="word_count"
+							type="range"
+							min="100"
+							max="800"
+							step="50"
+							bind:value={word_count}
+							class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-paper-beige accent-paper-accent"
+							disabled={generating_story}
+						/>
+						<div class="mt-1 flex justify-between text-xs text-paper-text-muted">
+							<span>Short (100)</span>
+							<span>Medium (400)</span>
+							<span>Long (800)</span>
+						</div>
+					</div>
+
+					<!-- Generate Button -->
+					<button
+						type="submit"
+						disabled={generating_story}
+						class="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
 					>
-						<!-- Form Grid -->
-						<div class="grid gap-6 md:grid-cols-2">
-							<!-- Genre Selection -->
-							<div class="animate-fade-in" style:animation-delay="0.1s">
-								<label for="genre" class="mb-3 block text-sm font-medium text-paper-text-light">
-									Genre
-								</label>
-								<select
-									id="genre"
-									value={selected_genre}
-									onchange={(event) =>
-										handle_genre_change((event.target as HTMLSelectElement).value)}
-									class="glass transition-smooth w-full appearance-none rounded-lg border border-paper-border bg-paper-cream/50 px-4 py-3 text-paper-text focus:border-paper-accent focus:ring-2 focus:ring-paper-accent/20"
-									disabled={generating_story}
+						{#if generating_story}
+							<span class="flex items-center justify-center gap-2">
+								<svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+									<circle
+										class="opacity-25"
+										cx="12"
+										cy="12"
+										r="10"
+										stroke="currentColor"
+										stroke-width="4"
+									></circle>
+									<path
+										class="opacity-75"
+										fill="currentColor"
+										d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+									></path>
+								</svg>
+								Crafting Your Story...
+							</span>
+						{:else}
+							<span class="flex items-center justify-center gap-2">
+								<svg
+									class="h-4 w-4"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									viewBox="0 0 24 24"
 								>
-									{#each story_options.genres as genre (genre.value)}
-										<option value={genre.value}>{genre.label}</option>
-									{/each}
-								</select>
-							</div>
-
-							<!-- Theme Selection -->
-							<div class="animate-fade-in" style:animation-delay="0.2s">
-								<label for="theme" class="mb-3 block text-sm font-medium text-paper-text-light">
-									Theme
-								</label>
-								<select
-									id="theme"
-									bind:value={selected_theme}
-									class="glass transition-smooth w-full appearance-none rounded-lg border border-paper-border bg-paper-cream/50 px-4 py-3 text-paper-text focus:border-paper-accent focus:ring-2 focus:ring-paper-accent/20"
-									disabled={generating_story}
-								>
-									{#each current_themes as theme (theme)}
-										<option value={theme}>{theme}</option>
-									{/each}
-								</select>
-							</div>
-
-							<!-- Setting -->
-							<div class="animate-fade-in" style:animation-delay="0.3s">
-								<label for="setting" class="mb-3 block text-sm font-medium text-paper-text-light">
-									Setting
-								</label>
-								<select
-									id="setting"
-									bind:value={selected_setting}
-									class="glass transition-smooth w-full appearance-none rounded-lg border border-paper-border bg-paper-cream/50 px-4 py-3 text-paper-text focus:border-paper-accent focus:ring-2 focus:ring-paper-accent/20"
-									disabled={generating_story}
-								>
-									{#each story_options.settings as setting (setting.value)}
-										<option value={setting.value}>{setting.label}</option>
-									{/each}
-								</select>
-							</div>
-
-							<!-- Tone -->
-							<div class="animate-fade-in" style:animation-delay="0.4s">
-								<label for="tone" class="mb-3 block text-sm font-medium text-paper-text-light">
-									Tone
-								</label>
-								<select
-									id="tone"
-									bind:value={selected_tone}
-									class="glass transition-smooth w-full appearance-none rounded-lg border border-paper-border bg-paper-cream/50 px-4 py-3 text-paper-text focus:border-paper-accent focus:ring-2 focus:ring-paper-accent/20"
-									disabled={generating_story}
-								>
-									{#each story_options.tones as tone (tone.value)}
-										<option value={tone.value}>{tone.label}</option>
-									{/each}
-								</select>
-							</div>
-						</div>
-
-						<!-- Story Context -->
-						<div class="animate-fade-in" style:animation-delay="0.5s">
-							<label
-								for="story_context"
-								class="mb-3 block text-sm font-medium text-paper-text-light"
-							>
-								Story Context <span class="text-paper-text-muted">(Optional)</span>
-							</label>
-							<textarea
-								id="story_context"
-								bind:value={story_context}
-								placeholder="Describe your story idea, characters, or any specific details you'd like included..."
-								class="glass transition-smooth min-h-20 w-full resize-y rounded-lg border border-paper-border bg-paper-cream/50 px-4 py-3 text-paper-text focus:border-paper-accent focus:ring-2 focus:ring-paper-accent/20"
-								disabled={generating_story}
-							></textarea>
-							<div class="mt-1 text-xs text-paper-text-muted">
-								Add specific characters, plot points, or setting details to customize your story
-							</div>
-						</div>
-
-						<!-- Word Count -->
-						<div class="animate-fade-in" style:animation-delay="0.6s">
-							<label for="word_count" class="mb-3 block text-sm font-medium text-paper-text-light">
-								Approximate Word Count: <span class="gradient-text font-semibold"
-									>{word_count} words</span
-								>
-							</label>
-							<input
-								id="word_count"
-								type="range"
-								min="100"
-								max="800"
-								step="50"
-								bind:value={word_count}
-								class="slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-paper-gray/50"
-								disabled={generating_story}
-							/>
-							<div class="mt-2 flex justify-between text-xs text-paper-text-muted">
-								<span>Short (100)</span>
-								<span>Medium (400)</span>
-								<span>Long (800)</span>
-							</div>
-						</div>
-
-						<!-- Generate Button -->
-						<div class="animate-fade-in" style:animation-delay="0.7s">
-							<button
-								type="submit"
-								disabled={generating_story}
-								class="btn-primary w-full px-6 py-4 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-							>
-								{#if generating_story}
-									<span class="flex items-center justify-center">
-										<svg
-											class="mr-3 -ml-1 h-5 w-5 animate-spin"
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-										>
-											<circle
-												class="opacity-25"
-												cx="12"
-												cy="12"
-												r="10"
-												stroke="currentColor"
-												stroke-width="4"
-											></circle>
-											<path
-												class="opacity-75"
-												fill="currentColor"
-												d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-											></path>
-										</svg>
-										Crafting Your Story...
-									</span>
-								{:else}
-									<span class="flex items-center justify-center"> ✨ Generate My Story </span>
-								{/if}
-							</button>
-						</div>
-					</form>
-				</div>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M13 10V3L4 14h7v7l9-11h-7z"
+									></path>
+								</svg>
+								Generate My Story
+							</span>
+						{/if}
+					</button>
+				</form>
 			</div>
 		</div>
 
 		<!-- Generated Story Display -->
-		<div id="story-section" class="animate-fade-in-up">
-			<div class="mb-8 flex items-center justify-center">
-				<h2 class="text-center font-serif text-3xl font-semibold text-paper-text">
-					Your Generated Story
-				</h2>
-				{#if generated_story && !is_streaming}
-					<button
-						onclick={copy_story_to_clipboard}
-						class="glass ml-6 rounded-lg border border-paper-accent/30 px-4 py-2 text-sm text-paper-text-light hover:border-paper-accent hover:bg-paper-accent/10"
-					>
-						<span class="flex items-center gap-2"> 📋 Copy Story </span>
-					</button>
-				{/if}
-			</div>
-
+		<div id="story-section" class="animate-fade-in-up" style:animation-delay="0.2s">
 			{#if error_message}
-				<div
-					class="glass mx-auto mb-6 max-w-4xl rounded-lg border border-red-400/30 bg-red-400/10 p-4"
-				>
-					<p class="text-sm text-red-400">{error_message}</p>
+				<div class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
+					<p class="text-sm text-red-600">{error_message}</p>
 				</div>
 			{/if}
 
 			{#if is_streaming || generated_story}
-				<div class="animate-fade-in space-y-6">
-					<!-- Book-style Story Display -->
-					<div class="animate-fade-in">
-						<!-- Story Text with Book-like Styling -->
-						<div
-							class="mx-auto max-w-5xl rounded-3xl border border-paper-accent/20 bg-linear-to-br from-paper-white/10 to-paper-cream/20 p-8 shadow-2xl md:p-16"
-						>
-							<div class="story-page">
-								<div
-									class="typewriter story-content text-justify font-serif text-sm leading-relaxed text-paper-text-light md:text-base md:leading-loose lg:text-lg"
-								>
-									{#each (is_streaming ? streaming_text : generated_story?.story || '').split('\n\n') as paragraph, i (i)}
-										<p class="mb-6">{paragraph.replace(/\n/g, ' ')}</p>
-									{/each}
-									{#if is_streaming && !stream_completed}
-										<span class="blinking-cursor">|</span>
-									{/if}
-								</div>
-							</div>
+				<div class="card-elevated overflow-hidden">
+					<!-- Header -->
+					<div
+						class="flex items-center justify-between border-b border-paper-border bg-paper-beige/30 px-6 py-4"
+					>
+						<h2 class="font-serif text-lg font-semibold text-paper-text">Your Story</h2>
+						{#if generated_story && !is_streaming}
+							<button onclick={copy_story_to_clipboard} class="btn-ghost px-3 py-1.5 text-sm">
+								<span class="flex items-center gap-1.5">
+									<svg
+										class="h-4 w-4"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+										></path>
+									</svg>
+									Copy
+								</span>
+							</button>
+						{/if}
+					</div>
 
-							<!-- Story Metadata (only show when complete) -->
-							{#if generated_story && !is_streaming}
-								<div class="mt-12 border-t border-paper-accent/20 pt-8">
-									<div class="flex flex-wrap justify-center gap-6 text-sm text-paper-text-muted">
-										<span
-											><strong class="text-paper-accent">Genre:</strong>
-											{story_options?.genres.find(
-												(g) => g.value === generated_story?.metadata.genre
-											)?.label}
-										</span>
-										<span
-											><strong class="text-paper-accent">Theme:</strong>
-											{generated_story.metadata.theme}
-										</span>
-										<span
-											><strong class="text-paper-accent">Setting:</strong>
-											{story_options?.settings.find(
-												(s) => s.value === generated_story?.metadata.setting
-											)?.label}
-										</span>
-										<span
-											><strong class="text-paper-accent">Words:</strong>
-											<span class="gradient-text font-semibold"
-												>{generated_story.metadata.word_count}</span
-											>
-										</span>
-									</div>
-								</div>
+					<!-- Story Content -->
+					<div class="p-6 sm:p-8 lg:p-10">
+						<div
+							class="prose mx-auto max-w-none font-serif text-base leading-relaxed lg:text-lg lg:leading-loose"
+						>
+							{#each (is_streaming ? streaming_text : generated_story?.story || '').split('\n\n') as paragraph, i (i)}
+								<p class="mb-4 text-paper-text-light">{paragraph.replace(/\n/g, ' ')}</p>
+							{/each}
+							{#if is_streaming && !stream_completed}
+								<span class="inline-block h-5 w-0.5 animate-pulse bg-paper-accent"></span>
 							{/if}
 						</div>
+
+						<!-- Metadata -->
+						{#if generated_story && !is_streaming}
+							<div
+								class="mt-8 flex flex-wrap justify-center gap-4 border-t border-paper-border pt-6 text-sm text-paper-text-muted"
+							>
+								<span
+									><strong class="text-paper-accent">Genre:</strong>
+									{story_options?.genres.find((g) => g.value === generated_story?.metadata.genre)
+										?.label}</span
+								>
+								<span
+									><strong class="text-paper-accent">Theme:</strong>
+									{generated_story.metadata.theme}</span
+								>
+								<span
+									><strong class="text-paper-accent">Words:</strong>
+									{generated_story.metadata.word_count}</span
+								>
+							</div>
+						{/if}
 					</div>
 				</div>
 			{:else if !generating_story}
-				<div class="py-16 text-center">
-					<div class="animate-float mb-6 text-6xl">📖</div>
-					<p class="mb-2 text-lg text-paper-text-light">Your AI-generated story will appear here</p>
+				<div class="card py-16 text-center">
+					<div class="mb-4 text-5xl">📖</div>
+					<p class="mb-1 text-paper-text-light">Your AI-generated story will appear here</p>
 					<p class="text-sm text-paper-text-muted">
-						Customize the options and click "Generate My Story" to begin
+						Customize the options and click "Generate My Story"
 					</p>
-				</div>
-			{:else}
-				<div class="py-16 text-center">
-					<div class="animate-glow-pulse">
-						<div class="mb-6 text-6xl">✍️</div>
-						<p class="mb-2 text-lg text-paper-text-light">Crafting your unique story...</p>
-						<p class="text-sm text-paper-text-muted">Watch as your story unfolds word by word</p>
-					</div>
 				</div>
 			{/if}
 		</div>
 
 		<!-- Features Section -->
-		<div class="animate-fade-in-up mt-24" style:animation-delay="0.8s">
-			<h2 class="mb-16 text-center font-serif text-3xl font-bold text-paper-text">
+		<div class="animate-fade-in-up mt-20" style:animation-delay="0.3s">
+			<h2 class="mb-8 text-center font-serif text-2xl font-semibold text-paper-text">
 				Why Use Our AI Story Generator?
 			</h2>
-			<div class="grid gap-8 md:grid-cols-3">
-				<div class="glass hover-lift rounded-xl border border-paper-border p-8 text-center">
-					<div class="gradient-text mb-4 text-4xl">🎨</div>
-					<h3 class="mb-3 font-serif text-xl font-semibold text-paper-text">
-						Creative Inspiration
-					</h3>
-					<p class="leading-relaxed text-paper-text-light">
-						Break through writer's block with unique story ideas and creative prompts generated by
-						AI.
-					</p>
-				</div>
-				<div class="glass hover-lift rounded-xl border border-paper-border p-8 text-center">
-					<div class="gradient-text mb-4 text-4xl">⚡</div>
-					<h3 class="mb-3 font-serif text-xl font-semibold text-paper-text">Live Generation</h3>
-					<p class="leading-relaxed text-paper-text-light">
-						Watch your story come to life in real-time with our streaming typewriter effect.
-					</p>
-				</div>
-				<div class="glass hover-lift rounded-xl border border-paper-border p-8 text-center">
-					<div class="gradient-text mb-4 text-4xl">🎯</div>
-					<h3 class="mb-3 font-serif text-xl font-semibold text-paper-text">Genre-Specific</h3>
-					<p class="leading-relaxed text-paper-text-light">
-						Each genre comes with tailored themes and settings for authentic storytelling.
-					</p>
-				</div>
+			<div class="grid gap-5 sm:grid-cols-3">
+				{#each [{ icon: '🎨', title: 'Creative Inspiration', desc: "Break through writer's block with unique AI-generated ideas." }, { icon: '⚡', title: 'Live Generation', desc: 'Watch your story unfold in real-time with streaming.' }, { icon: '🎯', title: 'Genre-Specific', desc: 'Each genre comes with tailored themes and settings.' }] as feature (feature.title)}
+					<div class="card overflow-hidden p-6 text-center">
+						<div class="mb-3 text-3xl">{feature.icon}</div>
+						<h3 class="mb-2 font-serif text-base font-semibold text-paper-text">{feature.title}</h3>
+						<p class="text-sm text-paper-text-light">{feature.desc}</p>
+					</div>
+				{/each}
 			</div>
 		</div>
 
 		<!-- CTA Section -->
-		<div
-			class="glass animate-fade-in-up glow mt-24 rounded-2xl border border-paper-accent/30 p-12 text-center"
-			style:animation-delay="1s"
-		>
-			<h2 class="mb-4 font-serif text-3xl font-bold text-paper-text">
-				Ready for More Writing Tools?
-			</h2>
-			<p class="mb-8 text-xl text-paper-text-light opacity-90">
-				Discover Fictioneer - the complete writing platform for novelists
-			</p>
-			<div class="flex flex-col justify-center gap-4 sm:flex-row">
-				<a href={resolve('/')} class="btn-primary"> Learn More About Fictioneer </a>
-				<a
-					href={resolve('/tools')}
-					class="glass rounded-lg border-2 border-paper-accent px-8 py-3 font-semibold text-paper-accent hover:bg-paper-accent hover:text-paper-beige"
-				>
-					Explore More AI Tools
-				</a>
+		<div class="animate-fade-in-up mt-16 text-center" style:animation-delay="0.4s">
+			<div class="card-elevated glow-accent overflow-hidden p-8">
+				<h2 class="mb-3 font-serif text-xl font-semibold text-paper-text">Ready for More?</h2>
+				<p class="mb-6 text-paper-text-light">
+					Discover Fictioneer - the complete writing platform
+				</p>
+				<div class="flex flex-wrap justify-center gap-3">
+					<a href={resolve('/')} class="btn-primary">Learn More</a>
+					<a href={resolve('/tools')} class="btn-secondary">Explore Tools</a>
+				</div>
 			</div>
 		</div>
 	</main>
 </div>
-
-<style>
-	/* Custom slider styles */
-	.slider::-webkit-slider-thumb {
-		appearance: none;
-		height: 20px;
-		width: 20px;
-		border-radius: 50%;
-		background: linear-gradient(135deg, var(--color-paper-accent), var(--color-paper-accent-light));
-		cursor: pointer;
-		border: 2px solid var(--color-paper-beige);
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-	}
-
-	.slider::-moz-range-thumb {
-		height: 20px;
-		width: 20px;
-		border-radius: 50%;
-		background: linear-gradient(135deg, var(--color-paper-accent), var(--color-paper-accent-light));
-		cursor: pointer;
-		border: 2px solid var(--color-paper-beige);
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-	}
-
-	/* Book-style story page styling */
-	.story-page {
-		position: relative;
-		min-height: 300px;
-	}
-
-	/* Story content formatting */
-	.story-content p:last-child {
-		margin-bottom: 0;
-	}
-
-	.story-page::before {
-		content: '';
-		position: absolute;
-		top: -20px;
-		left: -20px;
-		right: -20px;
-		bottom: -20px;
-		background: linear-gradient(
-			135deg,
-			rgba(196, 164, 124, 0.03) 0%,
-			rgba(196, 164, 124, 0.08) 50%,
-			rgba(196, 164, 124, 0.03) 100%
-		);
-		border-radius: 20px;
-		z-index: -1;
-	}
-
-	/* Enhanced typography for book-like reading */
-	@media (min-width: 768px) {
-		.story-page .typewriter {
-			text-indent: 2em;
-			hyphens: auto;
-			word-spacing: 0.1em;
-			letter-spacing: 0.02em;
-		}
-	}
-
-	/* Paragraph spacing for story content */
-	.story-page .typewriter {
-		line-height: 1.8;
-	}
-
-	@media (min-width: 1024px) {
-		.story-page .typewriter {
-			line-height: 2;
-		}
-	}
-
-	/* Custom select styling */
-	select {
-		background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c4a47c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-		background-repeat: no-repeat;
-		background-position: right 1rem center;
-		background-size: 1rem;
-		padding-right: 3rem;
-	}
-
-	/* Option styling */
-	option {
-		background-color: var(--color-paper-cream);
-		color: var(--color-paper-text);
-		padding: 0.5rem;
-	}
-
-	option:checked {
-		background-color: var(--color-paper-accent);
-		color: var(--color-paper-beige);
-	}
-
-	/* Typewriter effect */
-	.typewriter {
-		overflow: visible;
-		border-right: 2px solid transparent;
-		min-height: 200px;
-	}
-
-	.blinking-cursor {
-		color: var(--color-paper-accent);
-		animation: blink 1.2s infinite;
-		font-weight: bold;
-		margin-left: 2px;
-	}
-
-	@keyframes blink {
-		0%,
-		50% {
-			opacity: 1;
-		}
-		51%,
-		100% {
-			opacity: 0;
-		}
-	}
-
-	/* Smooth text appearance during streaming */
-	.typewriter {
-		transition: all 0.1s ease-out;
-	}
-
-	/* Animation delays for staggered entrance */
-	.animate-fade-in:nth-child(1) {
-		animation-delay: 0.1s;
-	}
-	.animate-fade-in:nth-child(2) {
-		animation-delay: 0.2s;
-	}
-	.animate-fade-in:nth-child(3) {
-		animation-delay: 0.3s;
-	}
-	.animate-fade-in:nth-child(4) {
-		animation-delay: 0.4s;
-	}
-	.animate-fade-in:nth-child(5) {
-		animation-delay: 0.5s;
-	}
-	.animate-fade-in:nth-child(6) {
-		animation-delay: 0.6s;
-	}
-	.animate-fade-in:nth-child(7) {
-		animation-delay: 0.7s;
-	}
-</style>

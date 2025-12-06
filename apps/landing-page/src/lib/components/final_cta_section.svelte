@@ -10,34 +10,42 @@
 </script>
 
 <section class="relative overflow-hidden px-4 py-24 sm:py-32 lg:py-40">
-	<div class="absolute inset-0 bg-linear-to-b from-white via-paper-gray/30 to-white"></div>
-	<div class="absolute inset-0" style:background="var(--gradient-radial)"></div>
-	<div class="aurora-blob top-8 left-6 h-64 w-64 bg-[rgba(124,140,255,0.22)]"></div>
-	<div class="aurora-blob right-6 bottom-0 h-72 w-72 bg-[rgba(161,241,210,0.2)]"></div>
+	<!-- Background -->
+	<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>
+	<div
+		class="aurora-blob-subtle top-[10%] left-[5%] h-[400px] w-[400px] rounded-full bg-paper-accent/15"
+	></div>
+	<div
+		class="aurora-blob-subtle right-[10%] bottom-[5%] h-[450px] w-[450px] rounded-full bg-paper-iris/12"
+	></div>
 
 	<div class="relative z-10 mx-auto max-w-4xl">
-		<div
-			class="glass-strong relative overflow-hidden rounded-[32px] border border-white/60 p-10 text-center shadow-2xl sm:p-14"
-		>
+		<!-- Card -->
+		<div class="card-elevated relative overflow-hidden p-8 text-center sm:p-12 lg:p-16">
+			<!-- Decorative gradient -->
 			<div
-				class="absolute inset-0 bg-linear-to-br from-paper-accent/12 via-white/60 to-paper-accent-light/14"
+				class="absolute inset-0 bg-gradient-to-br from-paper-accent/5 via-transparent to-paper-iris/5"
 			></div>
+
 			<div class="relative">
-				<div class="pill mx-auto w-max shadow-md">
-					<span class="h-2 w-2 rounded-full bg-paper-accent"></span>
+				<!-- Badge -->
+				<div class="pill mx-auto mb-6 w-max">
+					<span class="h-1.5 w-1.5 rounded-full bg-paper-lime"></span>
 					Ready when inspiration strikes
 				</div>
+
+				<!-- Headline -->
 				<h2
-					class="mt-6 mb-4 font-serif text-4xl text-paper-text sm:text-5xl lg:text-6xl xl:text-7xl {mounted
+					class="mb-4 font-serif text-3xl tracking-tight text-paper-text sm:text-4xl lg:text-5xl {mounted
 						? 'animate-fade-in-up'
 						: 'opacity-0'}"
 				>
-					Start writing your
-					<span class="gradient-text">masterpiece</span>
+					Start writing your <span class="gradient-text">masterpiece</span>
 				</h2>
 
+				<!-- Description -->
 				<p
-					class="mx-auto mb-12 max-w-2xl text-lg text-paper-text-light sm:text-xl lg:text-2xl {mounted
+					class="mx-auto mb-10 max-w-xl text-lg text-paper-text-light {mounted
 						? 'animate-fade-in-up'
 						: 'opacity-0'}"
 					style:animation-delay="0.1s"
@@ -45,16 +53,17 @@
 					Download Fictioneer today and experience the writing software you've been searching for.
 				</p>
 
+				<!-- CTA Buttons -->
 				<div
-					class="flex flex-col items-center justify-center gap-4 sm:flex-row {mounted
+					class="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4 {mounted
 						? 'animate-fade-in-up'
 						: 'opacity-0'}"
 					style:animation-delay="0.2s"
 				>
 					<a href={resolve('/download')} class="btn-primary w-full sm:w-auto">
-						<span class="flex items-center justify-center gap-2 text-base sm:text-lg">
+						<span class="flex items-center justify-center gap-2">
 							Download Free
-							<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path
 									stroke-linecap="round"
 									stroke-linejoin="round"
@@ -66,9 +75,9 @@
 					</a>
 
 					<a href="#newsletter" class="btn-ghost w-full sm:w-auto">
-						<span class="flex items-center justify-center gap-2 text-base sm:text-lg">
+						<span class="flex items-center justify-center gap-2">
 							Stay Updated
-							<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path
 									stroke-linecap="round"
 									stroke-linejoin="round"

@@ -54,6 +54,8 @@ export class AIWritingBackendService {
 
 				const chunk = decoder.decode(value, { stream: true });
 				yield chunk;
+				// Allow browser to paint between chunks
+				await new Promise((resolve) => setTimeout(resolve, 0));
 			}
 		} finally {
 			reader.releaseLock();

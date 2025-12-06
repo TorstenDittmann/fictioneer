@@ -44,7 +44,7 @@
 </svelte:head>
 
 {#if show_app}
-	<div class="app-wrapper dark" transition:blur={{ duration: 600, amount: 10 }}>
+	<div class="app-wrapper" transition:blur={{ duration: 600, amount: 10 }}>
 		<div class="app-grid" class:focus-mode={layout_state.is_distraction_free}>
 			{#if !layout_state.is_distraction_free}
 				<TitleBar />

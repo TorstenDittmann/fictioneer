@@ -66,7 +66,7 @@
 			<div class="space-y-4">
 				<a
 					href={resolve('/')}
-					class="bg-paper-accent hover:bg-paper-accent-light focus:ring-paper-accent block w-full rounded-lg px-6 py-3 text-center text-white no-underline transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+					class="block w-full rounded-lg bg-paper-accent px-6 py-3 text-center text-white no-underline transition-colors duration-200 hover:bg-paper-accent-light focus:ring-2 focus:ring-paper-accent focus:ring-offset-2 focus:outline-none"
 				>
 					Go to Overview
 				</a>

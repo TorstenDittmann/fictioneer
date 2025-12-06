@@ -66,49 +66,66 @@
 	/>
 </svelte:head>
 
-<div class="min-h-screen bg-paper-beige pt-24 pb-16">
-	<div class="mx-auto max-w-7xl px-6">
+<div class="relative min-h-screen overflow-hidden">
+	<!-- Background -->
+	<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>
+	<div
+		class="aurora-blob-subtle top-[10%] left-[10%] h-[400px] w-[400px] rounded-full bg-paper-accent/15"
+	></div>
+	<div
+		class="aurora-blob-subtle right-[5%] bottom-[20%] h-[500px] w-[500px] rounded-full bg-paper-iris/10"
+	></div>
+
+	<div class="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-24">
 		<!-- Hero Section -->
 		<div class="mb-16 text-center">
+			<div class="pill animate-fade-in mx-auto mb-6 w-max">
+				<span class="h-1.5 w-1.5 rounded-full bg-paper-accent"></span>
+				Simple pricing
+			</div>
+
 			<h1
-				class="animate-fade-in-up mb-6 font-serif text-4xl leading-tight tracking-tight text-paper-text sm:text-5xl md:text-6xl"
+				class="animate-fade-in-up mb-4 font-serif text-3xl tracking-tight text-paper-text sm:text-4xl lg:text-5xl"
 			>
 				Simple, <span class="gradient-text">Transparent</span> Pricing
 			</h1>
 			<p
-				class="animate-fade-in-up mx-auto max-w-2xl text-base text-paper-text-light/90 sm:text-lg md:text-xl"
+				class="animate-fade-in-up mx-auto max-w-2xl text-lg text-paper-text-light"
 				style:animation-delay="0.1s"
 			>
-				Write your novel for free. Unlock advanced AI tools when you're ready to level up your
-				writing.
+				Write your novel for free. Unlock advanced AI tools when you're ready to level up.
 			</p>
 		</div>
 
 		<!-- Pricing Cards -->
-		<div class="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2">
+		<div class="mx-auto mb-20 grid max-w-4xl gap-6 lg:grid-cols-2">
 			{#each plans as plan, idx (plan.name)}
 				<div
-					class="animate-fade-in-up relative rounded-2xl border p-8 transition-all {plan.highlighted
-						? 'hover-lift border-paper-accent bg-paper-cream shadow-xl'
-						: 'border-paper-border bg-paper-cream/30'}"
-					style:animation-delay="{0.2 + idx * 0.1}s"
+					class="animate-fade-in-up card-elevated relative overflow-hidden p-8 {plan.highlighted
+						? 'ring-2 ring-paper-accent'
+						: ''}"
+					style:animation-delay="{0.15 + idx * 0.08}s"
 				>
 					<!-- Highlighted Badge -->
 					{#if plan.highlighted}
-						<div
-							class="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-paper-accent px-4 py-1 text-xs font-semibold text-paper-beige"
-						>
-							Most Popular
+						<div class="absolute -top-px left-1/2 -translate-x-1/2">
+							<div
+								class="rounded-b-lg bg-gradient-to-r from-paper-accent to-paper-iris px-4 py-1.5 text-xs font-semibold text-white"
+							>
+								Most Popular
+							</div>
 						</div>
 					{/if}
 
 					<!-- Plan Header -->
-					<div class="mb-6 text-center">
+					<div class="mb-6 text-center {plan.highlighted ? 'pt-4' : ''}">
 						{#if plan.description}
-							<p class="mb-4 text-sm text-paper-text-muted">{plan.description}</p>
+							<p class="mb-3 text-sm text-paper-text-muted">{plan.description}</p>
 						{/if}
-						<div class="flex items-baseline justify-center gap-2">
-							<span class="text-5xl font-bold text-paper-text">{plan.price}</span>
+						<div class="flex items-baseline justify-center gap-1">
+							<span class="font-serif text-4xl font-bold text-paper-text lg:text-5xl"
+								>{plan.price}</span
+							>
 							<span class="text-paper-text-muted">/ {plan.period}</span>
 						</div>
 					</div>
@@ -118,29 +135,35 @@
 						{#each plan.features as feature (feature.text)}
 							<li class="flex items-start gap-3">
 								{#if feature.included}
-									<svg
-										class="mt-0.5 h-5 w-5 shrink-0 text-paper-accent"
-										fill="currentColor"
-										viewBox="0 0 20 20"
+									<div
+										class="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-paper-accent/15 text-paper-accent"
 									>
-										<path
-											fill-rule="evenodd"
-											d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-											clip-rule="evenodd"
-										></path>
-									</svg>
+										<svg
+											class="h-3 w-3"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="3"
+											viewBox="0 0 24 24"
+										>
+											<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"
+											></path>
+										</svg>
+									</div>
 								{:else}
-									<svg
-										class="mt-0.5 h-5 w-5 shrink-0 text-paper-text-muted/40"
-										fill="currentColor"
-										viewBox="0 0 20 20"
+									<div
+										class="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-paper-text-muted/10 text-paper-text-muted/40"
 									>
-										<path
-											fill-rule="evenodd"
-											d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-											clip-rule="evenodd"
-										></path>
-									</svg>
+										<svg
+											class="h-3 w-3"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											viewBox="0 0 24 24"
+										>
+											<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"
+											></path>
+										</svg>
+									</div>
 								{/if}
 								<span
 									class="text-sm {feature.included
@@ -156,9 +179,7 @@
 					<!-- CTA Button -->
 					<a
 						href={resolve(plan.cta_href)}
-						class="block w-full rounded-lg py-3 text-center text-sm font-medium {plan.highlighted
-							? 'btn-primary text-white'
-							: 'border border-paper-accent text-paper-accent hover:bg-paper-accent/10'}"
+						class="block w-full text-center {plan.highlighted ? 'btn-primary' : 'btn-secondary'}"
 					>
 						{plan.cta_text}
 					</a>
@@ -166,42 +187,43 @@
 			{/each}
 		</div>
 
-		<div class="mx-auto mt-20 max-w-5xl">
-			<FaqSection
-				intro="Everything about pricing, billing, and the AI Tools subscription in one place."
-			/>
+		<!-- FAQ Section -->
+		<div class="mx-auto max-w-3xl">
+			<FaqSection intro="Everything about pricing, billing, and the AI Tools subscription." />
 		</div>
 
-		<!-- CTA Section -->
+		<!-- Bottom CTA -->
 		<div
-			class="animate-fade-in-up mx-auto mt-20 max-w-3xl rounded-2xl border border-paper-accent/30 bg-paper-cream/50 p-8 text-center backdrop-blur-sm"
-			style:animation-delay="1s"
+			class="animate-fade-in-up mx-auto mt-20 max-w-2xl text-center"
+			style:animation-delay="0.6s"
 		>
-			<h2 class="mb-4 text-2xl font-bold text-paper-text">Ready to start writing?</h2>
-			<p class="mb-6 text-paper-text-light">
-				Download Fictioneer for free and experience the joy of distraction-free writing.
-			</p>
-			<div class="flex flex-wrap justify-center gap-4">
-				<a
-					href={resolve('/download')}
-					class="inline-flex items-center gap-2 rounded-lg bg-paper-accent px-8 py-3 font-medium text-paper-beige hover:bg-paper-accent-light"
-				>
-					Download Free
-					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-						></path>
-					</svg>
-				</a>
-				<a
-					href="#subscribe"
-					class="inline-flex items-center gap-2 rounded-lg border border-paper-border px-8 py-3 font-medium text-paper-text hover:bg-paper-gray/30"
-				>
-					Try AI Tools
-				</a>
+			<div class="card-elevated overflow-hidden p-8">
+				<div
+					class="absolute inset-0 bg-gradient-to-br from-paper-accent/5 via-transparent to-paper-iris/5"
+				></div>
+				<div class="relative">
+					<h2 class="mb-3 font-serif text-xl font-semibold text-paper-text sm:text-2xl">
+						Ready to start writing?
+					</h2>
+					<p class="mb-6 text-paper-text-light">
+						Download Fictioneer for free and experience distraction-free writing.
+					</p>
+					<div class="flex flex-wrap justify-center gap-3">
+						<a href={resolve('/download')} class="btn-primary">
+							<span class="flex items-center gap-2">
+								Download Free
+								<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+									></path>
+								</svg>
+							</span>
+						</a>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
