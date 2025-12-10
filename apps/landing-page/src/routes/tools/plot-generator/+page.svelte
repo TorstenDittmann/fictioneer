@@ -139,7 +139,7 @@
 					<div class="grid gap-5 md:grid-cols-2">
 						<label class="text-sm text-paper-text-light">
 							<span class="mb-2 block" id="genre-label">Genre</span>
-							<select class="field" aria-labelledby="genre-label" bind:value={selected_genre}>
+							<select class="input" aria-labelledby="genre-label" bind:value={selected_genre}>
 								{#each GENRE_OPTIONS as option (option.value)}
 									<option value={option.value}>{option.label}</option>
 								{/each}
@@ -149,7 +149,7 @@
 						<label class="text-sm text-paper-text-light">
 							<span class="mb-2 block" id="structure-label">Structure</span>
 							<select
-								class="field"
+								class="input"
 								aria-labelledby="structure-label"
 								bind:value={selected_structure}
 							>
@@ -161,7 +161,7 @@
 
 						<label class="text-sm text-paper-text-light">
 							<span class="mb-2 block" id="conflict-label">Primary Conflict</span>
-							<select class="field" aria-labelledby="conflict-label" bind:value={selected_conflict}>
+							<select class="input" aria-labelledby="conflict-label" bind:value={selected_conflict}>
 								{#each CONFLICTS as option (option.value)}
 									<option value={option.value}>{option.label}</option>
 								{/each}
@@ -170,7 +170,7 @@
 
 						<label class="text-sm text-paper-text-light">
 							<span class="mb-2 block" id="twist-label">Signature Twist</span>
-							<select class="field" aria-labelledby="twist-label" bind:value={selected_twist}>
+							<select class="input" aria-labelledby="twist-label" bind:value={selected_twist}>
 								{#each TWISTS as option (option.value)}
 									<option value={option.value}>{option.label}</option>
 								{/each}
@@ -183,7 +183,7 @@
 							Protagonist
 						</label>
 						<textarea
-							class="field"
+							class="input"
 							rows="3"
 							placeholder="A grumpy archivist with forbidden knowledge"
 							id="protagonist"
@@ -194,7 +194,7 @@
 					<div>
 						<label for="setting" class="mb-2 block text-sm text-paper-text-light">Setting</label>
 						<textarea
-							class="field"
+							class="input"
 							rows="3"
 							placeholder="A floating capital built on tethered airships"
 							id="setting"

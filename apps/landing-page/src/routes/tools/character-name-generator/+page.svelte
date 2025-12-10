@@ -140,7 +140,7 @@
 					<div class="grid gap-6 md:grid-cols-2">
 						<div>
 							<label for="genre" class="mb-2 block text-sm text-paper-text-light">Genre</label>
-							<select id="genre" class="field" bind:value={selected_genre}>
+							<select id="genre" class="input" bind:value={selected_genre}>
 								{#each GENRES as genre_option (genre_option.value)}
 									<option value={genre_option.value}>{genre_option.label}</option>
 								{/each}
@@ -151,7 +151,7 @@
 							<label for="origin" class="mb-2 block text-sm text-paper-text-light">
 								Origin Style
 							</label>
-							<select id="origin" class="field" bind:value={selected_origin}>
+							<select id="origin" class="input" bind:value={selected_origin}>
 								{#each ORIGIN_OPTIONS as origin_option (origin_option.value)}
 									<option value={origin_option.value}>{origin_option.label}</option>
 								{/each}
@@ -162,7 +162,7 @@
 							<label for="gender" class="mb-2 block text-sm text-paper-text-light">
 								Gender Expression
 							</label>
-							<select id="gender" class="field" bind:value={selected_gender}>
+							<select id="gender" class="input" bind:value={selected_gender}>
 								{#each GENDER_OPTIONS as option (option.value)}
 									<option value={option.value}>{option.label}</option>
 								{/each}
@@ -173,7 +173,7 @@
 							<label for="style" class="mb-2 block text-sm text-paper-text-light">
 								Name Style
 							</label>
-							<select id="style" class="field" bind:value={selected_style}>
+							<select id="style" class="input" bind:value={selected_style}>
 								{#each STYLE_OPTIONS as option (option.value)}
 									<option value={option.value}>{option.label}</option>
 								{/each}
@@ -201,7 +201,7 @@
 							</label>
 							<textarea
 								rows="3"
-								class="field"
+								class="input"
 								placeholder="brave, empathic, secretive"
 								id="traits"
 								bind:value={include_traits}

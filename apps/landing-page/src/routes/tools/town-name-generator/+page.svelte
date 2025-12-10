@@ -125,7 +125,7 @@
 				<div class="grid gap-4 md:grid-cols-2">
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-1 block">World Type</span>
-						<select class="field" bind:value={selected_world}>
+						<select class="input" bind:value={selected_world}>
 							{#each WORLD_TYPES as option (option.value)}
 								<option value={option.value}>{option.label}</option>
 							{/each}
@@ -134,7 +134,7 @@
 
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-1 block">Region</span>
-						<select class="field" bind:value={selected_region}>
+						<select class="input" bind:value={selected_region}>
 							{#each REGIONS as option (option.value)}
 								<option value={option.value}>{option.label}</option>
 							{/each}
@@ -143,7 +143,7 @@
 
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-1 block">Settlement Size</span>
-						<select class="field" bind:value={selected_size}>
+						<select class="input" bind:value={selected_size}>
 							{#each SIZES as option (option.value)}
 								<option value={option.value}>{option.label}</option>
 							{/each}
@@ -152,7 +152,7 @@
 
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-1 block">Vibe</span>
-						<select class="field" bind:value={selected_vibe}>
+						<select class="input" bind:value={selected_vibe}>
 							{#each VIBES as option (option.value)}
 								<option value={option.value}>{option.label}</option>
 							{/each}
@@ -164,7 +164,7 @@
 					<span class="mb-1 block">Signature Features</span>
 					<textarea
 						rows="3"
-						class="field"
+						class="input"
 						placeholder="floating markets, sea glass, hidden library"
 						bind:value={features}
 					></textarea>

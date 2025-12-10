@@ -54,18 +54,18 @@
 		},
 		{
 			title: 'Character Builder',
-			href: '/tools#character-builder',
+			href: '/tools/character-name-generator',
 			description: 'Create detailed character profiles.'
 		},
 		{
 			title: 'Plot Outliner',
-			href: '/tools#plot-outliner',
+			href: '/tools/plot-generator',
 			description: 'Structure your story with AI tools.'
 		},
 		{
-			title: 'Writing Prompts',
-			href: '/tools#prompts',
-			description: 'Get inspired with AI prompts.'
+			title: 'More AI Tools',
+			href: '/tools',
+			description: 'Explore all our AI writing tools.'
 		}
 	];
 

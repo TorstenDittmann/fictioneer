@@ -111,7 +111,7 @@
 				<div class="grid gap-6 md:grid-cols-2">
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-2 block" id="genre-select-label">Genre</span>
-						<select class="field" aria-labelledby="genre-select-label" bind:value={selected_genre}>
+						<select class="input" aria-labelledby="genre-select-label" bind:value={selected_genre}>
 							{#each GENRE_OPTIONS as option (option.value)}
 								<option value={option.value}>{option.label}</option>
 							{/each}
@@ -120,7 +120,7 @@
 
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-2 block" id="style-select-label">Style</span>
-						<select class="field" aria-labelledby="style-select-label" bind:value={selected_style}>
+						<select class="input" aria-labelledby="style-select-label" bind:value={selected_style}>
 							{#each STYLE_OPTIONS as option (option.value)}
 								<option value={option.value}>{option.label}</option>
 							{/each}
@@ -138,7 +138,7 @@
 					<label for="keywords" class="mb-2 block text-sm text-paper-text-light">Keywords</label>
 					<textarea
 						rows="3"
-						class="field"
+						class="input"
 						placeholder="heirloom, rebellion, star-crossed"
 						id="keywords"
 						bind:value={keywords_input}

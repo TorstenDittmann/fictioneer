@@ -117,7 +117,7 @@
 				<div class="grid gap-4 md:grid-cols-2">
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-1 block">Fandom</span>
-						<select class="field" bind:value={selected_fandom}>
+						<select class="input" bind:value={selected_fandom}>
 							{#each FANDOMS as fandom (fandom.value)}
 								<option value={fandom.value}>{fandom.label}</option>
 							{/each}
@@ -126,7 +126,7 @@
 
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-1 block">Relationship Dynamic</span>
-						<select class="field" bind:value={selected_ship}>
+						<select class="input" bind:value={selected_ship}>
 							{#each SHIP_TYPES as ship (ship.value)}
 								<option value={ship.value}>{ship.label}</option>
 							{/each}
@@ -135,7 +135,7 @@
 
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-1 block">Tone</span>
-						<select class="field" bind:value={selected_tone}>
+						<select class="input" bind:value={selected_tone}>
 							{#each TONES as tone (tone.value)}
 								<option value={tone.value}>{tone.label}</option>
 							{/each}
@@ -150,7 +150,7 @@
 
 				<label class="text-sm text-paper-text-light">
 					<span class="mb-1 block">Prompt Details</span>
-					<textarea class="field" rows="3" bind:value={custom_prompt}></textarea>
+					<textarea class="input" rows="3" bind:value={custom_prompt}></textarea>
 				</label>
 
 				<button type="submit" class="btn-primary w-full py-3">Generate Prompt</button>

@@ -136,7 +136,7 @@
 				<div class="grid gap-4 md:grid-cols-2">
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-1 block">Genre</span>
-						<select class="field" bind:value={selected_genre}>
+						<select class="input" bind:value={selected_genre}>
 							{#each GENRES as option (option.value)}
 								<option value={option.value}>{option.label}</option>
 							{/each}
@@ -145,7 +145,7 @@
 
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-1 block">Tone</span>
-						<select class="field" bind:value={selected_tone}>
+						<select class="input" bind:value={selected_tone}>
 							{#each TONES as option (option.value)}
 								<option value={option.value}>{option.label}</option>
 							{/each}
@@ -179,7 +179,7 @@
 
 				<label class="mt-6 block text-sm text-paper-text-light">
 					<span class="mb-1 block">Custom Prompt</span>
-					<textarea class="field" rows="3" bind:value={custom_prompt}></textarea>
+					<textarea class="input" rows="3" bind:value={custom_prompt}></textarea>
 				</label>
 			</div>
 

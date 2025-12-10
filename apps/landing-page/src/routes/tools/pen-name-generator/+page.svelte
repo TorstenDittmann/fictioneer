@@ -114,7 +114,7 @@
 				<div class="grid gap-6 md:grid-cols-2">
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-2 block" id="genre-field-label">Genre</span>
-						<select class="field" aria-labelledby="genre-field-label" bind:value={selected_genre}>
+						<select class="input" aria-labelledby="genre-field-label" bind:value={selected_genre}>
 							{#each GENRE_OPTIONS as option (option.value)}
 								<option value={option.value}>{option.label}</option>
 							{/each}
@@ -123,7 +123,7 @@
 
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-2 block" id="style-field-label">Style</span>
-						<select class="field" aria-labelledby="style-field-label" bind:value={selected_style}>
+						<select class="input" aria-labelledby="style-field-label" bind:value={selected_style}>
 							{#each STYLES as option (option.value)}
 								<option value={option.value}>{option.label}</option>
 							{/each}
@@ -133,7 +133,7 @@
 					<label class="text-sm text-paper-text-light">
 						<span class="mb-2 block" id="pronoun-field-label">Pronoun Cue</span>
 						<select
-							class="field"
+							class="input"
 							aria-labelledby="pronoun-field-label"
 							bind:value={selected_pronouns}
 						>
@@ -155,7 +155,7 @@
 					</label>
 					<textarea
 						rows="3"
-						class="field"
+						class="input"
 						placeholder="lighthouses, ink, midnight"
 						id="pen-keywords"
 						bind:value={include_keyword}
