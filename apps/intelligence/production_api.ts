@@ -1,11 +1,11 @@
 import { generateText, streamText } from 'ai';
 import dedent from 'dedent';
-import { Hono, type HonoRequest } from 'hono';
-import type { GumroadPurchaseResponse } from './types';
+import { Hono } from 'hono';
 import { withTracing } from '@posthog/ai';
 import { aj } from './protection';
 import { posthog } from './tracking';
 import { openrouter } from './ai';
+import { AI_DEFAULTS } from './constants';
 
 type Model = Parameters<typeof openrouter>[0];
 
@@ -19,85 +19,30 @@ function create_model(model: Model) {
 	return withTracing(openrouter(model), posthog, {});
 }
 
-const auth_cache = new Map<string, { expires: number; data: GumroadPurchaseResponse }>();
-
-function get_purchase(request: HonoRequest): GumroadPurchaseResponse['purchase'] {
-	const token = request.header('Authorization')!.replace('Bearer ', '');
-	return auth_cache.get(token)!.data.purchase;
-}
-
-/**
-app.use(
-	'*',
-	bearerAuth({
-		verifyToken: async (token) => {
-			if (!token) return false;
-			if (auth_cache.has(token)) {
-				const cached = auth_cache.get(token);
-				if (cached && cached.expires > Date.now()) {
-					return cached.data.success;
-				}
-			}
-
-			const response = await fetch('https://api.gumroad.com/v2/licenses/verify', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				body: new URLSearchParams({
-					product_id: '2afaXdBrAUt6seA3ln257Q==',
-					license_key: token
-				})
-			});
-
-			if (!response.ok) return false;
-
-			const data = (await response.json()) as GumroadPurchaseResponse;
-
-			if (!data.success) return false;
-			const { subscription_ended_at, subscription_cancelled_at, subscription_failed_at } =
-				data.purchase;
-
-			if (
-				subscription_ended_at !== null ||
-				subscription_cancelled_at !== null ||
-				subscription_failed_at !== null
-			)
-				return false;
-
-			auth_cache.set(token, { expires: Date.now() + 60 * 60 * 24, data });
-
-			return true;
-		}
-	})
-);
-*/
+const DIALOGUE_ENDINGS = [
+	'.',
+	'!',
+	'?',
+	'."',
+	'!"',
+	".'",
+	"!'",
+	"?'",
+	'...',
+	'…',
+	'***',
+	'* * *',
+	'---'
+] as const;
 
 function is_mid_sentence(text: string): boolean {
 	const clean_text = text.replace('<CONTINUE_HERE>', '').trim();
 	if (!clean_text) return false;
 
-	// Check for ending patterns
-	const dialogue_endings = [
-		'.',
-		'!',
-		'?',
-		'."',
-		'!"',
-		".'",
-		"!'",
-		"?'",
-		'...',
-		'…',
-		'***',
-		'* * *',
-		'---'
-	];
-	for (const ending of dialogue_endings) {
+	for (const ending of DIALOGUE_ENDINGS) {
 		if (clean_text.endsWith(ending)) return false;
 	}
 
-	// Em-dash at the end usually indicates interruption (mid-sentence)
 	if (clean_text.endsWith('—') || clean_text.endsWith('--')) return true;
 
 	return false;
@@ -109,13 +54,13 @@ function build_context_string(context: unknown): string {
 	}
 
 	const ctx = context as Record<string, unknown>;
-	const parts = [];
+	const parts: string[] = [];
 
 	if (ctx.title && typeof ctx.title === 'string') parts.push(`Title: "${ctx.title}"`);
 	if (ctx.genre && typeof ctx.genre === 'string') parts.push(`Genre: ${ctx.genre}`);
 	if (ctx.tone && typeof ctx.tone === 'string') parts.push(`Tone: ${ctx.tone}`);
 	if (Array.isArray(ctx.character_names)) {
-		const names = ctx.character_names.filter((name) => typeof name === 'string');
+		const names = ctx.character_names.filter((name): name is string => typeof name === 'string');
 		if (names.length > 0) parts.push(`Characters: ${names.join(', ')}`);
 	}
 	if (ctx.scene_description && typeof ctx.scene_description === 'string') {
@@ -125,19 +70,59 @@ function build_context_string(context: unknown): string {
 	return parts.length > 0 ? `Context: ${parts.join('. ')}.` : '';
 }
 
+const ALTERNATIVE_TYPE_INSTRUCTIONS = {
+	vivid: dedent`
+		Make this sentence MORE VIVID by:
+		• Adding specific sensory details (sight, sound, touch, smell, taste)
+		• Using more concrete, evocative imagery
+		• Replacing vague words with precise, descriptive language
+		• Creating a stronger visual or emotional impact
+	`,
+	tighter: dedent`
+		Make this sentence TIGHTER by:
+		• Eliminating unnecessary words and redundancy
+		• Using stronger, more direct verbs
+		• Combining related ideas efficiently
+		• Maintaining impact while reducing word count
+	`,
+	show_dont_tell: dedent`
+		Rewrite to SHOW DON'T TELL by:
+		• Converting abstract statements into concrete actions or descriptions
+		• Demonstrating emotions through behavior and physical reactions
+		• Using dialogue, action, or sensory details instead of exposition
+		• Letting readers infer meaning from what characters do and say
+	`,
+	change_pov: dedent`
+		CHANGE THE POINT OF VIEW by:
+		• If currently third person, try first person or vice versa
+		• If currently omniscient, try limited perspective
+		• Adjust pronouns and perspective accordingly
+		• Maintain the same events but from a different viewpoint
+	`,
+	simplify: dedent`
+		SIMPLIFY THE PROSE by:
+		• Using shorter, clearer sentences
+		• Replacing complex words with simpler alternatives
+		• Reducing elaborate descriptions to essential elements
+		• Making the language more accessible while keeping the meaning
+	`
+} as const;
+
+type AlternativeType = keyof typeof ALTERNATIVE_TYPE_INSTRUCTIONS;
+
 function build_alternatives_system_prompt(
-	alternative_type: string,
+	alternative_type: AlternativeType,
 	context_before: string,
 	selected_sentence: string,
 	context_after: string
 ): string {
 	const base_instructions = dedent`
 		You are a novelist's creative writing assistant. Your task is to rewrite the selected sentence according to the specific instruction given.
-		
+
 		Context before: "${context_before}"
 		Selected sentence: "${selected_sentence}"
 		Context after: "${context_after}"
-		
+
 		Important guidelines:
 		• Only rewrite the selected sentence - do not modify the surrounding context
 		• Maintain narrative continuity with the before and after context
@@ -146,57 +131,7 @@ function build_alternatives_system_prompt(
 		• Return only the rewritten sentence - no explanations or formatting
 	`;
 
-	const type_instructions = {
-		vivid: dedent`
-			${base_instructions}
-			
-			Make this sentence MORE VIVID by:
-			• Adding specific sensory details (sight, sound, touch, smell, taste)
-			• Using more concrete, evocative imagery
-			• Replacing vague words with precise, descriptive language
-			• Creating a stronger visual or emotional impact
-		`,
-		tighter: dedent`
-			${base_instructions}
-			
-			Make this sentence TIGHTER by:
-			• Eliminating unnecessary words and redundancy
-			• Using stronger, more direct verbs
-			• Combining related ideas efficiently
-			• Maintaining impact while reducing word count
-		`,
-		show_dont_tell: dedent`
-			${base_instructions}
-			
-			Rewrite to SHOW DON'T TELL by:
-			• Converting abstract statements into concrete actions or descriptions
-			• Demonstrating emotions through behavior and physical reactions
-			• Using dialogue, action, or sensory details instead of exposition
-			• Letting readers infer meaning from what characters do and say
-		`,
-		change_pov: dedent`
-			${base_instructions}
-			
-			CHANGE THE POINT OF VIEW by:
-			• If currently third person, try first person or vice versa
-			• If currently omniscient, try limited perspective
-			• Adjust pronouns and perspective accordingly
-			• Maintain the same events but from a different viewpoint
-		`,
-		simplify: dedent`
-			${base_instructions}
-			
-			SIMPLIFY THE PROSE by:
-			• Using shorter, clearer sentences
-			• Replacing complex words with simpler alternatives
-			• Reducing elaborate descriptions to essential elements
-			• Making the language more accessible while keeping the meaning
-		`
-	};
-
-	return (
-		type_instructions[alternative_type as keyof typeof type_instructions] || type_instructions.vivid
-	);
+	return `${base_instructions}\n\n${ALTERNATIVE_TYPE_INSTRUCTIONS[alternative_type]}`;
 }
 
 function build_system_prompt(
@@ -215,7 +150,6 @@ function build_system_prompt(
 			? `\nAuthor's guidance: ${ctx.instruction}`
 			: '';
 
-	// Check if the text before <CONTINUE_HERE> ends mid-sentence
 	const text_before_marker = text.split('<CONTINUE_HERE>')[0] || '';
 	const is_mid_sentence_context = is_mid_sentence(text_before_marker);
 
@@ -229,9 +163,9 @@ function build_system_prompt(
 
 	return dedent`
 		You are a novelist's creative writing assistant. ${base_context}${instruction_context}
-		
+
 		Your task: Continue the story from the <CONTINUE_HERE> marker. ${continuation_style}
-		
+
 		Writing approach:
 		• Show don't tell - use vivid sensory details and actions to convey emotions
 		• Every paragraph should advance plot, develop character, or build atmosphere
@@ -241,20 +175,48 @@ function build_system_prompt(
 		• Create smooth transitions that maintain narrative momentum
 		• Aim for around ${word_count} words
 		• End at a meaningful moment - a revelation, decision point, or scene transition
-		
+
 		CRITICAL: The <CONTINUE_HERE> marker shows where to continue from. Write ONLY what comes AFTER this marker.
 		Do NOT repeat any text that appears before the marker. Start with fresh, new content that continues the narrative.${recent_text_warning}
-		
+
 		Return only your continuation text - no explanations or formatting.`;
 }
+
+function build_start_system_prompt(context: Record<string, unknown>, word_count: number): string {
+	return dedent`
+		You are a creative writing assistant helping a fiction author. The user has provided a prompt to start writing from.
+
+		Context: ${JSON.stringify(context, null, 2)}
+
+		Generate creative, engaging fiction writing based on the prompt. Write in a natural, flowing style appropriate for fiction. Aim for approximately ${word_count} words.
+
+		Focus on:
+		- Natural narrative flow
+		- Engaging prose
+		- Character voice and perspective
+		- Scene setting and atmosphere
+		- Forward momentum in the story
+
+		Return only the generated text without any explanations or metadata.`;
+}
+
+const ALTERNATIVE_TYPES: AlternativeType[] = [
+	'vivid',
+	'tighter',
+	'show_dont_tell',
+	'change_pov',
+	'simplify'
+];
+
 const app = new Hono()
 	.post('/api/verify', async (c) => {
 		return c.text('OK');
 	})
 	.post('/api/continue', async (c) => {
 		const decision = await aj.protect(c.req.raw, { requested: 1 });
-		if (decision.isDenied() && decision.reason.isRateLimit())
+		if (decision.isDenied() && decision.reason.isRateLimit()) {
 			return c.json({ error: 'Too many requests' }, 429);
+		}
 
 		try {
 			const body = await c.req.json();
@@ -284,49 +246,33 @@ const app = new Hono()
 
 			const user_prompt = `<text>${text_with_marker}</text>`;
 
-			if (stream) {
-				return streamText({
-					model: client,
-					system: system_prompt,
-					prompt: user_prompt,
-					temperature: 0.8,
-					topP: 0.9,
-					providerOptions: {
-						openrouter: {
-							reasoning: {
-								enabled: false
-							}
+			const common_options = {
+				model: client,
+				system: system_prompt,
+				prompt: user_prompt,
+				temperature: AI_DEFAULTS.temperature,
+				topP: AI_DEFAULTS.topP,
+				providerOptions: {
+					openrouter: {
+						reasoning: {
+							enabled: false
 						}
 					}
-				}).toTextStreamResponse();
-			} else {
-				const result = await generateText({
-					model: client,
-					system: system_prompt,
-					prompt: user_prompt,
-					temperature: 0.8,
-					topP: 0.9,
-					providerOptions: {
-						openrouter: {
-							reasoning: {
-								enabled: false
-							}
-						}
-					}
-				});
+				}
+			};
 
-				return c.text(result.text);
+			if (stream) {
+				return streamText(common_options).toTextStreamResponse();
 			}
+
+			const result = await generateText(common_options);
+			return c.text(result.text);
 		} catch (error) {
 			console.error('Continue writing error:', error);
 			return c.json({ error: 'Failed to generate continuation' }, 500);
 		}
 	})
 	.post('/api/rephrase', async (c) => {
-		// const decision = await aj.protect(c.req.raw, { requested: 5 });
-		// if (decision.isDenied() && decision.reason.isRateLimit())
-		// 	return c.json({ error: 'Too many requests' }, 429);
-
 		try {
 			const body = await c.req.json();
 			const { selected_sentence, context_before = '', context_after = '' } = body;
@@ -336,10 +282,9 @@ const app = new Hono()
 			}
 
 			const client = create_model(MODELS.SLOW);
-			const alternative_types = ['vivid', 'tighter', 'show_dont_tell', 'change_pov', 'simplify'];
 
 			const alternatives = await Promise.all(
-				alternative_types.map(async (type) => {
+				ALTERNATIVE_TYPES.map(async (type) => {
 					const system_prompt = build_alternatives_system_prompt(
 						type,
 						context_before,
@@ -351,8 +296,8 @@ const app = new Hono()
 						model: client,
 						system: system_prompt,
 						prompt: selected_sentence,
-						temperature: 0.8,
-						topP: 0.9
+						temperature: AI_DEFAULTS.temperature,
+						topP: AI_DEFAULTS.topP
 					});
 
 					return {
@@ -373,8 +318,9 @@ const app = new Hono()
 	})
 	.post('/api/start', async (c) => {
 		const decision = await aj.protect(c.req.raw, { requested: 1 });
-		if (decision.isDenied() && decision.reason.isRateLimit())
+		if (decision.isDenied() && decision.reason.isRateLimit()) {
 			return c.json({ error: 'Too many requests' }, 429);
+		}
 
 		try {
 			const body = await c.req.json();
@@ -388,44 +334,23 @@ const app = new Hono()
 			}
 
 			const client = create_model(MODELS.FREE);
-
-			// Build system prompt for starting from prompt
-			const system_prompt = `You are a creative writing assistant helping a fiction author. The user has provided a prompt to start writing from. 
-
-Context: ${JSON.stringify(context, null, 2)}
-
-Generate creative, engaging fiction writing based on the prompt. Write in a natural, flowing style appropriate for fiction. Aim for approximately ${word_count} words.
-
-Focus on:
-- Natural narrative flow
-- Engaging prose
-- Character voice and perspective
-- Scene setting and atmosphere
-- Forward momentum in the story
-
-Return only the generated text without any explanations or metadata.`;
-
+			const system_prompt = build_start_system_prompt(context, word_count);
 			const user_prompt = `<prompt>${prompt}</prompt>`;
 
-			if (stream) {
-				return streamText({
-					model: client,
-					system: system_prompt,
-					prompt: user_prompt,
-					temperature: 0.8,
-					topP: 0.9
-				}).toTextStreamResponse();
-			} else {
-				const result = await generateText({
-					model: client,
-					system: system_prompt,
-					prompt: user_prompt,
-					temperature: 0.8,
-					topP: 0.9
-				});
+			const common_options = {
+				model: client,
+				system: system_prompt,
+				prompt: user_prompt,
+				temperature: AI_DEFAULTS.temperature,
+				topP: AI_DEFAULTS.topP
+			};
 
-				return c.text(result.text);
+			if (stream) {
+				return streamText(common_options).toTextStreamResponse();
 			}
+
+			const result = await generateText(common_options);
+			return c.text(result.text);
 		} catch (error) {
 			console.error('Start writing error:', error);
 			return c.json({ error: 'Failed to generate content from prompt' }, 500);

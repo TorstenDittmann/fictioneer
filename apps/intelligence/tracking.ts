@@ -1,6 +1,7 @@
 import { PostHog } from 'posthog-node';
+import { POSTHOG_HOST, POSTHOG_KEY } from './constants';
 
-export const posthog = new PostHog('phc_Rnfc8HPFJ1Duqo23ykhIYTivNNB8Mn5v6NqbVUxLJkS', {
-	host: 'https://eu.i.posthog.com',
+export const posthog = new PostHog(POSTHOG_KEY, {
+	host: POSTHOG_HOST,
 	flushInterval: 15
 });

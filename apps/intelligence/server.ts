@@ -1,27 +1,14 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { PostHog } from 'posthog-node';
+import { CORS_CONFIG } from './constants';
 import marketing_api from './marketing_api';
 import production_api from './production_api';
-
-const client = new PostHog('phc_Rnfc8HPFJ1Duqo23ykhIYTivNNB8Mn5v6NqbVUxLJkS', {
-	host: 'https://eu.i.posthog.com',
-	flushInterval: 10000
-});
+import { posthog } from './tracking';
 
 const app = new Hono()
 	.use(logger())
-	.use(
-		'*',
-		cors({
-			origin: '*',
-			allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-			allowHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'X-Requested-With'],
-			exposeHeaders: ['Content-Type', 'Cache-Control'],
-			maxAge: 86400
-		})
-	)
+	.use('*', cors(CORS_CONFIG))
 	.get('/health', (c) => {
 		return c.json({
 			status: 'ok',
@@ -32,7 +19,7 @@ const app = new Hono()
 	.route('/', production_api);
 
 process.on('exit', async (code) => {
-	await client.shutdown();
+	await posthog.shutdown();
 	console.log(`Process exited with code ${code}`);
 });
 
@@ -44,7 +31,7 @@ export default {
 	idleTimeout: 30,
 	fetch: app.fetch,
 	error(error) {
-		client.captureException(error);
+		posthog.captureException(error);
 		return Response.json({ error: error.message }, { status: 500 });
 	}
 } satisfies Bun.Serve.Options<never>;
