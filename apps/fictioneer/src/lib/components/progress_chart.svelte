@@ -10,43 +10,56 @@
 
 	let { data = [], width = 800, height = 200, class: additional_class = '' }: Props = $props();
 
-	// Container element for responsive sizing
-	let containerElement: HTMLDivElement;
-	let actualWidth = $state(width);
-
-	// Update width based on container size
-	$effect(() => {
-		if (containerElement) {
-			const updateWidth = () => {
-				actualWidth = containerElement.clientWidth || width;
-			};
-
-			updateWidth();
-			window.addEventListener('resize', updateWidth);
-
-			return () => {
-				window.removeEventListener('resize', updateWidth);
-			};
-		}
-	});
+	// Responsive width using bind:clientWidth
+	let containerWidth = $state(width);
+	const actualWidth = $derived(containerWidth > 0 ? containerWidth : width);
 
 	// Chart dimensions and padding
 	const padding = { top: 20, right: 20, bottom: 40, left: 40 };
 	const chartWidth = $derived(actualWidth - padding.left - padding.right);
 	const chartHeight = $derived(height - padding.top - padding.bottom);
 
-	// Calculate scales
-	const maxWords = $derived(
-		Math.max(...data.map((d) => Math.max(d.wordsWritten, d.goalTarget)), 0)
-	);
-	const yScale = $derived((value: number) => chartHeight - (value / maxWords) * chartHeight);
-	const xScale = $derived((index: number) => (index / Math.max(data.length - 1, 1)) * chartWidth);
+	// Calculate max value with safe fallback (include goal target for proper scaling)
+	const maxWords = $derived.by(() => {
+		if (data.length === 0) return 1;
+		const max = Math.max(...data.map((d) => Math.max(d.wordsWritten, d.goalTarget)));
+		return max > 0 ? max : 1;
+	});
+
+	// Generate goal line path
+	const goalLinePath = $derived.by(() => {
+		if (data.length === 0) return '';
+		const goalTarget = data[0]?.goalTarget ?? 0;
+		if (goalTarget <= 0) return '';
+		const goalY = chartHeight - (goalTarget / maxWords) * chartHeight;
+		return `M ${padding.left} ${padding.top + goalY} L ${padding.left + chartWidth} ${padding.top + goalY}`;
+	});
+
+	// Scale functions
+	function yScale(value: number): number {
+		return chartHeight - (value / maxWords) * chartHeight;
+	}
+
+	function xScale(index: number): number {
+		const divisor = Math.max(data.length - 1, 1);
+		return (index / divisor) * chartWidth;
+	}
 
 	// Tooltip state
 	let hoveredPoint: ChartDataPoint | null = $state(null);
-	let tooltipX = $state(0);
-	let tooltipY = $state(0);
+	let hoveredIndex = $state(-1);
 	let showTooltip = $state(false);
+
+	// Compute tooltip position based on hovered bar index
+	const tooltipPosition = $derived.by(() => {
+		if (hoveredIndex < 0 || !data[hoveredIndex]) {
+			return { x: 0, y: 0 };
+		}
+		const barHeight = (data[hoveredIndex].wordsWritten / maxWords) * chartHeight;
+		const x = padding.left + xScale(hoveredIndex);
+		const y = padding.top + (chartHeight - barHeight) - 10;
+		return { x, y };
+	});
 
 	// Format date for display
 	function formatDate(dateStr: string): string {
@@ -60,57 +73,38 @@
 	}
 
 	// Handle mouse events for tooltip
-	function handleMouseEnter(point: ChartDataPoint, event: MouseEvent) {
+	function handleMouseEnter(point: ChartDataPoint, index: number) {
 		hoveredPoint = point;
+		hoveredIndex = index;
 		showTooltip = true;
-
-		const rect = (event.currentTarget as SVGElement).getBoundingClientRect();
-		const svgRect = (event.currentTarget as SVGElement).closest('svg')?.getBoundingClientRect();
-
-		if (svgRect) {
-			tooltipX = rect.left - svgRect.left + rect.width / 2;
-			tooltipY = rect.top - svgRect.top - 10;
-		}
 	}
 
 	function handleMouseLeave() {
 		showTooltip = false;
 		hoveredPoint = null;
+		hoveredIndex = -1;
 	}
 
-	// Generate goal line path
-	const goalLinePath = $derived(() => {
-		if (data.length === 0) return '';
+	// Calculate bar dimensions
+	function getBarWidth(): number {
+		return Math.max(chartWidth / Math.max(data.length, 1) - 2, 8);
+	}
 
-		const goalY = yScale(data[0]?.goalTarget || 0);
-		return `M 0 ${goalY} L ${chartWidth} ${goalY}`;
-	});
+	function getBarHeight(wordsWritten: number): number {
+		return (wordsWritten / maxWords) * chartHeight;
+	}
 
-	// Generate trend line (simple linear regression)
-	const trendLinePath = $derived(() => {
-		if (data.length < 2) return '';
+	function getBarX(index: number): number {
+		const barWidth = getBarWidth();
+		return xScale(index) - barWidth / 2;
+	}
 
-		const validPoints = data.filter((d) => d.wordsWritten > 0);
-		if (validPoints.length < 2) return '';
-
-		// Calculate linear regression
-		const n = validPoints.length;
-		const sumX = validPoints.reduce((sum, _, i) => sum + i, 0);
-		const sumY = validPoints.reduce((sum, d) => sum + d.wordsWritten, 0);
-		const sumXY = validPoints.reduce((sum, d, i) => sum + i * d.wordsWritten, 0);
-		const sumXX = validPoints.reduce((sum, _, i) => sum + i * i, 0);
-
-		const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-		const intercept = (sumY - slope * sumX) / n;
-
-		const startY = yScale(Math.max(0, intercept));
-		const endY = yScale(Math.max(0, slope * (data.length - 1) + intercept));
-
-		return `M 0 ${startY} L ${chartWidth} ${endY}`;
-	});
+	function getBarY(wordsWritten: number): number {
+		return chartHeight - getBarHeight(wordsWritten);
+	}
 </script>
 
-<div class="progress-chart {additional_class}" bind:this={containerElement}>
+<div class="progress-chart {additional_class}" bind:clientWidth={containerWidth}>
 	<div class="relative w-full">
 		<svg width={actualWidth} {height} class="w-full overflow-visible">
 			<!-- Chart background -->
@@ -125,8 +119,7 @@
 			/>
 
 			<!-- Grid lines -->
-			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-			{#each Array(5) as _, i (i)}
+			{#each { length: 5 } as _, i (i)}
 				{@const y = padding.top + (i / 4) * chartHeight}
 				{@const value = Math.round(maxWords * (1 - i / 4))}
 
@@ -148,34 +141,22 @@
 			{/each}
 
 			<!-- Goal line -->
-			{#if data.length > 0}
+			{#if goalLinePath}
 				<path
-					d={goalLinePath()}
+					d={goalLinePath}
 					stroke="var(--color-accent-muted)"
 					stroke-width="2"
 					stroke-dasharray="5,5"
 					opacity="0.7"
-					transform="translate({padding.left}, {padding.top})"
-				/>
-			{/if}
-
-			<!-- Trend line -->
-			{#if trendLinePath()}
-				<path
-					d={trendLinePath()}
-					stroke="var(--color-accent)"
-					stroke-width="1"
-					opacity="0.5"
-					transform="translate({padding.left}, {padding.top})"
 				/>
 			{/if}
 
 			<!-- Data bars -->
 			{#each data as point, i (point.date)}
-				{@const barWidth = Math.max(chartWidth / data.length - 2, 8)}
-				{@const barHeight = (point.wordsWritten / maxWords) * chartHeight}
-				{@const x = xScale(i) - barWidth / 2}
-				{@const y = chartHeight - barHeight}
+				{@const barWidth = getBarWidth()}
+				{@const barHeight = getBarHeight(point.wordsWritten)}
+				{@const x = getBarX(i)}
+				{@const y = getBarY(point.wordsWritten)}
 
 				<rect
 					x={padding.left + x}
@@ -192,17 +173,13 @@
 					class="cursor-pointer transition-all duration-200 hover:opacity-80"
 					role="button"
 					tabindex="0"
-					onmouseenter={(e) => handleMouseEnter(point, e)}
+					onfocus={() => handleMouseEnter(point, i)}
+					onblur={handleMouseLeave}
+					onmouseenter={() => handleMouseEnter(point, i)}
 					onmouseleave={handleMouseLeave}
 					onkeydown={(e) => {
-						if (e.key === 'Enter' || e.key === ' ') {
-							// Create a synthetic mouse event for keyboard interaction
-							const syntheticEvent = new MouseEvent('mouseenter', {
-								clientX: 0,
-								clientY: 0,
-								bubbles: true
-							});
-							handleMouseEnter(point, syntheticEvent);
+						if (e.key === 'Escape') {
+							handleMouseLeave();
 						}
 					}}
 				/>
@@ -211,9 +188,8 @@
 			<!-- X-axis labels (show every 5th day) -->
 			{#each data as point, i (point.date + '-label')}
 				{#if i % 5 === 0 || i === data.length - 1}
-					{@const x = xScale(i)}
 					<text
-						x={padding.left + x}
+						x={padding.left + xScale(i)}
 						y={height - 10}
 						text-anchor="middle"
 						class="fill-text-muted text-xs"
@@ -228,7 +204,7 @@
 		{#if showTooltip && hoveredPoint}
 			<div
 				class="pointer-events-none absolute z-10 rounded-lg border border-border bg-background-secondary p-3 whitespace-nowrap shadow-lg"
-				style="left: {tooltipX}px; top: {tooltipY}px; transform: translateX(-50%) translateY(-100%);"
+				style="left: {tooltipPosition.x}px; top: {tooltipPosition.y}px; transform: translateX(-50%) translateY(-100%);"
 			>
 				<div class="mb-1 text-sm font-medium text-text">
 					{formatDate(hoveredPoint.date)}
@@ -240,7 +216,7 @@
 					Goal: {formatNumber(hoveredPoint.goalTarget)}
 				</div>
 				{#if hoveredPoint.goalMet}
-					<div class="mt-1 text-xs text-accent">✓ Goal achieved!</div>
+					<div class="mt-1 text-xs text-accent">Goal achieved!</div>
 				{:else if hoveredPoint.wordsWritten > 0}
 					<div class="mt-1 text-xs text-accent-muted">
 						{Math.round((hoveredPoint.wordsWritten / hoveredPoint.goalTarget) * 100)}% of goal
@@ -262,18 +238,11 @@
 			<span>Goal achieved</span>
 		</div>
 		<div class="flex items-center gap-2">
-			<div class="h-3 w-3 rounded bg-accent-muted"></div>
-			<span>Progress made</span>
-		</div>
-		<div class="flex items-center gap-2">
 			<div class="h-3 w-3 rounded bg-border"></div>
 			<span>No writing</span>
 		</div>
 		<div class="flex items-center gap-2">
-			<div
-				class="h-1 w-3 bg-accent-muted opacity-70"
-				style="border-top: 2px dashed var(--color-accent-muted);"
-			></div>
+			<div class="h-0.5 w-4 border-t-2 border-dashed border-accent-muted opacity-70"></div>
 			<span>Daily goal</span>
 		</div>
 	</div>

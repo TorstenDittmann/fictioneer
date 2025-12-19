@@ -191,8 +191,22 @@ class ProgressTracker implements ProgressTrackerState {
 		// Get today's date
 		const today = new Date().toISOString().split('T')[0];
 
-		// Update daily progress with current word count
-		const success = progress_service.updateDailyProgress(project, today, totalWords);
+		// Initialize snapshots object if it doesn't exist
+		if (!project.dailyWordSnapshots) {
+			project.dailyWordSnapshots = {};
+		}
+
+		// If we don't have a snapshot for today, set the current total as the starting point
+		if (!(today in project.dailyWordSnapshots)) {
+			project.dailyWordSnapshots[today] = totalWords;
+		}
+
+		// Calculate words written today as the delta from the starting snapshot
+		const startingWords = project.dailyWordSnapshots[today];
+		const wordsWrittenToday = Math.max(0, totalWords - startingWords);
+
+		// Update daily progress with words written today (not total)
+		const success = progress_service.updateDailyProgress(project, today, wordsWrittenToday);
 		if (success) {
 			// Trigger update in both progress tracker and projects state
 			this.trigger_update();

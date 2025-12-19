@@ -13,11 +13,42 @@
 	let { children }: LayoutProps = $props();
 
 	let show_app = $state(false);
+	let system_prefers_dark = $state(false);
+
+	// Compute the resolved theme based on settings and system preference
+	const resolved_theme = $derived.by(() => {
+		const theme = settings_state.settings.theme;
+		if (theme === 'system') {
+			return system_prefers_dark ? 'dark' : 'light';
+		}
+		return theme;
+	});
+
+	// Apply theme to document
+	$effect(() => {
+		if (typeof document !== 'undefined') {
+			document.documentElement.setAttribute('data-theme', resolved_theme);
+		}
+	});
 
 	onMount(() => {
 		settings_state.initialize();
 		ai_writing_backend.initialize();
+
+		// Detect system theme preference
+		const media_query = window.matchMedia('(prefers-color-scheme: dark)');
+		system_prefers_dark = media_query.matches;
+
+		const handle_change = (e: MediaQueryListEvent) => {
+			system_prefers_dark = e.matches;
+		};
+		media_query.addEventListener('change', handle_change);
+
 		show_app = true;
+
+		return () => {
+			media_query.removeEventListener('change', handle_change);
+		};
 	});
 
 	// Global keyboard shortcuts

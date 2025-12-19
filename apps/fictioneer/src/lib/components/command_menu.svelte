@@ -282,7 +282,7 @@
 			</Dialog.Description>
 
 			<Command.Root
-				class="flex h-full w-full flex-col overflow-hidden rounded-lg border shadow-xl"
+				class="flex h-full w-full flex-col overflow-hidden rounded-lg border shadow-xl outline-none"
 				style="background-color: var(--color-surface); border-color: var(--color-border);"
 				loop={true}
 			>
@@ -303,8 +303,8 @@
 							/>
 						</svg>
 						<Command.Input
-							class="flex-1 bg-transparent text-sm outline-none focus:border-none focus:ring-0 focus:outline-none"
-							style="color: var(--color-text); box-shadow: none !important;"
+							class="flex-1 bg-transparent text-sm"
+							style="color: var(--color-text); outline: 0; box-shadow: none; border: none; border-radius: 0;"
 							placeholder="Search commands, scenes, and actions..."
 						/>
 						<div class="flex items-center gap-1">

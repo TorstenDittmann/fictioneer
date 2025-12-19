@@ -71,7 +71,7 @@
 
 	<Select.Portal>
 		<Select.Content
-			class="relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border border-border bg-surface text-text shadow-md"
+			class="relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border border-border bg-background text-text shadow-md"
 		>
 			<Select.Viewport class="p-1">
 				{#each items as item (item.value)}
