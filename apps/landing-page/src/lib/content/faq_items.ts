@@ -27,6 +27,6 @@ export const faq_items: FaqItem[] = [
 	{
 		question: 'Do you offer refunds?',
 		answer:
-			"We offer a 30-day money-back guarantee. If you're not satisfied with the AI Tools subscription within the first 30 days, contact us for a full refund."
+			"We don't offer refunds, but you can try the AI Tools subscription free for 14 days before being charged. You can cancel anytime during the trial at no cost."
 	}
 ];

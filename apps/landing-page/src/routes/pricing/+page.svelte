@@ -17,6 +17,7 @@
 		cta_text: string;
 		cta_href: RouteId;
 		highlighted: boolean;
+		trial?: string;
 	};
 
 	const plans: Plan[] = [
@@ -30,10 +31,8 @@
 				{ text: 'Unlimited projects and chapters', included: true },
 				{ text: 'Export to multiple formats', included: true },
 				{ text: 'Progress tracking & analytics', included: true },
-				{ text: 'Basic AI writing assistance', included: true },
-				{ text: 'Advanced AI tools', included: false },
-				{ text: 'AI story generation', included: false },
-				{ text: 'Character & plot builders', included: false }
+				{ text: 'AI writing assistance', included: false },
+				{ text: 'AI story generation', included: false }
 			],
 			cta_text: 'Download Free',
 			cta_href: '/download',
@@ -44,6 +43,7 @@
 			price: '$10',
 			period: 'per month',
 			description: 'Unlock advanced AI-powered writing tools',
+			trial: '14-day free trial',
 			features: [
 				{ text: 'Everything in Free', included: true },
 				{ text: 'Advanced AI assistance', included: true },
@@ -51,7 +51,7 @@
 				{ text: 'Priority support', included: true },
 				{ text: 'Early access to new features', included: true }
 			],
-			cta_text: 'Subscribe Now',
+			cta_text: 'Start Free Trial',
 			cta_href: '/checkout',
 			highlighted: true
 		}
@@ -101,7 +101,7 @@
 		<div class="mx-auto mb-20 grid max-w-4xl gap-6 lg:grid-cols-2">
 			{#each plans as plan, idx (plan.name)}
 				<div
-					class="animate-fade-in-up card-elevated relative overflow-hidden p-8 {plan.highlighted
+					class="animate-fade-in-up card-elevated relative flex flex-col overflow-hidden p-8 {plan.highlighted
 						? 'ring-2 ring-paper-accent'
 						: ''}"
 					style:animation-delay="{0.15 + idx * 0.08}s"
@@ -128,10 +128,13 @@
 							>
 							<span class="text-paper-text-muted">/ {plan.period}</span>
 						</div>
+						{#if plan.trial}
+							<p class="mt-2 text-sm font-medium text-paper-accent">{plan.trial}</p>
+						{/if}
 					</div>
 
 					<!-- Features List -->
-					<ul class="mb-8 space-y-3">
+					<ul class="mb-8 flex-grow space-y-3">
 						{#each plan.features as feature (feature.text)}
 							<li class="flex items-start gap-3">
 								{#if feature.included}
@@ -179,7 +182,7 @@
 					<!-- CTA Button -->
 					<a
 						href={resolve(plan.cta_href)}
-						class="block w-full text-center {plan.highlighted ? 'btn-primary' : 'btn-secondary'}"
+						class="mt-auto block w-full text-center {plan.highlighted ? 'btn-primary' : 'btn-secondary'}"
 					>
 						{plan.cta_text}
 					</a>
