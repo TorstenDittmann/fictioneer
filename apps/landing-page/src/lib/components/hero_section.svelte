@@ -3,20 +3,6 @@
 </script>
 
 <section class="relative overflow-hidden px-4 pt-32 pb-24 sm:pt-40 sm:pb-32 lg:pt-48 lg:pb-40">
-	<!-- Background -->
-	<div class="absolute inset-0">
-		<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>
-		<div
-			class="aurora-blob-subtle -top-20 left-[10%] h-[500px] w-[500px] rounded-full bg-paper-accent/20"
-		></div>
-		<div
-			class="aurora-blob-subtle top-[20%] right-[5%] h-[400px] w-[400px] rounded-full bg-paper-iris/15"
-		></div>
-		<div
-			class="aurora-blob-subtle bottom-[10%] left-[30%] h-[600px] w-[600px] rounded-full bg-paper-accent-pink/10"
-		></div>
-	</div>
-
 	<div class="relative z-10 mx-auto max-w-6xl">
 		<!-- Pill Badge -->
 		<div class="animate-fade-in-down mb-8 flex justify-center">
@@ -110,7 +96,9 @@
 								<div
 									class="h-6 w-6 rounded-lg bg-gradient-to-br from-paper-accent to-paper-iris p-0.5"
 								>
-									<div class="flex h-full w-full items-center justify-center rounded-md bg-white">
+									<div
+										class="flex h-full w-full items-center justify-center rounded-md bg-paper-cream"
+									>
 										<img src={asset('/logo.svg')} alt="Fictioneer" class="h-3.5 w-3.5" />
 									</div>
 								</div>
@@ -127,7 +115,7 @@
 					</div>
 
 					<!-- Preview Content -->
-					<div class="relative overflow-hidden rounded-b-xl bg-white/80">
+					<div class="relative overflow-hidden rounded-b-xl bg-paper-cream/80">
 						<div class="grid-overlay absolute inset-0 opacity-40"></div>
 
 						<!-- Simulated Editor Interface -->

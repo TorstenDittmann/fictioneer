@@ -3,9 +3,23 @@
 	import NavigationMenu from '$lib/components/navigation_menu.svelte';
 	import Footer from '$lib/components/footer.svelte';
 	import { asset } from '$app/paths';
+	import { MediaQuery } from 'svelte/reactivity';
+	import { theme } from '$lib/stores/theme.svelte';
+	import { onMount } from 'svelte';
 
-	let { children } = $props();
+	let { children, data } = $props();
 	const logo = asset('/logo.svg');
+
+	const prefersDark = new MediaQuery('prefers-color-scheme: dark', false);
+
+	// Initialize theme once on mount
+	onMount(() => {
+		if (data.theme) {
+			theme.set(data.theme);
+		} else {
+			theme.set(prefersDark.current ? 'dark' : 'light');
+		}
+	});
 </script>
 
 <svelte:head>

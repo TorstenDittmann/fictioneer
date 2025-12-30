@@ -93,15 +93,6 @@
 </script>
 
 <section id="features" class="relative overflow-hidden px-4 py-24 sm:py-32 lg:py-40">
-	<!-- Background -->
-	<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>
-	<div
-		class="aurora-blob-subtle top-[20%] -left-[10%] h-[400px] w-[400px] rounded-full bg-paper-accent/15"
-	></div>
-	<div
-		class="aurora-blob-subtle right-[5%] bottom-[10%] h-[500px] w-[500px] rounded-full bg-paper-iris/10"
-	></div>
-
 	<div class="relative z-10 mx-auto max-w-6xl">
 		<!-- Section Header -->
 		<div class="mb-16 text-center lg:mb-20">
@@ -167,7 +158,7 @@
 
 						<!-- Demo -->
 						<div class="flex-1">
-							<div class="rounded-2xl border border-paper-border bg-white/60 p-5 lg:p-6">
+							<div class="rounded-2xl border border-paper-border bg-paper-cream/60 p-5 lg:p-6">
 								<div class="mb-4 flex items-center justify-between">
 									<span class="text-xs font-medium tracking-wide text-paper-text-muted uppercase"
 										>Live Preview</span
@@ -243,7 +234,7 @@
 					</p>
 
 					<!-- Mini Sidebar Demo -->
-					<div class="rounded-xl border border-paper-border bg-white/60 p-4">
+					<div class="rounded-xl border border-paper-border bg-paper-cream/60 p-4">
 						<div class="space-y-2">
 							<div class="flex items-center gap-2">
 								<div
@@ -312,7 +303,7 @@
 					</p>
 
 					<!-- Streak Chart -->
-					<div class="rounded-xl border border-paper-border bg-white/60 p-4">
+					<div class="rounded-xl border border-paper-border bg-paper-cream/60 p-4">
 						<div class="mb-3 flex items-center justify-between">
 							<span class="text-xs font-medium text-paper-text-muted">Writing Streak</span>
 							<span
@@ -361,7 +352,7 @@
 						Focus on your words with a clean interface.
 					</p>
 
-					<div class="rounded-xl border border-paper-border bg-white/60 p-4">
+					<div class="rounded-xl border border-paper-border bg-paper-cream/60 p-4">
 						<div class="space-y-2">
 							{#each [70, 85, 75, 90, 80] as width (width)}
 								<div class="h-2 rounded bg-paper-text/8" style:width="{width}%"></div>
@@ -413,7 +404,7 @@
 
 					<div class="grid grid-cols-2 gap-2">
 						{#each [{ name: 'Characters', color: 'paper-accent' }, { name: 'Plot', color: 'paper-iris' }, { name: 'Research', color: 'paper-accent-pink' }, { name: 'Timeline', color: 'paper-accent' }] as note (note.name)}
-							<div class="rounded-xl border border-paper-border bg-white/60 p-3">
+							<div class="rounded-xl border border-paper-border bg-paper-cream/60 p-3">
 								<div class="mb-2 space-y-1">
 									<div class="h-1.5 w-full rounded bg-{note.color}/25"></div>
 									<div class="h-1.5 w-2/3 rounded bg-{note.color}/15"></div>
@@ -457,7 +448,7 @@
 					<div class="space-y-2">
 						{#each [{ format: 'EPUB', label: 'E-book' }, { format: 'PDF', label: 'Print ready' }, { format: 'RTF', label: 'Universal' }] as item (item.format)}
 							<div
-								class="flex items-center gap-3 rounded-xl border border-paper-border bg-white/60 p-3"
+								class="flex items-center gap-3 rounded-xl border border-paper-border bg-paper-cream/60 p-3"
 							>
 								<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-paper-beige">
 									<span class="text-[10px] font-bold text-paper-accent">{item.format}</span>

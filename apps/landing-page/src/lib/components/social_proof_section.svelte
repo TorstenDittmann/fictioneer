@@ -30,15 +30,6 @@
 </script>
 
 <section class="relative overflow-hidden px-4 py-24 sm:py-32">
-	<!-- Background -->
-	<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>
-	<div
-		class="aurora-blob-subtle top-[10%] left-[10%] h-[350px] w-[350px] rounded-full bg-paper-accent/12"
-	></div>
-	<div
-		class="aurora-blob-subtle right-[15%] bottom-[20%] h-[400px] w-[400px] rounded-full bg-paper-iris/10"
-	></div>
-
 	<div class="relative z-10 mx-auto max-w-5xl">
 		<!-- Section Header -->
 		<div class="mb-12 text-center lg:mb-16">

@@ -182,7 +182,9 @@
 					<!-- CTA Button -->
 					<a
 						href={resolve(plan.cta_href)}
-						class="mt-auto block w-full text-center {plan.highlighted ? 'btn-primary' : 'btn-secondary'}"
+						class="mt-auto block w-full text-center {plan.highlighted
+							? 'btn-primary'
+							: 'btn-secondary'}"
 					>
 						{plan.cta_text}
 					</a>

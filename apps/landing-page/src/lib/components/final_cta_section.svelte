@@ -10,15 +10,6 @@
 </script>
 
 <section class="relative overflow-hidden px-4 py-24 sm:py-32 lg:py-40">
-	<!-- Background -->
-	<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>
-	<div
-		class="aurora-blob-subtle top-[10%] left-[5%] h-[400px] w-[400px] rounded-full bg-paper-accent/15"
-	></div>
-	<div
-		class="aurora-blob-subtle right-[10%] bottom-[5%] h-[450px] w-[450px] rounded-full bg-paper-iris/12"
-	></div>
-
 	<div class="relative z-10 mx-auto max-w-4xl">
 		<!-- Card -->
 		<div class="card-elevated relative overflow-hidden p-8 text-center sm:p-12 lg:p-16">

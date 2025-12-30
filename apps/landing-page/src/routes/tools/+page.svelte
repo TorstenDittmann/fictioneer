@@ -157,17 +157,17 @@
 
 			<div class="flex flex-wrap items-center justify-center gap-3">
 				<span
-					class="rounded-full border border-paper-border bg-white/60 px-4 py-2 text-sm text-paper-text-light backdrop-blur-sm"
+					class="rounded-full border border-paper-border bg-paper-cream/60 px-4 py-2 text-sm text-paper-text-light backdrop-blur-sm"
 				>
 					<span class="mr-1.5 text-paper-accent">✨</span> Completely Free
 				</span>
 				<span
-					class="rounded-full border border-paper-border bg-white/60 px-4 py-2 text-sm text-paper-text-light backdrop-blur-sm"
+					class="rounded-full border border-paper-border bg-paper-cream/60 px-4 py-2 text-sm text-paper-text-light backdrop-blur-sm"
 				>
 					<span class="mr-1.5 text-paper-accent">🤖</span> AI-Powered
 				</span>
 				<span
-					class="rounded-full border border-paper-border bg-white/60 px-4 py-2 text-sm text-paper-text-light backdrop-blur-sm"
+					class="rounded-full border border-paper-border bg-paper-cream/60 px-4 py-2 text-sm text-paper-text-light backdrop-blur-sm"
 				>
 					<span class="mr-1.5 text-paper-accent">🚀</span> No Registration
 				</span>

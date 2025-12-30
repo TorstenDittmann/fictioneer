@@ -139,7 +139,7 @@
 			<div
 				class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-paper-accent to-paper-iris p-0.5"
 			>
-				<div class="flex h-full w-full items-center justify-center rounded-[10px] bg-white">
+				<div class="flex h-full w-full items-center justify-center rounded-[10px] bg-paper-cream">
 					<img src={asset('/logo.svg')} alt="Fictioneer Logo" class="h-5 w-5" />
 				</div>
 			</div>
@@ -240,7 +240,7 @@
 					class="data-[state=hidden]:animate-fade-out data-[state=visible]:animate-fade-in top-full z-10 flex h-2.5 items-end justify-center overflow-hidden transition-all duration-200 data-[state=hidden]:opacity-0"
 				>
 					<div
-						class="relative top-[60%] h-2.5 w-2.5 rotate-45 rounded-tl-sm bg-white shadow-sm"
+						class="relative top-[60%] h-2.5 w-2.5 rotate-45 rounded-tl-sm bg-paper-cream shadow-sm"
 					></div>
 				</NavigationMenu.Indicator>
 			</NavigationMenu.List>
@@ -248,7 +248,7 @@
 			<!-- Viewport -->
 			<div class="absolute top-full right-0 left-0 flex justify-center perspective-[2000px]">
 				<NavigationMenu.Viewport
-					class="data-[state=closed]:animate-scale-out data-[state=open]:animate-scale-in relative mt-2 h-[var(--bits-navigation-menu-viewport-height)] w-[var(--bits-navigation-menu-viewport-width)] origin-top overflow-hidden rounded-2xl border border-paper-border bg-white/95 shadow-xl backdrop-blur-xl transition-[width,height] duration-200"
+					class="data-[state=closed]:animate-scale-out data-[state=open]:animate-scale-in relative mt-2 h-[var(--bits-navigation-menu-viewport-height)] w-[var(--bits-navigation-menu-viewport-width)] origin-top overflow-hidden rounded-2xl border border-paper-border bg-paper-cream/95 shadow-xl backdrop-blur-xl transition-[width,height] duration-200"
 				/>
 			</div>
 		</NavigationMenu.Root>

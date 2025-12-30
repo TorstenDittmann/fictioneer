@@ -39,7 +39,7 @@
 	<div class="space-y-3">
 		{#each items as item, idx (item.question)}
 			<div
-				class="animate-fade-in-up overflow-hidden rounded-2xl border border-paper-border bg-white/60 backdrop-blur-sm transition-all duration-200"
+				class="animate-fade-in-up overflow-hidden rounded-2xl border border-paper-border bg-paper-cream/60 backdrop-blur-sm transition-all duration-200"
 				style:animation-delay="{0.2 + idx * 0.05}s"
 			>
 				<button

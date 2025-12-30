@@ -63,15 +63,6 @@
 </script>
 
 <section id="newsletter" class="relative overflow-hidden px-4 py-24 sm:py-32">
-	<!-- Background -->
-	<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>
-	<div
-		class="aurora-blob-subtle top-[15%] left-[5%] h-[350px] w-[350px] rounded-full bg-paper-accent/12"
-	></div>
-	<div
-		class="aurora-blob-subtle right-[10%] bottom-[10%] h-[400px] w-[400px] rounded-full bg-paper-iris/10"
-	></div>
-
 	<div class="relative z-10 mx-auto max-w-3xl">
 		{#if is_success}
 			<!-- Success State -->
