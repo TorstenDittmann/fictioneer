@@ -6,6 +6,7 @@ import { aj } from './protection';
 import { posthog } from './tracking';
 import { openrouter } from './ai';
 import { AI_DEFAULTS } from './constants';
+import { auth } from './auth';
 
 type Model = Parameters<typeof openrouter>[0];
 
@@ -209,6 +210,7 @@ const ALTERNATIVE_TYPES: AlternativeType[] = [
 ];
 
 const app = new Hono()
+	.use('*', auth)
 	.post('/api/verify', async (c) => {
 		return c.text('OK');
 	})

@@ -52,7 +52,7 @@
 				{ text: 'Early access to new features', included: true }
 			],
 			cta_text: 'Subscribe Now',
-			cta_href: '/',
+			cta_href: '/checkout',
 			highlighted: true
 		}
 	];

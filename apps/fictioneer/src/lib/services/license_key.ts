@@ -1,6 +1,5 @@
-import { PUBLIC_INTELLIGENCE_SERVER_URL } from '$env/static/public';
+import { client } from './ai_writing_backend';
 
-const BACKEND_URL = PUBLIC_INTELLIGENCE_SERVER_URL;
 const LICENSE_KEY_STORAGE_KEY = 'fictioneer_license_key';
 
 export interface LicenseKeyVerificationResult {
@@ -57,8 +56,7 @@ export class LicenseKeyService {
 		}
 
 		try {
-			const response = await fetch(`${BACKEND_URL}/verify`, {
-				method: 'POST',
+			const response = await client.api.verify.$post(undefined, {
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${key}`

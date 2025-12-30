@@ -21,6 +21,7 @@
 		"@posthog/ai": "^7.2.0",
 		"ai": "^5.0.101",
 		"dedent": "^1.7.0",
+		"dodopayments": "^2.13.1",
 		"hono": "^4.10.6",
 		"posthog-node": "^5.14.0"
 	},

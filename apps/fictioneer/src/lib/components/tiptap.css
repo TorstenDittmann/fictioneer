@@ -76,6 +76,7 @@
 		linear-gradient(#000 0 0) content-box,
 		linear-gradient(#000 0 0);
 	mask-composite: exclude;
+	border-end-end-radius: 16px;
 }
 
 .editor-container::after {
@@ -98,6 +99,7 @@
 		rgba(0, 0, 0, 0.8) 100%
 	);
 	mask: radial-gradient(circle, transparent 85%, rgba(0, 0, 0, 0.6) 92%, rgba(0, 0, 0, 0.8) 100%);
+	border-end-end-radius: 16px;
 }
 
 .editor-container.ai-option-active::before {

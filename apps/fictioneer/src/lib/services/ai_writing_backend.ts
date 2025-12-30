@@ -18,10 +18,10 @@ export class AIWritingBackendService {
 	private current_abort_controller: AbortController | null = null;
 
 	private async call_backend(response: Response): Promise<unknown> {
-		// const token = license_key_state.license_key;
-		// if (!token) {
-		// 	throw new Error('No license key available. Please configure your license key in settings.');
-		// }
+		const token = license_key_state.license_key;
+		if (!token) {
+			throw new Error('No license key available. Please configure your license key in settings.');
+		}
 
 		if (!response.ok) {
 			throw new Error(`Backend request failed: ${response.statusText}`);
@@ -31,11 +31,11 @@ export class AIWritingBackendService {
 	}
 
 	private async *call_backend_stream(response: Response): AsyncGenerator<string, void, unknown> {
-		// const token = license_key_state.license_key;
-		// if (!token) {
-		// 	throw new Error('No license key available. Please configure your license key in settings.');
-		// }
-		console.log(response);
+		const token = license_key_state.license_key;
+		if (!token) {
+			throw new Error('No license key available. Please configure your license key in settings.');
+		}
+
 		if (!response.ok) {
 			throw new Error(`Backend request failed: ${response.statusText}`);
 		}
@@ -90,7 +90,7 @@ export class AIWritingBackendService {
 						},
 						headers: {
 							'Content-Type': 'application/json',
-							// Authorization: `Bearer ${token}`,
+							Authorization: `Bearer ${license_key_state.license_key}`,
 							Accept: 'text/plain+stream'
 						}
 					}
@@ -133,7 +133,7 @@ export class AIWritingBackendService {
 						},
 						headers: {
 							'Content-Type': 'application/json',
-							// Authorization: `Bearer ${token}`,
+							Authorization: `Bearer ${license_key_state.license_key}`,
 							Accept: 'text/plain+stream'
 						}
 					}
@@ -174,13 +174,20 @@ export class AIWritingBackendService {
 		context_after?: string
 	): Promise<RephraseResponse> {
 		return this.call_backend(
-			await client.api.rephrase.$post({
-				json: {
-					selected_sentence,
-					context_before: context_before || '',
-					context_after: context_after || ''
+			await client.api.rephrase.$post(
+				{
+					json: {
+						selected_sentence,
+						context_before: context_before || '',
+						context_after: context_after || ''
+					}
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${license_key_state.license_key}`
+					}
 				}
-			})
+			)
 		) as Promise<RephraseResponse>;
 	}
 
