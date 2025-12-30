@@ -91,7 +91,7 @@
 			class="group flex items-center gap-3 rounded-xl p-3 transition-all duration-200 hover:bg-paper-beige/60"
 		>
 			<div
-				class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-paper-accent/10 to-paper-iris/10 text-paper-accent transition-all duration-200 group-hover:from-paper-accent/20 group-hover:to-paper-iris/20"
+				class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-paper-accent/10 to-paper-iris/10 text-paper-accent transition-all duration-200 group-hover:from-paper-accent/20 group-hover:to-paper-iris/20"
 			>
 				<Icon class="h-5 w-5" weight="regular" />
 			</div>
@@ -137,7 +137,7 @@
 			class="group flex items-center gap-2.5 rounded-xl px-2 py-1.5 transition-all duration-200 hover:bg-paper-beige/50"
 		>
 			<div
-				class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-paper-accent to-paper-iris p-0.5"
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-paper-accent to-paper-iris p-0.5"
 			>
 				<div class="flex h-full w-full items-center justify-center rounded-[10px] bg-paper-cream">
 					<img src={asset('/logo.svg')} alt="Fictioneer Logo" class="h-5 w-5" />

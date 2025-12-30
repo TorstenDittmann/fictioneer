@@ -16,7 +16,7 @@
 			<div class="md:col-span-2">
 				<div class="mb-4 flex items-center gap-2.5">
 					<div
-						class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-paper-accent to-paper-iris p-0.5"
+						class="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-paper-accent to-paper-iris p-0.5"
 					>
 						<div
 							class="flex h-full w-full items-center justify-center rounded-[10px] bg-paper-cream"

@@ -74,7 +74,7 @@
 				<div class="relative">
 					<!-- Success Icon -->
 					<div
-						class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-paper-accent to-paper-iris shadow-lg"
+						class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-paper-accent to-paper-iris shadow-lg"
 					>
 						<svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path

@@ -3,7 +3,6 @@
 	import FeaturesSection from '$lib/components/features_section.svelte';
 	import SocialProofSection from '$lib/components/social_proof_section.svelte';
 	import FinalCtaSection from '$lib/components/final_cta_section.svelte';
-	import WaitlistForm from '$lib/components/waitlist_form.svelte';
 </script>
 
 <svelte:head>
@@ -79,5 +78,4 @@
 	<FeaturesSection />
 	<SocialProofSection />
 	<FinalCtaSection />
-	<WaitlistForm />
 </div>

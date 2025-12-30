@@ -110,7 +110,7 @@
 					{#if plan.highlighted}
 						<div class="absolute -top-px left-1/2 -translate-x-1/2">
 							<div
-								class="rounded-b-lg bg-gradient-to-r from-paper-accent to-paper-iris px-4 py-1.5 text-xs font-semibold text-white"
+								class="rounded-b-lg bg-linear-to-r from-paper-accent to-paper-iris px-4 py-1.5 text-xs font-semibold text-white"
 							>
 								Most Popular
 							</div>
@@ -134,7 +134,7 @@
 					</div>
 
 					<!-- Features List -->
-					<ul class="mb-8 flex-grow space-y-3">
+					<ul class="mb-8 grow space-y-3">
 						{#each plan.features as feature (feature.text)}
 							<li class="flex items-start gap-3">
 								{#if feature.included}
@@ -204,7 +204,7 @@
 		>
 			<div class="card-elevated overflow-hidden p-8">
 				<div
-					class="absolute inset-0 bg-gradient-to-br from-paper-accent/5 via-transparent to-paper-iris/5"
+					class="absolute inset-0 bg-linear-to-br from-paper-accent/5 via-transparent to-paper-iris/5"
 				></div>
 				<div class="relative">
 					<h2 class="mb-3 font-serif text-xl font-semibold text-paper-text sm:text-2xl">
