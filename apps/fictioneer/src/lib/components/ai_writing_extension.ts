@@ -197,8 +197,8 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					let option_key_held = false;
 					let is_clearing = false;
 					const option_indicator_class = 'ai-option-active';
-					const editor_dom = editorView.dom as HTMLElement;
-					const editor_container = editor_dom.closest('.editor-container') as HTMLElement | null;
+					const editor_dom = editorView.dom;
+					const editor_container = editor_dom.closest('.editor-container');
 
 					const update_option_indicator = (is_active: boolean) => {
 						const target = editor_container ?? editor_dom;
@@ -483,10 +483,10 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							is_clearing = true;
 
 							// Find typewriter elements and apply fade-out
-							const typewriterElements = editorView.dom.querySelectorAll('.ai-typewriter');
+							const typewriterElements =
+								editorView.dom.querySelectorAll<HTMLElement>('.ai-typewriter');
 							if (typewriterElements.length > 0) {
-								typewriterElements.forEach((el) => {
-									const element = el as HTMLElement;
+								typewriterElements.forEach((element) => {
 									element.style.transition = 'opacity 0.2s ease-out';
 									element.style.opacity = '0';
 								});

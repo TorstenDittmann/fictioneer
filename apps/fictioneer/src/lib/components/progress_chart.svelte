@@ -35,11 +35,6 @@
 		return `M ${padding.left} ${padding.top + goalY} L ${padding.left + chartWidth} ${padding.top + goalY}`;
 	});
 
-	// Scale functions
-	function yScale(value: number): number {
-		return chartHeight - (value / maxWords) * chartHeight;
-	}
-
 	function xScale(index: number): number {
 		const divisor = Math.max(data.length - 1, 1);
 		return (index / divisor) * chartWidth;
@@ -119,7 +114,7 @@
 			/>
 
 			<!-- Grid lines -->
-			{#each { length: 5 } as _, i (i)}
+			{#each Array(5).keys() as i (i)}
 				{@const y = padding.top + (i / 4) * chartHeight}
 				{@const value = Math.round(maxWords * (1 - i / 4))}
 

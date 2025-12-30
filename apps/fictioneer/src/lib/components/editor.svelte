@@ -184,7 +184,7 @@
 	// React to editor style settings changes
 	$effect(() => {
 		if (!editor) return;
-		const dom = editor.view.dom as HTMLElement;
+		const { dom } = editor.view;
 		dom.style.fontFamily = app_settings.editor.font_family;
 		dom.style.fontSize = `${app_settings.editor.font_size_px}px`;
 		dom.style.lineHeight = String(app_settings.editor.line_height);
@@ -197,11 +197,7 @@
 	function update_counts() {
 		if (!editor) return;
 		// Prefer the aggregated storage API exposed by Tiptap
-		const cc = (
-			editor.storage as unknown as {
-				characterCount?: { characters: () => number; words: () => number };
-			}
-		).characterCount;
+		const cc = editor.storage.characterCount;
 		if (cc) {
 			doc_words = cc.words();
 			doc_chars = cc.characters();
@@ -209,12 +205,10 @@
 		}
 
 		// Fallback to extension instance storage if needed
-		const ext = editor.extensionManager.extensions.find((e) => e.name === 'characterCount') as
-			| { storage?: { characters?: () => number; words?: () => number } }
-			| undefined;
+		const ext = editor.extensionManager.extensions.find((e) => e.name === 'characterCount');
 		if (ext?.storage) {
-			doc_words = typeof ext.storage.words === 'function' ? ext.storage.words() : 0;
-			doc_chars = typeof ext.storage.characters === 'function' ? ext.storage.characters() : 0;
+			doc_words = ext.storage.words !== undefined ? ext.storage.words() : 0;
+			doc_chars = ext.storage.characters !== undefined ? ext.storage.characters() : 0;
 		}
 	}
 
@@ -237,10 +231,9 @@
 		);
 		if (!extension) return { words: 0, characters: 0 };
 
-		const storage = extension.storage as { characters: () => number; words: () => number };
 		return {
-			words: typeof storage.words === 'function' ? storage.words() : 0,
-			characters: typeof storage.characters === 'function' ? storage.characters() : 0
+			words: extension.storage.words !== undefined ? extension.storage.words() : 0,
+			characters: extension.storage.characters !== undefined ? extension.storage.characters() : 0
 		};
 	}
 

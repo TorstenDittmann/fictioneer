@@ -236,8 +236,7 @@
 <!-- Confetti Animation (CSS-only) -->
 {#if showConfetti}
 	<div class="pointer-events-none fixed inset-0 z-60 overflow-hidden">
-		<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-		{#each Array(50) as _, i (i)}
+		{#each Array(50).keys() as i (i)}
 			<div
 				class="absolute h-2 w-2 animate-bounce bg-accent opacity-80"
 				style="
