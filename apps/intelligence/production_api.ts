@@ -212,6 +212,11 @@ const ALTERNATIVE_TYPES: AlternativeType[] = [
 const app = new Hono()
 	.use('*', auth)
 	.post('/api/verify', async (c) => {
+		const decision = await aj.protect(c.req.raw, { requested: 1 });
+		if (decision.isDenied() && decision.reason.isRateLimit()) {
+			return c.json({ error: 'Too many requests' }, 429);
+		}
+
 		return c.text('OK');
 	})
 	.post('/api/continue', async (c) => {
@@ -275,6 +280,11 @@ const app = new Hono()
 		}
 	})
 	.post('/api/rephrase', async (c) => {
+		const decision = await aj.protect(c.req.raw, { requested: 1 });
+		if (decision.isDenied() && decision.reason.isRateLimit()) {
+			return c.json({ error: 'Too many requests' }, 429);
+		}
+
 		try {
 			const body = await c.req.json();
 			const { selected_sentence, context_before = '', context_after = '' } = body;
