@@ -55,7 +55,7 @@
 				<ul class="space-y-2.5">
 					<li>
 						<a
-							href="#features"
+							href={resolve('/')}
 							class="text-sm text-paper-text-light transition-colors hover:text-paper-accent"
 						>
 							Features
