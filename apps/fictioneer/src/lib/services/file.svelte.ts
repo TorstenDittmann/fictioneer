@@ -1,6 +1,7 @@
 import { save, open } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
 import type { Project } from './projects.svelte.js';
+import { generate_id } from '../utils.js';
 
 interface SerializedScene {
 	id: string;
@@ -118,9 +119,9 @@ class FileService {
 	): Promise<Project | null> {
 		try {
 			const now = new Date();
-			const project_id = this.generate_id('project');
-			const chapter_id = this.generate_id('chapter');
-			const scene_id = this.generate_id('scene');
+			const project_id = generate_id('project');
+			const chapter_id = generate_id('chapter');
+			const scene_id = generate_id('scene');
 
 			const project: Project = {
 				id: project_id,
@@ -291,24 +292,18 @@ class FileService {
 
 		if (time_since_last_save >= this.save_throttle_interval) {
 			// Enough time has passed, save immediately
-			console.log(`Save throttle: Immediate save (${time_since_last_save}ms since last save)`);
 			await this.perform_save(project, file_path);
 			this.last_save_time = now;
 		} else {
 			// Need to throttle, schedule save for later
 			const delay = this.save_throttle_interval - time_since_last_save;
-			console.log(
-				`Save throttle: Delaying save by ${delay}ms (${time_since_last_save}ms since last save)`
-			);
 
 			// Clear any existing pending save
 			if (this.pending_save_timeout) {
-				console.log('Save throttle: Clearing existing pending save');
 				clearTimeout(this.pending_save_timeout);
 			}
 
 			this.pending_save_timeout = setTimeout(async () => {
-				console.log('Save throttle: Executing delayed save');
 				await this.perform_save(project, file_path);
 				this.last_save_time = Date.now();
 				this.pending_save_timeout = null;
@@ -320,7 +315,6 @@ class FileService {
 	 * Perform the actual save operation
 	 */
 	private async perform_save(project: Project, file_path: string): Promise<void> {
-		console.log(`Performing save to: ${file_path}`);
 		const file_data: FictioneerFileData = {
 			version: this.version,
 			createdAt: project.createdAt.toISOString(),
@@ -330,7 +324,6 @@ class FileService {
 
 		const file_content = JSON.stringify(file_data, null, 2);
 		await invoke<void>('save_project_file', { path: file_path, contents: file_content });
-		console.log('Save completed successfully');
 	}
 
 	/**
@@ -431,10 +424,9 @@ class FileService {
 		// Force save any pending changes before closing
 		if (this.current_project_ref && this.current_file_path) {
 			try {
-				console.log('Close project: Force saving pending changes');
 				await this.perform_save(this.current_project_ref, this.current_file_path);
-			} catch (error) {
-				console.error('Failed to save before closing:', error);
+			} catch {
+				// Ignore save errors on close
 			}
 		}
 
@@ -449,7 +441,6 @@ class FileService {
 	 */
 	async force_save_project(project: Project): Promise<boolean> {
 		if (!this.current_file_path) {
-			console.warn('No file path set for save');
 			return false;
 		}
 
@@ -460,12 +451,10 @@ class FileService {
 				this.pending_save_timeout = null;
 			}
 
-			console.log('Force save: Bypassing throttle for manual save');
 			await this.perform_save(project, this.current_file_path);
 			this.last_save_time = Date.now();
 			return true;
-		} catch (error) {
-			console.error('Failed to force save project:', error);
+		} catch {
 			return false;
 		}
 	}
@@ -475,15 +464,14 @@ class FileService {
 	 */
 	async flush_pending_saves(): Promise<void> {
 		if (this.pending_save_timeout && this.current_project_ref && this.current_file_path) {
-			console.log('Flushing pending save immediately');
 			clearTimeout(this.pending_save_timeout);
 			this.pending_save_timeout = null;
 
 			try {
 				await this.perform_save(this.current_project_ref, this.current_file_path);
 				this.last_save_time = Date.now();
-			} catch (error) {
-				console.error('Failed to flush pending save:', error);
+			} catch {
+				// Ignore flush errors
 			}
 		}
 	}
@@ -705,13 +693,6 @@ class FileService {
 			.replace(/\s+/g, '_')
 			.trim()
 			.substring(0, 50);
-	}
-
-	/**
-	 * Generate unique ID
-	 */
-	private generate_id(prefix: string): string {
-		return `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 	}
 
 	/**

@@ -221,15 +221,20 @@
 		return items;
 	});
 
+	// Group configurations for rendering
+	const GROUP_ORDER: Array<{ key: CommandItem['type']; label: string }> = [
+		{ key: 'recent', label: 'Recent' },
+		{ key: 'navigation', label: 'Navigation' },
+		{ key: 'action', label: 'Actions' },
+		{ key: 'scene', label: 'Scenes' }
+	];
+
 	// Group items for display
 	const grouped_items = $derived.by(() => {
-		const groups = {
-			recent: command_items.filter((item) => item.type === 'recent'),
-			navigation: command_items.filter((item) => item.type === 'navigation'),
-			action: command_items.filter((item) => item.type === 'action'),
-			scene: command_items.filter((item) => item.type === 'scene')
-		};
-		return groups;
+		return GROUP_ORDER.map((group) => ({
+			...group,
+			items: command_items.filter((item) => item.type === group.key)
+		})).filter((group) => group.items.length > 0);
 	});
 
 	function close_menu() {
@@ -238,37 +243,30 @@
 			onOpenChange(false);
 		}
 	}
-
-	function get_type_label(type: CommandItem['type']): string {
-		switch (type) {
-			case 'recent':
-				return 'Recent';
-			case 'navigation':
-				return 'Navigation';
-			case 'action':
-				return 'Actions';
-			case 'scene':
-				return 'Scenes';
-			default:
-				return 'Other';
-		}
-	}
-
-	function get_icon_color(type: CommandItem['type']): string {
-		switch (type) {
-			case 'recent':
-				return 'text-accent';
-			case 'navigation':
-				return 'text-accent';
-			case 'action':
-				return 'text-accent';
-			case 'scene':
-				return 'text-accent';
-			default:
-				return 'text-text-muted';
-		}
-	}
 </script>
+
+{#snippet commandItem(item: CommandItem)}
+	<Command.Item
+		class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-selected:bg-background-tertiary"
+		value={item.id}
+		keywords={item.keywords}
+		onSelect={item.action}
+	>
+		<div class="flex h-8 w-8 items-center justify-center">
+			<svg class="h-4 w-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={item.icon} />
+			</svg>
+		</div>
+		<div class="min-w-0 flex-1">
+			<div class="flex items-center gap-2">
+				<span class="truncate font-medium">{item.title}</span>
+			</div>
+			{#if item.subtitle}
+				<p class="truncate text-xs" style="color: var(--color-text-muted);">{item.subtitle}</p>
+			{/if}
+		</div>
+	</Command.Item>
+{/snippet}
 
 <Dialog.Root bind:open {onOpenChange}>
 	<Dialog.Portal>
@@ -348,216 +346,27 @@
 							</div>
 						</Command.Empty>
 
-						{#if grouped_items.recent.length > 0}
+						{#each grouped_items as group, index (group.key)}
+							{#if index > 0}
+								<Command.Separator
+									class="h-px w-full border-t"
+									style="border-color: var(--color-border);"
+								/>
+							{/if}
 							<Command.Group>
 								<Command.GroupHeading
 									class="px-3 py-2 text-xs font-medium"
 									style="color: var(--color-text-muted);"
 								>
-									{get_type_label('recent')}
+									{group.label}
 								</Command.GroupHeading>
 								<Command.GroupItems>
-									{#each grouped_items.recent as item (item.id)}
-										<Command.Item
-											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-selected:bg-background-tertiary"
-											value={item.id}
-											keywords={item.keywords}
-											onSelect={item.action}
-										>
-											<div class="flex h-8 w-8 items-center justify-center">
-												<svg
-													class="h-4 w-4 {get_icon_color(item.type)}"
-													fill="none"
-													stroke="currentColor"
-													viewBox="0 0 24 24"
-												>
-													<path
-														stroke-linecap="round"
-														stroke-linejoin="round"
-														stroke-width="2"
-														d={item.icon}
-													/>
-												</svg>
-											</div>
-											<div class="min-w-0 flex-1">
-												<div class="flex items-center gap-2">
-													<span class="truncate font-medium">
-														{item.title}
-													</span>
-												</div>
-												{#if item.subtitle}
-													<p
-														class="item-subtitle truncate text-xs"
-														style="color: var(--color-text-muted);"
-													>
-														{item.subtitle}
-													</p>
-												{/if}
-											</div>
-										</Command.Item>
+									{#each group.items as item (item.id)}
+										{@render commandItem(item)}
 									{/each}
 								</Command.GroupItems>
 							</Command.Group>
-						{/if}
-
-						{#if grouped_items.navigation.length > 0}
-							<Command.Separator
-								class="h-px w-full border-t"
-								style="border-color: var(--color-border);"
-							/>
-							<Command.Group>
-								<Command.GroupHeading
-									class="px-3 py-2 text-xs font-medium"
-									style="color: var(--color-text-muted);"
-								>
-									{get_type_label('navigation')}
-								</Command.GroupHeading>
-								<Command.GroupItems>
-									{#each grouped_items.navigation as item (item.id)}
-										<Command.Item
-											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-selected:bg-background-tertiary"
-											value={item.id}
-											keywords={item.keywords}
-											onSelect={item.action}
-										>
-											<div class="flex h-8 w-8 items-center justify-center">
-												<svg
-													class="h-4 w-4 {get_icon_color(item.type)}"
-													fill="none"
-													stroke="currentColor"
-													viewBox="0 0 24 24"
-												>
-													<path
-														stroke-linecap="round"
-														stroke-linejoin="round"
-														stroke-width="2"
-														d={item.icon}
-													/>
-												</svg>
-											</div>
-											<div class="min-w-0 flex-1">
-												<div class="flex items-center gap-2">
-													<span class="truncate font-medium">
-														{item.title}
-													</span>
-												</div>
-												{#if item.subtitle}
-													<p class="truncate text-xs" style="color: var(--color-text-muted);">
-														{item.subtitle}
-													</p>
-												{/if}
-											</div>
-										</Command.Item>
-									{/each}
-								</Command.GroupItems>
-							</Command.Group>
-						{/if}
-
-						{#if grouped_items.action.length > 0}
-							<Command.Separator
-								class="h-px w-full border-t"
-								style="border-color: var(--color-border);"
-							/>
-							<Command.Group>
-								<Command.GroupHeading
-									class="px-3 py-2 text-xs font-medium"
-									style="color: var(--color-text-muted);"
-								>
-									{get_type_label('action')}
-								</Command.GroupHeading>
-								<Command.GroupItems>
-									{#each grouped_items.action as item (item.id)}
-										<Command.Item
-											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-selected:bg-background-tertiary"
-											value={item.id}
-											keywords={item.keywords}
-											onSelect={item.action}
-										>
-											<div class="flex h-8 w-8 items-center justify-center">
-												<svg
-													class="h-4 w-4 {get_icon_color(item.type)}"
-													fill="none"
-													stroke="currentColor"
-													viewBox="0 0 24 24"
-												>
-													<path
-														stroke-linecap="round"
-														stroke-linejoin="round"
-														stroke-width="2"
-														d={item.icon}
-													/>
-												</svg>
-											</div>
-											<div class="min-w-0 flex-1">
-												<div class="flex items-center gap-2">
-													<span class="truncate font-medium">
-														{item.title}
-													</span>
-												</div>
-												{#if item.subtitle}
-													<p class="truncate text-xs" style="color: var(--color-text-muted);">
-														{item.subtitle}
-													</p>
-												{/if}
-											</div>
-										</Command.Item>
-									{/each}
-								</Command.GroupItems>
-							</Command.Group>
-						{/if}
-
-						{#if grouped_items.scene.length > 0}
-							<Command.Separator
-								class="h-px w-full border-t"
-								style="border-color: var(--color-border);"
-							/>
-							<Command.Group>
-								<Command.GroupHeading
-									class="px-3 py-2 text-xs font-medium"
-									style="color: var(--color-text-muted);"
-								>
-									{get_type_label('scene')}
-								</Command.GroupHeading>
-								<Command.GroupItems>
-									{#each grouped_items.scene as item (item.id)}
-										<Command.Item
-											class="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-text select-none hover:bg-background-tertiary data-selected:bg-background-tertiary"
-											value={item.id}
-											keywords={item.keywords}
-											onSelect={item.action}
-										>
-											<div class="flex h-8 w-8 items-center justify-center">
-												<svg
-													class="h-4 w-4 {get_icon_color(item.type)}"
-													fill="none"
-													stroke="currentColor"
-													viewBox="0 0 24 24"
-												>
-													<path
-														stroke-linecap="round"
-														stroke-linejoin="round"
-														stroke-width="2"
-														d={item.icon}
-													/>
-												</svg>
-											</div>
-											<div class="min-w-0 flex-1">
-												<div class="flex items-center gap-2">
-													<span class="truncate font-medium">
-														{item.title}
-													</span>
-												</div>
-												{#if item.subtitle}
-													<p class="truncate text-xs" style="color: var(--color-text-muted);">
-														{item.subtitle}
-													</p>
-												{/if}
-											</div>
-										</Command.Item>
-									{/each}
-								</Command.GroupItems>
-							</Command.Group>
-						{/if}
+						{/each}
 					</Command.Viewport>
 				</Command.List>
 

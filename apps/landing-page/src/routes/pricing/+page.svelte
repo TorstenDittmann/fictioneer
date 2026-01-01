@@ -43,7 +43,7 @@
 			price: '$10',
 			period: 'per month',
 			description: 'Unlock advanced AI-powered writing tools',
-			trial: '14-day free trial',
+			trial: '7-day free trial',
 			features: [
 				{ text: 'Everything in Free', included: true },
 				{ text: 'Advanced AI assistance', included: true },

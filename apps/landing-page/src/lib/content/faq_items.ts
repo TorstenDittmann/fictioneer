@@ -27,6 +27,6 @@ export const faq_items: FaqItem[] = [
 	{
 		question: 'Do you offer refunds?',
 		answer:
-			"We don't offer refunds, but you can try the AI Tools subscription free for 14 days before being charged. You can cancel anytime during the trial at no cost."
+			"We don't offer refunds, but you can try the AI Tools subscription free for 7 days before being charged. You can cancel anytime during the trial at no cost."
 	}
 ];

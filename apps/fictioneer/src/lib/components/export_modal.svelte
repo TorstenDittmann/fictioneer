@@ -29,12 +29,7 @@
 	let export_error = $state<string | null>(null);
 
 	async function handle_export() {
-		console.log('Export button clicked');
-		console.log('Project object:', project);
-		console.log('Export options:', export_options);
-
 		if (!project) {
-			console.error('No project available for export');
 			export_error = 'No project available for export';
 			return;
 		}
@@ -43,12 +38,9 @@
 		export_error = null;
 
 		try {
-			console.log('Starting export process...');
 			await export_service.export_project(project, export_options);
-			console.log('Export completed successfully');
 			onClose();
 		} catch (error) {
-			console.error('Export failed:', error);
 			export_error = error instanceof Error ? error.message : 'Export failed. Please try again.';
 		} finally {
 			is_exporting = false;

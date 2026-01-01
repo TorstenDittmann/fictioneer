@@ -2,6 +2,7 @@ import { file_service } from './file.svelte.js';
 import { progress_service } from './progress.svelte.js';
 import type { ProgressGoals, DailyProgress, ProgressStats } from '../types/progress.js';
 import { SvelteDate } from 'svelte/reactivity';
+import { generate_id } from '../utils.js';
 
 export interface Scene {
 	id: string;
@@ -167,7 +168,7 @@ class ProjectsService {
 	create_chapter(title: string = 'Untitled Chapter'): string | null {
 		if (!this.current_project) return null;
 
-		const chapter_id = this.generate_id('chapter');
+		const chapter_id = generate_id('chapter');
 		const now = new Date();
 
 		const new_chapter: Chapter = {
@@ -232,7 +233,7 @@ class ProjectsService {
 		const chapter = this.get_chapter(chapter_id);
 		if (!chapter) return null;
 
-		const scene_id = this.generate_id('scene');
+		const scene_id = generate_id('scene');
 		const now = new Date();
 
 		const new_scene: Scene = {
@@ -344,7 +345,7 @@ class ProjectsService {
 	create_note(title: string = 'Untitled Note', description: string = ''): string | null {
 		if (!this.current_project) return null;
 
-		const note_id = this.generate_id('note');
+		const note_id = generate_id('note');
 		const now = new Date();
 
 		const new_note: Note = {
@@ -544,13 +545,6 @@ class ProjectsService {
 		return this.current_project !== null;
 	}
 
-	/**
-	 * Utility methods
-	 */
-	private generate_id(prefix: string): string {
-		return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-	}
-
 	private strip_html(html: string): string {
 		// Simple HTML tag removal for SSR compatibility
 		return html.replace(/<[^>]*>/g, '');
@@ -568,7 +562,6 @@ class ProjectsService {
 	 */
 	private async trigger_auto_save(): Promise<void> {
 		if (this.current_project) {
-			console.log('Triggering throttled auto-save');
 			await file_service.trigger_auto_save_if_needed(this.current_project);
 		}
 	}

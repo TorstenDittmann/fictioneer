@@ -65,9 +65,6 @@ export class TextExportHandler extends BaseExportHandler {
 	 * Export project to plain text format
 	 */
 	async export(project: Project, options: ExportOptions): Promise<string> {
-		console.log('Starting text export for project:', project.title);
-		console.log('Export options:', options);
-
 		let txt_content = '';
 
 		if (options.include_title) {
@@ -100,7 +97,6 @@ export class TextExportHandler extends BaseExportHandler {
 			}
 		}
 
-		console.log('Text export completed. Content length:', txt_content.length);
 		return txt_content;
 	}
 }

@@ -2,6 +2,7 @@ import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { ai_writing_backend_service } from '$lib/services/ai_writing_backend.js';
+import { license_key_state } from '$lib/state/license_key.svelte.js';
 
 export interface AIWritingSuggestionOptions {
 	delay: number;
@@ -23,16 +24,7 @@ function get_relevant_context(full_text: string, max_length: number): string {
 	}
 
 	// Take the last max_length characters
-	const context = full_text.slice(-max_length);
-
-	console.log(
-		'AI: Context extraction - Full length:',
-		full_text.length,
-		'Context length:',
-		context.length
-	);
-
-	return context;
+	return full_text.slice(-max_length);
 }
 
 export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>({
@@ -61,7 +53,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 				key: suggestionPluginKey,
 				state: {
 					init() {
-						console.log('AI: Plugin initialized');
 						return {
 							decorations: DecorationSet.empty,
 							timeout: null,
@@ -215,38 +206,22 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 					};
 
 					const generateSuggestion = async () => {
-						console.log('AI: generateSuggestion called');
-						if (!extension.options.enabled) {
-							console.log('AI: Extension disabled');
-							return;
-						}
+						if (!extension.options.enabled) return;
 
 						// Check if license key is available and valid
-						// if (!license_key_state.has_license_key || !license_key_state.is_valid) {
-						// 	console.log('AI: No valid license key available');
-						// 	return;
-						// }
+						if (!license_key_state.has_license_key || !license_key_state.is_valid) return;
 
 						// Don't generate if option key is not held
-						if (!option_key_held) {
-							console.log('AI: Option key not held, skipping generation');
-							return;
-						}
+						if (!option_key_held) return;
 
 						// Don't generate if already generating
-						if (ai_writing_backend_service.is_request_active()) {
-							console.log('AI: Request already active, skipping generation');
-							return;
-						}
+						if (ai_writing_backend_service.is_request_active()) return;
 
 						const { state } = editorView;
 						const { selection } = state;
 						const cursor_position = selection.to;
 
-						if (!selection.empty) {
-							console.log('AI: Selection not collapsed, skipping generation');
-							return;
-						}
+						if (!selection.empty) return;
 
 						// Use only the text before the cursor to build context
 						const text_before_cursor = state.doc.textBetween(0, cursor_position, '\n');
@@ -255,18 +230,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							extension.options.contextWindowSize
 						);
 
-						console.log(
-							'AI: Context length:',
-							context_text.length,
-							'Min length:',
-							extension.options.minLength
-						);
-						console.log('AI: Context content:', context_text);
-
-						if (context_text.length < extension.options.minLength) {
-							console.log('AI: Context too short');
-							return;
-						}
+						if (context_text.length < extension.options.minLength) return;
 
 						try {
 							// Improve context for better grammar
@@ -316,8 +280,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								}
 							}, 150);
 
-							console.log('AI: Calling backend with enhanced context:', enhanced_context);
-
 							let full_suggestion = '';
 							let result = '';
 							let has_received_text = false;
@@ -359,8 +321,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							// Clean up dot interval
 							clearInterval(dot_interval);
 
-							console.log('AI: Backend result:', result);
-
 							if (result && result.trim() && option_key_held) {
 								// Ensure final text is set only if option key is still held (without trailing dots)
 								full_suggestion = ' ' + result.trim();
@@ -376,7 +336,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								editorView.dispatch(tr);
 								is_clearing = false;
 							} else {
-								console.log('AI: No result from backend');
 								// Clear suggestion
 								if (!is_clearing) {
 									is_clearing = true;
@@ -386,9 +345,7 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 									is_clearing = false;
 								}
 							}
-						} catch (error) {
-							console.error('AI suggestion error:', error);
-
+						} catch {
 							// Clear suggestion on error
 							if (!is_clearing) {
 								is_clearing = true;
@@ -430,7 +387,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								context_text.length >= extension.options.minLength &&
 								!ai_writing_backend_service.is_request_active()
 							) {
-								console.log('AI: Suggestion trigger held, generating suggestion');
 								generateSuggestion();
 							}
 						}
@@ -460,7 +416,6 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								event.code === 'MetaRight') &&
 							ai_writing_backend_service.is_request_active()
 						) {
-							console.log('AI: Command key released, cancelling request');
 							ai_writing_backend_service.cancel_current_request();
 
 							// Clear suggestion immediately without animation

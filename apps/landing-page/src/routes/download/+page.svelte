@@ -153,7 +153,7 @@
 			<div class="animate-fade-in-up card overflow-hidden p-6" style:animation-delay="0.45s">
 				<h3 class="mb-4 font-serif text-lg font-semibold text-paper-text">What's Included</h3>
 				<ul class="space-y-3">
-					{#each ['Distraction-free writing interface', 'AI-powered writing assistance', 'Progress tracking & analytics', 'Cloud sync & local storage', 'Export to multiple formats'] as feature (feature)}
+					{#each ['Distraction-free writing interface', 'AI-powered writing assistance', 'Progress tracking & analytics', 'Local storage', 'Export to multiple formats'] as feature (feature)}
 						<li class="flex items-start gap-2.5">
 							<div
 								class="mt-1 flex h-4 w-4 items-center justify-center rounded-full bg-paper-accent/15 text-paper-accent"

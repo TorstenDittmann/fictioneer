@@ -31,10 +31,6 @@ class ExportService {
 	 * Export project with given options
 	 */
 	async export_project(project: Project, options: ExportOptions): Promise<void> {
-		console.log('Starting project export');
-		console.log('Project:', project.title);
-		console.log('Options:', options);
-
 		if (!project) {
 			throw new Error('No project provided for export');
 		}
@@ -51,10 +47,6 @@ class ExportService {
 	 * Export project and return content without downloading
 	 */
 	async export_content(project: Project, options: ExportOptions): Promise<string> {
-		console.log('Generating export content');
-		console.log('Project:', project.title);
-		console.log('Options:', options);
-
 		if (!project) {
 			throw new Error('No project provided for export');
 		}

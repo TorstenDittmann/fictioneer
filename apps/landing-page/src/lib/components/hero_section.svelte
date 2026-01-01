@@ -109,7 +109,7 @@
 						<div class="flex items-center gap-2">
 							<span class="badge">
 								<span class="mr-1 h-1.5 w-1.5 rounded-full bg-paper-lime"></span>
-								Coming Soon
+								Available Now
 							</span>
 						</div>
 					</div>

@@ -84,9 +84,6 @@ export class RtfExportHandler extends BaseExportHandler {
 	 * Export project to RTF format
 	 */
 	async export(project: Project, options: ExportOptions): Promise<string> {
-		console.log('Starting RTF export for project:', project.title);
-		console.log('Export options:', options);
-
 		// Build RTF content step by step
 		const rtf_parts: string[] = [];
 
@@ -137,10 +134,7 @@ export class RtfExportHandler extends BaseExportHandler {
 		// Close RTF document
 		rtf_parts.push(this.create_rtf_footer());
 
-		const rtf_content = rtf_parts.join('');
-		console.log('RTF export completed. Content length:', rtf_content.length);
-		console.log('RTF content preview:', rtf_content.substring(0, 200));
-		return rtf_content;
+		return rtf_parts.join('');
 	}
 
 	// RTF helper methods

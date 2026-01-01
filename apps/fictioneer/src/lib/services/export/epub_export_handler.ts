@@ -63,9 +63,6 @@ export class EpubExportHandler extends BaseExportHandler {
 	 * Export project to EPUB format
 	 */
 	async export(project: Project, options: ExportOptions): Promise<string> {
-		console.log('Starting EPUB export for project:', project.title);
-		console.log('Export options:', options);
-
 		const template = this.templates.get(this.default_template_name);
 		if (!template) {
 			throw new Error(`Default template '${this.default_template_name}' not found`);
@@ -73,7 +70,6 @@ export class EpubExportHandler extends BaseExportHandler {
 
 		// Generate metadata
 		const metadata = template.generate_metadata(project);
-		console.log('Generated metadata:', metadata);
 
 		// Create initial context
 		const context: EpubTemplateContext = {
@@ -88,49 +84,33 @@ export class EpubExportHandler extends BaseExportHandler {
 
 		// Generate all EPUB files
 		const files = await template.generate_files(context);
-		console.log('Generated', files.length, 'files for EPUB');
 
 		// Create EPUB zip archive
-		const epub_data = await this.create_epub_archive(files);
-		console.log('EPUB export completed. Archive size:', epub_data.length, 'bytes');
-
-		return epub_data;
+		return await this.create_epub_archive(files);
 	}
 
 	/**
 	 * Create EPUB zip archive from files using JSZip
 	 */
 	private async create_epub_archive(files: EpubFile[]): Promise<string> {
-		console.log('Creating EPUB zip archive...');
+		const zip = new JSZip();
 
-		try {
-			const zip = new JSZip();
+		// Add mimetype file first (must be uncompressed)
+		zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
 
-			// Add mimetype file first (must be uncompressed)
-			zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
-
-			// Add all other files
-			for (const file of files) {
-				zip.file(file.path, file.content);
-			}
-
-			// Generate the zip as base64
-			const zip_data = await zip.generateAsync({
-				type: 'base64',
-				compression: 'DEFLATE',
-				compressionOptions: {
-					level: 9
-				}
-			});
-
-			console.log('EPUB archive created successfully');
-			return zip_data;
-		} catch (error) {
-			console.error('Error creating EPUB archive:', error);
-			throw new Error(
-				`Failed to create EPUB archive: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+		// Add all other files
+		for (const file of files) {
+			zip.file(file.path, file.content);
 		}
+
+		// Generate the zip as base64
+		return await zip.generateAsync({
+			type: 'base64',
+			compression: 'DEFLATE',
+			compressionOptions: {
+				level: 9
+			}
+		});
 	}
 
 	/**
@@ -145,8 +125,6 @@ export class EpubExportHandler extends BaseExportHandler {
 		if (!template) {
 			throw new Error(`Template '${template_name}' not found`);
 		}
-
-		console.log('Starting EPUB export with template:', template_name);
 
 		// Generate metadata
 		const metadata = template.generate_metadata(project);
@@ -173,44 +151,27 @@ export class EpubExportHandler extends BaseExportHandler {
 	 * Override download_file to handle binary EPUB data
 	 */
 	async download_file(content: string, filename: string): Promise<void> {
-		console.log('Starting EPUB file download with Tauri command');
-		console.log('Filename:', filename);
-		console.log('Content type: Base64 encoded EPUB data');
-		console.log('Content length:', content.length);
+		// Use Tauri's save dialog to let user choose save location
+		const { save } = await import('@tauri-apps/plugin-dialog');
 
-		try {
-			// Use Tauri's save dialog to let user choose save location
-			const { save } = await import('@tauri-apps/plugin-dialog');
+		const file_path = await save({
+			defaultPath: filename,
+			filters: [
+				{
+					name: this.get_filter_name(),
+					extensions: [this.get_file_extension()]
+				}
+			]
+		});
 
-			const file_path = await save({
-				defaultPath: filename,
-				filters: [
-					{
-						name: this.get_filter_name(),
-						extensions: [this.get_file_extension()]
-					}
-				]
-			});
-
-			if (!file_path) {
-				console.log('User cancelled save dialog');
-				return;
-			}
-
-			console.log('File path selected:', file_path);
-
-			// Convert base64 to binary and save using existing command
-			await invoke('save_export_file_base64', {
-				path: file_path,
-				content: content
-			});
-
-			console.log('EPUB file saved successfully');
-		} catch (error) {
-			console.error('Error saving EPUB file:', error);
-			throw new Error(
-				`Failed to save EPUB file: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+		if (!file_path) {
+			return;
 		}
+
+		// Convert base64 to binary and save using existing command
+		await invoke('save_export_file_base64', {
+			path: file_path,
+			content: content
+		});
 	}
 }
