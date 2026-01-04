@@ -17,13 +17,13 @@
 	"dependencies": {
 		"@arcjet/bun": "^1.0.0-beta.15",
 		"@arcjet/inspect": "^1.0.0-beta.15",
-		"@openrouter/ai-sdk-provider": "^1.2.5",
-		"@posthog/ai": "^7.2.0",
-		"ai": "^5.0.101",
-		"dedent": "^1.7.0",
+		"@openrouter/ai-sdk-provider": "^1.5.4",
+		"@posthog/ai": "^7.3.0",
+		"ai": "^5.0.117",
+		"dedent": "^1.7.1",
 		"dodopayments": "^2.13.1",
-		"hono": "^4.10.6",
-		"posthog-node": "^5.14.0"
+		"hono": "^4.11.3",
+		"posthog-node": "^5.18.1"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",
