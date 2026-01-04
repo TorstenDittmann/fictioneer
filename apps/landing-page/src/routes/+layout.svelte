@@ -2,6 +2,7 @@
 	import '../app.css';
 	import NavigationMenu from '$lib/components/navigation_menu.svelte';
 	import Footer from '$lib/components/footer.svelte';
+	import FeedbackButton from '$lib/components/feedback_button.svelte';
 	import { asset } from '$app/paths';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { theme } from '$lib/stores/theme.svelte';
@@ -45,3 +46,4 @@
 	{@render children?.()}
 </main>
 <Footer />
+<FeedbackButton />

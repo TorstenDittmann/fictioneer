@@ -101,9 +101,12 @@
 						</a>
 					</li>
 					<li>
-						<button class="text-sm text-paper-text-light transition-colors hover:text-paper-accent">
+						<a
+							href={resolve('/blog')}
+							class="text-sm text-paper-text-light transition-colors hover:text-paper-accent"
+						>
 							Blog
-						</button>
+						</a>
 					</li>
 				</ul>
 			</div>
@@ -145,12 +148,18 @@
 					{/if}
 				</button>
 
-				<button class="text-sm text-paper-text-muted transition-colors hover:text-paper-accent">
+				<a
+					href={resolve('/privacy')}
+					class="text-sm text-paper-text-muted transition-colors hover:text-paper-accent"
+				>
 					Privacy Policy
-				</button>
-				<button class="text-sm text-paper-text-muted transition-colors hover:text-paper-accent">
+				</a>
+				<a
+					href={resolve('/terms')}
+					class="text-sm text-paper-text-muted transition-colors hover:text-paper-accent"
+				>
 					Terms of Service
-				</button>
+				</a>
 			</div>
 		</div>
 	</div>

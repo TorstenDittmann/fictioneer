@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import type { RouteId } from '$app/types';
 	import FaqSection from '$lib/components/faq_section.svelte';
 
 	type Feature = {
@@ -15,7 +14,7 @@
 		description: string;
 		features: Feature[];
 		cta_text: string;
-		cta_href: RouteId;
+		cta_href: 'checkout' | 'download';
 		highlighted: boolean;
 		trial?: string;
 	};
@@ -35,7 +34,7 @@
 				{ text: 'AI story generation', included: false }
 			],
 			cta_text: 'Download Free',
-			cta_href: '/download',
+			cta_href: 'download',
 			highlighted: false
 		},
 		{
@@ -52,7 +51,7 @@
 				{ text: 'Early access to new features', included: true }
 			],
 			cta_text: 'Start Free Trial',
-			cta_href: '/checkout',
+			cta_href: 'checkout',
 			highlighted: true
 		}
 	];
@@ -181,7 +180,7 @@
 
 					<!-- CTA Button -->
 					<a
-						href={resolve(plan.cta_href)}
+						href={resolve(plan.cta_href === 'checkout' ? '/checkout' : '/download')}
 						class="mt-auto block w-full text-center {plan.highlighted
 							? 'btn-primary'
 							: 'btn-secondary'}"

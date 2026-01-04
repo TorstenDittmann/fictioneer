@@ -5,10 +5,11 @@
 	import { projects } from '$lib/state/projects.svelte.js';
 	import { getCurrentWindow } from '@tauri-apps/api/window';
 	import TitleBarUpdateButton from './title_bar_update_button.svelte';
-	// import TitleBarLicenseButton from './title_bar_license_button.svelte';
 	import SettingsModal from './settings_modal.svelte';
+	import FeedbackModal from './feedback_modal.svelte';
 
 	let settings_open = $state(false);
+	let feedback_open = $state(false);
 
 	let is_fullscreen = $state(false);
 	const show_back_button = $derived(page.route.id?.startsWith('/[projectId]'));
@@ -124,7 +125,28 @@
 	</div>
 
 	<!-- Right section -->
-	<div class="titlebar-right">
+	<div class="titlebar-right gap-1.5">
+		<button
+			aria-label="Send feedback"
+			class="rounded-sm border border-border bg-transparent p-1 text-[10px] text-text-secondary transition-all duration-150 hover:border-accent hover:bg-surface"
+			onclick={() => (feedback_open = true)}
+			title="Send Feedback"
+		>
+			<svg
+				width="14"
+				height="14"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+			>
+				<path
+					d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				/>
+			</svg>
+		</button>
 		<button
 			aria-label="Open settings"
 			class="rounded-sm border border-border bg-transparent p-1 text-[10px] text-text-secondary transition-all duration-150 hover:border-accent hover:bg-surface"
@@ -145,9 +167,9 @@
 				/>
 			</svg>
 		</button>
-		<!-- <TitleBarLicenseButton /> -->
 	</div>
 
+	<FeedbackModal bind:open={feedback_open} />
 	<SettingsModal bind:open={settings_open} />
 </div>
 

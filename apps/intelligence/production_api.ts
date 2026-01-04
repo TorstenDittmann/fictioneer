@@ -12,8 +12,7 @@ type Model = Parameters<typeof openrouter>[0];
 
 const MODELS = {
 	SLOW: 'openai/gpt-oss-120b',
-	FAST: 'anthropic/claude-haiku-4.5',
-	FREE: 'x-ai/grok-4.1-fast'
+	FAST: 'x-ai/grok-4.1-fast'
 } as const satisfies Record<string, Model>;
 
 function create_model(model: Model) {
@@ -236,7 +235,7 @@ const app = new Hono()
 				return c.json({ error: 'Content is required and must be a string' }, 400);
 			}
 
-			const client = create_model(MODELS.FREE);
+			const client = create_model(MODELS.FAST);
 
 			const ctx =
 				context && typeof context === 'object' && context !== null
@@ -345,7 +344,7 @@ const app = new Hono()
 				return c.json({ error: 'Prompt is required and must be a string' }, 400);
 			}
 
-			const client = create_model(MODELS.FREE);
+			const client = create_model(MODELS.FAST);
 			const system_prompt = build_start_system_prompt(context, word_count);
 			const user_prompt = `<prompt>${prompt}</prompt>`;
 

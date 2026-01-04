@@ -1,69 +1,98 @@
-# Repository Guidelines
+# AGENTS.md
 
-## Project Structure & Modules
-- apps/fictioneer: SvelteKit + Tauri desktop app (UI, exports, tooling). Example routes: `src/routes/+page.svelte`.
-- apps/landing-page: SvelteKit marketing site. Built with Vite and Tailwind.
-- apps/intelligence: Bun + Hono API for text generation. Entrypoint: `index.ts`.
-- Root: Workspace manager, shared config (`.prettierrc`, `.github/workflows/*`). Use Bun with workspaces.
+This file provides guidance to AI Coding Agents when working with code in this repository.
 
-## Build, Test, and Development
-- Root dev: `bun run dev` — runs workspaces in watch/dev mode via `workspace-utils`.
-- Root build: `bun run build` — builds all apps.
-- Lint: `bun run lint` — Prettier check (+ ESLint in Svelte apps).
-- Type check: `bun run check` — Svelte type checks.
-- Format: `bun run format` — Prettier write.
-- App-specific:
-  - Fictioneer: `bun run dev` / `bun run build` in `apps/fictioneer` (Tauri; requires Rust toolchain).
-  - Landing Page: `bun run dev` / `bun run build` in `apps/landing-page`.
-  - Intelligence: `bun run dev` (API server), `bun run build` in `apps/intelligence`.
+## Project Overview
 
-## Coding Style & Naming
-- Languages/tools: Bun, TypeScript, Svelte 5 runes.
-- Prettier: tabs, single quotes, no trailing commas.
-- Naming: snake_case for variables/functions/files/folders; PascalCase for types/interfaces.
-- Type safety: never use `any`; prefer `const`; no underscore prefixes for private members.
-- Svelte: use runes (`$state`, `$derived`), avoid legacy `$:`; prefer native DOM events (e.g., `onclick`) over `on:click`; avoid `:global` in styles; prefer `$app/state` over `$app/stores`.
-- Structure: one component per file; keep components focused; extract logic to stores/helpers.
+Fictioneer is a distraction-free, AI-assisted desktop writing application for fiction writers. It's a Bun monorepo with three apps:
 
-## Testing Guidelines
-- Use `bun run check` (types/Svelte) and `bun run lint` (format/lint) locally.
-- Intelligence service health check: `GET http://localhost:3001/health`.
-- When adding logic-heavy code, include tests under `apps/<name>/tests`.
+- **apps/fictioneer**: SvelteKit + Tauri desktop app (main writing interface)
+- **apps/intelligence**: Bun + Hono API server (AI writing assistance via OpenRouter)
+- **apps/landing-page**: SvelteKit marketing website
 
-## Commit & Pull Requests
-- Commits: concise, imperative (e.g., “Add EPUB export”, “Fix RTF escaping”). Scope optional.
-- PRs: include summary, linked issues, and screenshots for UI changes. Note env/setup steps if relevant.
-- CI must pass `lint` and `check`. For Tauri releases, do not commit secrets; CI uses GitHub secrets for signing.
+## Commands
 
-## Security & Configuration
-- Env: copy `.env.example` to `.env` per app. Required: `apps/intelligence` needs `OPENROUTER_API_KEY`; `apps/fictioneer` needs `PUBLIC_INTELLIGENCE_SERVER_URL`.
-- Never commit `.env` or credentials. Review `.github/workflows` before changing release/signing.
+### Root (workspace)
+```bash
+bun dev           # Start all apps in dev mode
+bun build         # Build all apps
+bun run format    # Format all apps
+bun run lint      # Lint all apps
+bun run check     # Type check all apps
+```
 
-## Agent Notes (Automation)
-- Do not start long-running dev servers in CI/automation.
-- Follow the rules in `.rules` for style and Svelte usage; prefer Bun commands.
+### Desktop App (apps/fictioneer)
+```bash
+cd apps/fictioneer
+bun run dev       # Start Tauri + Vite dev server
+bun run build     # Build desktop app
+bun run check     # Svelte + TypeScript check
+bun run lint      # ESLint + Prettier check
+```
 
-# MCP
-You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
+### Intelligence API (apps/intelligence)
+```bash
+cd apps/intelligence
+bun run dev       # Start server with watch mode
+bun run build     # Build to ./build
+bun run start     # Run built server
+```
 
-## Available MCP Tools:
+### Landing Page (apps/landing-page)
+```bash
+cd apps/landing-page
+bun run dev       # Start Vite dev server
+bun run build     # Build for production
+bun run start     # Run built server
+```
 
-### 1. list-sections
+## Architecture
 
-Use this FIRST to discover all available documentation sections. Returns a structured list with titles, use_cases, and paths.
-When asked about Svelte or SvelteKit topics, ALWAYS use this tool at the start of the chat to find relevant sections.
+### Desktop App Structure (apps/fictioneer)
+- `src/lib/services/` - Core business logic
+  - `projects.svelte.ts` - Project CRUD, file I/O (.fictioneer format)
+  - `file.svelte.ts` - File system operations
+  - `ai_writing_backend.ts` - AI continuation/rephrasing
+  - `export/` - RTF/TXT export functionality
+- `src/lib/state/` - Svelte 5 rune-based global state stores
+  - `projects.svelte.ts` - Active project state
+  - `settings.svelte.ts` - User preferences
+  - `progress.svelte.ts` - Writing progress tracking
+- `src/lib/components/` - UI components
+- `src-tauri/` - Rust backend for native desktop features
 
-### 2. get-documentation
+### Intelligence API Structure (apps/intelligence)
+- `server.ts` - Hono app entry point with health check at `/health`
+- `production_api.ts` - Production AI endpoints (continuation, rephrasing)
+- `marketing_api.ts` - Marketing/trial endpoints
+- `validation.ts` - Request validation
+- `client.ts` - Type-safe Hono client exported as `@fictioneer/intelligence/client`
 
-Retrieves full documentation content for specific sections. Accepts single or multiple sections.
-After calling the list-sections tool, you MUST analyze the returned documentation sections (especially the use_cases field) and then use the get-documentation tool to fetch ALL documentation sections that are relevant for the user's task.
+### Cross-App Integration
+The desktop app imports the intelligence client via workspace package:
+```typescript
+import { create_client } from '@fictioneer/intelligence/client';
+```
 
-### 3. svelte-autofixer
+## Code Style Rules
 
-Analyzes Svelte code and returns issues and suggestions.
-You MUST use this tool whenever writing Svelte code before sending it to the user. Keep calling it until no issues or suggestions are returned.
+- **Use snake_case** for variables, functions, and file names
+- **Use PascalCase** for types/interfaces
+- **Never use `any`** - use `unknown` or proper types
+- **Svelte 5 runes only** - use `$state`, `$derived`, etc. (no legacy `$:` reactivity)
+- **Native event handlers** - use `onclick` not `on:click`
+- **Use `$app/state`** not `$app/stores`
+- **No `:global`** in Svelte style blocks
+- **Use bits-ui** for UI components (see https://bits-ui.com/llms.txt)
+- **Use Svelte MCP** for Svelte development assistance
 
-### 4. playground-link
+## UI Component Library
 
-Generates a Svelte Playground link with the provided code.
-After completing the code, ask the user if they want a playground link. Only call this tool after user confirmation and NEVER if code was written to files in their project.
+bits-ui is used for accessible UI primitives. Reference: https://bits-ui.com/llms.txt
+
+## File Format
+
+Projects are stored as single `.fictioneer` files containing:
+- Chapters and scenes hierarchy
+- Metadata (word counts, timestamps)
+- Notes and character information

@@ -72,6 +72,7 @@
 	<title>Fictioneer - Creative Writing Tool</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="icon" href={favicon} />
+	<script id="featurebase-sdk" src="https://do.featurebase.app/js/sdk.js"></script>
 </svelte:head>
 
 {#if show_app}
