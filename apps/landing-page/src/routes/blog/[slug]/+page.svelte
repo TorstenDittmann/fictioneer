@@ -3,7 +3,74 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	const article_json_ld = $derived(
+		JSON.stringify({
+			'@context': 'https://schema.org',
+			'@type': 'Article',
+			headline: data.post.title,
+			description: data.post.description || '',
+			image: data.post.coverImage || 'https://fictioneer.app/og.png',
+			datePublished: new Date(data.post.publishedAt).toISOString(),
+			dateModified: new Date(data.post.publishedAt).toISOString(),
+			author:
+				data.post.authors && data.post.authors.length > 0
+					? {
+							'@type': 'Person',
+							name: data.post.authors[0].name,
+							image: data.post.authors[0].image || undefined
+						}
+					: {
+							'@type': 'Organization',
+							name: 'Fictioneer'
+						},
+			publisher: {
+				'@type': 'Organization',
+				name: 'Fictioneer',
+				logo: {
+					'@type': 'ImageObject',
+					url: 'https://fictioneer.app/logo.svg'
+				}
+			},
+			url: `https://fictioneer.app/blog/${data.post.slug}`,
+			mainEntityOfPage: {
+				'@type': 'WebPage',
+				'@id': `https://fictioneer.app/blog/${data.post.slug}`
+			}
+		})
+	);
 </script>
+
+<svelte:head>
+	<title>{data.post.title} - Fictioneer</title>
+	<meta name="description" content={data.post.description || ''} />
+	<link rel="canonical" href={`https://fictioneer.app/blog/${data.post.slug}`} />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content={data.post.title} />
+	<meta property="og:description" content={data.post.description || ''} />
+	<meta property="og:url" content={`https://fictioneer.app/blog/${data.post.slug}`} />
+	{#if data.post.coverImage}
+		<meta property="og:image" content={data.post.coverImage} />
+		<meta property="og:image:alt" content={data.post.title} />
+	{/if}
+	<meta property="article:published_time" content={new Date(data.post.publishedAt).toISOString()} />
+	{#if data.post.category}
+		<meta property="article:section" content={data.post.category.name} />
+	{/if}
+	{#if data.post.tags}
+		{#each data.post.tags as tag (tag.id)}
+			<meta property="article:tag" content={tag.name} />
+		{/each}
+	{/if}
+	<meta property="twitter:card" content="summary_large_image" />
+	<meta property="twitter:title" content={data.post.title} />
+	<meta property="twitter:description" content={data.post.description || ''} />
+	{#if data.post.coverImage}
+		<meta property="twitter:image" content={data.post.coverImage} />
+	{/if}
+	<!-- eslint-disable-next-line -->
+	{@html `${'<'}script type="application/ld+json">${article_json_ld}</script>`}
+</svelte:head>
 
 <div class="relative min-h-screen">
 	<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>

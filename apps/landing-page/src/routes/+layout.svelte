@@ -13,7 +13,6 @@
 
 	const prefersDark = new MediaQuery('prefers-color-scheme: dark', false);
 
-	// Initialize theme once on mount
 	onMount(() => {
 		if (data.theme) {
 			theme.set(data.theme);
@@ -21,6 +20,29 @@
 			theme.set(prefersDark.current ? 'dark' : 'light');
 		}
 	});
+
+	const json_ld = $derived(
+		JSON.stringify({
+			'@context': 'https://schema.org',
+			'@graph': [
+				{
+					'@type': 'Organization',
+					name: 'Fictioneer',
+					url: 'https://fictioneer.app',
+					logo: 'https://fictioneer.app/logo.svg',
+					description: 'Distraction-free writing software for novelists with AI-powered assistance',
+					foundingDate: '2024',
+					sameAs: []
+				},
+				{
+					'@type': 'WebSite',
+					name: 'Fictioneer',
+					url: 'https://fictioneer.app',
+					description: 'Distraction-free writing software for novelists with AI-powered assistance'
+				}
+			]
+		})
+	);
 </script>
 
 <svelte:head>
@@ -39,6 +61,10 @@
 	<!-- Microsoft Tiles -->
 	<meta name="msapplication-TileColor" content="#6366f1" />
 	<meta name="msapplication-TileImage" content={logo} />
+
+	<!-- Structured Data -->
+	<!-- eslint-disable-next-line -->
+	{@html `${'<'}script type="application/ld+json">${json_ld}</script>`}
 </svelte:head>
 
 <NavigationMenu />

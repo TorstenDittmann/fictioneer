@@ -72,12 +72,5 @@
       "url": "https://fictioneer.app"
     }
   ],
-  "prefer_related_applications": false,
-  "shortcuts": [
-    {
-      "name": "Join Waitlist",
-      "url": "/#waitlist",
-      "description": "Sign up for early access to Fictioneer"
-    }
-  ]
+  "prefer_related_applications": false
 }

@@ -1,6 +1,22 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import FaqSection from '$lib/components/faq_section.svelte';
+	import { faq_items } from '$lib/content/faq_items';
+
+	const faq_json_ld = $derived(
+		JSON.stringify({
+			'@context': 'https://schema.org',
+			'@type': 'FAQPage',
+			mainEntity: faq_items.map((item) => ({
+				'@type': 'Question',
+				name: item.question,
+				acceptedAnswer: {
+					'@type': 'Answer',
+					text: item.answer
+				}
+			}))
+		})
+	);
 </script>
 
 <svelte:head>
@@ -9,6 +25,8 @@
 		name="description"
 		content="Get answers to the most common questions about Fictioneer, pricing, refunds, and billing."
 	/>
+	<!-- eslint-disable-next-line -->
+	{@html `${'<'}script type="application/ld+json">${faq_json_ld}</script>`}
 </svelte:head>
 
 <div class="relative min-h-screen overflow-hidden">
