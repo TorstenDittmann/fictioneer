@@ -72,13 +72,13 @@
 	<div class="fixed inset-0 -z-10">
 		<div class="absolute inset-0" style:background="var(--gradient-mesh)"></div>
 		<div
-			class="aurora-blob-subtle fixed top-[10%] left-[10%] h-[500px] w-[500px] rounded-full bg-paper-accent/15"
+			class="aurora-blob-subtle fixed top-[10%] left-[10%] h-125 w-125 rounded-full bg-paper-accent/15"
 		></div>
 		<div
-			class="aurora-blob-subtle fixed top-[40%] right-[5%] h-[400px] w-[400px] rounded-full bg-paper-iris/10"
+			class="aurora-blob-subtle fixed top-[40%] right-[5%] h-100 w-100 rounded-full bg-paper-iris/10"
 		></div>
 		<div
-			class="aurora-blob-subtle fixed bottom-[10%] left-[30%] h-[600px] w-[600px] rounded-full bg-paper-accent-pink/8"
+			class="aurora-blob-subtle fixed bottom-[10%] left-[30%] h-150 w-150 rounded-full bg-paper-accent-pink/8"
 		></div>
 	</div>
 

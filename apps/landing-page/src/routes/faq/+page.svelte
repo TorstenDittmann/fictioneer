@@ -45,7 +45,7 @@
 	<div class="animate-fade-in-up mx-auto mt-16 max-w-xl text-center" style:animation-delay="0.5s">
 		<div class="card-elevated overflow-hidden p-8">
 			<div
-				class="absolute inset-0 bg-gradient-to-br from-paper-accent/5 via-transparent to-paper-iris/5"
+				class="absolute inset-0 bg-linear-to-br from-paper-accent/5 via-transparent to-paper-iris/5"
 			></div>
 			<div class="relative">
 				<h2 class="mb-3 font-serif text-xl font-semibold text-paper-text">Still need help?</h2>
