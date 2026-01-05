@@ -125,6 +125,7 @@ html {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	text-rendering: optimizeLegibility;
+	overscroll-behavior: none;
 }
 
 body {
@@ -133,6 +134,7 @@ body {
 		var(--gradient-mesh),
 		linear-gradient(180deg, var(--color-paper-cream) 0%, var(--color-paper-beige) 100%);
 	min-height: 100vh;
+	overscroll-behavior: none;
 }
 
 @layer components {
