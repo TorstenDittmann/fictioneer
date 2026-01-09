@@ -29,8 +29,7 @@
 			<p class="text-paper-text-light">
 				At <strong class="text-paper-text">Fictioneer</strong>, one of our main priorities is the
 				privacy of our visitors. This Privacy Policy document contains types of information that is
-				collected and recorded by <strong class="text-paper-text">Fictioneer</strong> and how we use
-				it.
+				collected and recorded by <strong class="text-paper-text">Fictioneer</strong> and how we use it.
 			</p>
 			<p class="mt-3 text-paper-text-light">
 				If you have additional questions or require more information about our Privacy Policy, do
@@ -108,8 +107,8 @@
 				<h2 class="font-serif text-xl font-semibold text-paper-text">Log Files</h2>
 				<p class="mt-3 text-paper-text-light">
 					<strong class="text-paper-text">Fictioneer</strong> follows a standard procedure of using log
-					files. These files log visitors when they visit websites. All hosting companies do this as
-					part of hosting services' analytics.
+					files. These files log visitors when they visit websites. All hosting companies do this as part
+					of hosting services' analytics.
 				</p>
 				<p class="mt-3 text-paper-text-light">
 					The information collected by log files includes internet protocol (IP) addresses, browser
@@ -124,8 +123,8 @@
 				<h2 class="font-serif text-xl font-semibold text-paper-text">Cookies and Web Beacons</h2>
 				<p class="mt-3 text-paper-text-light">
 					Like any other website, <strong class="text-paper-text">Fictioneer</strong> uses 'cookies'.
-					These cookies are used to store information including visitors' preferences, and the pages
-					on the website that the visitor accessed or visited.
+					These cookies are used to store information including visitors' preferences, and the pages on
+					the website that the visitor accessed or visited.
 				</p>
 				<p class="mt-3 text-paper-text-light">
 					The information is used to optimize the users' experience by customizing our web page
@@ -222,8 +221,8 @@
 						to request that we restrict the processing of your personal data, under certain conditions
 					</li>
 					<li>
-						<strong class="text-paper-text">The right to object to processing:</strong> You have the
-						right to object to our processing of your personal data, under certain conditions
+						<strong class="text-paper-text">The right to object to processing:</strong> You have the right
+						to object to our processing of your personal data, under certain conditions
 					</li>
 					<li>
 						<strong class="text-paper-text">The right to data portability:</strong> You have the right
