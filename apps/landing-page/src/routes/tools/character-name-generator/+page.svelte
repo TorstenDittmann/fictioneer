@@ -150,7 +150,7 @@
 		>
 			<!-- Genre Selection -->
 			<div class="border-b border-paper-border p-6">
-				<label class="mb-4 block text-sm font-medium text-paper-text-muted">Genre</label>
+				<span class="mb-4 block text-sm font-medium text-paper-text-muted">Genre</span>
 				<div class="flex flex-wrap gap-2">
 					{#each GENRES as genre (genre.value)}
 						<button
@@ -174,7 +174,7 @@
 			<!-- Origin and Gender -->
 			<div class="grid border-b border-paper-border sm:grid-cols-2">
 				<div class="border-b border-paper-border p-6 sm:border-r sm:border-b-0">
-					<label class="mb-4 block text-sm font-medium text-paper-text-muted">Origin Style</label>
+					<span class="mb-4 block text-sm font-medium text-paper-text-muted">Origin Style</span>
 					<div class="flex flex-wrap gap-2">
 						{#each ORIGINS as origin (origin.value)}
 							<button
@@ -194,8 +194,7 @@
 				</div>
 
 				<div class="p-6">
-					<label class="mb-4 block text-sm font-medium text-paper-text-muted"
-						>Gender Expression</label
+					<span class="mb-4 block text-sm font-medium text-paper-text-muted">Gender Expression</span
 					>
 					<div class="flex flex-wrap gap-2">
 						{#each GENDERS as gender (gender.value)}
@@ -218,7 +217,7 @@
 
 			<!-- Style Selection -->
 			<div class="border-b border-paper-border p-6">
-				<label class="mb-4 block text-sm font-medium text-paper-text-muted">Name Style</label>
+				<span class="mb-4 block text-sm font-medium text-paper-text-muted">Name Style</span>
 				<div class="flex flex-wrap gap-2">
 					{#each STYLES as style (style.value)}
 						<button
@@ -242,11 +241,12 @@
 			<!-- Count and Traits -->
 			<div class="grid border-b border-paper-border sm:grid-cols-2">
 				<div class="border-b border-paper-border p-6 sm:border-r sm:border-b-0">
-					<label class="mb-4 block text-sm font-medium text-paper-text-muted">
+					<label for="name-count" class="mb-4 block text-sm font-medium text-paper-text-muted">
 						Number of Names: <span class="font-semibold text-paper-accent">{results_requested}</span
 						>
 					</label>
 					<input
+						id="name-count"
 						type="range"
 						min="3"
 						max="12"

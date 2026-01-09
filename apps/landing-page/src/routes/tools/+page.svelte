@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import type { RouteId } from '$app/types';
-
-	let hoveredTool = $state<string | null>(null);
 </script>
 
 <svelte:head>
@@ -48,11 +46,9 @@
 	index: number
 )}
 	<a
-		{href}
+		href={resolve(href)}
 		class="animate-fade-in-up group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-[1.02]"
 		style:animation-delay="{0.2 + index * 0.05}s"
-		onmouseenter={() => (hoveredTool = href)}
-		onmouseleave={() => (hoveredTool = null)}
 	>
 		<div class="card-elevated h-full p-6">
 			<!-- Icon with gradient background -->
@@ -76,7 +72,7 @@
 
 			<!-- Features as pills -->
 			<div class="flex flex-wrap gap-1.5">
-				{#each features as feature}
+				{#each features as feature, i (i)}
 					<span class="rounded-full bg-paper-beige px-2 py-0.5 text-xs text-paper-text-muted">
 						{feature}
 					</span>
@@ -153,8 +149,6 @@
 		<a
 			href={resolve('/tools/ai-story-generator')}
 			class="group relative block overflow-hidden rounded-3xl"
-			onmouseenter={() => (hoveredTool = 'featured')}
-			onmouseleave={() => (hoveredTool = null)}
 		>
 			<!-- Gradient background -->
 			<div
@@ -164,9 +158,7 @@
 			<!-- Animated pattern -->
 			<div
 				class="absolute inset-0 opacity-20"
-				style:background-image="radial-gradient(circle at 20% 50%, white 1px, transparent 1px),
-				radial-gradient(circle at 80% 50%, white 1px, transparent 1px)"
-				style:background-size="60px 60px"
+				style="background-image: radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 50%, white 1px, transparent 1px); background-size: 60px 60px;"
 			></div>
 
 			<!-- Content -->
@@ -185,7 +177,7 @@
 					unfold in real-time.
 				</p>
 				<div class="flex flex-wrap justify-center gap-3">
-					{#each ['Fantasy', 'Sci-Fi', 'Romance', 'Mystery', 'Horror', '+4 more'] as genre}
+					{#each ['Fantasy', 'Sci-Fi', 'Romance', 'Mystery', 'Horror', '+4 more'] as genre (genre)}
 						<span class="rounded-full bg-white/20 px-3 py-1 text-sm backdrop-blur-sm">
 							{genre}
 						</span>

@@ -295,7 +295,7 @@
 		>
 			<!-- Genre Selection -->
 			<div class="border-b border-paper-border p-6">
-				<label class="mb-4 block text-sm font-medium text-paper-text-muted">Genre</label>
+				<span class="mb-4 block text-sm font-medium text-paper-text-muted">Genre</span>
 				<div class="flex flex-wrap gap-2">
 					{#each GENRES as genre (genre.value)}
 						<button
@@ -318,7 +318,7 @@
 
 			<!-- Theme Selection -->
 			<div class="border-b border-paper-border p-6">
-				<label class="mb-4 block text-sm font-medium text-paper-text-muted">Theme</label>
+				<span class="mb-4 block text-sm font-medium text-paper-text-muted">Theme</span>
 				<div class="flex flex-wrap gap-2">
 					{#each current_themes as theme (theme.value)}
 						<button
@@ -339,7 +339,7 @@
 			<!-- Setting and Tone -->
 			<div class="grid border-b border-paper-border sm:grid-cols-2">
 				<div class="border-b border-paper-border p-6 sm:border-r sm:border-b-0">
-					<label class="mb-4 block text-sm font-medium text-paper-text-muted">Setting</label>
+					<span class="mb-4 block text-sm font-medium text-paper-text-muted">Setting</span>
 					<div class="flex flex-wrap gap-2">
 						{#each SETTINGS as setting (setting.value)}
 							<button
@@ -359,7 +359,7 @@
 				</div>
 
 				<div class="p-6">
-					<label class="mb-4 block text-sm font-medium text-paper-text-muted">Tone</label>
+					<span class="mb-4 block text-sm font-medium text-paper-text-muted">Tone</span>
 					<div class="flex flex-wrap gap-2">
 						{#each TONES as tone (tone.value)}
 							<button
@@ -382,10 +382,11 @@
 			<!-- Word Count and Context -->
 			<div class="grid border-b border-paper-border sm:grid-cols-2">
 				<div class="border-b border-paper-border p-6 sm:border-r sm:border-b-0">
-					<label class="mb-4 block text-sm font-medium text-paper-text-muted">
+					<label for="word-count" class="mb-4 block text-sm font-medium text-paper-text-muted">
 						Length: <span class="font-semibold text-paper-accent">{word_count} words</span>
 					</label>
 					<input
+						id="word-count"
 						type="range"
 						min="100"
 						max="800"
