@@ -1,4 +1,4 @@
-import { generateText, streamText } from 'ai';
+import { generateObject, generateText, streamText } from 'ai';
 import dedent from 'dedent';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
@@ -16,6 +16,15 @@ import {
 	validate_fan_fiction_input,
 	validate_adult_story_input
 } from './validation';
+import {
+	character_names_schema,
+	plot_schema,
+	book_titles_schema,
+	pen_names_schema,
+	town_names_schema,
+	fan_fiction_schema,
+	adult_story_schema
+} from './schemas';
 
 const MARKETING_MODEL: Parameters<typeof openrouter>[0] = 'openai/gpt-oss-120b';
 
@@ -30,45 +39,6 @@ async function apply_rate_limit(c: Context) {
 		return c.json({ error: 'Too many requests' }, 429);
 	}
 	return null;
-}
-
-function clean_json_response(raw_text: string): string {
-	if (!raw_text) return raw_text;
-	let cleaned = raw_text.trim();
-	cleaned = cleaned
-		.replace(/```json/gi, '')
-		.replace(/```/g, '')
-		.trim();
-	const start = cleaned.indexOf('{');
-	const end = cleaned.lastIndexOf('}');
-	if (start !== -1 && end !== -1) {
-		cleaned = cleaned.slice(start, end + 1);
-	}
-	return cleaned;
-}
-
-function parse_json_response<T>(raw_text: string): T {
-	try {
-		const cleaned = clean_json_response(raw_text);
-		return JSON.parse(cleaned);
-	} catch (error) {
-		console.error('Failed to parse AI response', error, raw_text);
-		throw new Error('Failed to parse AI response');
-	}
-}
-
-async function generate_structured_response(
-	system_prompt: string,
-	options?: { temperature?: number; user_prompt?: string }
-): Promise<string> {
-	const client = openrouter(MARKETING_MODEL);
-	const result = await generateText({
-		model: client,
-		system: system_prompt,
-		prompt: options?.user_prompt ?? 'Return the JSON payload now.',
-		temperature: options?.temperature ?? 0.7
-	});
-	return result.text;
 }
 
 function build_story_prompt(
@@ -125,13 +95,6 @@ function build_character_name_prompt(body: {
 		• Style or tone: ${body.style}
 		• Traits or themes to keep in mind: ${body.traits || 'use your best judgment'}
 
-		Return clean JSON using this structure (no markdown, no commentary):
-		{
-			"names": [
-				{ "name": "Full Name", "origin": "origin descriptor", "meaning": "short evocative tagline" }
-			]
-		}
-
 		Each meaning should describe why the name fits the prompt in one short sentence.
 	`;
 }
@@ -154,15 +117,6 @@ function build_plot_prompt(body: {
 		• Protagonist description: ${body.protagonist}
 		• Setting: ${body.setting}
 
-		Return JSON formatted as:
-		{
-			"title": "Hooky outline title",
-			"logline": "One sentence story summary",
-			"beats": [
-				{ "title": "Beat name", "description": "2-3 sentence description", "stakes": "What could go wrong" }
-			]
-		}
-
 		Provide exactly three beats aligned to the requested structure.
 	`;
 }
@@ -180,15 +134,6 @@ function build_book_title_prompt(body: {
 		• Genre/Vibe: ${body.genre}
 		• Style tone: ${body.style}
 		• Keywords or themes: ${body.keywords}
-
-		Return JSON:
-		{
-			"titles": [
-				{ "title": "Finished title", "hook": "One sentence marketing hook" }
-			]
-		}
-
-		Avoid numbering the results or adding commentary.
 	`;
 }
 
@@ -207,13 +152,6 @@ function build_pen_name_prompt(body: {
 		Pronoun cue: ${body.pronouns}
 		Brand keywords: ${body.keywords}
 		Include initials: ${body.include_initials ? 'Yes' : 'No'}
-
-		Return JSON:
-		{
-			"pen_names": [
-				{ "name": "Signature pseudonym", "tagline": "short branding hook" }
-			]
-		}
 
 		Keep taglines concise and evocative.
 	`;
@@ -236,13 +174,6 @@ function build_town_name_prompt(body: {
 		Tone/Vibe: ${body.vibe}
 		Signature features: ${body.features}
 
-		Return JSON in this shape:
-		{
-			"places": [
-				{ "name": "Place Name", "region": "descriptor", "description": "1-2 sentences", "population": "approx population" }
-			]
-		}
-
 		Descriptions should highlight texture and history in one or two sentences.
 	`;
 }
@@ -263,14 +194,6 @@ function build_fan_fiction_prompt(body: {
 		Canon alignment percentage: ${body.canon_alignment}%
 		Prompt details: ${body.prompt_details}
 
-		Return JSON:
-		{
-			"title": "Prompt title",
-			"tagline": "short descriptor",
-			"sections": [
-				{ "heading": "Section title", "text": "2-3 sentences" }
-			]
-		}
 		Provide exactly three sections covering setup, conflict, and resolution/next steps.
 	`;
 }
@@ -290,13 +213,6 @@ function build_adult_story_prompt(body: {
 		Steam level: ${body.steam_level}%
 		Tropes: ${body.tropes?.join(', ') || 'writer choice'}
 		Custom prompt: ${body.custom_prompt}
-
-		Return JSON format:
-		{
-			"title": "Story title",
-			"steam": "Heat descriptor",
-			"paragraphs": ["paragraph 1", "paragraph 2", "paragraph 3"]
-		}
 
 		Paragraphs should be 2-3 sentences each and focus on character chemistry and emotional stakes.
 	`;
@@ -378,12 +294,15 @@ const app = new Hono()
 				traits: body.traits,
 				count: validation.count
 			};
-			const ai_response = await generate_structured_response(build_character_name_prompt(payload));
-			const parsed = parse_json_response<{
-				names: Array<{ name: string; origin: string; meaning: string }>;
-			}>(ai_response);
 
-			return c.json(parsed);
+			const result = await generateObject({
+				model: openrouter(MARKETING_MODEL),
+				schema: character_names_schema,
+				prompt: build_character_name_prompt(payload),
+				temperature: 0.7
+			});
+
+			return c.json(result.object);
 		} catch (error) {
 			console.error('Character name generation error:', error);
 			return c.json({ error: 'Failed to generate names. Please try again.' }, 500);
@@ -409,14 +328,14 @@ const app = new Hono()
 				setting: body.setting
 			};
 
-			const ai_response = await generate_structured_response(build_plot_prompt(payload));
-			const parsed = parse_json_response<{
-				title: string;
-				logline: string;
-				beats: Array<{ title: string; description: string; stakes: string }>;
-			}>(ai_response);
+			const result = await generateObject({
+				model: openrouter(MARKETING_MODEL),
+				schema: plot_schema,
+				prompt: build_plot_prompt(payload),
+				temperature: 0.7
+			});
 
-			return c.json(parsed);
+			return c.json(result.object);
 		} catch (error) {
 			console.error('Plot generation error:', error);
 			return c.json({ error: 'Failed to generate plot outline. Please try again.' }, 500);
@@ -440,12 +359,14 @@ const app = new Hono()
 				count: validation.count
 			};
 
-			const ai_response = await generate_structured_response(build_book_title_prompt(payload));
-			const parsed = parse_json_response<{ titles: Array<{ title: string; hook: string }> }>(
-				ai_response
-			);
+			const result = await generateObject({
+				model: openrouter(MARKETING_MODEL),
+				schema: book_titles_schema,
+				prompt: build_book_title_prompt(payload),
+				temperature: 0.7
+			});
 
-			return c.json(parsed);
+			return c.json(result.object);
 		} catch (error) {
 			console.error('Book title generation error:', error);
 			return c.json({ error: 'Failed to generate titles. Please try again.' }, 500);
@@ -470,12 +391,14 @@ const app = new Hono()
 				include_initials: body.include_initials
 			};
 
-			const ai_response = await generate_structured_response(build_pen_name_prompt(payload));
-			const parsed = parse_json_response<{ pen_names: Array<{ name: string; tagline: string }> }>(
-				ai_response
-			);
+			const result = await generateObject({
+				model: openrouter(MARKETING_MODEL),
+				schema: pen_names_schema,
+				prompt: build_pen_name_prompt(payload),
+				temperature: 0.7
+			});
 
-			return c.json(parsed);
+			return c.json(result.object);
 		} catch (error) {
 			console.error('Pen name generation error:', error);
 			return c.json({ error: 'Failed to generate pen names. Please try again.' }, 500);
@@ -501,12 +424,14 @@ const app = new Hono()
 				count: validation.count
 			};
 
-			const ai_response = await generate_structured_response(build_town_name_prompt(payload));
-			const parsed = parse_json_response<{
-				places: Array<{ name: string; region: string; description: string; population: string }>;
-			}>(ai_response);
+			const result = await generateObject({
+				model: openrouter(MARKETING_MODEL),
+				schema: town_names_schema,
+				prompt: build_town_name_prompt(payload),
+				temperature: 0.7
+			});
 
-			return c.json(parsed);
+			return c.json(result.object);
 		} catch (error) {
 			console.error('Town name generation error:', error);
 			return c.json({ error: 'Failed to generate town names. Please try again.' }, 500);
@@ -531,14 +456,14 @@ const app = new Hono()
 				prompt_details: body.prompt_details
 			};
 
-			const ai_response = await generate_structured_response(build_fan_fiction_prompt(payload));
-			const parsed = parse_json_response<{
-				title: string;
-				tagline: string;
-				sections: Array<{ heading: string; text: string }>;
-			}>(ai_response);
+			const result = await generateObject({
+				model: openrouter(MARKETING_MODEL),
+				schema: fan_fiction_schema,
+				prompt: build_fan_fiction_prompt(payload),
+				temperature: 0.7
+			});
 
-			return c.json(parsed);
+			return c.json(result.object);
 		} catch (error) {
 			console.error('Fan fiction generation error:', error);
 			return c.json({ error: 'Failed to generate fan fiction prompt. Please try again.' }, 500);
@@ -563,14 +488,14 @@ const app = new Hono()
 				custom_prompt: body.custom_prompt
 			};
 
-			const ai_response = await generate_structured_response(build_adult_story_prompt(payload), {
+			const result = await generateObject({
+				model: openrouter(MARKETING_MODEL),
+				schema: adult_story_schema,
+				prompt: build_adult_story_prompt(payload),
 				temperature: 0.85
 			});
-			const parsed = parse_json_response<{ title: string; steam: string; paragraphs: string[] }>(
-				ai_response
-			);
 
-			return c.json(parsed);
+			return c.json(result.object);
 		} catch (error) {
 			console.error('Adult story generation error:', error);
 			return c.json({ error: 'Failed to generate adult story idea. Please try again.' }, 500);

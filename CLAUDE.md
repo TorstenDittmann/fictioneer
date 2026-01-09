@@ -1,10 +1,10 @@
-# AGENTS.md
+# CLAUDE.md
 
-This file provides guidance to AI Coding Agents when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-Fictioneer is a distraction-free, AI-assisted desktop writing application for fiction writers. It's a Bun monorepo with three apps:
+Fictioneer is a distraction-free, AI-assisted desktop writing application for fiction writers. This is a Bun monorepo with three apps:
 
 - **apps/fictioneer**: SvelteKit + Tauri desktop app (main writing interface)
 - **apps/intelligence**: Bun + Hono API server (AI writing assistance via OpenRouter)
@@ -48,7 +48,7 @@ bun run start     # Run built server
 
 ## Architecture
 
-### Desktop App Structure (apps/fictioneer)
+### Desktop App (apps/fictioneer)
 - `src/lib/services/` - Core business logic
   - `projects.svelte.ts` - Project CRUD, file I/O (.fictioneer format)
   - `file.svelte.ts` - File system operations
@@ -58,10 +58,11 @@ bun run start     # Run built server
   - `projects.svelte.ts` - Active project state
   - `settings.svelte.ts` - User preferences
   - `progress.svelte.ts` - Writing progress tracking
-- `src/lib/components/` - UI components
+- `src/lib/components/` - UI components (uses bits-ui)
 - `src-tauri/` - Rust backend for native desktop features
+- Uses Tiptap for the text editor
 
-### Intelligence API Structure (apps/intelligence)
+### Intelligence API (apps/intelligence)
 - `server.ts` - Hono app entry point with health check at `/health`
 - `production_api.ts` - Production AI endpoints (continuation, rephrasing)
 - `marketing_api.ts` - Marketing/trial endpoints
@@ -77,7 +78,7 @@ import { create_client } from '@fictioneer/intelligence/client';
 ## Code Style Rules
 
 - **Use snake_case** for variables, functions, and file names
-- **Use PascalCase** for types/interfaces
+- **Use PascalCase** for types/interfaces only
 - **Never use `any`** - use `unknown` or proper types
 - **Svelte 5 runes only** - use `$state`, `$derived`, etc. (no legacy `$:` reactivity)
 - **Native event handlers** - use `onclick` not `on:click`
@@ -85,14 +86,9 @@ import { create_client } from '@fictioneer/intelligence/client';
 - **No `:global`** in Svelte style blocks
 - **Use bits-ui** for UI components (see https://bits-ui.com/llms.txt)
 - **Use Svelte MCP** for Svelte development assistance
-
-## UI Component Library
-
-bits-ui is used for accessible UI primitives. Reference: https://bits-ui.com/llms.txt
+- Do not prefix private class properties with an underscore
+- Do not start the dev server automatically
 
 ## File Format
 
-Projects are stored as single `.fictioneer` files containing:
-- Chapters and scenes hierarchy
-- Metadata (word counts, timestamps)
-- Notes and character information
+Projects are stored as single `.fictioneer` files containing chapters, scenes, metadata, notes, and character information.
