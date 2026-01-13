@@ -254,7 +254,18 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 							typewriter_span.className = 'ai-typewriter';
 							typewriter_span.textContent = '';
 
-							const decoration = Decoration.widget(cursor_position, () => typewriter_span, {
+							// Create hint element showing how to accept
+							const hint_span = document.createElement('span');
+							hint_span.className = 'ai-accept-hint';
+							hint_span.textContent = is_darwin ? '⇥ Tab' : 'Tab';
+
+							// Container for suggestion + hint
+							const suggestion_container = document.createElement('span');
+							suggestion_container.className = 'ai-suggestion-container';
+							suggestion_container.appendChild(typewriter_span);
+							suggestion_container.appendChild(hint_span);
+
+							const decoration = Decoration.widget(cursor_position, () => suggestion_container, {
 								side: 1,
 								ignoreSelection: true
 							});
@@ -325,6 +336,9 @@ export const AIWritingSuggestion = Extension.create<AIWritingSuggestionOptions>(
 								// Ensure final text is set only if option key is still held (without trailing dots)
 								full_suggestion = ' ' + result.trim();
 								typewriter_span.textContent = full_suggestion;
+
+								// Show the accept hint now that suggestion is ready
+								hint_span.classList.add('visible');
 
 								// Update suggestion state with final result
 								tr = editorView.state.tr;
