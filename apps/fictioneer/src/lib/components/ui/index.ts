@@ -8,3 +8,4 @@ export { default as Select } from './select.svelte';
 export { default as Modal } from './modal.svelte';
 export { default as ContextMenu } from './context_menu.svelte';
 export { default as AlertDialog } from './alert_dialog.svelte';
+export { default as TagInput } from './tag_input.svelte';

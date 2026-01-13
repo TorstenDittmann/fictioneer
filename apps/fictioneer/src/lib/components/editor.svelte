@@ -245,7 +245,7 @@
 
 <div class="editor-container relative h-full w-full overflow-hidden">
 	<div class="relative h-full w-full">
-		<FloatingMenubar {editor} />
+		<FloatingMenubar {editor} {content} />
 		<div
 			bind:this={editor_container}
 			class="editor-content h-full overflow-y-auto"

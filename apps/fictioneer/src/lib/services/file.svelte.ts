@@ -21,6 +21,7 @@ interface SerializedNote {
 	createdAt: string;
 	updatedAt: string;
 	order: number;
+	tags?: string[];
 }
 
 interface SerializedChapter {
@@ -568,7 +569,8 @@ class FileService {
 				(project.notes || []).map((note: SerializedNote) => ({
 					...note,
 					createdAt: new Date(note.createdAt),
-					updatedAt: new Date(note.updatedAt)
+					updatedAt: new Date(note.updatedAt),
+					tags: note.tags || []
 				})) || []
 		};
 

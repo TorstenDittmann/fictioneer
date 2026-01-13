@@ -79,6 +79,7 @@
 		!current_chapter_id && !current_scene_id && page.url.pathname === `/${data.project.id}`
 	);
 	const is_notes_active = $derived(page.url.pathname === `/${data.project.id}/notes`);
+	const is_search_active = $derived(page.url.pathname === `/${data.project.id}/search`);
 
 	// Note: expanded chapters state is now managed in the projects store
 
@@ -270,6 +271,24 @@
 					/>
 				</svg>
 				<span>Notes</span>
+			</a>
+			<a
+				href={resolve('/[projectId]/search', { projectId: data.project.id })}
+				class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium transition-colors duration-200"
+				class:bg-surface={is_search_active}
+				class:text-text={is_search_active}
+				class:text-text-secondary={!is_search_active}
+				class:hover:bg-background-tertiary={!is_search_active}
+			>
+				<svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+					/>
+				</svg>
+				<span>Search</span>
 			</a>
 		</div>
 	</div>

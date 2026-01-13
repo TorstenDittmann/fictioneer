@@ -11,7 +11,7 @@
 	let { data = [], width = 800, height = 200, class: additional_class = '' }: Props = $props();
 
 	// Responsive width using bind:clientWidth
-	let containerWidth = $state(width);
+	let containerWidth = $derived(width);
 	const actualWidth = $derived(containerWidth > 0 ? containerWidth : width);
 
 	// Chart dimensions and padding

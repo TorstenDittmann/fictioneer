@@ -7,13 +7,18 @@
 		ai_writing_backend_service,
 		type RephraseOption
 	} from '../services/ai_writing_backend.js';
+	import { projects } from '$lib/state/projects.svelte.js';
 
 	interface Props {
 		editor: Editor | null;
 		visible?: boolean;
+		content?: string;
 	}
 
-	let { editor, visible = true }: Props = $props();
+	let { editor, visible = true, content = '' }: Props = $props();
+
+	// Find notes that match the current content
+	const matched_notes = $derived(content ? projects.findNotesByContent(content) : []);
 
 	// Show menubar when editor exists and is visible
 	let should_show_menubar = $derived(visible && editor);
@@ -175,19 +180,23 @@
 		generated_content = '';
 
 		try {
-			let accumulated_content = '';
 			for await (const chunk of ai_writing_backend_service.start_from_prompt(prompt, {}, 150)) {
-				accumulated_content = chunk;
+				generated_content = chunk;
 			}
-			generated_content = accumulated_content;
 		} catch (error) {
+			// Don't show error for cancelled requests
+			if (error instanceof Error && error.name === 'AbortError') {
+				return;
+			}
 			console.error('Failed to generate content:', error);
-			alert(
-				`Failed to generate content: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
 		} finally {
 			prompt_loading = false;
 		}
+	}
+
+	function handle_cancel_generation() {
+		ai_writing_backend_service.cancel_current_request();
+		prompt_loading = false;
 	}
 
 	function insert_generated_content(content: string) {
@@ -197,6 +206,7 @@
 
 	function close_prompt_modal() {
 		prompt_modal_open = false;
+		generated_content = '';
 	}
 
 	function replace_selected_text(new_text: string) {
@@ -402,6 +412,110 @@
 					</Menubar.Content>
 				</Menubar.Portal>
 			</Menubar.Menu>
+
+			<!-- Notes indicator (show when notes match content) -->
+			{#if matched_notes.length > 0}
+				<div class="mx-1 h-5 w-px bg-border"></div>
+				<Menubar.Menu>
+					<Menubar.Trigger
+						class="inline-flex h-9 cursor-default items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium text-accent transition-colors duration-200 hover:bg-accent/10 focus:outline-none data-[state=open]:bg-accent/10"
+					>
+						<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+							/>
+						</svg>
+						{matched_notes.length} Note{matched_notes.length > 1 ? 's' : ''}
+					</Menubar.Trigger>
+					<Menubar.Portal>
+						<Menubar.Content
+							class="z-50 w-72 rounded-lg border border-border bg-background p-1 shadow-lg"
+							sideOffset={6}
+						>
+							{#each matched_notes as note (note.id)}
+								<Menubar.Sub>
+									<Menubar.SubTrigger
+										class="flex h-auto cursor-default items-start gap-2 rounded-md px-2 py-2 text-sm text-text outline-none select-none hover:bg-background-tertiary focus:bg-background-tertiary data-[state=open]:bg-background-tertiary"
+									>
+										<svg
+											class="mt-0.5 h-4 w-4 shrink-0 text-accent"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+											/>
+										</svg>
+										<div class="flex-1 overflow-hidden">
+											<div class="truncate font-medium">{note.title}</div>
+											<div class="mt-0.5 flex flex-wrap gap-1">
+												{#each note.tags.slice(0, 3) as tag (tag)}
+													<span
+														class="inline-block rounded bg-accent/10 px-1.5 py-0.5 text-xs text-accent"
+													>
+														{tag}
+													</span>
+												{/each}
+												{#if note.tags.length > 3}
+													<span class="text-xs text-text-muted">+{note.tags.length - 3}</span>
+												{/if}
+											</div>
+										</div>
+										<svg
+											class="mt-0.5 h-4 w-4 shrink-0 text-text-muted"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M9 5l7 7-7 7"
+											/>
+										</svg>
+									</Menubar.SubTrigger>
+									<Menubar.Portal>
+										<Menubar.SubContent
+											class="z-50 max-h-96 w-80 overflow-y-auto rounded-lg border border-border bg-background p-3 shadow-lg"
+											sideOffset={8}
+										>
+											<div class="space-y-2">
+												<h4 class="font-medium text-text">{note.title}</h4>
+												<div class="flex flex-wrap gap-1">
+													{#each note.tags as tag (tag)}
+														<span
+															class="inline-block rounded bg-accent/10 px-1.5 py-0.5 text-xs text-accent"
+														>
+															{tag}
+														</span>
+													{/each}
+												</div>
+												{#if note.description}
+													<div
+														class="prose prose-sm max-w-none text-text-secondary [&_ol]:my-1 [&_p]:my-1 [&_ul]:my-1"
+													>
+														{@html note.description}
+													</div>
+												{:else}
+													<p class="text-sm text-text-muted italic">No description</p>
+												{/if}
+											</div>
+										</Menubar.SubContent>
+									</Menubar.Portal>
+								</Menubar.Sub>
+							{/each}
+						</Menubar.Content>
+					</Menubar.Portal>
+				</Menubar.Menu>
+			{/if}
 		</Menubar.Root>
 	</div>
 
@@ -471,7 +585,10 @@
 		{generated_content}
 		onClose={close_prompt_modal}
 		onGenerate={handle_generate_prompt}
+		onCancel={handle_cancel_generation}
 		onAccept={insert_generated_content}
-		onReject={() => {}}
+		onReject={() => {
+			generated_content = '';
+		}}
 	/>
 {/if}

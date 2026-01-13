@@ -6,7 +6,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import LicenseKeyModal from '$lib/components/license_key_modal.svelte';
-	import type { Scene, Chapter } from '$lib/state/projects.svelte';
+	import type { Scene, Chapter, Note } from '$lib/state/projects.svelte';
 
 	interface Props {
 		open?: boolean;
@@ -22,7 +22,7 @@
 		title: string;
 		subtitle?: string;
 		action: () => void;
-		type: 'scene' | 'chapter' | 'navigation' | 'action' | 'recent';
+		type: 'scene' | 'chapter' | 'navigation' | 'action' | 'recent' | 'note';
 		icon: string;
 		keywords: string[];
 	}
@@ -95,6 +95,23 @@
 			keywords: ['settings', 'preferences', 'configure', 'options']
 		});
 
+		items.push({
+			id: 'notes',
+			title: 'Notes',
+			subtitle: 'View and manage project notes',
+			action: () => {
+				goto(
+					resolve('/[projectId]/notes', {
+						projectId: current_project.id
+					})
+				);
+				close_menu();
+			},
+			type: 'navigation',
+			icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z',
+			keywords: ['notes', 'note', 'ideas', 'characters', 'reference']
+		});
+
 		// Action items
 		items.push({
 			id: 'new-chapter',
@@ -158,6 +175,27 @@
 		});
 
 		items.push({
+			id: 'new-note',
+			title: 'New Note',
+			subtitle: 'Create a new note for characters, ideas, etc.',
+			action: () => {
+				const note_id = projects.createNote('Untitled Note', '');
+				if (note_id) {
+					goto(
+						resolve('/[projectId]/notes/[noteId]', {
+							projectId: current_project.id,
+							noteId: note_id
+						})
+					);
+				}
+				close_menu();
+			},
+			type: 'action',
+			icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z',
+			keywords: ['new', 'create', 'note', 'add', 'character', 'idea', 'reference']
+		});
+
+		items.push({
 			id: 'toggle-distraction-free',
 			title: 'Toggle Distraction Free Mode',
 			subtitle: layout_state.is_distraction_free
@@ -218,6 +256,31 @@
 			});
 		});
 
+		// Add all notes
+		const all_notes = projects.notes;
+		all_notes.forEach((note: Note) => {
+			const tags_preview = note.tags.length > 0 ? note.tags.slice(0, 3).join(', ') : '';
+			items.push({
+				id: `note-${note.id}`,
+				title: note.title,
+				subtitle: tags_preview
+					? `Tags: ${tags_preview}${note.tags.length > 3 ? '...' : ''}`
+					: 'No tags',
+				action: () => {
+					goto(
+						resolve('/[projectId]/notes/[noteId]', {
+							projectId: current_project.id,
+							noteId: note.id
+						})
+					);
+					close_menu();
+				},
+				type: 'note',
+				icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z',
+				keywords: ['note', note.title, ...note.tags, 'reference', 'character', 'idea']
+			});
+		});
+
 		return items;
 	});
 
@@ -226,6 +289,7 @@
 		{ key: 'recent', label: 'Recent' },
 		{ key: 'navigation', label: 'Navigation' },
 		{ key: 'action', label: 'Actions' },
+		{ key: 'note', label: 'Notes' },
 		{ key: 'scene', label: 'Scenes' }
 	];
 

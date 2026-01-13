@@ -31,6 +31,7 @@ export interface Note {
 	createdAt: Date;
 	updatedAt: Date;
 	order: number;
+	tags: string[];
 }
 
 export interface Project {
@@ -354,7 +355,8 @@ class ProjectsService {
 			description,
 			createdAt: now,
 			updatedAt: now,
-			order: this.current_project.notes?.length || 0
+			order: this.current_project.notes?.length || 0,
+			tags: []
 		};
 
 		this.update_current_project((project) => {
@@ -418,6 +420,112 @@ class ProjectsService {
 		return [...this.current_project.notes]
 			.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
 			.slice(0, limit);
+	}
+
+	/**
+	 * Add a tag to a note
+	 */
+	add_note_tag(note_id: string, tag: string): boolean {
+		return this.update_current_project((project) => {
+			if (!project.notes) return;
+
+			const note = project.notes.find((n) => n.id === note_id);
+			if (!note) return;
+
+			const normalized_tag = tag.trim().toLowerCase();
+			if (!normalized_tag || note.tags.includes(normalized_tag)) return;
+
+			note.tags.push(normalized_tag);
+			note.updatedAt = new Date();
+		});
+	}
+
+	/**
+	 * Remove a tag from a note
+	 */
+	remove_note_tag(note_id: string, tag: string): boolean {
+		return this.update_current_project((project) => {
+			if (!project.notes) return;
+
+			const note = project.notes.find((n) => n.id === note_id);
+			if (!note) return;
+
+			const normalized_tag = tag.trim().toLowerCase();
+			note.tags = note.tags.filter((t) => t !== normalized_tag);
+			note.updatedAt = new Date();
+		});
+	}
+
+	/**
+	 * Get all unique tags across all notes
+	 */
+	get_all_tags(): string[] {
+		if (!this.current_project || !this.current_project.notes) return [];
+
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- Not reactive state, just local computation
+		const tags_set = new Set<string>();
+		for (const note of this.current_project.notes) {
+			for (const tag of note.tags) {
+				tags_set.add(tag);
+			}
+		}
+		return Array.from(tags_set).sort();
+	}
+
+	/**
+	 * Get notes by tag
+	 */
+	get_notes_by_tag(tag: string): Note[] {
+		if (!this.current_project || !this.current_project.notes) return [];
+
+		const normalized_tag = tag.trim().toLowerCase();
+		return this.current_project.notes.filter((note) => note.tags.includes(normalized_tag));
+	}
+
+	/**
+	 * Find notes whose tags appear in the given content
+	 * This automatically matches notes based on their tags appearing in scene content
+	 */
+	find_notes_by_content(content: string): Note[] {
+		if (!this.current_project || !this.current_project.notes) return [];
+
+		// Strip HTML and normalize content for matching
+		const text_content = this.strip_html(content).toLowerCase();
+
+		// Find all notes that have at least one tag appearing in the content
+		const matched_notes: Note[] = [];
+
+		for (const note of this.current_project.notes) {
+			if (!note.tags || note.tags.length === 0) continue;
+
+			// Check if any of the note's tags appear in the content
+			const has_matching_tag = note.tags.some((tag) => {
+				// Use word boundary matching to avoid partial matches
+				const tag_regex = new RegExp(`\\b${this.escape_regex(tag)}\\b`, 'i');
+				return tag_regex.test(text_content);
+			});
+
+			if (has_matching_tag) {
+				matched_notes.push(note);
+			}
+		}
+
+		return matched_notes;
+	}
+
+	/**
+	 * Escape special regex characters in a string
+	 */
+	private escape_regex(str: string): string {
+		return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	}
+
+	/**
+	 * Get a note by ID
+	 */
+	get_note(note_id: string): Note | null {
+		if (!this.current_project || !this.current_project.notes) return null;
+		return this.current_project.notes.find((note) => note.id === note_id) || null;
 	}
 
 	/**

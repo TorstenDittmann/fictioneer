@@ -28,6 +28,7 @@ export interface Note {
 	createdAt: Date;
 	updatedAt: Date;
 	order: number;
+	tags: string[];
 }
 
 export interface Project {
@@ -497,6 +498,48 @@ class Projects implements ProjectsState {
 		// Trigger reactivity
 		void this.trigger;
 		return projects_service.get_recent_notes();
+	}
+
+	// Note tag methods
+	addNoteTag(note_id: string, tag: string): boolean {
+		const success = projects_service.add_note_tag(note_id, tag);
+		if (success) {
+			this.trigger_update();
+		}
+		return success;
+	}
+
+	removeNoteTag(note_id: string, tag: string): boolean {
+		const success = projects_service.remove_note_tag(note_id, tag);
+		if (success) {
+			this.trigger_update();
+		}
+		return success;
+	}
+
+	get allTags(): string[] {
+		// Trigger reactivity
+		void this.trigger;
+		return projects_service.get_all_tags();
+	}
+
+	getNotesByTag(tag: string): Note[] {
+		// Trigger reactivity
+		void this.trigger;
+		return projects_service.get_notes_by_tag(tag);
+	}
+
+	// Automatic note matching based on tags in content
+	findNotesByContent(content: string): Note[] {
+		// Trigger reactivity
+		void this.trigger;
+		return projects_service.find_notes_by_content(content);
+	}
+
+	getNote(note_id: string): Note | null {
+		// Trigger reactivity
+		void this.trigger;
+		return projects_service.get_note(note_id);
 	}
 
 	// Get project statistics

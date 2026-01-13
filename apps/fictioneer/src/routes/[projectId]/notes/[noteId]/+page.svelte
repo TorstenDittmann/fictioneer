@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { projects } from '$lib/state/projects.svelte';
 	import { Button, Input, IconButton } from '$lib/components/ui';
+	import TagInput from '$lib/components/ui/tag_input.svelte';
 	import Editor from '$lib/components/editor.svelte';
 	import type { PageProps } from './$types';
 	import { resolve } from '$app/paths';
@@ -15,6 +16,9 @@
 
 	// Find the note
 	const note = $derived(projects.notes.find((n) => n.id === params.noteId));
+
+	// Get all existing tags for suggestions
+	const all_tags = $derived(projects.allTags);
 
 	// Initialize note data
 	$effect(() => {
@@ -53,6 +57,16 @@
 
 	function handle_title_change() {
 		auto_save();
+	}
+
+	function handle_add_tag(tag: string) {
+		if (!note) return;
+		projects.addNoteTag(note.id, tag);
+	}
+
+	function handle_remove_tag(tag: string) {
+		if (!note) return;
+		projects.removeNoteTag(note.id, tag);
 	}
 
 	function delete_note() {
@@ -194,6 +208,36 @@
 						</svg>
 					</IconButton>
 				</div>
+			</div>
+			<!-- Tags section -->
+			<div class="mt-3">
+				<div class="flex items-center gap-2">
+					<svg
+						class="h-4 w-4 text-text-muted"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+						/>
+					</svg>
+					<div class="flex-1">
+						<TagInput
+							tags={note.tags}
+							suggestions={all_tags}
+							placeholder="Add tags (e.g. character names, locations)..."
+							onAdd={handle_add_tag}
+							onRemove={handle_remove_tag}
+						/>
+					</div>
+				</div>
+				<p class="mt-1.5 text-xs text-text-muted">
+					Tags automatically highlight this note when mentioned in your scenes
+				</p>
 			</div>
 		</div>
 

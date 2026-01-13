@@ -189,8 +189,21 @@
 							</div>
 						</div>
 
+						{#if note.tags && note.tags.length > 0}
+							<div class="mt-2 flex flex-wrap gap-1">
+								{#each note.tags.slice(0, 4) as tag (tag)}
+									<span class="inline-block rounded bg-accent/10 px-1.5 py-0.5 text-xs text-accent">
+										{tag}
+									</span>
+								{/each}
+								{#if note.tags.length > 4}
+									<span class="text-xs text-text-muted">+{note.tags.length - 4}</span>
+								{/if}
+							</div>
+						{/if}
+
 						{#if note.description.trim()}
-							<div class="mt-3 line-clamp-4 text-sm text-text-secondary">
+							<div class="mt-3 line-clamp-3 text-sm text-text-secondary">
 								{get_note_preview(note.description)}
 							</div>
 						{:else}
@@ -208,10 +221,10 @@
 </div>
 
 <style>
-	.line-clamp-4 {
+	.line-clamp-3 {
 		display: -webkit-box;
-		line-clamp: 4;
-		-webkit-line-clamp: 4;
+		line-clamp: 3;
+		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}
