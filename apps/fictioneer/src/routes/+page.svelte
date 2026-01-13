@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { save } from '@tauri-apps/plugin-dialog';
 	import { projects } from '$lib/state/projects.svelte';
 	import { file_service } from '$lib/services/file.svelte.js';
 	import NewProjectModal from './new_project_modal.svelte';
@@ -33,6 +34,34 @@
 			if (project) {
 				await goto(resolve('/[projectId]', { projectId: project.id }));
 			}
+		}
+	}
+
+	async function handle_create_example_project() {
+		try {
+			const filePath = await save({
+				defaultPath: 'A Scandal in Bohemia.fictioneer',
+				filters: [
+					{
+						name: 'Fictioneer Project Files',
+						extensions: ['fictioneer']
+					}
+				]
+			});
+
+			if (!filePath) {
+				return;
+			}
+
+			const success = await projects.createExampleProject(filePath);
+			if (success) {
+				const project = projects.project;
+				if (project) {
+					await goto(resolve('/[projectId]', { projectId: project.id }));
+				}
+			}
+		} catch (error) {
+			console.error('Failed to create example project:', error);
 		}
 	}
 
@@ -109,6 +138,15 @@
 						class="rounded-lg border border-border px-8 py-4 text-lg font-medium text-text-secondary transition-colors duration-200 hover:bg-surface focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:outline-none"
 					>
 						Open Existing Project
+					</button>
+				</div>
+
+				<div class="mt-6">
+					<button
+						onclick={handle_create_example_project}
+						class="text-sm text-text-muted underline-offset-2 hover:text-text-secondary hover:underline"
+					>
+						Or try with an example project
 					</button>
 				</div>
 			</div>

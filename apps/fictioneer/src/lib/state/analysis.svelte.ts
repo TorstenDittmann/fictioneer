@@ -12,6 +12,8 @@ import type {
 import { DEFAULT_ANALYSIS_CONFIG } from '../types/analysis.js';
 import { analyze_scene, quick_analyze } from '../services/text_analysis/index.js';
 
+const ANALYSIS_PREFS_KEY = 'fictioneer_analysis_prefs';
+
 /**
  * Create a simple hash of content for comparison
  */
@@ -34,6 +36,31 @@ function strip_html(html: string): string {
 		.replace(/<[^>]*>/g, ' ')
 		.replace(/\s+/g, ' ')
 		.trim();
+}
+
+interface AnalysisPrefs {
+	highlights_enabled: boolean;
+	visible_types: HighlightType[];
+}
+
+function load_analysis_prefs(): AnalysisPrefs | null {
+	if (typeof localStorage === 'undefined') return null;
+	try {
+		const raw = localStorage.getItem(ANALYSIS_PREFS_KEY);
+		if (!raw) return null;
+		return JSON.parse(raw) as AnalysisPrefs;
+	} catch {
+		return null;
+	}
+}
+
+function save_analysis_prefs(prefs: AnalysisPrefs): void {
+	if (typeof localStorage === 'undefined') return;
+	try {
+		localStorage.setItem(ANALYSIS_PREFS_KEY, JSON.stringify(prefs));
+	} catch {
+		// ignore write errors
+	}
 }
 
 /**
@@ -77,6 +104,32 @@ class AnalysisStateManager {
 	/** Debounce delay in milliseconds */
 	#debounce_delay = 300;
 
+	/** Whether preferences have been loaded */
+	#initialized = false;
+
+	constructor() {
+		this.#load_prefs();
+	}
+
+	#load_prefs(): void {
+		if (this.#initialized) return;
+		const prefs = load_analysis_prefs();
+		if (prefs) {
+			this.highlights_enabled = prefs.highlights_enabled;
+			if (prefs.visible_types && Array.isArray(prefs.visible_types)) {
+				this.#visible_types = prefs.visible_types;
+			}
+		}
+		this.#initialized = true;
+	}
+
+	#save_prefs(): void {
+		save_analysis_prefs({
+			highlights_enabled: this.highlights_enabled,
+			visible_types: this.#visible_types
+		});
+	}
+
 	// Derived state
 	get visible_highlight_types(): Set<HighlightType> {
 		return new Set(this.#visible_types);
@@ -114,6 +167,7 @@ class AnalysisStateManager {
 		} else {
 			this.#visible_types = [...this.#visible_types, type];
 		}
+		this.#save_prefs();
 	}
 
 	/**
@@ -121,6 +175,7 @@ class AnalysisStateManager {
 	 */
 	set_visible_types(types: HighlightType[]): void {
 		this.#visible_types = [...types];
+		this.#save_prefs();
 	}
 
 	/**
@@ -138,6 +193,7 @@ class AnalysisStateManager {
 			'vague_word',
 			'weak_verb'
 		];
+		this.#save_prefs();
 	}
 
 	/**
@@ -145,6 +201,7 @@ class AnalysisStateManager {
 	 */
 	hide_all_types(): void {
 		this.#visible_types = [];
+		this.#save_prefs();
 	}
 
 	/**
@@ -162,6 +219,7 @@ class AnalysisStateManager {
 	 */
 	set_highlights_enabled(enabled: boolean): void {
 		this.highlights_enabled = enabled;
+		this.#save_prefs();
 	}
 
 	/**

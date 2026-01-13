@@ -72,6 +72,19 @@ class ProjectsService {
 	}
 
 	/**
+	 * Create an example project with public domain content
+	 */
+	async create_example_project(file_path: string): Promise<Project | null> {
+		const project = await file_service.create_example_project(file_path);
+		if (project) {
+			this.current_project = project;
+			// Initialize progress tracking with default goals
+			this.initialize_progress_tracking(project);
+		}
+		return project;
+	}
+
+	/**
 	 * Open an existing project file
 	 */
 	async open_project(): Promise<Project | null> {

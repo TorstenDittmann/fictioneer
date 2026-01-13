@@ -783,6 +783,27 @@ class FileService {
 			return null;
 		}
 	}
+
+	/**
+	 * Create an example project with original content
+	 */
+	async create_example_project(file_path: string): Promise<Project | null> {
+		try {
+			// Dynamic import to avoid bundling the example data unless needed
+			const { create_example_project } = await import('./example_project.js');
+			const project = await create_example_project();
+
+			// Save the project
+			this.current_file_path = file_path;
+			await this.write_project_to_path(project, file_path);
+			this.add_to_recent_projects(file_path, project.title);
+
+			return project;
+		} catch (error) {
+			console.error('Failed to create example project:', error);
+			return null;
+		}
+	}
 }
 
 export const file_service = new FileService();

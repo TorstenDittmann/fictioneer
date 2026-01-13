@@ -189,6 +189,33 @@ class Projects implements ProjectsState {
 		}
 	}
 
+	async createExampleProject(filePath: string): Promise<boolean> {
+		try {
+			const project = await projects_service.create_example_project(filePath);
+			if (!project) return false;
+
+			this.trigger_update();
+			this.initializeExpandedChapters();
+
+			// Set active chapter and scene to first available
+			if (project.chapters.length > 0) {
+				this.active_chapter_id = project.chapters[0].id;
+				const first_scene = project.chapters[0].scenes[0];
+				if (first_scene) {
+					this.active_scene_id = first_scene.id;
+				}
+			}
+
+			// Initialize progress tracking for example project
+			this.initializeProgressTracking();
+
+			return true;
+		} catch (error) {
+			console.error('Failed to create example project:', error);
+			return false;
+		}
+	}
+
 	async openProject(): Promise<boolean> {
 		try {
 			const project = await projects_service.open_project();
