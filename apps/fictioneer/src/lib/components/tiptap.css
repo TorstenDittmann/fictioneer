@@ -459,3 +459,209 @@
 		margin: 1.25rem 0 0.5rem 0;
 	}
 }
+
+/* =============================================================================
+   Analysis Highlight Styles
+   ============================================================================= */
+
+.analysis-highlight {
+	position: relative;
+	border-radius: 2px;
+	padding: 0 1px;
+	margin: 0 -1px;
+	cursor: help;
+	transition:
+		background-color 0.15s ease,
+		box-shadow 0.15s ease;
+}
+
+.analysis-highlight:hover {
+	box-shadow: 0 0 0 1px currentColor;
+}
+
+/* Adverb - Blue */
+.analysis-highlight--adverb {
+	background-color: rgba(59, 130, 246, 0.15);
+	border-bottom: 2px solid rgba(59, 130, 246, 0.5);
+}
+.analysis-highlight--adverb:hover {
+	background-color: rgba(59, 130, 246, 0.25);
+}
+
+/* Passive Voice - Yellow/Amber */
+.analysis-highlight--passive {
+	background-color: rgba(245, 158, 11, 0.15);
+	border-bottom: 2px solid rgba(245, 158, 11, 0.5);
+}
+.analysis-highlight--passive:hover {
+	background-color: rgba(245, 158, 11, 0.25);
+}
+
+/* Filter Word - Purple */
+.analysis-highlight--filter {
+	background-color: rgba(168, 85, 247, 0.15);
+	border-bottom: 2px solid rgba(168, 85, 247, 0.5);
+}
+.analysis-highlight--filter:hover {
+	background-color: rgba(168, 85, 247, 0.25);
+}
+
+/* Repetition - Orange */
+.analysis-highlight--repetition {
+	background-color: rgba(249, 115, 22, 0.15);
+	border-bottom: 2px solid rgba(249, 115, 22, 0.5);
+}
+.analysis-highlight--repetition:hover {
+	background-color: rgba(249, 115, 22, 0.25);
+}
+
+/* Weak Verb - Pink */
+.analysis-highlight--weak-verb {
+	background-color: rgba(236, 72, 153, 0.15);
+	border-bottom: 2px solid rgba(236, 72, 153, 0.5);
+}
+.analysis-highlight--weak-verb:hover {
+	background-color: rgba(236, 72, 153, 0.25);
+}
+
+/* Long Sentence - Red */
+.analysis-highlight--long-sentence {
+	background-color: rgba(239, 68, 68, 0.1);
+	border-bottom: 2px solid rgba(239, 68, 68, 0.4);
+}
+.analysis-highlight--long-sentence:hover {
+	background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Sentence Starter - Teal */
+.analysis-highlight--starter {
+	background-color: rgba(20, 184, 166, 0.15);
+	border-bottom: 2px solid rgba(20, 184, 166, 0.5);
+}
+.analysis-highlight--starter:hover {
+	background-color: rgba(20, 184, 166, 0.25);
+}
+
+/* Cliché - Amber/Gold */
+.analysis-highlight--cliche {
+	background-color: rgba(217, 119, 6, 0.15);
+	border-bottom: 2px wavy rgba(217, 119, 6, 0.6);
+}
+.analysis-highlight--cliche:hover {
+	background-color: rgba(217, 119, 6, 0.25);
+}
+
+/* Vague Word - Gray */
+.analysis-highlight--vague {
+	background-color: rgba(107, 114, 128, 0.15);
+	border-bottom: 2px dotted rgba(107, 114, 128, 0.5);
+}
+.analysis-highlight--vague:hover {
+	background-color: rgba(107, 114, 128, 0.25);
+}
+
+/* =============================================================================
+   Analysis Tooltip Styles
+   ============================================================================= */
+
+.analysis-tooltip {
+	position: fixed;
+	z-index: 9999;
+	max-width: 320px;
+	padding: 0.75rem 1rem;
+	background-color: var(--color-background);
+	border: 1px solid var(--color-border);
+	border-radius: 8px;
+	box-shadow:
+		0 4px 6px -1px rgba(0, 0, 0, 0.1),
+		0 2px 4px -1px rgba(0, 0, 0, 0.06),
+		0 0 0 1px rgba(0, 0, 0, 0.05);
+	font-family:
+		system-ui,
+		-apple-system,
+		sans-serif;
+	font-size: 13px;
+	line-height: 1.5;
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(4px);
+	transition:
+		opacity 0.15s ease,
+		transform 0.15s ease,
+		visibility 0s linear 0.15s;
+	pointer-events: none;
+}
+
+.analysis-tooltip--visible {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+	transition:
+		opacity 0.15s ease,
+		transform 0.15s ease,
+		visibility 0s linear 0s;
+}
+
+.analysis-tooltip__header {
+	margin-bottom: 0.5rem;
+}
+
+.analysis-tooltip__type {
+	display: inline-block;
+	padding: 0.125rem 0.5rem;
+	border-radius: 4px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.025em;
+}
+
+/* Type badge colors */
+.analysis-tooltip__type--adverb {
+	background-color: rgba(59, 130, 246, 0.2);
+	color: rgb(59, 130, 246);
+}
+.analysis-tooltip__type--passive_voice {
+	background-color: rgba(245, 158, 11, 0.2);
+	color: rgb(180, 117, 8);
+}
+.analysis-tooltip__type--filter_word {
+	background-color: rgba(168, 85, 247, 0.2);
+	color: rgb(168, 85, 247);
+}
+.analysis-tooltip__type--repetition {
+	background-color: rgba(249, 115, 22, 0.2);
+	color: rgb(220, 101, 19);
+}
+.analysis-tooltip__type--weak_verb {
+	background-color: rgba(236, 72, 153, 0.2);
+	color: rgb(219, 67, 142);
+}
+.analysis-tooltip__type--long_sentence {
+	background-color: rgba(239, 68, 68, 0.2);
+	color: rgb(220, 62, 62);
+}
+.analysis-tooltip__type--sentence_starter {
+	background-color: rgba(20, 184, 166, 0.2);
+	color: rgb(18, 165, 149);
+}
+.analysis-tooltip__type--cliche {
+	background-color: rgba(217, 119, 6, 0.2);
+	color: rgb(180, 99, 5);
+}
+.analysis-tooltip__type--vague_word {
+	background-color: rgba(107, 114, 128, 0.2);
+	color: rgb(107, 114, 128);
+}
+
+.analysis-tooltip__message {
+	color: var(--color-text);
+	margin-bottom: 0.5rem;
+}
+
+.analysis-tooltip__suggestion {
+	color: var(--color-text-secondary);
+	font-style: italic;
+	padding-top: 0.5rem;
+	border-top: 1px solid var(--color-border);
+}

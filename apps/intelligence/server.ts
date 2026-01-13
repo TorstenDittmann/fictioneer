@@ -4,6 +4,7 @@ import { logger } from 'hono/logger';
 import { CORS_CONFIG } from './constants';
 import marketing_api from './marketing_api';
 import production_api from './production_api';
+import analysis_api from './analysis_api';
 import { posthog } from './tracking';
 
 const app = new Hono()
@@ -16,7 +17,8 @@ const app = new Hono()
 		});
 	})
 	.route('/', marketing_api)
-	.route('/', production_api);
+	.route('/', production_api)
+	.route('/', analysis_api);
 
 process.on('exit', async (code) => {
 	await posthog.shutdown();

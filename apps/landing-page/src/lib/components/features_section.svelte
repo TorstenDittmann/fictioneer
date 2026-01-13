@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
+	import { Tooltip } from 'bits-ui';
+	import ProseHighlight from './prose_highlight.svelte';
 
 	let mounted = $state(false);
 	let visible_cards = new SvelteSet<string>();
@@ -202,13 +204,161 @@
 				</div>
 			</div>
 
-			<!-- Organize with Scenes & Chapters - 6 cols -->
+			<!-- Prose Score - Full Width -->
+			<div
+				class="feature-card lg:col-span-12 {visible_cards.has('prose-score')
+					? 'animate-scale-in'
+					: 'opacity-0'}"
+				data-card-id="prose-score"
+				style:animation-delay="0.04s"
+			>
+				<div class="card-elevated overflow-visible p-6 lg:p-8">
+					<div class="flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-6">
+						<!-- Text Example (left) -->
+						<div class="flex-1 lg:order-1">
+							<div
+								class="flex h-full flex-col overflow-visible rounded-2xl border border-paper-border bg-paper-cream/60 p-5 lg:p-6"
+							>
+								<div class="mb-3 flex items-center justify-between">
+									<span class="text-xs font-medium tracking-wide text-paper-text-muted uppercase"
+										>Your Writing</span
+									>
+								</div>
+								<div
+									class="relative flex-1 overflow-visible rounded-xl bg-paper-beige/50 p-4 pt-8 lg:p-5 lg:pt-10"
+									style:font-family="'iA Writer Duo', monospace"
+								>
+									<Tooltip.Provider delayDuration={100}>
+										<div class="space-y-3 text-sm leading-[1.9] text-paper-text lg:text-base">
+											<!-- Paragraph 1 -->
+											<p>
+												The old lighthouse keeper walked <ProseHighlight
+													type="adverb"
+													word="very"
+													message="'very' - Consider using a stronger verb instead"
+													suggestion="Try replacing with a more specific verb"
+												/>
+												<ProseHighlight
+													type="adverb"
+													word="slowly"
+													message="'slowly' - Consider using a stronger verb instead"
+													suggestion="Try replacing with a more specific verb"
+												/> down the winding stone steps, his weathered hands trailing along the cold wall.
+												He <ProseHighlight
+													type="filter"
+													word="felt"
+													message="'felt' - Often unnecessary and weakens prose"
+													suggestion="Consider removing or finding a stronger alternative"
+												/>
+												<ProseHighlight
+													type="vague"
+													word="something"
+													message="'something' - Could be more specific"
+													suggestion="Consider using a more precise word"
+												/> stirring in the shadows below, a presence that made the hairs on his neck stand
+												on end.
+											</p>
+
+											<!-- Paragraph 2 -->
+											<p>
+												The floorboards <ProseHighlight
+													type="adverb"
+													word="suddenly"
+													message="'suddenly' - Consider using a stronger verb instead"
+													suggestion="Try replacing with a more specific verb"
+												/> creaked beneath his boots. In the distance, the fog horn moaned its lonely
+												warning across the bay, and he <ProseHighlight
+													type="telling"
+													word="was afraid"
+													message="'was afraid' - Active voice is often stronger"
+													suggestion="Consider rewriting to show instead of tell"
+												/> of what the morning tide might bring to his shore.
+											</p>
+										</div>
+									</Tooltip.Provider>
+								</div>
+							</div>
+						</div>
+
+						<!-- Analysis Panel (right) -->
+						<div class="lg:order-2 lg:w-72">
+							<div
+								class="flex h-full flex-col rounded-2xl border border-paper-border bg-paper-cream/60 p-4 text-xs"
+							>
+								<!-- Header row -->
+								<div class="mb-4 flex items-center justify-between">
+									<span class="text-xs font-medium tracking-wide text-paper-text-muted uppercase"
+										>Analysis</span
+									>
+									<span class="font-semibold text-amber-600">54 score</span>
+								</div>
+
+								<!-- Readability -->
+								<div class="mb-4">
+									<div
+										class="mb-2 text-[10px] font-medium tracking-wider text-paper-text-muted uppercase"
+									>
+										Readability
+									</div>
+									<div class="grid grid-cols-2 gap-2">
+										<div class="rounded-lg bg-paper-beige/60 p-2">
+											<div class="text-[10px] text-paper-text-muted">Reading Ease</div>
+											<div class="text-base font-semibold text-paper-text">62</div>
+										</div>
+										<div class="rounded-lg bg-paper-beige/60 p-2">
+											<div class="text-[10px] text-paper-text-muted">Grade Level</div>
+											<div class="text-base font-semibold text-paper-text">8.2</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- Prose Metrics -->
+								<div class="flex-1">
+									<div
+										class="mb-2 text-[10px] font-medium tracking-wider text-paper-text-muted uppercase"
+									>
+										Prose Metrics
+									</div>
+									<div class="space-y-2 text-[11px]">
+										<div class="flex items-center justify-between">
+											<span class="text-paper-text-muted">Adverbs</span>
+											<span class="font-medium text-amber-600">3.2%</span>
+										</div>
+										<div class="flex items-center justify-between">
+											<span class="text-paper-text-muted">Passive Voice</span>
+											<span class="font-medium text-paper-text">8.1%</span>
+										</div>
+										<div class="flex items-center justify-between">
+											<span class="text-paper-text-muted">Filter Words</span>
+											<span class="font-medium text-paper-text">12</span>
+										</div>
+										<div class="flex items-center justify-between">
+											<span class="text-paper-text-muted">Sentence Variety</span>
+											<span class="font-medium text-paper-text">76/100</span>
+										</div>
+									</div>
+								</div>
+
+								<!-- Word count footer -->
+								<div
+									class="mt-4 flex items-center justify-between border-t border-paper-border pt-3 text-[10px] text-paper-text-muted"
+								>
+									<span>73 words</span>
+									<span>402 chars</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Organize with Scenes & Chapters - 7 cols -->
 			<div
 				class="feature-card lg:col-span-7 {visible_cards.has('structure')
 					? 'animate-scale-in'
 					: 'opacity-0'}"
 				data-card-id="structure"
-				style:animation-delay="0.08s"
+				style:animation-delay="0.1s"
 			>
 				<div class="card-elevated h-full overflow-hidden p-6">
 					<div class="feature-icon mb-4">
@@ -271,13 +421,13 @@
 				</div>
 			</div>
 
-			<!-- Track Progress - 3 cols -->
+			<!-- Track Progress - 5 cols -->
 			<div
 				class="feature-card lg:col-span-5 {visible_cards.has('progress')
 					? 'animate-scale-in'
 					: 'opacity-0'}"
 				data-card-id="progress"
-				style:animation-delay="0.12s"
+				style:animation-delay="0.14s"
 			>
 				<div class="card-elevated h-full overflow-hidden p-6">
 					<div class="feature-icon mb-4">
@@ -330,7 +480,7 @@
 					? 'animate-scale-in'
 					: 'opacity-0'}"
 				data-card-id="distraction-free"
-				style:animation-delay="0.15s"
+				style:animation-delay="0.18s"
 			>
 				<div class="card-elevated h-full overflow-hidden p-6">
 					<div class="feature-icon mb-4">
@@ -379,7 +529,7 @@
 					? 'animate-scale-in'
 					: 'opacity-0'}"
 				data-card-id="notes"
-				style:animation-delay="0.2s"
+				style:animation-delay="0.22s"
 			>
 				<div class="card-elevated h-full overflow-hidden p-6">
 					<div class="feature-icon mb-4">
@@ -422,7 +572,7 @@
 					? 'animate-scale-in'
 					: 'opacity-0'}"
 				data-card-id="export"
-				style:animation-delay="0.25s"
+				style:animation-delay="0.26s"
 			>
 				<div class="card-elevated h-full overflow-hidden p-6">
 					<div class="feature-icon mb-4">

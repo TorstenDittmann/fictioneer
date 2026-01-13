@@ -7,15 +7,18 @@
 	import Focus from '@tiptap/extension-focus';
 	import Typography from '@tiptap/extension-typography';
 	import { AIWritingSuggestion } from './ai_writing_extension.js';
+	import { AnalysisHighlightExtension } from './analysis_highlight_extension.js';
 	import FloatingMenubar from './floating_menubar.svelte';
 	import './tiptap.css';
 	import { settings_state } from '$lib/state/settings.svelte';
+	import { analysis_state } from '$lib/state/analysis.svelte.js';
 
 	let editor_element: HTMLDivElement | undefined = undefined;
 	let editor_container: HTMLDivElement | undefined = undefined;
 	let editor = $state<Editor | null>(null);
 	let doc_words = $state(0);
 	let doc_chars = $state(0);
+	let stats_expanded = $state(false);
 
 	const app_settings = $derived(settings_state.settings);
 
@@ -87,6 +90,11 @@
 			context: aiContext,
 			enabled: true,
 			platformOS: os_type
+		}),
+		AnalysisHighlightExtension.configure({
+			enabled: false,
+			highlights: [],
+			visibleTypes: analysis_state.visible_highlight_types
 		})
 	];
 
@@ -146,6 +154,9 @@
 				});
 
 				update_counts();
+
+				// Trigger analysis on content change
+				analysis_state.request_analysis(html);
 			},
 			onSelectionUpdate: () => {
 				// Don't auto-scroll on selection changes (clicks)
@@ -189,6 +200,33 @@
 		dom.style.fontSize = `${app_settings.editor.font_size_px}px`;
 		dom.style.lineHeight = String(app_settings.editor.line_height);
 		dom.setAttribute('spellcheck', app_settings.editor.spellcheck ? 'true' : 'false');
+	});
+
+	// Run initial analysis when editor loads with content
+	$effect(() => {
+		if (editor && content) {
+			analysis_state.request_analysis(content);
+		}
+	});
+
+	// Sync analysis highlights with editor when result changes
+	$effect(() => {
+		if (!editor) return;
+
+		// Access reactive state properties to track them
+		const result = analysis_state.result;
+		const highlights_enabled = analysis_state.highlights_enabled;
+		const visible_types = analysis_state.visible_highlight_types;
+
+		// Update highlights in editor
+		if (result && highlights_enabled) {
+			editor.commands.setAnalysisEnabled(true);
+			editor.commands.setAnalysisHighlights(result.highlights);
+			editor.commands.setVisibleHighlightTypes(visible_types);
+		} else {
+			editor.commands.setAnalysisEnabled(false);
+			editor.commands.clearAnalysisHighlights();
+		}
 	});
 
 	// Update padding based on margin
@@ -254,22 +292,191 @@
 			<div bind:this={editor_element} class="editor-element"></div>
 		</div>
 
-		<div
-			class="group absolute right-3 bottom-2 z-10 flex flex-col rounded-md border border-border bg-surface px-2 py-1 text-xs text-text-secondary"
+		<!-- Expandable Stats Pill -->
+		<button
+			class="group absolute right-3 bottom-2 z-10 flex flex-col rounded-lg border border-border bg-background text-xs text-text-secondary transition-all duration-200 {stats_expanded
+				? 'w-72 p-3'
+				: 'px-2 py-1'} hover:border-accent/50"
+			onclick={() => (stats_expanded = !stats_expanded)}
 		>
-			<div class="flex items-center gap-1">
-				<span>{doc_words.toLocaleString()} words</span>
-				<span>·</span>
-				<span>{doc_chars.toLocaleString()} chars</span>
-			</div>
-			<div
-				class="h-0 w-full overflow-hidden rounded bg-background-tertiary transition-[height,margin] duration-200 group-hover:mt-1 group-hover:h-1.5"
-			>
+			<!-- Collapsed: single row with hover progress bar -->
+			{#if !stats_expanded}
+				<div class="flex items-center gap-1">
+					{#if analysis_state.result}
+						<span
+							class="font-medium {analysis_state.overall_score >= 70
+								? 'text-green-500'
+								: analysis_state.overall_score >= 50
+									? 'text-yellow-500'
+									: 'text-red-500'}"
+						>
+							{analysis_state.overall_score} score
+						</span>
+						<span class="text-text-muted">·</span>
+					{/if}
+					<span>{doc_words.toLocaleString()} words</span>
+					<span class="text-text-muted">·</span>
+					<span>{doc_chars.toLocaleString()} chars</span>
+				</div>
+				<!-- Progress bar on hover -->
 				<div
-					class="h-full rounded"
-					style={`width:${progress_percent()}%; background-color:${progress_color()};`}
-				></div>
-			</div>
-		</div>
+					class="h-0 w-full overflow-hidden rounded bg-background-tertiary transition-[height,margin] duration-200 group-hover:mt-1 group-hover:h-1.5"
+				>
+					<div
+						class="h-full rounded"
+						style={`width:${progress_percent()}%; background-color:${progress_color()};`}
+					></div>
+				</div>
+			{:else}
+				<!-- Expanded view -->
+				<div class="w-full text-left">
+					<!-- Header row -->
+					<div class="mb-2 flex items-center justify-between">
+						<div class="flex items-center gap-1.5">
+							{#if analysis_state.result}
+								<span
+									class="font-medium {analysis_state.overall_score >= 70
+										? 'text-green-500'
+										: analysis_state.overall_score >= 50
+											? 'text-yellow-500'
+											: 'text-red-500'}"
+								>
+									{analysis_state.overall_score} score
+								</span>
+								<span class="text-text-muted">·</span>
+							{/if}
+							<span class="text-text">{doc_words.toLocaleString()} words</span>
+							<span class="text-text-muted">·</span>
+							<span>{doc_chars.toLocaleString()} chars</span>
+						</div>
+						<svg
+							class="h-3 w-3 text-text-muted"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M5 15l7-7 7 7"
+							/>
+						</svg>
+					</div>
+
+					<!-- Progress bar -->
+					<div class="mb-3">
+						<div class="mb-1 flex items-center justify-between text-[10px] text-text-muted">
+							<span>Scene progress</span>
+							<span>{target_min}–{target_max} words</span>
+						</div>
+						<div class="h-1.5 w-full rounded bg-background-tertiary">
+							<div
+								class="h-full rounded transition-all"
+								style={`width:${progress_percent()}%; background-color:${progress_color()};`}
+							></div>
+						</div>
+					</div>
+
+					{#if analysis_state.result}
+						<!-- Summary -->
+						<p class="mb-3 text-[11px] text-text-secondary">{analysis_state.summary}</p>
+
+						<!-- Readability -->
+						<div class="mb-3">
+							<h4 class="mb-1.5 text-[10px] font-medium tracking-wider text-text-muted uppercase">
+								Readability
+							</h4>
+							<div class="grid grid-cols-2 gap-1.5">
+								<div class="rounded bg-background-secondary p-1.5">
+									<div class="text-[10px] text-text-muted">Reading Ease</div>
+									<div class="text-sm font-semibold text-text">
+										{analysis_state.result.readability.flesch_reading_ease}
+									</div>
+								</div>
+								<div class="rounded bg-background-secondary p-1.5">
+									<div class="text-[10px] text-text-muted">Grade Level</div>
+									<div class="text-sm font-semibold text-text">
+										{analysis_state.result.readability.flesch_kincaid_grade}
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Metrics -->
+						<div class="mb-3">
+							<h4 class="mb-1.5 text-[10px] font-medium tracking-wider text-text-muted uppercase">
+								Prose Metrics
+							</h4>
+							<div class="space-y-1">
+								<div class="flex items-center justify-between">
+									<span class="text-text-muted">Adverbs</span>
+									<span
+										class="font-medium {analysis_state.result.metrics.adverb_percentage > 2
+											? 'text-yellow-500'
+											: 'text-text-secondary'}"
+									>
+										{analysis_state.result.metrics.adverb_percentage.toFixed(1)}%
+									</span>
+								</div>
+								<div class="flex items-center justify-between">
+									<span class="text-text-muted">Passive Voice</span>
+									<span
+										class="font-medium {analysis_state.result.metrics.passive_voice_percentage > 15
+											? 'text-yellow-500'
+											: 'text-text-secondary'}"
+									>
+										{analysis_state.result.metrics.passive_voice_percentage.toFixed(1)}%
+									</span>
+								</div>
+								<div class="flex items-center justify-between">
+									<span class="text-text-muted">Filter Words</span>
+									<span class="font-medium text-text-secondary">
+										{analysis_state.result.metrics.filter_word_count}
+									</span>
+								</div>
+								<div class="flex items-center justify-between">
+									<span class="text-text-muted">Dialogue</span>
+									<span class="font-medium text-text-secondary">
+										{analysis_state.result.metrics.dialogue_percentage}%
+									</span>
+								</div>
+								<div class="flex items-center justify-between">
+									<span class="text-text-muted">Sentence Variety</span>
+									<span class="font-medium text-text-secondary">
+										{analysis_state.result.sentences.variety_score}/100
+									</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Top Issues -->
+						{#if analysis_state.result.top_issues.length > 0}
+							<div>
+								<h4 class="mb-1.5 text-[10px] font-medium tracking-wider text-text-muted uppercase">
+									Top Issues
+								</h4>
+								<div class="space-y-1">
+									{#each analysis_state.result.top_issues.slice(0, 5) as issue (issue.type + issue.message)}
+										<div
+											class="flex items-start gap-1.5 rounded bg-background-secondary p-1.5 text-[11px]"
+										>
+											<span
+												class="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full {issue.severity === 'error'
+													? 'bg-red-500'
+													: issue.severity === 'warning'
+														? 'bg-yellow-500'
+														: 'bg-blue-500'}"
+											></span>
+											<span class="text-text-secondary">{issue.message}</span>
+										</div>
+									{/each}
+								</div>
+							</div>
+						{/if}
+					{/if}
+				</div>
+			{/if}
+		</button>
 	</div>
 </div>

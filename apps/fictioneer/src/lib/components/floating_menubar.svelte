@@ -8,6 +8,7 @@
 		type RephraseOption
 	} from '../services/ai_writing_backend.js';
 	import { projects } from '$lib/state/projects.svelte.js';
+	import { analysis_state } from '$lib/state/analysis.svelte.js';
 
 	interface Props {
 		editor: Editor | null;
@@ -223,6 +224,23 @@
 	function close_rephrase_modal() {
 		rephrase_modal_open = false;
 	}
+
+	// Prose suggestions toggle
+	function toggle_prose() {
+		const new_state = !analysis_state.highlights_enabled;
+		analysis_state.set_highlights_enabled(new_state);
+		if (new_state && content) {
+			// Run analysis immediately when enabling prose suggestions
+			analysis_state.analyze_now(content);
+		}
+	}
+
+	// Keep analysis updated when content changes and prose is enabled
+	$effect(() => {
+		if (analysis_state.highlights_enabled && content) {
+			analysis_state.request_analysis(content);
+		}
+	});
 </script>
 
 {#if should_show_menubar}
@@ -267,6 +285,20 @@
 						d="M21 10h-10a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6"
 					/>
 				</svg>
+			</button>
+
+			<div class="mx-1 h-5 w-px bg-border"></div>
+
+			<!-- Prose Toggle Button -->
+			<button
+				class="inline-flex h-9 cursor-default items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors duration-200 focus:outline-none {analysis_state.highlights_enabled
+					? 'bg-accent/10 text-accent'
+					: 'text-text-secondary hover:bg-background-tertiary'}"
+				onclick={toggle_prose}
+				title="Toggle inline prose suggestions"
+				aria-label="Toggle prose suggestions"
+			>
+				Prose
 			</button>
 
 			<!-- Format Menu -->
