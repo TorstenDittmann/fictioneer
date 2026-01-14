@@ -450,9 +450,9 @@
 				<div class="mx-1 h-5 w-px bg-border"></div>
 				<Menubar.Menu>
 					<Menubar.Trigger
-						class="inline-flex h-9 cursor-default items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium text-accent transition-colors duration-200 hover:bg-accent/10 focus:outline-none data-[state=open]:bg-accent/10"
+						class="inline-flex h-9 cursor-default items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium whitespace-nowrap text-accent transition-colors duration-200 hover:bg-accent/10 focus:outline-none data-[state=open]:bg-accent/10"
 					>
-						<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
 								stroke-linecap="round"
 								stroke-linejoin="round"

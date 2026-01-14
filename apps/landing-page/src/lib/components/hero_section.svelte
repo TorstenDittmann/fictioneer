@@ -85,10 +85,43 @@
 					<div class="flex items-center justify-between rounded-t-xl bg-paper-beige/50 px-4 py-3">
 						<div class="flex items-center gap-3">
 							<!-- Window Controls -->
-							<div class="flex gap-1.5">
-								<div class="h-3 w-3 rounded-full bg-red-400/80"></div>
-								<div class="h-3 w-3 rounded-full bg-yellow-400/80"></div>
-								<div class="h-3 w-3 rounded-full bg-green-400/80"></div>
+							<div class="group/controls flex gap-1.5">
+								<div class="flex h-3 w-3 items-center justify-center rounded-full bg-red-400/80">
+									<svg
+										class="h-2 w-2 opacity-0 transition-opacity group-hover/controls:opacity-100"
+										viewBox="0 0 12 12"
+										fill="none"
+										stroke="rgba(0,0,0,0.5)"
+										stroke-width="1.5"
+										stroke-linecap="round"
+									>
+										<path d="M3 3l6 6M9 3l-6 6" />
+									</svg>
+								</div>
+								<div class="flex h-3 w-3 items-center justify-center rounded-full bg-yellow-400/80">
+									<svg
+										class="h-2 w-2 opacity-0 transition-opacity group-hover/controls:opacity-100"
+										viewBox="0 0 12 12"
+										fill="none"
+										stroke="rgba(0,0,0,0.5)"
+										stroke-width="1.5"
+										stroke-linecap="round"
+									>
+										<path d="M2 6h8" />
+									</svg>
+								</div>
+								<div class="flex h-3 w-3 items-center justify-center rounded-full bg-green-400/80">
+									<svg
+										class="h-2 w-2 opacity-0 transition-opacity group-hover/controls:opacity-100"
+										viewBox="0 0 12 12"
+										fill="none"
+										stroke="rgba(0,0,0,0.5)"
+										stroke-width="1.5"
+										stroke-linecap="round"
+									>
+										<path d="M6 2v8M2 6h8" />
+									</svg>
+								</div>
 							</div>
 
 							<!-- App Info -->

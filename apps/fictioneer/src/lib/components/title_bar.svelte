@@ -61,19 +61,31 @@
 					onclick={handle_close}
 					type="button"
 					aria-label="Close window"
-				></button>
+				>
+					<svg viewBox="0 0 12 12" class="control-icon">
+						<path d="M3 3l6 6M9 3l-6 6" />
+					</svg>
+				</button>
 				<button
 					class="control-button minimize"
 					onclick={handle_minimize}
 					type="button"
 					aria-label="Minimize window"
-				></button>
+				>
+					<svg viewBox="0 0 12 12" class="control-icon">
+						<path d="M2 6h8" />
+					</svg>
+				</button>
 				<button
 					class="control-button maximize"
 					onclick={handle_maximize}
 					type="button"
 					aria-label="Toggle fullscreen"
-				></button>
+				>
+					<svg viewBox="0 0 12 12" class="control-icon">
+						<path d="M6 2v8M2 6h8" />
+					</svg>
+				</button>
 			</div>
 
 			{#if show_back_button}
@@ -222,6 +234,24 @@
 		border-radius: 50%;
 		border: none;
 		transition: all 0.15s ease;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.control-icon {
+		width: 8px;
+		height: 8px;
+		opacity: 0;
+		transition: opacity 0.15s ease;
+		fill: none;
+		stroke: rgba(0, 0, 0, 0.5);
+		stroke-width: 1.5;
+		stroke-linecap: round;
+	}
+
+	.controls:hover .control-icon {
+		opacity: 1;
 	}
 
 	.close {
