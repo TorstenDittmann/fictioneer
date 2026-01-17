@@ -1,14 +1,28 @@
 <script lang="ts">
+	import { openUrl } from '@tauri-apps/plugin-opener';
 	import { Modal, Input, Label, Select, Button } from '$lib/components/ui';
 	import type { AppSettings, EditorSettings } from '$lib/state/settings.svelte';
 	import { settings_state } from '$lib/state/settings.svelte';
 	import { Tabs } from 'bits-ui';
 	import { onMount } from 'svelte';
 	import { license_key_state } from '$lib/state/license_key.svelte';
+	import { license_key_service } from '$lib/services/license_key';
 
-	let { open = $bindable(false) }: { open: boolean } = $props();
+	interface Props {
+		open?: boolean;
+		initial_tab?: 'editor' | 'app' | 'license';
+	}
+
+	let { open = $bindable(false), initial_tab = 'editor' }: Props = $props();
 
 	let tab = $state<'editor' | 'app' | 'license'>('editor');
+
+	// Set tab to initial_tab when modal opens
+	$effect(() => {
+		if (open) {
+			tab = initial_tab;
+		}
+	});
 
 	const st = $derived(settings_state.settings);
 
@@ -31,11 +45,55 @@
 	] as const;
 
 	let license_key_input = $state('');
+	let is_verifying = $state(false);
+	let verification_error = $state<string | null>(null);
 
 	onMount(async () => {
 		await license_key_state.initialize();
 		license_key_input = license_key_state.license_key || '';
 	});
+
+	async function verify_and_save_license_key() {
+		if (is_verifying) return;
+
+		const key = license_key_input.trim();
+		if (!key) return;
+
+		is_verifying = true;
+		verification_error = null;
+
+		try {
+			const result = await license_key_service.verify_license_key(key);
+
+			if (result.is_valid) {
+				await license_key_state.set_license_key(key);
+			} else {
+				verification_error = result.error || 'Invalid license key';
+			}
+		} catch {
+			verification_error = 'Verification failed';
+		} finally {
+			is_verifying = false;
+		}
+	}
+
+	function remove_license_key() {
+		license_key_state.remove_license_key();
+		license_key_input = '';
+		verification_error = null;
+	}
+
+	function open_account() {
+		openUrl('https://fictioneer.app/account');
+	}
+
+	function open_checkout() {
+		openUrl('https://fictioneer.app/checkout');
+	}
+
+	function handle_license_input() {
+		verification_error = null;
+	}
 
 	function set_editor(key: keyof EditorSettings, value: unknown) {
 		switch (key) {
@@ -92,7 +150,7 @@
 				</Tabs.Trigger>
 			</Tabs.List>
 
-			<div class="mt-3 h-[360px] overflow-auto pr-1">
+			<div class="mt-3 h-90 overflow-auto pr-1">
 				<Tabs.Content value="editor">
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 						<div class="flex flex-col gap-1">
@@ -200,47 +258,53 @@
 				</Tabs.Content>
 
 				<Tabs.Content value="license">
-					<div class="space-y-3">
-						<div class="flex items-center justify-between">
-							<Label for="license-key" class="text-sm font-medium text-text">AI License Key</Label>
-							{#if license_key_state.is_verifying}
-								<span class="text-xs text-text-secondary">Verifying…</span>
-							{:else if license_key_state.verification_result}
-								<span
-									class="text-xs font-medium"
-									style={license_key_state.is_valid ? 'color:#10b981' : 'color:#ef4444'}
+					<div class="space-y-4">
+						<div class="space-y-3">
+							<div class="flex items-center justify-between">
+								<Label for="license-key" class="text-sm font-medium text-text">AI License Key</Label
 								>
-									{license_key_state.is_valid
-										? 'Valid'
-										: license_key_state.verification_result.error || 'Invalid'}
-								</span>
+								{#if is_verifying}
+									<span class="text-xs text-text-secondary">Verifying…</span>
+								{:else if license_key_state.is_valid}
+									<span class="text-xs font-medium" style="color:#10b981">Valid</span>
+								{/if}
+							</div>
+							<div class="flex gap-2">
+								<Input
+									id="license-key"
+									class="flex-1"
+									placeholder="Enter license key"
+									bind:value={license_key_input}
+									oninput={handle_license_input}
+									disabled={is_verifying}
+								/>
+								<Button
+									variant="primary"
+									onclick={verify_and_save_license_key}
+									disabled={is_verifying || !license_key_input.trim()}
+								>
+									{is_verifying ? 'Verifying…' : 'Save'}
+								</Button>
+								{#if license_key_state.has_license_key}
+									<Button variant="secondary" onclick={remove_license_key} disabled={is_verifying}>
+										Remove
+									</Button>
+								{/if}
+							</div>
+							{#if verification_error}
+								<p class="text-xs font-medium" style="color:#ef4444">
+									{verification_error}
+								</p>
 							{/if}
 						</div>
-						<div class="flex gap-2">
-							<Input
-								id="license-key"
-								class="flex-1"
-								placeholder="Enter license key"
-								value={license_key_input}
-								oninput={(e) => (license_key_input = e.currentTarget.value)}
-							/>
-							<Button
-								variant="primary"
-								onclick={async () => {
-									await license_key_state.set_license_key(license_key_input.trim() || null);
-								}}
-								disabled={license_key_state.is_verifying}>Verify</Button
-							>
-							{#if license_key_state.has_license_key}
-								<Button
-									variant="secondary"
-									onclick={() => {
-										license_key_state.remove_license_key();
-										license_key_input = '';
-									}}
-									disabled={license_key_state.is_verifying}>Remove</Button
-								>
-							{/if}
+
+						<div class="flex gap-2 border-t border-border pt-4">
+							<Button variant="secondary" class="flex-1" onclick={open_checkout}>
+								Buy subscription
+							</Button>
+							<Button variant="secondary" class="flex-1" onclick={open_account}>
+								Manage subscription
+							</Button>
 						</div>
 					</div>
 				</Tabs.Content>

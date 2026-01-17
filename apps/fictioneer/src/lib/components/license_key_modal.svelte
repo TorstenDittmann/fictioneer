@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { openUrl } from '@tauri-apps/plugin-opener';
 	import { license_key_state } from '$lib/state/license_key.svelte.js';
+	import { license_key_service } from '$lib/services/license_key.js';
 	import Modal from '$lib/components/ui/modal.svelte';
 	import { onMount } from 'svelte';
 
@@ -11,12 +13,17 @@
 	let { open = $bindable(false), onOpenChange }: Props = $props();
 
 	let license_key_input = $state('');
-	let is_saving = $state(false);
+	let is_verifying = $state(false);
+	let verification_error = $state<string | null>(null);
 
 	onMount(async () => {
 		await license_key_state.initialize();
 		license_key_input = license_key_state.license_key || '';
 	});
+
+	function open_account() {
+		openUrl('https://fictioneer.app/account');
+	}
 
 	function close_modal() {
 		open = false;
@@ -24,22 +31,36 @@
 	}
 
 	async function save_license_key() {
-		if (is_saving) return;
+		if (is_verifying) return;
 
-		is_saving = true;
+		const key = license_key_input.trim();
+		if (!key) return;
+
+		is_verifying = true;
+		verification_error = null;
+
 		try {
-			await license_key_state.set_license_key(license_key_input.trim() || null);
-			if (license_key_state.is_valid) {
+			// Verify first without saving
+			const result = await license_key_service.verify_license_key(key);
+
+			if (result.is_valid) {
+				// Only save if valid
+				await license_key_state.set_license_key(key);
 				close_modal();
+			} else {
+				verification_error = result.error || 'Invalid license key';
 			}
+		} catch {
+			verification_error = 'Verification failed';
 		} finally {
-			is_saving = false;
+			is_verifying = false;
 		}
 	}
 
 	function remove_license_key() {
 		license_key_state.remove_license_key();
 		license_key_input = '';
+		verification_error = null;
 		close_modal();
 	}
 
@@ -48,6 +69,11 @@
 			event.preventDefault();
 			save_license_key();
 		}
+	}
+
+	function handle_input() {
+		// Clear error when user types
+		verification_error = null;
 	}
 </script>
 
@@ -81,30 +107,32 @@
 					placeholder="Enter your license key..."
 					bind:value={license_key_input}
 					onkeydown={handle_keydown}
+					oninput={handle_input}
 					class="flex h-10 w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none"
 					style="background-color: var(--paper-white); border-color: var(--paper-border); color: var(--paper-text); focus:ring-color: var(--paper-accent);"
-					disabled={is_saving || license_key_state.is_verifying}
+					disabled={is_verifying}
 				/>
 			</div>
 
-			{#if license_key_state.verification_result && !license_key_state.is_verifying}
+			{#if verification_error}
 				<div
-					class="rounded-md p-3 text-sm"
-					class:bg-green-50={license_key_state.is_valid}
-					class:bg-red-50={!license_key_state.is_valid}
-					style={license_key_state.is_valid
-						? 'border: 1px solid #10b981; color: #065f46;'
-						: 'border: 1px solid #ef4444; color: #991b1b;'}
+					class="rounded-md bg-red-50 p-3 text-sm"
+					style="border: 1px solid #ef4444; color: #991b1b;"
 				>
-					{#if license_key_state.is_valid}
-						✓ License key is valid
-					{:else}
-						✗ {license_key_state.verification_result.error || 'Invalid license key'}
-					{/if}
+					✗ {verification_error}
 				</div>
 			{/if}
 
-			{#if license_key_state.is_verifying}
+			{#if license_key_state.is_valid && !verification_error}
+				<div
+					class="rounded-md bg-green-50 p-3 text-sm"
+					style="border: 1px solid #10b981; color: #065f46;"
+				>
+					✓ License key is valid
+				</div>
+			{/if}
+
+			{#if is_verifying}
 				<div
 					class="rounded-md p-3 text-sm"
 					style="background-color: var(--paper-bg-light); border: 1px solid var(--paper-border); color: var(--paper-text-light);"
@@ -121,7 +149,7 @@
 						onclick={remove_license_key}
 						class="inline-flex h-10 items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
 						style="background-color: transparent; border-color: var(--paper-border); color: var(--paper-text-light);"
-						disabled={is_saving || license_key_state.is_verifying}
+						disabled={is_verifying}
 					>
 						Remove Key
 					</button>
@@ -133,7 +161,7 @@
 					onclick={close_modal}
 					class="inline-flex h-10 items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
 					style="background-color: transparent; border-color: var(--paper-border); color: var(--paper-text);"
-					disabled={is_saving || license_key_state.is_verifying}
+					disabled={is_verifying}
 				>
 					Cancel
 				</button>
@@ -141,15 +169,25 @@
 					onclick={save_license_key}
 					class="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:outline-none"
 					style="background-color: var(--paper-accent); color: white;"
-					disabled={is_saving || license_key_state.is_verifying || !license_key_input.trim()}
+					disabled={is_verifying || !license_key_input.trim()}
 				>
-					{#if is_saving || license_key_state.is_verifying}
-						Saving...
+					{#if is_verifying}
+						Verifying...
 					{:else}
 						Save License Key
 					{/if}
 				</button>
 			</div>
 		</div>
+
+		<p class="text-center text-sm" style="color: var(--paper-text-muted);">
+			<button
+				onclick={open_account}
+				class="underline transition-colors hover:opacity-80"
+				style="color: var(--paper-accent);"
+			>
+				Manage your account
+			</button>
+		</p>
 	</div>
 </Modal>

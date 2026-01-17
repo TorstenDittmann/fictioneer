@@ -180,6 +180,19 @@
 		{/each}
 	</div>
 
+	<!-- Manage Subscription Link -->
+	<div class="mx-auto mb-16 max-w-4xl text-center">
+		<p class="text-paper-text-muted">
+			Already a subscriber?
+			<a
+				href="https://fictioneer.app/account"
+				class="text-paper-accent underline transition-colors hover:text-paper-accent/80"
+			>
+				Manage your subscription
+			</a>
+		</p>
+	</div>
+
 	<!-- FAQ Section -->
 	<div class="mx-auto max-w-3xl">
 		<FaqSection intro="Everything about pricing, billing, and the AI Tools subscription." />

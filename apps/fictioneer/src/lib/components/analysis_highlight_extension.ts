@@ -260,7 +260,7 @@ export const AnalysisHighlightExtension = Extension.create<AnalysisHighlightExte
 		return {
 			enabled: false,
 			highlights: [],
-			visibleTypes: new Set([
+			visibleTypes: new Set<HighlightType>([
 				'adverb',
 				'passive_voice',
 				'filter_word',
@@ -270,7 +270,7 @@ export const AnalysisHighlightExtension = Extension.create<AnalysisHighlightExte
 				'sentence_starter',
 				'cliche',
 				'vague_word'
-			] as HighlightType[])
+			])
 		};
 	},
 

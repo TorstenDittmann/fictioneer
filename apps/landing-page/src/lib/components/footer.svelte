@@ -108,6 +108,14 @@
 							Blog
 						</a>
 					</li>
+					<li>
+						<a
+							href="https://fictioneer.app/account"
+							class="text-sm text-paper-text-light transition-colors hover:text-paper-accent"
+						>
+							Manage Subscription
+						</a>
+					</li>
 				</ul>
 			</div>
 		</div>

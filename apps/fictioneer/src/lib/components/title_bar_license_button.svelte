@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { license_key_state } from '$lib/state/license_key.svelte';
-	import LicenseKeyModal from './license_key_modal.svelte';
+	import SettingsModal from './settings_modal.svelte';
 
-	let license_key_modal_open = $state(false);
+	let settings_modal_open = $state(false);
 
-	function open_license_modal() {
-		license_key_modal_open = true;
+	function open_license_settings() {
+		settings_modal_open = true;
 	}
 
 	let button_color = $derived.by((): 'red' | 'amber' | 'green' | 'gray' => {
@@ -58,7 +58,7 @@
 </script>
 
 <button
-	onclick={open_license_modal}
+	onclick={open_license_settings}
 	class="flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[10px] font-medium transition-all duration-150 hover:bg-background-tertiary"
 	style="background-color: {button_styles.bg}; border-color: {button_styles.border}; color: {button_styles.text};"
 	title={tooltip_text}
@@ -88,4 +88,4 @@
 	<span class="whitespace-nowrap">Pro</span>
 </button>
 
-<LicenseKeyModal bind:open={license_key_modal_open} />
+<SettingsModal bind:open={settings_modal_open} initial_tab="license" />

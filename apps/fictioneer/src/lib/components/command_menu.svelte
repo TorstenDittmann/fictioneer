@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { Command, Dialog } from 'bits-ui';
+	import { openUrl } from '@tauri-apps/plugin-opener';
 	import { projects } from '$lib/state/projects.svelte';
 	import { layout_state } from '$lib/state/layout.svelte';
 	import { license_key_state } from '$lib/state/license_key.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import LicenseKeyModal from '$lib/components/license_key_modal.svelte';
+	import SettingsModal from '$lib/components/settings_modal.svelte';
 	import type { Scene, Chapter, Note } from '$lib/state/projects.svelte';
 
 	interface Props {
@@ -15,7 +16,8 @@
 
 	let { open = $bindable(false), onOpenChange }: Props = $props();
 
-	let license_key_modal_open = $state(false);
+	let settings_modal_open = $state(false);
+	let settings_initial_tab = $state<'editor' | 'app' | 'license'>('editor');
 
 	interface CommandItem {
 		id: string;
@@ -221,12 +223,26 @@
 					: 'License key needs verification'
 				: 'Configure AI license key',
 			action: () => {
-				license_key_modal_open = true;
+				settings_initial_tab = 'license';
+				settings_modal_open = true;
 				close_menu();
 			},
 			type: 'action',
 			icon: 'M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-.91-.56-.91-1.128v-.55m5.939 4.77a4.5 4.5 0 01-7.5-2.221c0-.52.35-.99.85-1.1l.5-.1M8.25 5.25a3 3 0 00-3 3m0 0a6 6 0 007.029 5.912c.563-.097.91-.56.91-1.128v-.55m-5.939 4.77a4.5 4.5 0 007.5-2.221c0-.52-.35-.99-.85-1.1l-.5-.1',
 			keywords: ['ai', 'license', 'key', 'settings', 'configure', 'authentication']
+		});
+
+		items.push({
+			id: 'manage-account',
+			title: 'Manage Account',
+			subtitle: 'Open account settings in browser',
+			action: () => {
+				openUrl('https://fictioneer.app/account');
+				close_menu();
+			},
+			type: 'action',
+			icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+			keywords: ['account', 'manage', 'billing', 'subscription', 'profile', 'settings']
 		});
 
 		// Add all scenes from all chapters (excluding recent ones to avoid duplicates)
@@ -477,4 +493,4 @@
 	</Dialog.Portal>
 </Dialog.Root>
 
-<LicenseKeyModal bind:open={license_key_modal_open} />
+<SettingsModal bind:open={settings_modal_open} initial_tab={settings_initial_tab} />

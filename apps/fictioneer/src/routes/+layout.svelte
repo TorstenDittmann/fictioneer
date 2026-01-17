@@ -2,24 +2,29 @@
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import TitleBar from '$lib/components/title_bar.svelte';
+	import UpsellModal from '$lib/components/upsell_modal.svelte';
 	import { projects } from '$lib/state/projects.svelte';
 	import { layout_state } from '$lib/state/layout.svelte';
 	import { ai_writing_backend } from '$lib/state/ai_writing_backend.svelte';
 	import { settings_state } from '$lib/state/settings.svelte';
+	import { license_key_state } from '$lib/state/license_key.svelte';
 	import { blur } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import { MediaQuery } from 'svelte/reactivity';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
 
 	let show_app = $state(false);
-	let system_prefers_dark = $state(false);
+	let upsell_modal_open = $state(false);
+
+	const prefers_dark = new MediaQuery('(prefers-color-scheme: dark)');
 
 	// Compute the resolved theme based on settings and system preference
 	const resolved_theme = $derived.by(() => {
 		const theme = settings_state.settings.theme;
 		if (theme === 'system') {
-			return system_prefers_dark ? 'dark' : 'light';
+			return prefers_dark.current ? 'dark' : 'light';
 		}
 		return theme;
 	});
@@ -31,24 +36,17 @@
 		}
 	});
 
-	onMount(() => {
+	onMount(async () => {
 		settings_state.initialize();
 		ai_writing_backend.initialize();
-
-		// Detect system theme preference
-		const media_query = window.matchMedia('(prefers-color-scheme: dark)');
-		system_prefers_dark = media_query.matches;
-
-		const handle_change = (e: MediaQueryListEvent) => {
-			system_prefers_dark = e.matches;
-		};
-		media_query.addEventListener('change', handle_change);
+		await license_key_state.initialize();
 
 		show_app = true;
 
-		return () => {
-			media_query.removeEventListener('change', handle_change);
-		};
+		// Show upsell modal if no license key at all
+		if (!license_key_state.has_license_key) {
+			upsell_modal_open = true;
+		}
 	});
 
 	// Global keyboard shortcuts
@@ -86,6 +84,8 @@
 			</div>
 		</div>
 	</div>
+
+	<UpsellModal bind:open={upsell_modal_open} />
 {/if}
 
 <style>

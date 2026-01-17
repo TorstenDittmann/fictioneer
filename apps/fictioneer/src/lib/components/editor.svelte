@@ -74,7 +74,7 @@
 			}
 		}),
 		Placeholder.configure({
-			placeholder: placeholder,
+			placeholder,
 			emptyEditorClass: 'is-editor-empty'
 		}),
 		CharacterCount,

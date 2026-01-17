@@ -56,6 +56,15 @@
 					<a href="mailto:hello@fictioneer.app" class="btn-ghost"> Email support </a>
 					<a href={resolve('/pricing')} class="btn-primary"> View pricing </a>
 				</div>
+				<p class="mt-4 text-sm text-paper-text-muted">
+					Already a subscriber?
+					<a
+						href="https://fictioneer.app/account"
+						class="text-paper-accent underline transition-colors hover:text-paper-accent/80"
+					>
+						Manage your subscription
+					</a>
+				</p>
 			</div>
 		</div>
 	</div>
