@@ -61,6 +61,9 @@
 		error_message = '';
 		generated_plot = null;
 
+		const result_section = document.getElementById('result-section');
+		result_section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
 		try {
 			const response = await client.api.marketing['generate-plot'].$post({
 				json: {
@@ -97,10 +100,24 @@
 </script>
 
 <svelte:head>
-	<title>AI Plot Generator - Outline Story Beats | Fictioneer</title>
+	<title>AI Plot Generator - Outline Story Beats Fast | Fictioneer</title>
 	<meta
 		name="description"
-		content="Generate fresh plot ideas with customizable structures, conflicts, and twists. Instantly outline three-act beats or hero journeys tuned to your genre."
+		content="Build AI plot outlines with structures, conflicts, and twists tailored to your genre. Generate beats fast and keep momentum."
+	/>
+	<meta
+		name="keywords"
+		content="AI plot generator, AI story outline, AI story beats, plot structure generator, story outline tool"
+	/>
+	<meta property="og:title" content="AI Plot Generator - Outline Story Beats Fast | Fictioneer" />
+	<meta
+		property="og:description"
+		content="Build AI plot outlines with structures, conflicts, and twists tailored to your genre."
+	/>
+	<meta name="twitter:title" content="AI Plot Generator - Outline Story Beats Fast | Fictioneer" />
+	<meta
+		name="twitter:description"
+		content="Build AI plot outlines with structures, conflicts, and twists tailored to your genre."
 	/>
 	<link rel="canonical" href="https://fictioneer.app/tools/plot-generator" />
 </svelte:head>
@@ -121,8 +138,8 @@
 				<span class="gradient-text mt-2 block">Generator</span>
 			</h1>
 			<p class="mx-auto max-w-3xl text-xl leading-relaxed text-paper-text-light">
-				Engineer tight story arcs with curated structures, rich imagery, and satisfying twists.
-				Perfect for outlining novels, screenplays, or episodic fiction.
+				Shape cinematic AI plot beats with curated structures, conflicts, and twist ideas. Ideal for
+				novels, screenplays, and serialized fiction.
 			</p>
 		</section>
 
@@ -208,13 +225,34 @@
 				</form>
 			</div>
 
-			<div class="space-y-6" aria-live="polite">
+			<div id="result-section" class="space-y-6" aria-live="polite">
 				{#if error_message}
 					<div class="glass border border-red-200 bg-red-50/80 p-4 text-sm text-red-700">
 						{error_message}
 					</div>
 				{/if}
-				{#if !generated_plot}
+				{#if generating_plot}
+					<div class="glass rounded-2xl border border-paper-border p-8 text-center">
+						<div class="flex items-center justify-center gap-3 text-paper-text">
+							<svg class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+								<circle
+									class="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									stroke-width="4"
+								></circle>
+								<path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+								></path>
+							</svg>
+							Building your plot beats...
+						</div>
+					</div>
+				{:else if !generated_plot}
 					<div class="glass rounded-2xl border border-paper-border p-8 text-paper-text-light">
 						Feed in your protagonist, pick a structure, and get cinematic beats within seconds.
 					</div>
@@ -239,8 +277,8 @@
 
 					<div class="glass rounded-2xl border border-paper-border p-5 text-center">
 						<p class="text-sm text-paper-text-light">
-							Need a full prose draft? Send this outline straight into our AI Story Generator and
-							watch it take flight.
+							Ready for prose? Send this outline into the AI Story Generator to expand each beat
+							into a full draft.
 						</p>
 						<a
 							class="btn-secondary mt-4 inline-flex justify-center"
@@ -252,5 +290,31 @@
 				{/if}
 			</div>
 		</div>
+		<section class="mt-16">
+			<div class="card-elevated glow-accent overflow-hidden p-8 text-center lg:p-12">
+				<h2 class="mb-4 font-serif text-2xl font-semibold text-paper-text">
+					Keep building your story engine
+				</h2>
+				<p class="mx-auto mb-8 max-w-lg text-paper-text-light">
+					Draft inside Fictioneer or explore more tools to keep the creative momentum going.
+				</p>
+				<div class="flex flex-wrap justify-center gap-4">
+					<a href={resolve('/download')} class="btn-primary">
+						<span class="flex items-center gap-2">
+							<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+								/>
+							</svg>
+							Download Fictioneer
+						</span>
+					</a>
+					<a href={resolve('/tools')} class="btn-ghost">Explore More Tools</a>
+				</div>
+			</div>
+		</section>
 	</main>
 </div>

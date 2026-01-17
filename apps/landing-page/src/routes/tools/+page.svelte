@@ -4,35 +4,35 @@
 </script>
 
 <svelte:head>
-	<title>Free AI Writing Tools - Story Generators & Writing Assistants | Fictioneer</title>
+	<title>Free AI Writing Tools for Stories, Names & Plots | Fictioneer</title>
 	<meta
 		name="description"
-		content="Discover our collection of free AI writing tools. Generate stories, characters, plots, book titles, and more."
+		content="Explore free AI writing tools for stories, plots, character names, titles, and worldbuilding. No signup required."
 	/>
 	<meta
 		name="keywords"
-		content="AI writing tools, story generator, character generator, plot generator, book title generator, pen name generator, writing assistant"
+		content="AI writing tools, AI story generator, AI plot generator, AI character name generator, AI book title generator, AI pen name generator, AI worldbuilding tools"
 	/>
 	<link rel="canonical" href="https://fictioneer.app/tools" />
 
 	<meta
 		property="og:title"
-		content="Free AI Writing Tools - Story Generators & More | Fictioneer"
+		content="Free AI Writing Tools for Stories, Names & Plots | Fictioneer"
 	/>
 	<meta
 		property="og:description"
-		content="Explore our suite of free AI writing tools. Generate stories, characters, plots, and more."
+		content="Explore free AI writing tools for stories, plots, character names, titles, and worldbuilding."
 	/>
 	<meta property="og:url" content="https://fictioneer.app/tools" />
 	<meta property="og:type" content="website" />
 
 	<meta
 		name="twitter:title"
-		content="Free AI Writing Tools - Story Generators & More | Fictioneer"
+		content="Free AI Writing Tools for Stories, Names & Plots | Fictioneer"
 	/>
 	<meta
 		name="twitter:description"
-		content="Explore our suite of free AI writing tools. Generate stories, characters, plots, and more."
+		content="Explore free AI writing tools for stories, plots, character names, titles, and worldbuilding."
 	/>
 </svelte:head>
 
@@ -117,11 +117,11 @@
 			</div>
 
 			<h1 class="mb-6 font-serif text-4xl tracking-tight text-paper-text sm:text-5xl lg:text-6xl">
-				AI-Powered <span class="gradient-text">Writing Tools</span>
+				Free <span class="gradient-text">AI Writing Tools</span> for Instant Ideas
 			</h1>
 			<p class="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-paper-text-light lg:text-xl">
-				Unleash your creativity with our collection of free AI tools. Generate stories, craft
-				character names, outline plots, and build entire worlds.
+				Draft AI story ideas, name characters, outline plots, and shape new worlds in minutes with
+				free, writer-first generators.
 			</p>
 
 			<!-- Stats row -->
@@ -137,8 +137,8 @@
 				</div>
 				<div class="h-4 w-px bg-paper-border"></div>
 				<div class="flex items-center gap-2">
-					<span class="text-2xl font-bold text-paper-accent">∞</span>
-					<span class="text-paper-text-muted">Possibilities</span>
+					<span class="text-2xl font-bold text-paper-accent">0</span>
+					<span class="text-paper-text-muted">Signups Needed</span>
 				</div>
 			</div>
 		</div>
@@ -173,8 +173,8 @@
 				</span>
 				<h2 class="mb-3 font-serif text-3xl font-bold lg:text-4xl">AI Story Generator</h2>
 				<p class="mb-6 max-w-lg text-lg text-white/90">
-					Create unique stories with customizable genre, theme, setting, and tone. Watch your story
-					unfold in real-time.
+					Spin up complete short stories with custom genres, tones, and settings. Watch the draft
+					arrive in real time.
 				</p>
 				<div class="flex flex-wrap justify-center gap-3">
 					{#each ['Fantasy', 'Sci-Fi', 'Romance', 'Mystery', 'Horror', '+4 more'] as genre (genre)}
@@ -212,7 +212,7 @@
 		<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
 			{@render toolCard(
 				'Plot Generator',
-				"Overcome writer's block with AI-generated plot outlines and story beats.",
+				'Craft structured story beats with AI-driven arcs, conflicts, and twist ideas.',
 				'🎭',
 				['Story arcs', 'Conflict ideas', 'Twist suggestions'],
 				'/tools/plot-generator',
@@ -222,7 +222,7 @@
 
 			{@render toolCard(
 				'Character Names',
-				'Create memorable character names by genre, origin, or cultural background.',
+				'Generate genre-aware names with origins, meanings, and stylistic flair.',
 				'👤',
 				['6 origins', '5 styles', 'Name meanings'],
 				'/tools/character-name-generator',
@@ -232,7 +232,7 @@
 
 			{@render toolCard(
 				'Book Titles',
-				"Generate compelling book titles that capture your story's essence.",
+				'Create market-ready titles with keywords, hooks, and genre signals.',
 				'📖',
 				['Genre-aware', 'Marketing hooks', 'Multiple options'],
 				'/tools/book-title-generator',
@@ -242,7 +242,7 @@
 
 			{@render toolCard(
 				'Pen Names',
-				'Create the perfect pseudonym for your writing career.',
+				'Build a memorable author persona with tailored tone and taglines.',
 				'✍️',
 				['Genre matching', 'Brand taglines', 'Initial styles'],
 				'/tools/pen-name-generator',
@@ -252,7 +252,7 @@
 
 			{@render toolCard(
 				'Town Names',
-				'Generate realistic town and city names for your fictional worlds.',
+				'Invent vivid settlements with region, vibe, and world style controls.',
 				'🏘️',
 				['Fantasy & realistic', 'Region flavors', 'Population sizes'],
 				'/tools/town-name-generator',
@@ -262,7 +262,7 @@
 
 			{@render toolCard(
 				'Fan Fiction',
-				'Create fan fiction story prompts for your favorite universes.',
+				'Generate canon-friendly prompts with tone, ship style, and AU control.',
 				'⭐',
 				['Any fandom', 'Ship dynamics', 'Canon alignment'],
 				'/tools/fan-fiction-story-generator',
@@ -272,7 +272,7 @@
 
 			{@render toolCard(
 				'Adult Stories',
-				'Generate mature story ideas with nuanced themes and character chemistry.',
+				'Mature story seeds with consent-first controls, tropes, and heat levels.',
 				'🔞',
 				['Steam levels', 'Trope selection', 'Consent-first'],
 				'/tools/adult-story-generator',

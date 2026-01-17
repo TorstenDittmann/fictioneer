@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { client } from '$lib/config';
 
 	const GENRES = [
@@ -63,6 +64,9 @@
 		error_message = '';
 		generated_story = null;
 
+		const result_section = document.getElementById('result-section');
+		result_section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
 		try {
 			const response = await client.api.marketing['generate-adult-story'].$post({
 				json: {
@@ -98,10 +102,24 @@
 </script>
 
 <svelte:head>
-	<title>Adult Story Generator | Fictioneer</title>
+	<title>AI Adult Story Generator | Fictioneer</title>
 	<meta
 		name="description"
-		content="Consent-first, AI-assisted adult fiction ideas with tone controls, trope toggles, and adjustable steam levels."
+		content="Consent-first AI adult fiction ideas with tone controls, trope toggles, and adjustable steam levels."
+	/>
+	<meta
+		name="keywords"
+		content="AI adult story generator, mature story prompts, romance prompt generator, consent-first writing tool, AI writing tools"
+	/>
+	<meta property="og:title" content="AI Adult Story Generator | Fictioneer" />
+	<meta
+		property="og:description"
+		content="Consent-first AI adult fiction ideas with tone controls, trope toggles, and steam levels."
+	/>
+	<meta name="twitter:title" content="AI Adult Story Generator | Fictioneer" />
+	<meta
+		name="twitter:description"
+		content="Consent-first AI adult fiction ideas with tone controls, trope toggles, and steam levels."
 	/>
 	<link rel="canonical" href="https://fictioneer.app/tools/adult-story-generator" />
 </svelte:head>
@@ -114,10 +132,10 @@
 
 	<main class="relative z-10 mx-auto max-w-4xl px-4 py-12 pt-24 sm:px-6 lg:px-8">
 		<section class="glass rounded-2xl border border-paper-border p-8 text-center">
-			<h1 class="font-serif text-4xl text-paper-text">Adult Story Generator</h1>
+			<h1 class="font-serif text-4xl text-paper-text">AI Adult Story Generator</h1>
 			<p class="mt-3 text-sm text-paper-text-light">
-				18+ only. Check the consent box to unlock mature prompts tailored to your tropes, tones, and
-				steam level.
+				18+ only. Check the consent box to unlock AI mature prompts tailored to your tropes, tones,
+				and steam level.
 			</p>
 			<label class="mt-4 inline-flex items-center gap-3 text-paper-text">
 				<input type="checkbox" bind:checked={allow_mature} class="accent-paper-accent" />
@@ -188,13 +206,36 @@
 			</button>
 		</form>
 
-		<section class="mt-8" aria-live="polite">
+		<section id="result-section" class="mt-8" aria-live="polite">
 			{#if error_message}
 				<div class="glass border border-red-200 bg-red-50/80 p-4 text-sm text-red-700">
 					{error_message}
 				</div>
 			{/if}
-			{#if !generated_story}
+			{#if generating_story}
+				<div
+					class="glass rounded-2xl border border-paper-border p-6 text-center text-paper-text-light"
+				>
+					<div class="flex items-center justify-center gap-3 text-paper-text">
+						<svg class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+							<circle
+								class="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								stroke-width="4"
+							></circle>
+							<path
+								class="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							></path>
+						</svg>
+						Crafting a mature prompt...
+					</div>
+				</div>
+			{:else if !generated_story}
 				<div
 					class="glass rounded-2xl border border-paper-border p-6 text-center text-paper-text-light"
 				>
@@ -211,6 +252,33 @@
 					</div>
 				</div>
 			{/if}
+		</section>
+		<section class="mt-16">
+			<div class="card-elevated glow-accent overflow-hidden p-8 text-center lg:p-12">
+				<h2 class="mb-4 font-serif text-2xl font-semibold text-paper-text">
+					Write longer scenes with AI
+				</h2>
+				<p class="mx-auto mb-8 max-w-lg text-paper-text-light">
+					Download Fictioneer to expand these prompts into chapters or explore more tools for
+					titles, plots, and character names.
+				</p>
+				<div class="flex flex-wrap justify-center gap-4">
+					<a href={resolve('/download')} class="btn-primary">
+						<span class="flex items-center gap-2">
+							<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+								/>
+							</svg>
+							Download Fictioneer
+						</span>
+					</a>
+					<a href={resolve('/tools')} class="btn-ghost">Explore More Tools</a>
+				</div>
+			</div>
 		</section>
 	</main>
 </div>

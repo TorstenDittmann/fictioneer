@@ -225,31 +225,31 @@
 </script>
 
 <svelte:head>
-	<title>Free AI Story Generator - Create Unique Stories Instantly | Fictioneer</title>
+	<title>AI Story Generator - Free AI Story Ideas & Drafts | Fictioneer</title>
 	<meta
 		name="description"
-		content="Generate unique, creative stories with our free AI story generator. Choose your genre, theme, and setting."
+		content="Generate AI story ideas and short drafts with genre, theme, and setting controls. Free, fast, and writer-focused."
 	/>
 	<meta
 		name="keywords"
-		content="AI story generator, free story generator, creative writing, story ideas, fiction generator"
+		content="AI story generator, free AI story generator, AI story ideas, AI writing tools, AI fiction generator, AI short story, AI writing assistant"
 	/>
 	<link rel="canonical" href="https://fictioneer.app/tools/ai-story-generator" />
-	<meta
-		property="og:title"
-		content="Free AI Story Generator - Create Unique Stories | Fictioneer"
-	/>
+	<meta property="og:title" content="AI Story Generator - Free Story Ideas & Drafts | Fictioneer" />
 	<meta
 		property="og:description"
-		content="Generate creative stories instantly with AI. Choose your genre, theme, and settings."
+		content="Generate AI story ideas and short drafts with genre, theme, and setting controls."
 	/>
 	<meta property="og:url" content="https://fictioneer.app/tools/ai-story-generator" />
 	<meta property="og:type" content="website" />
 	<meta
 		name="twitter:title"
-		content="Free AI Story Generator - Create Unique Stories | Fictioneer"
+		content="AI Story Generator - Free Story Ideas & Drafts | Fictioneer"
 	/>
-	<meta name="twitter:description" content="Generate creative stories instantly with AI." />
+	<meta
+		name="twitter:description"
+		content="Generate AI story ideas and short drafts with genre, theme, and setting controls."
+	/>
 </svelte:head>
 
 <main class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-24">
@@ -278,8 +278,8 @@
 				AI Story <span class="gradient-text">Generator</span>
 			</h1>
 			<p class="mx-auto max-w-2xl text-lg text-paper-text-light">
-				Create unique, engaging stories in seconds. Choose your genre, theme, and watch your story
-				come to life.
+				Generate AI story ideas and short drafts in seconds. Tune the genre, theme, and tone to
+				match your vision.
 			</p>
 		</div>
 	</div>
@@ -609,11 +609,10 @@
 	<div class="animate-fade-in-up mt-16" style:animation-delay="0.4s">
 		<div class="card-elevated glow-accent overflow-hidden p-8 text-center lg:p-12">
 			<h2 class="mb-4 font-serif text-2xl font-semibold text-paper-text">
-				Ready to write something longer?
+				Keep your momentum going
 			</h2>
 			<p class="mx-auto mb-8 max-w-lg text-paper-text-light">
-				Fictioneer is a distraction-free desktop app with AI assistance built in. Perfect for
-				novels, novellas, and short story collections.
+				Draft longer projects in Fictioneer or jump to the next tool to keep building your world.
 			</p>
 			<div class="flex flex-wrap justify-center gap-4">
 				<a href={resolve('/download')} class="btn-primary">

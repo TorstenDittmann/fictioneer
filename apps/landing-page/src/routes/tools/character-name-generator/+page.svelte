@@ -56,6 +56,9 @@
 		error_message = '';
 		generated_names = [];
 
+		const result_section = document.getElementById('result-section');
+		result_section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
 		try {
 			const response = await client.api.marketing['generate-character-names'].$post({
 				json: {
@@ -99,10 +102,30 @@
 </script>
 
 <svelte:head>
-	<title>Character Name Generator - Fantasy & Genre Names | Fictioneer</title>
+	<title>AI Character Name Generator - Genre-Perfect Names | Fictioneer</title>
 	<meta
 		name="description"
-		content="Generate memorable character names for any genre. Blend origins, styles, and custom traits to craft unique hero, villain, or side character names instantly."
+		content="Generate AI character names with origins, styles, and traits tuned to your genre. Create heroes, villains, and side characters instantly."
+	/>
+	<meta
+		name="keywords"
+		content="AI character name generator, fantasy name generator, sci-fi name generator, character naming tool, writing tools"
+	/>
+	<meta
+		property="og:title"
+		content="AI Character Name Generator - Genre-Perfect Names | Fictioneer"
+	/>
+	<meta
+		property="og:description"
+		content="Generate AI character names with origins, styles, and traits tuned to your genre."
+	/>
+	<meta
+		name="twitter:title"
+		content="AI Character Name Generator - Genre-Perfect Names | Fictioneer"
+	/>
+	<meta
+		name="twitter:description"
+		content="Generate AI character names with origins, styles, and traits tuned to your genre."
 	/>
 	<link rel="canonical" href="https://fictioneer.app/tools/character-name-generator" />
 </svelte:head>
@@ -130,11 +153,11 @@
 			</a>
 
 			<h1 class="mb-4 font-serif text-4xl tracking-tight text-paper-text sm:text-5xl lg:text-6xl">
-				Character Name <span class="gradient-text">Generator</span>
+				AI Character Name <span class="gradient-text">Generator</span>
 			</h1>
 			<p class="mx-auto max-w-2xl text-lg text-paper-text-light">
-				Craft unforgettable character names with genre-aware origins, stylistic flourishes, and
-				custom traits.
+				Craft AI character names with genre-aware origins, stylistic flair, and personality cues you
+				control.
 			</p>
 		</div>
 	</div>
@@ -322,7 +345,7 @@
 	</div>
 
 	<!-- Generated Names Display -->
-	<div class="animate-fade-in-up" style:animation-delay="0.2s">
+	<div id="result-section" class="animate-fade-in-up" style:animation-delay="0.2s">
 		{#if error_message}
 			<div class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-600">
 				<div class="flex items-start gap-3">
@@ -338,7 +361,21 @@
 			</div>
 		{/if}
 
-		{#if generated_names.length > 0}
+		{#if generating_names}
+			<div class="card py-20 text-center">
+				<div class="mb-6 flex justify-center">
+					<div
+						class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100 text-4xl"
+					>
+						✨
+					</div>
+				</div>
+				<h3 class="mb-2 font-serif text-xl font-semibold text-paper-text">Generating names...</h3>
+				<p class="mx-auto max-w-sm text-paper-text-muted">
+					Mixing origins, styles, and traits into fresh AI names.
+				</p>
+			</div>
+		{:else if generated_names.length > 0}
 			<div class="mb-6">
 				<h2 class="mb-4 text-center font-serif text-xl font-semibold text-paper-text">
 					Your Character Names
@@ -365,6 +402,7 @@
 											d="M5 13l4 4L19 7"
 										></path>
 									</svg>
+									Copied!
 								{:else}
 									<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
@@ -388,7 +426,7 @@
 					{/each}
 				</div>
 			</div>
-		{:else if !generating_names}
+		{:else}
 			<!-- Empty State -->
 			<div class="card py-20 text-center">
 				<div class="mb-6 flex justify-center">
@@ -430,24 +468,23 @@
 	<div class="animate-fade-in-up mt-16" style:animation-delay="0.4s">
 		<div class="card-elevated glow-accent overflow-hidden p-8 text-center lg:p-12">
 			<h2 class="mb-4 font-serif text-2xl font-semibold text-paper-text">
-				Ready to bring your characters to life?
+				Keep the cast list growing
 			</h2>
 			<p class="mx-auto mb-8 max-w-lg text-paper-text-light">
-				Use these names in our AI Story Generator or download Fictioneer to start writing your next
-				masterpiece.
+				Draft scenes in Fictioneer or explore more tools to keep shaping your characters and world.
 			</p>
 			<div class="flex flex-wrap justify-center gap-4">
-				<a href={resolve('/tools/ai-story-generator')} class="btn-primary">
+				<a href={resolve('/download')} class="btn-primary">
 					<span class="flex items-center gap-2">
 						<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
 								stroke-linecap="round"
 								stroke-linejoin="round"
 								stroke-width="2"
-								d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+								d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
 							/>
 						</svg>
-						Generate a Story
+						Download Fictioneer
 					</span>
 				</a>
 				<a href={resolve('/tools')} class="btn-ghost">Explore More Tools</a>
