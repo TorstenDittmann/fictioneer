@@ -72,7 +72,7 @@
 			{#each features as feature (feature)}
 				<li class="flex items-center gap-3">
 					<div
-						class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent"
+						class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent"
 					>
 						<svg
 							class="h-3 w-3"

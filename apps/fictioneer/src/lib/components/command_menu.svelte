@@ -352,7 +352,7 @@
 	<Dialog.Portal>
 		<Dialog.Overlay class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" />
 		<Dialog.Content
-			class="fixed top-[50%] left-[50%] z-50 w-full max-w-[94%] translate-x-[-50%] translate-y-[-50%] sm:max-w-[490px] md:w-full"
+			class="fixed top-[50%] left-[50%] z-50 w-full max-w-[94%] translate-x-[-50%] translate-y-[-50%] sm:max-w-122.5 md:w-full"
 		>
 			<Dialog.Title class="sr-only">Command Menu</Dialog.Title>
 			<Dialog.Description class="sr-only">

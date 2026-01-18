@@ -182,7 +182,7 @@
 							disabled={generating_names}
 							class="group relative overflow-hidden rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 {selected_genre ===
 							genre.value
-								? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md'
+								? 'bg-linear-to-r from-emerald-500 to-teal-500 text-white shadow-md'
 								: 'bg-paper-beige text-paper-text-light hover:bg-paper-gray hover:text-paper-text'}"
 						>
 							<span class="flex items-center gap-2">
@@ -365,7 +365,7 @@
 			<div class="card py-20 text-center">
 				<div class="mb-6 flex justify-center">
 					<div
-						class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100 text-4xl"
+						class="flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-100 to-teal-100 text-4xl"
 					>
 						✨
 					</div>
@@ -431,7 +431,7 @@
 			<div class="card py-20 text-center">
 				<div class="mb-6 flex justify-center">
 					<div
-						class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100 text-4xl"
+						class="flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-100 to-teal-100 text-4xl"
 					>
 						👤
 					</div>
@@ -453,7 +453,7 @@
 			{#each [{ icon: '🌍', title: 'Cultural Depth', desc: 'Names blend curated phonetics with cultural origins for authentic, believable characters.', gradient: 'from-blue-500 to-cyan-500' }, { icon: '✨', title: 'Meaningful Names', desc: 'Each name comes with meaning and origin info to help inform your character development.', gradient: 'from-purple-500 to-pink-500' }, { icon: '🎯', title: 'Genre-Specific', desc: 'Fantasy names feel fantastical, sci-fi names feel futuristic. Perfect fit every time.', gradient: 'from-amber-500 to-orange-500' }] as feature (feature.title)}
 				<div class="card group overflow-hidden p-6 transition-all hover:shadow-lg">
 					<div
-						class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-xl transition-transform duration-300 group-hover:scale-110 {feature.gradient}"
+						class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br text-xl transition-transform duration-300 group-hover:scale-110 {feature.gradient}"
 					>
 						{feature.icon}
 					</div>

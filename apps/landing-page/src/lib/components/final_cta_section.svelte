@@ -15,7 +15,7 @@
 		<div class="card-elevated relative overflow-hidden p-8 text-center sm:p-12 lg:p-16">
 			<!-- Decorative gradient -->
 			<div
-				class="absolute inset-0 bg-gradient-to-br from-paper-accent/5 via-transparent to-paper-iris/5"
+				class="absolute inset-0 bg-linear-to-br from-paper-accent/5 via-transparent to-paper-iris/5"
 			></div>
 
 			<div class="relative">

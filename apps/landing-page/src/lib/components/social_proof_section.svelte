@@ -67,7 +67,7 @@
 				>
 					<!-- Icon -->
 					<div
-						class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-paper-accent/10 to-paper-iris/10 text-paper-accent"
+						class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-paper-accent/10 to-paper-iris/10 text-paper-accent"
 					>
 						{#if stat.iconType === 'lock'}
 							<svg

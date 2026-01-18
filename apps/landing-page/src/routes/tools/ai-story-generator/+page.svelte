@@ -304,7 +304,7 @@
 							disabled={generating_story}
 							class="group relative overflow-hidden rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 {selected_genre ===
 							genre.value
-								? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md'
+								? 'bg-linear-to-r from-indigo-500 to-purple-500 text-white shadow-md'
 								: 'bg-paper-beige text-paper-text-light hover:bg-paper-gray hover:text-paper-text'}"
 						>
 							<span class="flex items-center gap-2">
@@ -485,7 +485,7 @@
 				>
 					<div class="flex items-center gap-3">
 						<div
-							class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-lg text-white"
+							class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-purple-500 text-lg text-white"
 						>
 							📖
 						</div>
@@ -572,7 +572,7 @@
 			<div class="card py-20 text-center">
 				<div class="mb-6 flex justify-center">
 					<div
-						class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 text-4xl"
+						class="flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-100 to-purple-100 text-4xl"
 					>
 						📖
 					</div>
@@ -594,7 +594,7 @@
 			{#each [{ icon: '⚡', title: 'Instant Results', desc: 'Get a complete story in seconds, not hours. Perfect for inspiration or quick drafts.', gradient: 'from-amber-500 to-orange-500' }, { icon: '🎯', title: 'Genre-Specific', desc: 'Each genre has tailored themes and settings designed by writers, for writers.', gradient: 'from-emerald-500 to-teal-500' }, { icon: '✨', title: 'Live Streaming', desc: 'Watch your story appear word by word, just like magic unfolding before your eyes.', gradient: 'from-purple-500 to-pink-500' }] as feature (feature.title)}
 				<div class="card group overflow-hidden p-6 transition-all hover:shadow-lg">
 					<div
-						class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-xl transition-transform duration-300 group-hover:scale-110 {feature.gradient}"
+						class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br text-xl transition-transform duration-300 group-hover:scale-110 {feature.gradient}"
 					>
 						{feature.icon}
 					</div>

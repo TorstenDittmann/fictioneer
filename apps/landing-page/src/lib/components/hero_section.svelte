@@ -127,7 +127,7 @@
 							<!-- App Info -->
 							<div class="flex items-center gap-2">
 								<div
-									class="h-6 w-6 rounded-lg bg-gradient-to-br from-paper-accent to-paper-iris p-0.5"
+									class="h-6 w-6 rounded-lg bg-linear-to-br from-paper-accent to-paper-iris p-0.5"
 								>
 									<div
 										class="flex h-full w-full items-center justify-center rounded-md bg-paper-cream"

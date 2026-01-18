@@ -54,10 +54,10 @@
 			<!-- Icon with gradient background -->
 			<div class="relative mb-4">
 				<div
-					class="absolute -inset-2 rounded-2xl bg-gradient-to-br opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-40 {gradient}"
+					class="absolute -inset-2 rounded-2xl bg-linear-to-br opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-40 {gradient}"
 				></div>
 				<div
-					class="relative flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br text-2xl transition-transform duration-300 group-hover:scale-110 {gradient}"
+					class="relative flex h-14 w-14 items-center justify-center rounded-xl bg-linear-to-br text-2xl transition-transform duration-300 group-hover:scale-110 {gradient}"
 				>
 					{icon}
 				</div>
@@ -152,7 +152,7 @@
 		>
 			<!-- Gradient background -->
 			<div
-				class="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-90 transition-opacity duration-500 group-hover:opacity-100"
+				class="absolute inset-0 bg-linear-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-90 transition-opacity duration-500 group-hover:opacity-100"
 			></div>
 
 			<!-- Animated pattern -->
@@ -286,7 +286,7 @@
 	<div class="animate-fade-in-up" style:animation-delay="0.5s">
 		<div class="relative overflow-hidden rounded-3xl">
 			<!-- Background -->
-			<div class="absolute inset-0 bg-gradient-to-br from-paper-beige to-paper-gray"></div>
+			<div class="absolute inset-0 bg-linear-to-br from-paper-beige to-paper-gray"></div>
 			<div class="absolute inset-0 opacity-50" style:background="var(--gradient-mesh)"></div>
 
 			<div class="relative px-8 py-16 text-center">

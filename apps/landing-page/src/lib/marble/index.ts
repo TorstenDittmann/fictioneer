@@ -1,9 +1,12 @@
-import { MARBLE_API_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import type { Post } from '@usemarble/core';
 
+const MARBLE_API_KEY = env.MARBLE_API_KEY;
 const MARBLE_API_URL = 'https://api.marblecms.com/v1';
 
 export async function get_posts(): Promise<Post[]> {
+	if (!MARBLE_API_KEY) return [];
+
 	const response = await fetch(`${MARBLE_API_URL}/posts`, {
 		headers: {
 			Authorization: `Bearer ${MARBLE_API_KEY}`
@@ -20,6 +23,8 @@ export async function get_posts(): Promise<Post[]> {
 }
 
 export async function get_post_by_slug(slug: string): Promise<Post | null> {
+	if (!MARBLE_API_KEY) return null;
+
 	const response = await fetch(`${MARBLE_API_URL}/posts?slug=${slug}`, {
 		headers: {
 			Authorization: `Bearer ${MARBLE_API_KEY}`
