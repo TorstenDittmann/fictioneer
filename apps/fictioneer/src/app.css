@@ -56,10 +56,10 @@
 	--color-accent-muted: #a5b4fc;
 
 	/* Transparent versions for overlays */
-	--color-background-transparent: rgba(255, 255, 255, 0.92);
-	--color-background-secondary-transparent: rgba(250, 251, 252, 0.9);
-	--color-background-tertiary-transparent: rgba(245, 247, 250, 0.88);
-	--color-surface-transparent: rgba(255, 255, 255, 0.8);
+	--color-background-transparent: rgba(255, 255, 255, 0.8);
+	--color-background-secondary-transparent: rgba(250, 251, 252, 0.78);
+	--color-background-tertiary-transparent: rgba(245, 247, 250, 0.76);
+	--color-surface-transparent: rgba(255, 255, 255, 0.7);
 
 	/* Refined gradients */
 	--gradient-radial:
@@ -808,10 +808,10 @@ select:focus-visible {
 	--color-accent-muted: #4f46e5;
 
 	/* Transparent versions for overlays */
-	--color-background-transparent: rgba(19, 19, 26, 0.95);
-	--color-background-secondary-transparent: rgba(26, 26, 36, 0.92);
-	--color-background-tertiary-transparent: rgba(34, 34, 46, 0.9);
-	--color-surface-transparent: rgba(25, 25, 35, 0.85);
+	--color-background-transparent: rgba(19, 19, 26, 0.82);
+	--color-background-secondary-transparent: rgba(26, 26, 36, 0.8);
+	--color-background-tertiary-transparent: rgba(34, 34, 46, 0.78);
+	--color-surface-transparent: rgba(25, 25, 35, 0.72);
 
 	/* Refined gradients - dark mode */
 	--gradient-radial:
