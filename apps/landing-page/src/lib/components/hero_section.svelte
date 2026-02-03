@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { asset, resolve } from '$app/paths';
+	import { resolve } from '$app/paths';
 </script>
 
 <section class="relative overflow-hidden px-4 pt-32 pb-24 sm:pt-40 sm:pb-32 lg:pt-48 lg:pb-40">
@@ -124,19 +124,7 @@
 								</div>
 							</div>
 
-							<!-- App Info -->
-							<div class="flex items-center gap-2">
-								<div
-									class="h-6 w-6 rounded-lg bg-linear-to-br from-paper-accent to-paper-iris p-0.5"
-								>
-									<div
-										class="flex h-full w-full items-center justify-center rounded-md bg-paper-cream"
-									>
-										<img src={asset('/logo.svg')} alt="Fictioneer" class="h-3.5 w-3.5" />
-									</div>
-								</div>
-								<span class="text-xs font-medium text-paper-text-muted">Fictioneer Preview</span>
-							</div>
+							<span class="text-xs font-medium text-paper-text-muted">Fictioneer</span>
 						</div>
 
 						<div class="flex items-center gap-2">

@@ -21,7 +21,7 @@
 			iconType: 'gift'
 		},
 		{
-			value: '0',
+			value: 'Zero',
 			label: 'Distractions',
 			description: 'Focus on what matters: writing',
 			iconType: 'eye'
