@@ -15,8 +15,10 @@ const MODELS = {
 	FAST: 'x-ai/grok-4.1-fast'
 } as const satisfies Record<string, Model>;
 
-function create_model(model: Model) {
-	return withTracing(openrouter(model), posthog, {});
+function create_model(model: Model, distinctId: string | undefined = undefined) {
+	return withTracing(openrouter(model), posthog, {
+		posthogDistinctId: distinctId
+	});
 }
 
 const DIALOGUE_ENDINGS = [
@@ -235,7 +237,7 @@ const app = new Hono()
 				return c.json({ error: 'Content is required and must be a string' }, 400);
 			}
 
-			const client = create_model(MODELS.FAST);
+			const client = create_model(MODELS.FAST, c.get('token'));
 
 			const ctx =
 				context && typeof context === 'object' && context !== null
@@ -292,7 +294,7 @@ const app = new Hono()
 				return c.json({ error: 'selected_sentence is required and must be a string' }, 400);
 			}
 
-			const client = create_model(MODELS.SLOW);
+			const client = create_model(MODELS.SLOW, c.get('token'));
 
 			const alternatives = await Promise.all(
 				ALTERNATIVE_TYPES.map(async (type) => {
@@ -344,7 +346,7 @@ const app = new Hono()
 				return c.json({ error: 'Prompt is required and must be a string' }, 400);
 			}
 
-			const client = create_model(MODELS.FAST);
+			const client = create_model(MODELS.FAST, c.get('token'));
 			const system_prompt = build_start_system_prompt(context, word_count);
 			const user_prompt = `<prompt>${prompt}</prompt>`;
 

@@ -1,6 +1,14 @@
 import { bearerAuth } from 'hono/bearer-auth';
 import DodoPayments from 'dodopayments';
 
+type Variables = {
+	token: string;
+};
+
+declare module 'hono' {
+	interface ContextVariableMap extends Variables {}
+}
+
 const DODO_API_KEY = Bun.env.DODO_API_KEY;
 
 if (!DODO_API_KEY) {
@@ -34,7 +42,8 @@ async function validate_license(license_key: string): Promise<boolean> {
 }
 
 export const auth = bearerAuth({
-	verifyToken: async (token) => {
+	verifyToken: async (token, c) => {
+		c.set('token', token);
 		return validate_license(token);
 	}
 });

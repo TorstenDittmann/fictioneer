@@ -20,8 +20,10 @@ const MODELS = {
 	ANALYSIS: 'openai/gpt-oss-120b'
 } as const satisfies Record<string, Model>;
 
-function create_model(model: Model) {
-	return withTracing(openrouter(model), posthog, {});
+function create_model(model: Model, distinctId: string | undefined = undefined) {
+	return withTracing(openrouter(model), posthog, {
+		posthogDistinctId: distinctId
+	});
 }
 
 // =============================================================================
@@ -237,7 +239,7 @@ const app = new Hono()
 				return c.json({ error: 'Content is required and must be a string' }, 400);
 			}
 
-			const client = create_model(MODELS.ANALYSIS);
+			const client = create_model(MODELS.ANALYSIS, c.get('token'));
 
 			const user_prompt = scene_context
 				? `Scene context: ${scene_context}\n\nText to analyze:\n${content}`
@@ -278,7 +280,7 @@ const app = new Hono()
 				);
 			}
 
-			const client = create_model(MODELS.ANALYSIS);
+			const client = create_model(MODELS.ANALYSIS, c.get('token'));
 
 			const pov_context = pov_character
 				? `Declared POV: ${declared_pov}, POV Character: ${pov_character}`
@@ -314,7 +316,7 @@ const app = new Hono()
 				return c.json({ error: 'Content is required and must be a string' }, 400);
 			}
 
-			const client = create_model(MODELS.ANALYSIS);
+			const client = create_model(MODELS.ANALYSIS, c.get('token'));
 
 			const tone_context = intended_tone
 				? `The author intended this scene to feel: ${intended_tone}\n\n`
@@ -350,7 +352,7 @@ const app = new Hono()
 				return c.json({ error: 'current_scene is required and must be a string' }, 400);
 			}
 
-			const client = create_model(MODELS.ANALYSIS);
+			const client = create_model(MODELS.ANALYSIS, c.get('token'));
 
 			// Build context
 			const context_parts: string[] = [];
