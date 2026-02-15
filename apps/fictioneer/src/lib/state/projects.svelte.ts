@@ -31,6 +31,14 @@ export interface Note {
 	tags: string[];
 }
 
+export interface ProjectEpubMetadata {
+	author: string;
+	publisher: string;
+	language: string;
+	rights: string;
+	subjects: string[];
+}
+
 export interface Project {
 	id: string;
 	title: string;
@@ -45,6 +53,7 @@ export interface Project {
 	dailyProgress?: DailyProgress[];
 	progressStats?: ProgressStats;
 	dailyWordSnapshots?: Record<string, number>;
+	epub_metadata?: ProjectEpubMetadata;
 }
 
 import { projects_service } from '$lib/services/projects.svelte.js';

@@ -58,6 +58,12 @@ export interface EpubTemplate {
 	get_css(): string;
 }
 
+export interface EpubTemplateDefinition {
+	key: string;
+	name: string;
+	description: string;
+}
+
 export interface ChapterData {
 	chapter: Chapter;
 	scenes: Scene[];

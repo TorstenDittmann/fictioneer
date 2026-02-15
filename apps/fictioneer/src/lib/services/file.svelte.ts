@@ -57,6 +57,14 @@ interface SerializedProgressStats {
 	estimatedCompletionDate?: string;
 }
 
+interface SerializedProjectEpubMetadata {
+	author: string;
+	publisher: string;
+	language: string;
+	rights: string;
+	subjects: string[];
+}
+
 interface SerializedProject {
 	id: string;
 	title: string;
@@ -71,6 +79,7 @@ interface SerializedProject {
 	dailyProgress?: SerializedDailyProgress[];
 	progressStats?: SerializedProgressStats;
 	dailyWordSnapshots?: Record<string, number>;
+	epub_metadata?: SerializedProjectEpubMetadata;
 }
 
 export interface FictioneerFileData {
@@ -154,7 +163,14 @@ class FileService {
 					}
 				],
 				notes: [],
-				lastOpenedSceneId: scene_id
+				lastOpenedSceneId: scene_id,
+				epub_metadata: {
+					author: '',
+					publisher: '',
+					language: 'en',
+					rights: '',
+					subjects: []
+				}
 			};
 
 			// Set file path if provided and save immediately
@@ -554,6 +570,16 @@ class FileService {
 			serialized.dailyWordSnapshots = { ...project.dailyWordSnapshots };
 		}
 
+		if (project.epub_metadata) {
+			serialized.epub_metadata = {
+				author: project.epub_metadata.author,
+				publisher: project.epub_metadata.publisher,
+				language: project.epub_metadata.language,
+				rights: project.epub_metadata.rights,
+				subjects: [...project.epub_metadata.subjects]
+			};
+		}
+
 		return serialized;
 	}
 
@@ -628,6 +654,14 @@ class FileService {
 		if (project.dailyWordSnapshots) {
 			deserialized.dailyWordSnapshots = { ...project.dailyWordSnapshots };
 		}
+
+		deserialized.epub_metadata = {
+			author: project.epub_metadata?.author || '',
+			publisher: project.epub_metadata?.publisher || '',
+			language: project.epub_metadata?.language || 'en',
+			rights: project.epub_metadata?.rights || '',
+			subjects: project.epub_metadata?.subjects || []
+		};
 
 		return deserialized;
 	}

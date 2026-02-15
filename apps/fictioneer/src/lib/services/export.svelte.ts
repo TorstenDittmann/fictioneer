@@ -11,8 +11,11 @@ export type {
 	EpubTemplate,
 	EpubFile,
 	EpubMetadata,
-	EpubTemplateContext
+	EpubTemplateContext,
+	EpubTemplateDefinition
 } from './export/epub/types.js';
 export { BaseEpubTemplate } from './export/epub/base_epub_template.js';
 export { GenericNovelTemplate } from './export/epub/generic_novel_template.js';
+export { ModernCompactTemplate } from './export/epub/modern_compact_template.js';
+export { ClassicBookTemplate } from './export/epub/classic_book_template.js';
 export { TemplateEngine } from './export/epub/template_engine.js';
