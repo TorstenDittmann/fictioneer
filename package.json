@@ -10,7 +10,7 @@
 		"apps/*"
 	],
 	"devDependencies": {
-		"workspace-utils": "^1.0.6"
+		"workspace-utils": "^2.0.3"
 	},
 	"engines": {
 		"bun": "1.3.1"

@@ -15,16 +15,16 @@
 		"lint": "prettier --check ."
 	},
 	"dependencies": {
-		"@arcjet/bun": "^1.0.0-beta.16",
-		"@arcjet/inspect": "^1.0.0-beta.16",
+		"@arcjet/bun": "^1.1.0",
+		"@arcjet/inspect": "^1.1.0",
 		"@openrouter/ai-sdk-provider": "^1.5.4",
-		"@posthog/ai": "^7.4.2",
-		"ai": "^5.0.121",
+		"@posthog/ai": "^7.8.11",
+		"ai": "^5.0.133",
 		"dedent": "^1.7.1",
-		"dodopayments": "^2.14.2",
-		"hono": "^4.11.4",
-		"posthog-node": "^5.20.0",
-		"zod": "^4.3.5"
+		"dodopayments": "^2.19.1",
+		"hono": "^4.11.9",
+		"posthog-node": "^5.24.15",
+		"zod": "^4.3.6"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",
