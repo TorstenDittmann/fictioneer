@@ -40,7 +40,7 @@
 	async function handle_create_example_project() {
 		try {
 			const filePath = await save({
-				defaultPath: 'A Scandal in Bohemia.fictioneer',
+				defaultPath: 'The Bohemian Photograph Affair',
 				filters: [
 					{
 						name: 'Fictioneer Project Files',
