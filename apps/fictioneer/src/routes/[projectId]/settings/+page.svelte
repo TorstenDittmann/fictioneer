@@ -1,23 +1,48 @@
 <script lang="ts">
 	import { projects } from '$lib/state/projects.svelte';
+	import type { Project } from '$lib/state/projects.svelte';
 	import { Input, Textarea, Label, Card } from '$lib/components/ui';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
+	const get_project = (): Project => data.project;
+	const get_os_type = () => data.os_type;
+	const existing_epub_metadata = get_project().epub_metadata;
 
-	let project_title = $state(data.project.title);
-	let project_description = $state(data.project.description || '');
+	let project_title = $state(get_project().title);
+	let project_description = $state(get_project().description || '');
+	let epub_author = $state(existing_epub_metadata?.author || '');
+	let epub_publisher = $state(existing_epub_metadata?.publisher || '');
+	let epub_language = $state(existing_epub_metadata?.language || 'en');
+	let epub_rights = $state(existing_epub_metadata?.rights || '');
+	let epub_subjects_input = $state(existing_epub_metadata?.subjects.join(', ') || '');
 	const is_darwin =
-		data.os_type?.toLowerCase() === 'darwin' || data.os_type?.toLowerCase() === 'macos';
+		get_os_type()?.toLowerCase() === 'darwin' || get_os_type()?.toLowerCase() === 'macos';
 
 	// Get project stats as derived value
 	const stats = $derived(projects.getProjectStats());
 
+	function parse_subjects(subjects_input: string): string[] {
+		return subjects_input
+			.split(',')
+			.map((subject) => subject.trim())
+			.filter((subject) => subject.length > 0);
+	}
+
 	function save_settings() {
-		projects.updateProject({
+		const updates = {
 			title: project_title.trim() || 'Untitled Project',
-			description: project_description.trim()
-		});
+			description: project_description.trim(),
+			epub_metadata: {
+				author: epub_author.trim(),
+				publisher: epub_publisher.trim(),
+				language: epub_language.trim() || 'en',
+				rights: epub_rights.trim(),
+				subjects: parse_subjects(epub_subjects_input)
+			}
+		};
+
+		projects.updateProject(updates);
 	}
 
 	// Handle page-specific keyboard shortcuts
@@ -52,7 +77,6 @@
 
 		<!-- Settings Form -->
 		<div class="space-y-8">
-			<!-- Basic Information -->
 			<Card class="ring-1 ring-border">
 				<h2 class="mb-4 text-xl font-semibold text-text">Basic Information</h2>
 
@@ -81,7 +105,71 @@
 				</div>
 			</Card>
 
-			<!-- Project Statistics -->
+			<Card class="ring-1 ring-border">
+				<h2 class="mb-4 text-xl font-semibold text-text">eBook Metadata</h2>
+				<p class="mb-4 text-sm text-text-secondary">
+					Saved metadata is used as the default when exporting EPUB files.
+				</p>
+
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+					<div class="grid gap-2">
+						<Label for="epub-author">Author</Label>
+						<Input
+							id="epub-author"
+							type="text"
+							bind:value={epub_author}
+							oninput={save_settings}
+							placeholder="Author name"
+						/>
+					</div>
+
+					<div class="grid gap-2">
+						<Label for="epub-publisher">Publisher</Label>
+						<Input
+							id="epub-publisher"
+							type="text"
+							bind:value={epub_publisher}
+							oninput={save_settings}
+							placeholder="Publisher"
+						/>
+					</div>
+
+					<div class="grid gap-2">
+						<Label for="epub-language">Language</Label>
+						<Input
+							id="epub-language"
+							type="text"
+							bind:value={epub_language}
+							oninput={save_settings}
+							placeholder="en"
+						/>
+					</div>
+
+					<div class="grid gap-2">
+						<Label for="epub-rights">Rights</Label>
+						<Input
+							id="epub-rights"
+							type="text"
+							bind:value={epub_rights}
+							oninput={save_settings}
+							placeholder="Copyright statement"
+						/>
+					</div>
+
+					<div class="grid gap-2 sm:col-span-2">
+						<Label for="epub-subjects">Subjects</Label>
+						<Input
+							id="epub-subjects"
+							type="text"
+							bind:value={epub_subjects_input}
+							oninput={save_settings}
+							placeholder="Fantasy, Adventure, Drama"
+						/>
+						<p class="text-xs text-text-secondary">Separate tags with commas.</p>
+					</div>
+				</div>
+			</Card>
+
 			<Card class="ring-1 ring-border">
 				<h2 class="mb-4 text-xl font-semibold text-text">Project Statistics</h2>
 

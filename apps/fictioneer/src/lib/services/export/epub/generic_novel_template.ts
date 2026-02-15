@@ -19,8 +19,8 @@ import sceneTemplate from './templates/generic_novel/scene.xhtml?raw';
 import navTemplate from './templates/generic_novel/nav.xhtml?raw';
 
 export class GenericNovelTemplate extends BaseEpubTemplate {
-	readonly name = 'Generic Novel';
-	readonly description = 'A standard novel template with title page, chapters, and scenes';
+	readonly name: string = 'Generic Novel';
+	readonly description: string = 'A standard novel template with title page, chapters, and scenes';
 
 	/**
 	 * Get CSS styles for the novel

@@ -1,5 +1,6 @@
 import type { Project } from '../projects.svelte.js';
 import type { ExportOptions, ExportHandler } from './types.js';
+import type { EpubTemplateDefinition } from './epub/types.js';
 import { RtfExportHandler } from './rtf_export_handler.js';
 import { TextExportHandler } from './text_export_handler.js';
 import { EpubExportHandler } from './epub_export_handler.js';
@@ -64,6 +65,15 @@ class ExportService {
 	 */
 	get_handler(format: string): ExportHandler | undefined {
 		return this.handlers.get(format);
+	}
+
+	get_epub_templates(): EpubTemplateDefinition[] {
+		const handler = this.handlers.get('epub');
+		if (!(handler instanceof EpubExportHandler)) {
+			return [];
+		}
+
+		return handler.get_available_template_definitions();
 	}
 }
 

@@ -1,8 +1,16 @@
 import type { Project } from '../projects.svelte.js';
 import type { ExportOptions } from './types.js';
-import type { EpubTemplate, EpubFile, EpubTemplateContext } from './epub/types.js';
+import type {
+	EpubTemplate,
+	EpubFile,
+	EpubTemplateContext,
+	EpubMetadata,
+	EpubTemplateDefinition
+} from './epub/types.js';
 import { BaseExportHandler } from './base_export_handler.js';
 import { GenericNovelTemplate } from './epub/generic_novel_template.js';
+import { ModernCompactTemplate } from './epub/modern_compact_template.js';
+import { ClassicBookTemplate } from './epub/classic_book_template.js';
 import { invoke } from '@tauri-apps/api/core';
 import JSZip from 'jszip';
 
@@ -13,6 +21,8 @@ export class EpubExportHandler extends BaseExportHandler {
 	constructor() {
 		super();
 		this.register_template('generic_novel', new GenericNovelTemplate());
+		this.register_template('modern_compact', new ModernCompactTemplate());
+		this.register_template('classic_book', new ClassicBookTemplate());
 	}
 
 	get_file_extension(): string {
@@ -41,6 +51,14 @@ export class EpubExportHandler extends BaseExportHandler {
 		return Array.from(this.templates.keys());
 	}
 
+	get_available_template_definitions(): EpubTemplateDefinition[] {
+		return Array.from(this.templates.entries()).map(([key, template]) => ({
+			key,
+			name: template.name,
+			description: template.description
+		}));
+	}
+
 	/**
 	 * Get template by name
 	 */
@@ -63,13 +81,13 @@ export class EpubExportHandler extends BaseExportHandler {
 	 * Export project to EPUB format
 	 */
 	async export(project: Project, options: ExportOptions): Promise<string> {
-		const template = this.templates.get(this.default_template_name);
+		const selected_template_name = options.epub?.template_name || this.default_template_name;
+		const template = this.templates.get(selected_template_name);
 		if (!template) {
-			throw new Error(`Default template '${this.default_template_name}' not found`);
+			throw new Error(`Template '${selected_template_name}' not found`);
 		}
 
-		// Generate metadata
-		const metadata = template.generate_metadata(project);
+		const metadata = this.generate_metadata(project, template, options);
 
 		// Create initial context
 		const context: EpubTemplateContext = {
@@ -126,8 +144,13 @@ export class EpubExportHandler extends BaseExportHandler {
 			throw new Error(`Template '${template_name}' not found`);
 		}
 
-		// Generate metadata
-		const metadata = template.generate_metadata(project);
+		const metadata = this.generate_metadata(project, template, {
+			...options,
+			epub: {
+				...options.epub,
+				template_name
+			}
+		});
 
 		// Create context
 		const context: EpubTemplateContext = {
@@ -145,6 +168,44 @@ export class EpubExportHandler extends BaseExportHandler {
 
 		// Create archive
 		return await this.create_epub_archive(files);
+	}
+
+	private generate_metadata(
+		project: Project,
+		template: EpubTemplate,
+		options: ExportOptions
+	): EpubMetadata {
+		const template_metadata = template.generate_metadata(project);
+		const saved_metadata = project.epub_metadata;
+		const override_metadata = options.epub?.metadata;
+
+		const subject =
+			override_metadata?.subjects && override_metadata.subjects.length > 0
+				? override_metadata.subjects
+				: saved_metadata?.subjects && saved_metadata.subjects.length > 0
+					? saved_metadata.subjects
+					: template_metadata.subject;
+
+		return {
+			...template_metadata,
+			author:
+				override_metadata?.author?.trim() ||
+				saved_metadata?.author?.trim() ||
+				template_metadata.author,
+			publisher:
+				override_metadata?.publisher?.trim() ||
+				saved_metadata?.publisher?.trim() ||
+				template_metadata.publisher,
+			language:
+				override_metadata?.language?.trim() ||
+				saved_metadata?.language?.trim() ||
+				template_metadata.language,
+			rights:
+				override_metadata?.rights?.trim() ||
+				saved_metadata?.rights?.trim() ||
+				template_metadata.rights,
+			subject
+		};
 	}
 
 	/**

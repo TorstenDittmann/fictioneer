@@ -6,6 +6,20 @@ export interface ExportOptions {
 	include_scene_titles: boolean;
 	include_word_count: boolean;
 	format: 'rtf' | 'txt' | 'epub';
+	epub?: EpubExportOptions;
+}
+
+export interface EpubMetadataOptions {
+	author?: string;
+	publisher?: string;
+	language?: string;
+	rights?: string;
+	subjects?: string[];
+}
+
+export interface EpubExportOptions {
+	template_name?: string;
+	metadata?: EpubMetadataOptions;
 }
 
 export interface ExportHandler {
