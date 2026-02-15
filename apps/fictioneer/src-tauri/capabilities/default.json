@@ -15,6 +15,9 @@
 		"core:window:allow-set-fullscreen",
 		"dialog:default",
 		"process:default",
-		"opener:default"
+		"opener:default",
+		"sql:default",
+		"sql:allow-execute",
+		"sql:allow-select"
 	]
 }

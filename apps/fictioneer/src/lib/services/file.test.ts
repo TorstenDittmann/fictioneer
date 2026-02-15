@@ -15,7 +15,7 @@ function sanitize_filename(filename: string): string {
 		.substring(0, 50);
 }
 
-function is_version_compatible(file_version: string, current_version: string = '1.1.0'): boolean {
+function is_version_compatible(file_version: string, current_version: string = '2.0.0'): boolean {
 	const [major] = file_version.split('.').map(Number);
 	const [current_major] = current_version.split('.').map(Number);
 
@@ -23,7 +23,7 @@ function is_version_compatible(file_version: string, current_version: string = '
 		return true;
 	}
 
-	return major === 1 && current_major === 1;
+	return major === 2 && current_major === 2;
 }
 
 interface ProjectFileData {
@@ -310,24 +310,24 @@ describe('validate_fictioneer_file', () => {
 });
 
 describe('is_version_compatible', () => {
-	it('should accept v1.0.0', () => {
-		expect(is_version_compatible('1.0.0')).toBe(true);
+	it('should accept v2.0.0', () => {
+		expect(is_version_compatible('2.0.0')).toBe(true);
 	});
 
-	it('should accept v1.1.0', () => {
-		expect(is_version_compatible('1.1.0')).toBe(true);
+	it('should accept v2.1.0', () => {
+		expect(is_version_compatible('2.1.0')).toBe(true);
 	});
 
-	it('should accept v1.2.5', () => {
-		expect(is_version_compatible('1.2.5')).toBe(true);
+	it('should accept v2.2.5', () => {
+		expect(is_version_compatible('2.2.5')).toBe(true);
 	});
 
-	it('should reject v2.0.0', () => {
-		expect(is_version_compatible('2.0.0')).toBe(false);
+	it('should reject v1.1.0', () => {
+		expect(is_version_compatible('1.1.0')).toBe(false);
 	});
 
-	it('should reject v0.9.0', () => {
-		expect(is_version_compatible('0.9.0')).toBe(false);
+	it('should reject v3.0.0', () => {
+		expect(is_version_compatible('3.0.0')).toBe(false);
 	});
 
 	it('should handle invalid version format gracefully', () => {
@@ -335,7 +335,7 @@ describe('is_version_compatible', () => {
 	});
 
 	it('should handle version with only major number', () => {
-		expect(is_version_compatible('1')).toBe(true);
+		expect(is_version_compatible('2')).toBe(true);
 	});
 });
 

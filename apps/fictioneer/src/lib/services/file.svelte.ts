@@ -1,6 +1,6 @@
 import { save, open } from '@tauri-apps/plugin-dialog';
-import { invoke } from '@tauri-apps/api/core';
 import type { Project } from './projects.svelte.js';
+import { project_store } from './project_store.js';
 import { generate_id } from '../utils.js';
 
 interface SerializedScene {
@@ -94,7 +94,7 @@ interface ProjectFileData {
 }
 
 class FileService {
-	private readonly version = '1.1.0'; // Updated to support progress tracking
+	private readonly version = '2.0.0';
 	private readonly file_extension = '.fictioneer';
 	private current_file_path = $state<string | null>(null);
 	private recent_projects = $state<RecentProject[]>([]);
@@ -105,6 +105,8 @@ class FileService {
 	private readonly save_throttle_interval = 5000; // 5 seconds
 	private pending_save_timeout: ReturnType<typeof setTimeout> | null = null;
 	private current_project_ref: Project | null = null;
+	private last_saved_snapshot: SerializedProject | null = null;
+	private last_saved_path: string | null = null;
 
 	constructor() {
 		this.load_recent_projects();
@@ -162,6 +164,8 @@ class FileService {
 				this.add_to_recent_projects(file_path, title);
 			} else {
 				this.current_file_path = null;
+				this.last_saved_snapshot = null;
+				this.last_saved_path = null;
 			}
 
 			return project;
@@ -202,8 +206,10 @@ class FileService {
 	 */
 	async load_project_from_path(file_path: string): Promise<Project | null> {
 		try {
-			const file_content = await invoke<string>('load_project_file', { path: file_path });
-			const file_data: FictioneerFileData = JSON.parse(file_content);
+			const file_data = await project_store.load_project(file_path);
+			if (!file_data) {
+				throw new Error('Invalid or empty .fictioneer project database');
+			}
 
 			// Validate file format
 			if (!this.validate_fictioneer_file(file_data)) {
@@ -220,6 +226,8 @@ class FileService {
 
 			// Add to recent projects
 			this.add_to_recent_projects(file_path, file_data.project.title);
+			this.last_saved_snapshot = this.clone_snapshot(file_data.project);
+			this.last_saved_path = file_path;
 
 			return this.deserialize_project(file_data.project);
 		} catch (error) {
@@ -316,15 +324,18 @@ class FileService {
 	 * Perform the actual save operation
 	 */
 	private async perform_save(project: Project, file_path: string): Promise<void> {
+		const serialized_project = this.serialize_project(project);
+		const previous_snapshot = this.last_saved_path === file_path ? this.last_saved_snapshot : null;
 		const file_data: FictioneerFileData = {
 			version: this.version,
 			createdAt: project.createdAt.toISOString(),
 			updatedAt: new Date().toISOString(),
-			project: this.serialize_project(project)
+			project: serialized_project
 		};
 
-		const file_content = JSON.stringify(file_data, null, 2);
-		await invoke<void>('save_project_file', { path: file_path, contents: file_content });
+		await project_store.save_project(file_path, file_data, previous_snapshot);
+		this.last_saved_snapshot = this.clone_snapshot(serialized_project);
+		this.last_saved_path = file_path;
 	}
 
 	/**
@@ -434,6 +445,8 @@ class FileService {
 		this.clear_auto_save();
 		this.current_file_path = null;
 		this.current_project_ref = null;
+		this.last_saved_snapshot = null;
+		this.last_saved_path = null;
 		return true;
 	}
 
@@ -542,6 +555,10 @@ class FileService {
 		}
 
 		return serialized;
+	}
+
+	private clone_snapshot(snapshot: SerializedProject): SerializedProject {
+		return JSON.parse(JSON.stringify(snapshot)) as SerializedProject;
 	}
 
 	/**
