@@ -487,13 +487,20 @@ select:focus-visible {
 }
 
 .glass-strong {
-	background: rgba(255, 255, 255, 0.8);
+	--glass-strong-alpha: 0.8;
+	background: rgba(255, 255, 255, var(--glass-strong-alpha));
 	backdrop-filter: blur(24px);
 	-webkit-backdrop-filter: blur(24px);
 	border: 1px solid rgba(255, 255, 255, 0.4);
 	box-shadow:
 		var(--shadow-lg),
 		inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+@supports (backdrop-filter: blur(0)) {
+	.glass-strong {
+		backdrop-filter: blur(24px);
+	}
 }
 
 .glass-subtle {
@@ -965,7 +972,7 @@ select:focus-visible {
 }
 
 [data-theme='dark'] .glass-strong {
-	background: rgba(30, 30, 42, 0.8);
+	background: rgba(30, 30, 42, var(--glass-strong-alpha));
 	border-color: rgba(255, 255, 255, 0.15);
 	box-shadow:
 		var(--shadow-lg),
