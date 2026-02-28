@@ -50,55 +50,61 @@ export const load: PageServerLoad = async ({ fetch, request }) => {
 	}
 
 	const release_data: ReleaseData = await response.json();
+	const release_version = release_data.version;
+	const release_tag = `app-v${release_version}`;
+	const release_base_url = `https://github.com/TorstenDittmann/fictioneer/releases/download/${release_tag}`;
 
-	// Map platform keys to download options
+	function build_asset_url(asset_name: string): string {
+		return `${release_base_url}/${asset_name}`;
+	}
+
 	const download_options: DownloadOption[] = [
 		{
 			platform: 'mac',
 			name: 'macOS',
-			description: `Version ${release_data.version}`,
+			description: `Version ${release_version}`,
 			versions: [
 				{
 					arch: 'Apple Silicon (M1/M2/M3)',
-					url: release_data.platforms['darwin-aarch64'].url
+					url: build_asset_url(`Fictioneer_${release_version}_aarch64.dmg`)
 				},
 				{
 					arch: 'Intel',
-					url: release_data.platforms['darwin-x86_64'].url
+					url: build_asset_url(`Fictioneer_${release_version}_x64.dmg`)
 				}
 			]
 		},
 		{
 			platform: 'windows',
 			name: 'Windows',
-			description: `Version ${release_data.version}`,
+			description: `Version ${release_version}`,
 			versions: [
 				{
 					arch: 'Installer (MSI)',
-					url: release_data.platforms['windows-x86_64-msi'].url
+					url: build_asset_url(`Fictioneer_${release_version}_x64_en-US.msi`)
 				},
 				{
 					arch: 'Setup (NSIS)',
-					url: release_data.platforms['windows-x86_64-nsis'].url
+					url: build_asset_url(`Fictioneer_${release_version}_x64-setup.exe`)
 				}
 			]
 		},
 		{
 			platform: 'linux',
 			name: 'Linux',
-			description: `Version ${release_data.version}`,
+			description: `Version ${release_version}`,
 			versions: [
 				{
 					arch: 'AppImage (x64)',
-					url: release_data.platforms['linux-x86_64-appimage'].url
+					url: build_asset_url(`Fictioneer_${release_version}_amd64.AppImage`)
 				},
 				{
 					arch: 'Debian/Ubuntu (.deb)',
-					url: release_data.platforms['linux-x86_64-deb'].url
+					url: build_asset_url(`Fictioneer_${release_version}_amd64.deb`)
 				},
 				{
 					arch: 'Red Hat/Fedora (.rpm)',
-					url: release_data.platforms['linux-x86_64-rpm'].url
+					url: build_asset_url(`Fictioneer-${release_version}-1.x86_64.rpm`)
 				}
 			]
 		}
@@ -109,7 +115,7 @@ export const load: PageServerLoad = async ({ fetch, request }) => {
 
 	return {
 		download_options,
-		version: release_data.version,
+		version: release_version,
 		release_notes: release_data.notes,
 		pub_date: release_data.pub_date,
 		detected_platform
