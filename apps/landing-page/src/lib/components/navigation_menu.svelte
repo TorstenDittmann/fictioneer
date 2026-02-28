@@ -180,7 +180,7 @@
 					<NavigationMenu.Content
 						class="data-[motion=from-end]:animate-enter-from-right data-[motion=from-start]:animate-enter-from-left data-[motion=to-end]:animate-exit-to-right data-[motion=to-start]:animate-exit-to-left absolute top-0 left-0 w-full sm:w-auto"
 					>
-						<ul class="w-[300px] space-y-1 p-2">
+						<ul class="w-75 space-y-1 p-2">
 							{#each download_links as link (link.title)}
 								{@render download_link(link)}
 							{/each}
@@ -248,7 +248,7 @@
 			<!-- Viewport -->
 			<div class="absolute top-full right-0 left-0 flex justify-center perspective-[2000px]">
 				<NavigationMenu.Viewport
-					class="data-[state=closed]:animate-scale-out data-[state=open]:animate-scale-in relative mt-2 h-[var(--bits-navigation-menu-viewport-height)] w-[var(--bits-navigation-menu-viewport-width)] origin-top overflow-hidden rounded-2xl border border-paper-border bg-paper-cream/95 shadow-xl backdrop-blur-xl transition-[width,height] duration-200"
+					class="data-[state=closed]:animate-scale-out data-[state=open]:animate-scale-in relative mt-2 h-(--bits-navigation-menu-viewport-height) w-(--bits-navigation-menu-viewport-width) origin-top overflow-hidden rounded-2xl border border-paper-border bg-paper-cream/95 shadow-xl backdrop-blur-xl transition-[width,height] duration-200"
 				/>
 			</div>
 		</NavigationMenu.Root>
