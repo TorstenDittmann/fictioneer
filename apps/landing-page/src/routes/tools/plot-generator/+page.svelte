@@ -105,20 +105,6 @@
 		name="description"
 		content="Build AI plot outlines with structures, conflicts, and twists tailored to your genre. Generate beats fast and keep momentum."
 	/>
-	<meta
-		name="keywords"
-		content="AI plot generator, AI story outline, AI story beats, plot structure generator, story outline tool"
-	/>
-	<meta property="og:title" content="AI Plot Generator - Outline Story Beats Fast | Fictioneer" />
-	<meta
-		property="og:description"
-		content="Build AI plot outlines with structures, conflicts, and twists tailored to your genre."
-	/>
-	<meta name="twitter:title" content="AI Plot Generator - Outline Story Beats Fast | Fictioneer" />
-	<meta
-		name="twitter:description"
-		content="Build AI plot outlines with structures, conflicts, and twists tailored to your genre."
-	/>
 	<link rel="canonical" href="https://fictioneer.app/tools/plot-generator" />
 </svelte:head>
 

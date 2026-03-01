@@ -11,6 +11,20 @@
 		name="description"
 		content="Writing tips, updates, and insights about fiction writing and storytelling."
 	/>
+	<link rel="canonical" href="https://fictioneer.app/blog" />
+	<meta property="og:title" content="Blog - Fictioneer" />
+	<meta
+		property="og:description"
+		content="Writing tips, updates, and insights about fiction writing and storytelling."
+	/>
+	<meta property="og:url" content="https://fictioneer.app/blog" />
+	<meta property="og:type" content="website" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="Blog - Fictioneer" />
+	<meta
+		name="twitter:description"
+		content="Writing tips, updates, and insights about fiction writing and storytelling."
+	/>
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:py-24">

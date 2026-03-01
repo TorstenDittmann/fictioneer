@@ -25,6 +25,20 @@
 		name="description"
 		content="Get answers to the most common questions about Fictioneer, pricing, refunds, and billing."
 	/>
+	<link rel="canonical" href="https://fictioneer.app/faq" />
+	<meta property="og:title" content="FAQ - Fictioneer" />
+	<meta
+		property="og:description"
+		content="Get answers to the most common questions about Fictioneer, pricing, refunds, and billing."
+	/>
+	<meta property="og:url" content="https://fictioneer.app/faq" />
+	<meta property="og:type" content="website" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="FAQ - Fictioneer" />
+	<meta
+		name="twitter:description"
+		content="Get answers to the most common questions about Fictioneer, pricing, refunds, and billing."
+	/>
 	<!-- eslint-disable-next-line -->
 	{@html `${'<'}script type="application/ld+json">${faq_json_ld}</script>`}
 </svelte:head>

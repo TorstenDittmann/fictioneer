@@ -13,10 +13,6 @@
 		name="description"
 		content="Download Fictioneer for free. Distraction-free writing software for novelists with AI-powered assistance, progress tracking, and a beautiful minimalist interface. Available for Windows, Mac, and Linux."
 	/>
-	<meta
-		name="keywords"
-		content="writing app, novel writing software, distraction free writing, fiction writing tool, author software, manuscript editor, creative writing app, AI writing assistant, book writing software, novelist tools"
-	/>
 	<meta name="author" content="Creator of OmniaWrite" />
 	<meta name="robots" content="index, follow" />
 	<meta name="language" content="English" />

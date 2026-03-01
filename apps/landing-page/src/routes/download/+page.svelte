@@ -28,6 +28,20 @@
 		name="description"
 		content="Download Fictioneer for macOS, Windows, and Linux. Start writing your novel with the best distraction-free writing environment."
 	/>
+	<link rel="canonical" href="https://fictioneer.app/download" />
+	<meta property="og:title" content="Download Fictioneer - Writing App for Novelists" />
+	<meta
+		property="og:description"
+		content="Download Fictioneer for macOS, Windows, and Linux. Start writing your novel with the best distraction-free writing environment."
+	/>
+	<meta property="og:url" content="https://fictioneer.app/download" />
+	<meta property="og:type" content="website" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="Download Fictioneer - Writing App for Novelists" />
+	<meta
+		name="twitter:description"
+		content="Download Fictioneer for macOS, Windows, and Linux. Start writing your novel today."
+	/>
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-24">

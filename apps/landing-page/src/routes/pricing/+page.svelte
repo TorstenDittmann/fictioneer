@@ -61,7 +61,21 @@
 	<title>Pricing - Fictioneer</title>
 	<meta
 		name="description"
-		content="Fictioneer is free to use. Unlock advanced AI writing tools for $10/month."
+		content="Fictioneer is free to download and use. Unlock advanced AI writing tools like story generation and AI assistance for $10/month with a 7-day free trial."
+	/>
+	<link rel="canonical" href="https://fictioneer.app/pricing" />
+	<meta property="og:title" content="Pricing - Fictioneer" />
+	<meta
+		property="og:description"
+		content="Fictioneer is free to download and use. Unlock advanced AI writing tools for $10/month."
+	/>
+	<meta property="og:url" content="https://fictioneer.app/pricing" />
+	<meta property="og:type" content="website" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="Pricing - Fictioneer" />
+	<meta
+		name="twitter:description"
+		content="Fictioneer is free to download and use. Unlock advanced AI writing tools for $10/month."
 	/>
 </svelte:head>
 

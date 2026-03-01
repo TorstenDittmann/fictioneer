@@ -230,10 +230,6 @@
 		name="description"
 		content="Generate AI story ideas and short drafts with genre, theme, and setting controls. Free, fast, and writer-focused."
 	/>
-	<meta
-		name="keywords"
-		content="AI story generator, free AI story generator, AI story ideas, AI writing tools, AI fiction generator, AI short story, AI writing assistant"
-	/>
 	<link rel="canonical" href="https://fictioneer.app/tools/ai-story-generator" />
 	<meta property="og:title" content="AI Story Generator - Free Story Ideas & Drafts | Fictioneer" />
 	<meta

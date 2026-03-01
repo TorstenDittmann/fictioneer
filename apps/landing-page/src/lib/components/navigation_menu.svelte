@@ -4,24 +4,26 @@
 	import WindowsLogo from 'phosphor-svelte/lib/WindowsLogo';
 	import LinuxLogo from 'phosphor-svelte/lib/LinuxLogo';
 	import type { Component } from 'svelte';
+	import { afterNavigate } from '$app/navigation';
+	import type { Pathname, RouteId } from '$app/types';
 	import { asset, resolve } from '$app/paths';
 
 	type DownloadLink = {
 		title: string;
-		href: string;
+		href: Extract<RouteId, '/download'>;
 		description: string;
 		icon: Component;
 	};
 
 	type OtherLink = {
 		title: string;
-		href: string;
+		href: '/blog' | '/faq';
 		description: string;
 	};
 
 	type WebTool = {
 		title: string;
-		href: string;
+		href: Extract<RouteId, '/tools' | `/tools/${string}`>;
 		description: string;
 	};
 
@@ -81,6 +83,18 @@
 			description: 'Frequently asked questions.'
 		}
 	];
+
+	let mobile_menu_open = $state(false);
+
+	function toggle_mobile_menu() {
+		mobile_menu_open = !mobile_menu_open;
+	}
+
+	function close_mobile_menu() {
+		mobile_menu_open = false;
+	}
+
+	afterNavigate(close_mobile_menu);
 </script>
 
 {#snippet download_link({ title, href, description, icon }: DownloadLink)}
@@ -253,34 +267,99 @@
 			</div>
 		</NavigationMenu.Root>
 
-		<!-- CTA Button -->
-		<a href={resolve('/download')} class="btn-primary hidden px-5 py-2 text-sm sm:inline-flex">
-			<span class="flex items-center gap-2">
-				Download
-				<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<!-- CTA Button (hidden on mobile) -->
+		<div class="hidden md:block">
+			<a href={resolve('/download')} class="btn-primary px-5 py-2 text-sm">
+				<span class="flex items-center gap-2">
+					Download
+					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+						></path>
+					</svg>
+				</span>
+			</a>
+		</div>
+
+		<!-- Mobile Menu Button -->
+		<button
+			onclick={toggle_mobile_menu}
+			class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-paper-text-light transition-colors hover:bg-paper-beige/60 md:hidden"
+			aria-label="Menu"
+			aria-expanded={mobile_menu_open}
+		>
+			{#if mobile_menu_open}
+				<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
 						stroke-width="2"
-						d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-					></path>
+						d="M6 18L18 6M6 6l12 12"
+					/>
 				</svg>
-			</span>
-		</a>
-
-		<!-- Mobile Menu Button -->
-		<button
-			class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-paper-text-light transition-colors hover:bg-paper-beige/60 md:hidden"
-			aria-label="Menu"
-		>
-			<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="2"
-					d="M4 6h16M4 12h16M4 18h16"
-				/>
-			</svg>
+			{:else}
+				<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M4 6h16M4 12h16M4 18h16"
+					/>
+				</svg>
+			{/if}
 		</button>
 	</div>
+
+	<!-- Mobile Menu Dropdown -->
+	{#if mobile_menu_open}
+		<div
+			class="glass-strong mx-auto mt-2 max-h-[calc(100dvh-6.5rem)] max-w-5xl overflow-y-auto overscroll-contain rounded-2xl border border-paper-border p-3 md:hidden"
+		>
+			<nav class="space-y-0.5">
+				<a
+					href={resolve('/pricing')}
+					class="block rounded-xl px-4 py-2.5 text-sm font-medium text-paper-text-light transition-colors hover:bg-paper-beige/60 hover:text-paper-text"
+				>
+					Pricing
+				</a>
+				<a
+					href={resolve('/download')}
+					class="block rounded-xl px-4 py-2.5 text-sm text-paper-text-light transition-colors hover:bg-paper-beige/60"
+				>
+					Download
+				</a>
+
+				<div class="border-t border-paper-border pt-1.5">
+					<p class="mb-2 px-4 text-xs font-semibold tracking-wider text-paper-text-muted uppercase">
+						Resources
+					</p>
+					{#each other_links as link (link.href)}
+						<a
+							href={resolve(link.href as Pathname)}
+							class="block rounded-xl px-4 py-2.5 text-sm text-paper-text-light transition-colors hover:bg-paper-beige/60"
+						>
+							{link.title}
+						</a>
+					{/each}
+				</div>
+
+				<div class="border-t border-paper-border pt-1.5">
+					<p class="mb-2 px-4 text-xs font-semibold tracking-wider text-paper-text-muted uppercase">
+						AI Tools
+					</p>
+					{#each web_tools as tool (tool.href)}
+						<a
+							href={resolve(tool.href as Pathname)}
+							class="block rounded-xl px-4 py-2.5 text-sm text-paper-text-light transition-colors hover:bg-paper-beige/60"
+						>
+							{tool.title}
+						</a>
+					{/each}
+				</div>
+			</nav>
+		</div>
+	{/if}
 </nav>
