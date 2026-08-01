@@ -8,6 +8,7 @@ struct SidebarView: View {
     @State private var renameText = ""
     @State private var chapterPendingDeletion: Chapter?
     @State private var scenePendingDeletion: Scene?
+    @State private var showingProjectSettings = false
 
     private var project: Project { session.project }
 
@@ -59,6 +60,10 @@ struct SidebarView: View {
             ForEach(project.chapters, id: \.id) { chapter in
                 chapterGroup(chapter)
             }
+            .onMove { source, destination in
+                project.moveChapters(fromOffsets: source, toOffset: destination)
+                session.markDirty()
+            }
             Button {
                 addChapter()
             } label: {
@@ -74,7 +79,11 @@ struct SidebarView: View {
         @Bindable var chapter = chapter
         return DisclosureGroup(isExpanded: $chapter.isExpanded) {
             ForEach(chapter.scenes, id: \.id) { scene in
-                sceneRow(scene)
+                sceneRow(scene, in: chapter)
+            }
+            .onMove { source, destination in
+                chapter.moveScenes(fromOffsets: source, toOffset: destination)
+                session.markDirty()
             }
             Button {
                 addScene(to: chapter)
@@ -100,6 +109,11 @@ struct SidebarView: View {
                 Button("Rename…") { beginRename(chapter) }
                 Button("Add Scene") { addScene(to: chapter) }
                 Divider()
+                Button("Move Up") { moveChapter(chapter, by: -1) }
+                    .disabled(project.chapters.first?.id == chapter.id)
+                Button("Move Down") { moveChapter(chapter, by: 1) }
+                    .disabled(project.chapters.last?.id == chapter.id)
+                Divider()
                 Button("Delete Chapter…", role: .destructive) { chapterPendingDeletion = chapter }
             }
         }
@@ -108,7 +122,7 @@ struct SidebarView: View {
         // already unselectable because it carries no .tag().
     }
 
-    private func sceneRow(_ scene: Scene) -> some View {
+    private func sceneRow(_ scene: Scene, in chapter: Chapter) -> some View {
         HStack {
             Label {
                 Text(scene.title)
@@ -128,8 +142,40 @@ struct SidebarView: View {
         .contextMenu {
             Button("Rename…") { beginRename(scene) }
             Divider()
+            Button("Move Up") { moveScene(scene, in: chapter, by: -1) }
+                .disabled(chapter.scenes.first?.id == scene.id)
+            Button("Move Down") { moveScene(scene, in: chapter, by: 1) }
+                .disabled(chapter.scenes.last?.id == scene.id)
+            if project.chapters.count > 1 {
+                Menu("Move to Chapter") {
+                    ForEach(project.chapters.filter { $0.id != chapter.id }, id: \.id) { target in
+                        Button(target.title) {
+                            project.moveScene(scene, to: target)
+                            target.isExpanded = true
+                            session.markDirty()
+                        }
+                    }
+                }
+            }
+            Divider()
             Button("Delete Scene…", role: .destructive) { scenePendingDeletion = scene }
         }
+    }
+
+    private func moveChapter(_ chapter: Chapter, by offset: Int) {
+        guard let index = project.chapters.firstIndex(where: { $0.id == chapter.id }) else { return }
+        let destination = offset < 0 ? index - 1 : index + 2
+        guard destination >= 0, destination <= project.chapters.count else { return }
+        project.moveChapters(fromOffsets: IndexSet(integer: index), toOffset: destination)
+        session.markDirty()
+    }
+
+    private func moveScene(_ scene: Scene, in chapter: Chapter, by offset: Int) {
+        guard let index = chapter.scenes.firstIndex(where: { $0.id == scene.id }) else { return }
+        let destination = offset < 0 ? index - 1 : index + 2
+        guard destination >= 0, destination <= chapter.scenes.count else { return }
+        chapter.moveScenes(fromOffsets: IndexSet(integer: index), toOffset: destination)
+        session.markDirty()
     }
 
     private var notesSection: some View {
@@ -174,16 +220,21 @@ struct SidebarView: View {
                 .font(.headline)
                 .lineLimit(1)
             Spacer()
-            SettingsLink {
+            Button {
+                showingProjectSettings = true
+            } label: {
                 Image(systemName: "gearshape")
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.borderless)
-            .help("Settings")
+            .help("Project settings and eBook metadata")
         }
         .padding(.horizontal, 16)
         .padding(.top, 4)
         .padding(.bottom, 10)
+        .sheet(isPresented: $showingProjectSettings) {
+            ProjectSettingsSheet(session: session)
+        }
     }
 
     private var footer: some View {
