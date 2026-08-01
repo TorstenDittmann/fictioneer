@@ -47,7 +47,7 @@ struct AnalysisPanelView: View {
                     Image(systemName: "sparkle")
                         .font(.caption2)
                         .foregroundStyle(Color.accentColor)
-                        .help("Hold ⌥ for an AI continuation · Tab accepts")
+                        .hoverTip("Hold ⌥ for an AI continuation · Tab accepts")
                 }
                 if let result = analysis.result {
                     Text("\(result.overallScore)")

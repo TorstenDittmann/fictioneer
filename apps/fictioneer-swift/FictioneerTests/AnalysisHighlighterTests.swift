@@ -78,6 +78,44 @@ struct AnalysisHighlighterTests {
     }
 }
 
+struct AnalysisMarginGroupingTests {
+    private func highlight(_ type: AnalysisType, start: Int, message: String = "m") -> AnalysisHighlight {
+        AnalysisHighlight(
+            type: type, severity: .info, start: start, end: start + 4,
+            message: message, suggestion: "s"
+        )
+    }
+
+    @Test func sameLineGroupsDistinctLinesDoNot() {
+        let highlights = [
+            highlight(.adverb, start: 0),
+            highlight(.filterWord, start: 10),
+            highlight(.cliche, start: 100),
+        ]
+        // Line = start / 50 (fake two "lines").
+        let annotations = AnalysisMarginGrouping.groupIntoLines(highlights) { $0.location / 50 }
+        #expect(annotations.count == 2)
+        #expect(annotations[0].items.count == 2)
+        #expect(annotations[0].lineRange.location == 0) // anchor = first highlight on line
+        #expect(annotations[1].items.count == 1)
+        #expect(annotations[1].items[0].type == .cliche)
+    }
+
+    @Test func chipLabelCountsExtras() {
+        let annotation = MarginAnnotation(
+            lineRange: NSRange(location: 0, length: 4),
+            items: [
+                MarginIssue(type: .adverb, message: "a", suggestion: nil),
+                MarginIssue(type: .adverb, message: "b", suggestion: nil),
+                MarginIssue(type: .passiveVoice, message: "c", suggestion: nil),
+            ]
+        )
+        // Label math lives in the view; assert the model invariants it relies on.
+        #expect(annotation.items.count == 3)
+        #expect(annotation.items[0].type.label == "Adverbs")
+    }
+}
+
 extension FictioneerTextView {
     /// Test hook: NSTextView asks its delegate/window for an undo manager;
     /// standalone views have none, so tests inject one.

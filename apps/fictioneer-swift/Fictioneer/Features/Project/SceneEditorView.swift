@@ -91,20 +91,21 @@ struct SceneEditorView: View {
     /// Tauri app's editor pill, rendered with native materials.
     private var floatingToolbar: some View {
         HStack(spacing: 2) {
-            formatButton("arrow.uturn.backward", "Undo") { controller.undo() }
-            formatButton("arrow.uturn.forward", "Redo") { controller.redo() }
+            formatButton("arrow.uturn.backward", "Undo — ⌘Z") { controller.undo() }
+            formatButton("arrow.uturn.forward", "Redo — ⇧⌘Z") { controller.redo() }
             toolbarDivider
             blockStyleMenu
                 .menuStyle(.borderlessButton)
                 .fixedSize()
+                .hoverTip("Paragraph style")
             toolbarDivider
-            formatButton("bold", "Bold") { controller.toggleBold() }
+            formatButton("bold", "Bold — ⌘B") { controller.toggleBold() }
                 .keyboardShortcut("b", modifiers: .command)
-            formatButton("italic", "Italic") { controller.toggleItalic() }
+            formatButton("italic", "Italic — ⌘I") { controller.toggleItalic() }
                 .keyboardShortcut("i", modifiers: .command)
-            formatButton("underline", "Underline") { controller.toggleUnderline() }
+            formatButton("underline", "Underline — ⌘U") { controller.toggleUnderline() }
                 .keyboardShortcut("u", modifiers: .command)
-            formatButton("strikethrough", "Strikethrough") { controller.toggleStrikethrough() }
+            formatButton("strikethrough", "Strikethrough — ⇧⌘X") { controller.toggleStrikethrough() }
                 .keyboardShortcut("x", modifiers: [.command, .shift])
             toolbarDivider
             Button {
@@ -122,7 +123,7 @@ struct SceneEditorView: View {
             }
             .buttonStyle(.borderless)
             .disabled(!controller.hasSelection || !appModel.license.isReadyForSuggestions)
-            .help("Rephrase selection — five AI alternatives")
+            .hoverTip("Rephrase selection — five AI alternatives")
 
             Button {
                 showingPromptSheet = true
@@ -133,7 +134,7 @@ struct SceneEditorView: View {
             }
             .buttonStyle(.borderless)
             .disabled(!appModel.license.isReadyForSuggestions)
-            .help("AI Prompt — generate and insert at the caret")
+            .hoverTip("AI Prompt — generate and insert at the caret")
 
             Button {
                 analysis.setHighlightsEnabled(!analysis.highlightsEnabled)
@@ -144,7 +145,7 @@ struct SceneEditorView: View {
                     .foregroundStyle(analysis.highlightsEnabled ? Color.accentColor : Color.primary)
             }
             .buttonStyle(.borderless)
-            .help("Prose highlights — underline adverbs, passive voice, clichés and more")
+            .hoverTip("Prose highlights — flag adverbs, passive voice, clichés and more")
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
@@ -184,14 +185,14 @@ struct SceneEditorView: View {
         }
     }
 
-    private func formatButton(_ icon: String, _ help: String, action: @escaping () -> Void) -> some View {
+    private func formatButton(_ icon: String, _ tip: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon)
                 .frame(width: 24, height: 22)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.borderless)
-        .help(help)
+        .hoverTip(tip)
     }
 
 }

@@ -27,36 +27,40 @@ final class FictioneerTextView: NSTextView {
         testUndoManager ?? super.undoManager
     }
 
-    // MARK: - Analysis tooltips
+    // MARK: - Margin annotations
 
-    // The `.toolTip` attributed-string key is not honored by TextKit 2, so
-    // highlight tooltips are registered as real NSView tooltip rects. Rects
-    // are in document-view coordinates (scroll-stable); they refresh on every
-    // analysis pass, which also covers relayout after edits.
-    private var analysisToolTips: [NSView.ToolTipTag: String] = [:]
+    // Prose-issue details render as chips in the right gutter (tooltips are a
+    // dead end: TextKit 2 ignores the `.toolTip` key and NSTextView's tracking
+    // management swallows foreign tooltip rects). Chips are subviews of the
+    // document view, so they scroll with the text.
+    private var marginAnnotations: [MarginAnnotation] = []
+    private var marginChips: [MarginChipHostView] = []
 
-    func setAnalysisToolTips(_ tips: [(range: NSRange, message: String)]) {
-        removeAllToolTips()
-        analysisToolTips.removeAll()
-        guard let window else { return }
-        for tip in tips {
-            let screenRect = firstRect(forCharacterRange: tip.range, actualRange: nil)
-            guard screenRect != .zero else { continue }
-            let rect = convert(window.convertFromScreen(screenRect), from: nil)
-            guard !rect.isEmpty else { continue }
-            let tag = addToolTip(rect, owner: self, userData: nil)
-            analysisToolTips[tag] = tip.message
-        }
+    func setMarginAnnotations(_ annotations: [MarginAnnotation]) {
+        marginAnnotations = annotations
+        rebuildMarginChips()
     }
 
-    // NSViewToolTipOwner (informal protocol; dispatched via the objc runtime).
-    @objc func view(
-        _ view: NSView,
-        stringForToolTip tag: NSView.ToolTipTag,
-        point: NSPoint,
-        userData data: UnsafeMutableRawPointer?
-    ) -> String {
-        analysisToolTips[tag] ?? ""
+    func repositionMarginAnnotations() {
+        rebuildMarginChips()
+    }
+
+    private func rebuildMarginChips() {
+        marginChips.forEach { $0.removeFromSuperview() }
+        marginChips.removeAll()
+        let marginWidth = textContainerInset.width
+        guard marginWidth >= 90, let window, !marginAnnotations.isEmpty else { return }
+        let x = bounds.width - marginWidth + 8
+        let width = min(marginWidth - 20, 220)
+        for annotation in marginAnnotations {
+            let screenRect = firstRect(forCharacterRange: annotation.lineRange, actualRange: nil)
+            guard screenRect != .zero else { continue }
+            let lineRect = convert(window.convertFromScreen(screenRect), from: nil)
+            let chip = MarginChipHostView(annotation: annotation)
+            chip.frame = NSRect(x: x, y: lineRect.minY + 1, width: width, height: 20)
+            addSubview(chip)
+            marginChips.append(chip)
+        }
     }
 
     override func draw(_ dirtyRect: NSRect) {
@@ -100,6 +104,39 @@ final class FictioneerTextView: NSTextView {
     override func setFrameSize(_ newSize: NSSize) {
         super.setFrameSize(newSize)
         updateColumnInset()
+        repositionMarginAnnotations()
+    }
+
+    // MARK: - Overscroll hit area
+
+    // Apple's scroll-view/text-view recipe keeps minSize at the viewport
+    // height so the text view spans the visible area — otherwise clicks below
+    // short content (and in the typewriter overscroll inset) land on the clip
+    // view and go dead.
+    override func viewDidMoveToSuperview() {
+        super.viewDidMoveToSuperview()
+        if let clipView = superview as? NSClipView {
+            clipView.postsFrameChangedNotifications = true
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(clipViewFrameDidChange),
+                name: NSView.frameDidChangeNotification,
+                object: clipView
+            )
+            updateOverscrollMinHeight()
+        }
+    }
+
+    @objc private func clipViewFrameDidChange(_ notification: Notification) {
+        updateOverscrollMinHeight()
+    }
+
+    func updateOverscrollMinHeight() {
+        guard let scrollView = enclosingScrollView else { return }
+        let height = scrollView.contentView.bounds.height + scrollView.contentInsets.bottom
+        if minSize.height != height {
+            minSize = NSSize(width: 0, height: height)
+        }
     }
 
     private func updateColumnInset() {
@@ -140,6 +177,7 @@ final class FictioneerTextView: NSTextView {
         let bottomInset = (visible.height * 0.5).rounded()
         if scrollView.contentInsets.bottom != bottomInset {
             scrollView.contentInsets.bottom = bottomInset
+            updateOverscrollMinHeight()
         }
 
         let maxY = max(0, frame.height - visible.height + bottomInset)

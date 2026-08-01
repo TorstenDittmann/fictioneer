@@ -1,6 +1,23 @@
 import AppKit
 import SwiftUI
 
+/// Scroll view that forwards clicks landing outside the document view (the
+/// typewriter overscroll region) into the text view — caret to end, focused.
+final class FictioneerScrollView: NSScrollView {
+    override func mouseDown(with event: NSEvent) {
+        if let textView = documentView as? FictioneerTextView {
+            let pointInDocument = textView.convert(event.locationInWindow, from: nil)
+            if !textView.bounds.contains(pointInDocument) {
+                window?.makeFirstResponder(textView)
+                textView.setSelectedRange(NSRange(location: (textView.string as NSString).length, length: 0))
+                textView.centerCaret()
+                return
+            }
+        }
+        super.mouseDown(with: event)
+    }
+}
+
 struct RichTextEditor: NSViewRepresentable {
     let initialContent: NSAttributedString
     let settings: AppSettings
@@ -38,7 +55,7 @@ struct RichTextEditor: NSViewRepresentable {
         controller.applyTheme(EditorTheme(settings: settings))
         configureGhost?(textView, controller)
 
-        let scrollView = NSScrollView()
+        let scrollView = FictioneerScrollView()
         scrollView.documentView = textView
         scrollView.hasVerticalScroller = true
         scrollView.autohidesScrollers = true

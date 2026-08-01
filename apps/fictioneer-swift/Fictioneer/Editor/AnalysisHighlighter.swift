@@ -47,7 +47,7 @@ final class AnalysisHighlighter {
     }
 
     func apply(_ highlights: [AnalysisHighlight], visibleTypes: Set<AnalysisType>?) {
-        var appliedTips: [(range: NSRange, message: String)] = []
+        var applied: [AnalysisHighlight] = []
         withProgrammaticMutation { storage in
             removeAll(from: storage)
             for highlight in highlights {
@@ -69,10 +69,6 @@ final class AnalysisHighlighter {
                 let previousUnderline = storage.attribute(.underlineStyle, at: range.location, effectiveRange: nil) as? Int
                 let previousBackground = storage.attribute(.backgroundColor, at: range.location, effectiveRange: nil) as? NSColor
                 let style = Self.style(for: highlight.type)
-                var tooltip = highlight.message
-                if let suggestion = highlight.suggestion {
-                    tooltip += "\n\(suggestion)"
-                }
                 storage.addAttributes([
                     .analysisHighlight: AnalysisMarker(
                         previousUnderlineStyle: previousUnderline,
@@ -82,17 +78,31 @@ final class AnalysisHighlighter {
                     .underlineStyle: style.underlineStyle,
                     .underlineColor: style.underlineColor,
                 ], range: range)
-                appliedTips.append((range, tooltip))
+                applied.append(highlight)
             }
         }
-        editorController?.textView?.setAnalysisToolTips(appliedTips)
+        updateMarginAnnotations(for: applied)
     }
 
     func clear() {
         withProgrammaticMutation { storage in
             removeAll(from: storage)
         }
-        editorController?.textView?.setAnalysisToolTips([])
+        editorController?.textView?.setMarginAnnotations([])
+    }
+
+    private func updateMarginAnnotations(for applied: [AnalysisHighlight]) {
+        guard let textView = editorController?.textView else { return }
+        guard let window = textView.window else {
+            textView.setMarginAnnotations([])
+            return
+        }
+        let annotations = AnalysisMarginGrouping.groupIntoLines(applied) { range in
+            let screenRect = textView.firstRect(forCharacterRange: range, actualRange: nil)
+            let rect = textView.convert(window.convertFromScreen(screenRect), from: nil)
+            return Int(rect.minY.rounded())
+        }
+        textView.setMarginAnnotations(annotations)
     }
 
     private func removeAll(from storage: NSTextStorage) {
@@ -124,6 +134,12 @@ final class AnalysisHighlighter {
               let textView = controller.textView,
               let storage = textView.textStorage
         else { return }
+        // Attribute passes invalidate layout, which can trigger the text
+        // view's caret-scroll and visibly shift content — pin the scroll
+        // position across the mutation.
+        let scrollView = textView.enclosingScrollView
+        let savedOrigin = scrollView?.contentView.bounds.origin
+
         controller.isPerformingProgrammaticMutation = true
         textView.undoManager?.disableUndoRegistration()
         storage.beginEditing()
@@ -131,5 +147,10 @@ final class AnalysisHighlighter {
         storage.endEditing()
         textView.undoManager?.enableUndoRegistration()
         controller.isPerformingProgrammaticMutation = false
+
+        if let scrollView, let savedOrigin, scrollView.contentView.bounds.origin != savedOrigin {
+            scrollView.contentView.setBoundsOrigin(savedOrigin)
+            scrollView.reflectScrolledClipView(scrollView.contentView)
+        }
     }
 }
