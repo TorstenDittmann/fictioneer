@@ -190,4 +190,47 @@ struct IntelligenceClientTests {
             try await makeClient().verify()
         }
     }
+
+    @Test func rephraseDecodesTypedAlternatives() async throws {
+        let json = """
+        {"original": "She was sad.", "rephrases": [
+            {"type": "vivid", "alternative": "Grief pressed her shoulders down."},
+            {"type": "tighter", "alternative": "She grieved."},
+            {"type": "show_dont_tell", "alternative": "She stared at the empty chair."},
+            {"type": "change_pov", "alternative": "I watched her sadness surface."},
+            {"type": "simplify", "alternative": "She felt sad."}
+        ]}
+        """
+        StubURLProtocol.script = .init(statusCode: 200, chunks: [Data(json.utf8)])
+        let response = try await makeClient().rephrase(
+            selectedSentence: "She was sad.", contextBefore: "before", contextAfter: "after"
+        )
+        #expect(response.original == "She was sad.")
+        #expect(response.rephrases.count == 5)
+        #expect(response.rephrases.map(\.type) == ["vivid", "tighter", "show_dont_tell", "change_pov", "simplify"])
+
+        let request = try #require(StubURLProtocol.recorder.requests.first)
+        #expect(request.url?.path == "/api/rephrase")
+        let body = try #require(StubURLProtocol.recorder.bodies.first)
+        let parsed = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+        #expect(parsed["selected_sentence"] as? String == "She was sad.")
+        #expect(parsed["context_before"] as? String == "before")
+    }
+
+    @Test func startStreamsWithExactHeaderAndBody() async throws {
+        StubURLProtocol.script = .init(statusCode: 200, chunks: [Data("Once upon".utf8), Data(" a time".utf8)])
+        var last = ""
+        for try await accumulated in makeClient().start(prompt: "Begin a fairy tale", wordCount: 150) {
+            last = accumulated
+        }
+        #expect(last == "Once upon a time")
+
+        let request = try #require(StubURLProtocol.recorder.requests.first)
+        #expect(request.url?.path == "/api/start")
+        #expect(request.value(forHTTPHeaderField: "Accept") == "text/plain+stream")
+        let body = try #require(StubURLProtocol.recorder.bodies.first)
+        let parsed = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+        #expect(parsed["prompt"] as? String == "Begin a fairy tale")
+        #expect(parsed["word_count"] as? Int == 150)
+    }
 }

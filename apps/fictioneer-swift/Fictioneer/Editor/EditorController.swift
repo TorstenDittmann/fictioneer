@@ -83,6 +83,36 @@ final class EditorController {
         storage.endEditing()
     }
 
+    // MARK: - Selection / insertion (rephrase + AI prompt)
+
+    /// The selected text plus ±200 characters of context.
+    func selectionContext() -> (selected: String, before: String, after: String)? {
+        guard let textView else { return nil }
+        let range = textView.selectedRange()
+        guard range.length > 0 else { return nil }
+        let text = textView.string as NSString
+        let selected = text.substring(with: range)
+        let beforeStart = max(0, range.location - 200)
+        let before = text.substring(with: NSRange(location: beforeStart, length: range.location - beforeStart))
+        let afterEnd = min(text.length, range.location + range.length + 200)
+        let after = text.substring(with: NSRange(location: range.location + range.length, length: afterEnd - (range.location + range.length)))
+        return (selected, before, after)
+    }
+
+    /// Replaces the current selection as one undoable edit.
+    func replaceSelection(with text: String) {
+        guard let textView else { return }
+        let range = textView.selectedRange()
+        guard range.length > 0 else { return }
+        textView.insertText(text, replacementRange: range)
+    }
+
+    /// Inserts at the caret as one undoable edit.
+    func insertAtCaret(_ text: String) {
+        guard let textView else { return }
+        textView.insertText(text, replacementRange: textView.selectedRange())
+    }
+
     // MARK: - Undo
 
     func undo() {

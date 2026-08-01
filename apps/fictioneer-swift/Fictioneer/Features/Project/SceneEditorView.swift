@@ -7,6 +7,8 @@ struct SceneEditorView: View {
 
     @State private var controller = EditorController()
     @State private var analysis = AnalysisCoordinator()
+    @State private var rephrasePayload: RephrasePayload?
+    @State private var showingPromptSheet = false
 
     var body: some View {
         RichTextEditor(
@@ -68,6 +70,12 @@ struct SceneEditorView: View {
         }
         .navigationTitle(scene.title)
         .navigationSubtitle(session.project.chapter(containing: scene.id)?.title ?? "")
+        .sheet(item: $rephrasePayload) { payload in
+            RephraseSheet(payload: payload, controller: controller)
+        }
+        .sheet(isPresented: $showingPromptSheet) {
+            PromptSheet(controller: controller)
+        }
     }
 
     /// Floating format bar over the writing surface — layout borrowed from the
@@ -90,6 +98,34 @@ struct SceneEditorView: View {
             formatButton("strikethrough", "Strikethrough") { controller.toggleStrikethrough() }
                 .keyboardShortcut("x", modifiers: [.command, .shift])
             toolbarDivider
+            Button {
+                if let context = controller.selectionContext() {
+                    rephrasePayload = RephrasePayload(
+                        selected: context.selected,
+                        before: context.before,
+                        after: context.after
+                    )
+                }
+            } label: {
+                Image(systemName: "arrow.2.squarepath")
+                    .frame(width: 24, height: 22)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .disabled(!controller.hasSelection || !appModel.license.isReadyForSuggestions)
+            .help("Rephrase selection — five AI alternatives")
+
+            Button {
+                showingPromptSheet = true
+            } label: {
+                Image(systemName: "sparkles")
+                    .frame(width: 24, height: 22)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .disabled(!appModel.license.isReadyForSuggestions)
+            .help("AI Prompt — generate and insert at the caret")
+
             Button {
                 analysis.setHighlightsEnabled(!analysis.highlightsEnabled)
             } label: {
