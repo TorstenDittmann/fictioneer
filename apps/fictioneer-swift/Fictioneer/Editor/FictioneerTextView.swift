@@ -101,7 +101,14 @@ final class FictioneerTextView: NSTextView {
 
         let maxY = max(0, frame.height - visible.height + bottomInset)
         let targetY = min(max(0, caretRect.midY - visible.height * 0.5), maxY)
-        guard abs(targetY - visible.origin.y) > 1 else { return }
+
+        // Dead-band of ~half a line: an empty line's caret rect comes from the
+        // extra line fragment (default font height), and the first typed glyph
+        // re-measures it with the theme's lineHeightMultiple — a few px of
+        // jitter that must not trigger a scroll. Real line changes move a full
+        // line height and always exceed this.
+        let threshold = max(caretRect.height * 0.45, 8)
+        guard abs(targetY - visible.origin.y) > threshold else { return }
 
         scrollView.contentView.setBoundsOrigin(NSPoint(x: visible.origin.x, y: targetY))
         scrollView.reflectScrolledClipView(scrollView.contentView)

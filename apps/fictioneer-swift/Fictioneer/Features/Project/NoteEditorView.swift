@@ -54,6 +54,7 @@ struct NoteEditorView: View {
                 session.markDirty(noteID: note.id)
             }
         }
+        .background(VisualEffectView().ignoresSafeArea())
         .navigationTitle(note.title)
         .navigationSubtitle("Notes")
         .toolbar {

@@ -8,12 +8,12 @@ struct WelcomeView: View {
         HStack(spacing: 0) {
             heroPane
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(.background)
             Divider()
             recentsPane
                 .frame(width: 300)
-                .background(.background.secondary)
+                .background(.quinary)
         }
+        .background(VisualEffectView().ignoresSafeArea())
         .navigationTitle("")
         .sheet(isPresented: $showingNewProjectSheet) {
             NewProjectSheet()

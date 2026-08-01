@@ -39,6 +39,7 @@ struct ProjectOverviewView: View {
             .frame(maxWidth: 720, alignment: .leading)
             .frame(maxWidth: .infinity)
         }
+        .background(VisualEffectView().ignoresSafeArea())
         .navigationTitle("Overview")
         .navigationSubtitle(project.title)
     }

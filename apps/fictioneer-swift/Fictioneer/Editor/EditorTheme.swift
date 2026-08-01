@@ -22,10 +22,12 @@ struct EditorTheme: Equatable {
     }
 
     // Paper tones from the Tauri app (`app.css`): #fefefe light / #0f0f14 dark.
+    // Translucent so the behind-window vibrancy (VisualEffectView) glows
+    // through — the glass look of the original app.
     static let paperBackground = NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(srgbRed: 0x0F / 255, green: 0x0F / 255, blue: 0x14 / 255, alpha: 1)
-            : NSColor(srgbRed: 0xFE / 255, green: 0xFE / 255, blue: 0xFE / 255, alpha: 1)
+            ? NSColor(srgbRed: 0x0F / 255, green: 0x0F / 255, blue: 0x14 / 255, alpha: 0.5)
+            : NSColor(srgbRed: 0xFE / 255, green: 0xFE / 255, blue: 0xFE / 255, alpha: 0.65)
     }
 
     var bodyFont: NSFont {

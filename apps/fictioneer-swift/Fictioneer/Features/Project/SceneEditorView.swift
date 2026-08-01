@@ -36,6 +36,7 @@ struct SceneEditorView: View {
                 scene.updateContent(content)
                 session.markDirty(sceneID: scene.id)
             }
+        .background(VisualEffectView().ignoresSafeArea())
         .overlay(alignment: .bottomTrailing) {
             statsCapsule
         }
