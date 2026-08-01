@@ -26,6 +26,7 @@ final class EditorController {
     func applyTheme(_ theme: EditorTheme) {
         self.theme = theme
         guard let textView, let storage = textView.textStorage else { return }
+        textView.placeholderFont = FontLoader.placeholderFont(size: theme.fontSize)
         retheme(storage)
         textView.typingAttributes = theme.attributes(for: blockStyleForTyping())
     }

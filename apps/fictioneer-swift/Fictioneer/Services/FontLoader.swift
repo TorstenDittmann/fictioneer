@@ -39,6 +39,14 @@ enum FontLoader {
         }
     }
 
+    static func placeholderFont(size: CGFloat) -> NSFont {
+        if let quattrocento = NSFont(name: bundledHeadingFamily, size: size) {
+            return NSFontManager.shared.convert(quattrocento, toHaveTrait: .italicFontMask)
+        }
+        let serif = NSFont.systemFont(ofSize: size).withDesign(.serif)
+        return NSFontManager.shared.convert(serif, toHaveTrait: .italicFontMask)
+    }
+
     static func headingFont(size: CGFloat) -> NSFont {
         if let font = NSFont(name: "\(bundledHeadingFamily)-Bold", size: size) {
             return font

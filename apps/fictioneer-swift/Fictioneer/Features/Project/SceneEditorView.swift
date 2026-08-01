@@ -8,8 +8,7 @@ struct SceneEditorView: View {
     @State private var controller = EditorController()
 
     var body: some View {
-        VStack(spacing: 0) {
-            RichTextEditor(
+        RichTextEditor(
                 initialContent: scene.content,
                 settings: appModel.settings,
                 controller: controller,
@@ -37,8 +36,8 @@ struct SceneEditorView: View {
                 scene.updateContent(content)
                 session.markDirty(sceneID: scene.id)
             }
-            Divider()
-            footer
+        .overlay(alignment: .bottomTrailing) {
+            statsCapsule
         }
         .navigationTitle(scene.title)
         .navigationSubtitle(session.project.chapter(containing: scene.id)?.title ?? "")
@@ -80,23 +79,23 @@ struct SceneEditorView: View {
         .help(help)
     }
 
-    private var footer: some View {
-        HStack {
-            if appModel.settings.licenseKey.isEmpty {
-                Text("Add a license key in Settings to enable AI suggestions")
-                    .foregroundStyle(.tertiary)
-            } else {
-                Text("Hold ⌥ for an AI continuation")
-                    .foregroundStyle(.tertiary)
+    private var statsCapsule: some View {
+        HStack(spacing: 6) {
+            if appModel.license.isReadyForSuggestions {
+                Image(systemName: "sparkle")
+                    .font(.caption2)
+                    .foregroundStyle(Color.accentColor)
+                    .help("Hold ⌥ for an AI continuation · Tab accepts")
             }
-            Spacer()
-            Text("\(scene.wordCount) words · \(scene.characterCount) characters")
+            Text("\(scene.wordCount) words · \(scene.characterCount) chars")
+                .font(.caption)
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
         }
-        .font(.caption)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 7)
-        .background(.bar)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(.regularMaterial, in: .capsule)
+        .padding(12)
+        .allowsHitTesting(false)
     }
 }

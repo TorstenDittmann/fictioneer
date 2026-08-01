@@ -8,7 +8,32 @@ final class FictioneerTextView: NSTextView {
     var onGhostEscape: (() -> Bool)?
     var onOptionKeyChange: ((Bool) -> Void)?
 
+    /// Serif-italic font for the empty-document placeholder, kept in sync
+    /// with the theme by EditorController.applyTheme.
+    var placeholderFont: NSFont = .systemFont(ofSize: 18) {
+        didSet { needsDisplay = true }
+    }
+
     private static let maxColumnWidth: CGFloat = 680
+    private static let placeholderText = "Start writing…"
+
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        guard string.isEmpty else { return }
+        let origin = NSPoint(
+            x: textContainerInset.width + (textContainer?.lineFragmentPadding ?? 5),
+            y: textContainerInset.height
+        )
+        Self.placeholderText.draw(at: origin, withAttributes: [
+            .font: placeholderFont,
+            .foregroundColor: NSColor.tertiaryLabelColor,
+        ])
+    }
+
+    override func didChangeText() {
+        super.didChangeText()
+        needsDisplay = true
+    }
 
     override func keyDown(with event: NSEvent) {
         switch event.keyCode {
@@ -36,7 +61,7 @@ final class FictioneerTextView: NSTextView {
 
     private func updateColumnInset() {
         let horizontal = max(32, (frame.width - Self.maxColumnWidth) / 2)
-        let inset = NSSize(width: horizontal.rounded(), height: 48)
+        let inset = NSSize(width: horizontal.rounded(), height: 64)
         if textContainerInset != inset {
             textContainerInset = inset
         }

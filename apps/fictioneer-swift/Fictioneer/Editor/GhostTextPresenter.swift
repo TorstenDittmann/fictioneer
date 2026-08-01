@@ -156,7 +156,7 @@ final class GhostTextPresenter {
         let size = editorController?.theme?.fontSize ?? 18
         return [
             .font: NSFont.systemFont(ofSize: size * 0.65, weight: .medium),
-            .foregroundColor: NSColor.quaternaryLabelColor,
+            .foregroundColor: NSColor.controlAccentColor.withAlphaComponent(0.65),
             .ghostText: true,
         ]
     }
