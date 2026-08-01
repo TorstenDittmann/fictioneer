@@ -1,0 +1,79 @@
+name: Fictioneer
+options:
+  bundleIdPrefix: app.fictioneer
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: ""
+targets:
+  Fictioneer:
+    type: application
+    platform: macOS
+    sources:
+      - Fictioneer
+    entitlements:
+      path: Fictioneer/Resources/Fictioneer.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.files.user-selected.read-write: true
+    info:
+      path: Fictioneer/Info.plist
+      properties:
+        CFBundleName: Fictioneer
+        CFBundleDisplayName: Fictioneer
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        LSMinimumSystemVersion: "15.0"
+        LSApplicationCategoryType: public.app-category.productivity
+        NSHumanReadableCopyright: ""
+        ATSApplicationFontsPath: Fonts
+        NSSupportsAutomaticTermination: false
+        NSSupportsSuddenTermination: false
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Fictioneer Project
+            LSItemContentTypes:
+              - app.fictioneer.project
+            CFBundleTypeRole: Editor
+            LSHandlerRank: Owner
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: app.fictioneer.project
+            UTTypeDescription: Fictioneer Project
+            UTTypeConformsTo:
+              - com.apple.package
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - fictioneer
+  FictioneerTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - FictioneerTests
+    dependencies:
+      - target: Fictioneer
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Fictioneer.app/Contents/MacOS/Fictioneer"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  Fictioneer:
+    build:
+      targets:
+        Fictioneer: all
+        FictioneerTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - FictioneerTests
