@@ -17,6 +17,8 @@ struct SidebarView: View {
         List(selection: $session.selectedItem) {
             Label("Overview", systemImage: "house")
                 .tag(SidebarItem.overview)
+            Label("Search", systemImage: "magnifyingglass")
+                .tag(SidebarItem.search)
             chaptersSection
             notesSection
         }

@@ -16,12 +16,25 @@ struct ProjectWindowView: View {
         .sheet(isPresented: $appModel.isExportSheetRequested) {
             ExportSheet(session: session)
         }
+        .overlay {
+            if session.isCommandPaletteVisible {
+                ZStack(alignment: .top) {
+                    Color.black.opacity(0.2)
+                        .ignoresSafeArea()
+                        .onTapGesture { session.isCommandPaletteVisible = false }
+                    CommandPaletteView(session: session)
+                        .padding(.top, 80)
+                }
+            }
+        }
     }
 
     @ViewBuilder
     private var detailView: some View {
         let project = session.project
-        if let noteID = session.selectedNoteID, let note = project.note(withID: noteID) {
+        if session.showsSearch {
+            SearchResultsView(session: session)
+        } else if let noteID = session.selectedNoteID, let note = project.note(withID: noteID) {
             NoteEditorView(session: session, note: note)
                 .id(note.id)
         } else if let sceneID = session.selectedSceneID, let scene = project.scene(withID: sceneID) {

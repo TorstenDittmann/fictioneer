@@ -83,6 +83,13 @@ struct AppCommands: Commands {
             }
             .keyboardShortcut("o", modifiers: .command)
         }
+        CommandGroup(after: .toolbar) {
+            Button("Command Palette") {
+                appModel.session?.isCommandPaletteVisible.toggle()
+            }
+            .keyboardShortcut("k", modifiers: .command)
+            .disabled(appModel.session == nil)
+        }
         CommandGroup(replacing: .saveItem) {
             Button("Save") {
                 appModel.session?.saveNow()
