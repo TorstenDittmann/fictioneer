@@ -10,7 +10,7 @@ struct ProjectOverviewView: View {
             VStack(alignment: .leading, spacing: 24) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(project.title)
-                        .font(.system(size: 30, weight: .bold, design: .serif))
+                        .font(.custom("Quattrocento-Bold", size: 30))
                     if !project.details.isEmpty {
                         Text(project.details)
                             .font(.title3)
@@ -30,27 +30,7 @@ struct ProjectOverviewView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Pick up where you left off")
                             .font(.headline)
-                        Button {
-                            session.selectedNoteID = nil
-                            session.selectedSceneID = scene.id
-                        } label: {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(scene.title)
-                                        .font(.body.weight(.medium))
-                                    Text("\(scene.wordCount) words · updated \(scene.updatedAt, format: .relative(presentation: .named))")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                Spacer()
-                                Image(systemName: "arrow.right")
-                                    .foregroundStyle(Color.accentColor)
-                            }
-                            .padding(14)
-                            .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
+                        ContinueWritingCard(session: session, scene: scene)
                     }
                 }
                 Spacer()
@@ -63,6 +43,44 @@ struct ProjectOverviewView: View {
 
     private var mostRecentScene: Scene? {
         project.allScenes.max { $0.updatedAt < $1.updatedAt }
+    }
+}
+
+private struct ContinueWritingCard: View {
+    let session: ProjectSession
+    let scene: Scene
+    @State private var isHovered = false
+
+    var body: some View {
+        Button {
+            session.selectedNoteID = nil
+            session.selectedSceneID = scene.id
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(scene.title)
+                        .font(.body.weight(.medium))
+                    Text("\(scene.wordCount) words · updated \(scene.updatedAt, format: .relative(presentation: .named))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "arrow.right")
+                    .foregroundStyle(Color.accentColor)
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(isHovered ? AnyShapeStyle(.quaternary) : AnyShapeStyle(.clear))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(.separator)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
     }
 }
 
@@ -81,6 +99,9 @@ private struct StatTile: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
-        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .strokeBorder(.separator)
+        )
     }
 }

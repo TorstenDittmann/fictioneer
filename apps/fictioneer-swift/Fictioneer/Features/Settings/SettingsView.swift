@@ -13,7 +13,6 @@ struct SettingsView: View {
                 .tabItem { Label("AI", systemImage: "sparkles") }
         }
         .frame(width: 480)
-        .padding(.bottom, 8)
     }
 }
 
@@ -30,7 +29,7 @@ private struct GeneralSettingsTab: View {
             }
             .pickerStyle(.segmented)
         }
-        .padding(20)
+        .formStyle(.grouped)
     }
 }
 
@@ -62,7 +61,7 @@ private struct EditorSettingsTab: View {
                 }
             }
         }
-        .padding(20)
+        .formStyle(.grouped)
     }
 }
 
@@ -99,7 +98,7 @@ private struct AISettingsTab: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(20)
+        .formStyle(.grouped)
     }
 
     @ViewBuilder

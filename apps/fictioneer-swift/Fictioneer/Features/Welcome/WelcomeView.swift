@@ -34,12 +34,12 @@ struct WelcomeView: View {
     private var heroPane: some View {
         VStack(spacing: 8) {
             Spacer()
-            Image(systemName: "book.pages")
-                .font(.system(size: 56, weight: .light))
-                .foregroundStyle(Color.accentColor)
-                .padding(.bottom, 12)
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .frame(width: 96, height: 96)
+                .padding(.bottom, 4)
             Text("Fictioneer")
-                .font(.system(size: 34, weight: .bold, design: .serif))
+                .font(.custom("Quattrocento-Bold", size: 34))
             Text("A focused home for your novel.")
                 .font(.title3)
                 .foregroundStyle(.secondary)
@@ -50,25 +50,18 @@ struct WelcomeView: View {
                     showingNewProjectSheet = true
                 } label: {
                     Label("Create New Project", systemImage: "plus")
-                        .frame(width: 220)
+                        .frame(minWidth: 180)
                 }
                 .controlSize(.large)
                 .buttonStyle(.borderedProminent)
                 .keyboardShortcut("n", modifiers: [.command, .shift])
 
-                Button {
+                Button("Open Existing Project…") {
                     appModel.openProjectViaPanel()
-                } label: {
-                    Label("Open Existing Project", systemImage: "folder")
-                        .frame(width: 220)
                 }
-                .controlSize(.large)
+                .buttonStyle(.borderless)
             }
             Spacer()
-            Text("Hold ⌥ while writing for an AI continuation · ⌘S saves · autosave is always on")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-                .padding(.bottom, 20)
         }
         .padding(40)
     }
@@ -101,8 +94,9 @@ struct WelcomeView: View {
             } else {
                 List(appModel.recents.entries) { entry in
                     RecentProjectRow(entry: entry)
+                        .listRowSeparator(.hidden)
                 }
-                .listStyle(.sidebar)
+                .listStyle(.plain)
                 .scrollContentBackground(.hidden)
             }
         }
@@ -112,6 +106,7 @@ struct WelcomeView: View {
 private struct RecentProjectRow: View {
     @Environment(AppModel.self) private var appModel
     let entry: RecentProjectsStore.Entry
+    @State private var isHovered = false
 
     var body: some View {
         Button {
@@ -129,10 +124,17 @@ private struct RecentProjectRow: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             }
-            .padding(.vertical, 4)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isHovered ? AnyShapeStyle(.quaternary) : AnyShapeStyle(.clear))
+            )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
         .contextMenu {
             Button("Remove from Recents") {
                 appModel.recents.remove(entry)

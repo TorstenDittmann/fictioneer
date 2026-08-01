@@ -21,7 +21,7 @@ struct NoteEditorView: View {
             VStack(alignment: .leading, spacing: 8) {
                 TextField("Note title", text: $title)
                     .textFieldStyle(.plain)
-                    .font(.system(size: 24, weight: .bold, design: .serif))
+                    .font(.custom("Quattrocento-Bold", size: 24))
                     .onChange(of: title) {
                         note.title = title
                         note.updatedAt = .now
