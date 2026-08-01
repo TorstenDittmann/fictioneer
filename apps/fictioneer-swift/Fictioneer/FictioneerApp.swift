@@ -38,13 +38,16 @@ struct RootView: View {
     @Environment(AppModel.self) private var appModel
 
     var body: some View {
-        if let session = appModel.session {
-            ProjectWindowView(session: session)
-                .id(session.url)
-        } else {
-            WelcomeView()
-                .frame(minWidth: 800, minHeight: 540)
+        Group {
+            if let session = appModel.session {
+                ProjectWindowView(session: session)
+                    .id(session.url)
+            } else {
+                WelcomeView()
+                    .frame(minWidth: 800, minHeight: 540)
+            }
         }
+        .preferredColorScheme(appModel.settings.theme.colorScheme)
     }
 }
 

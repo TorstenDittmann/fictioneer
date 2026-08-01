@@ -10,6 +10,7 @@ extension UTType {
 final class AppModel {
     var session: ProjectSession?
     let recents = RecentProjectsStore()
+    let settings = AppSettings()
     var openError: String?
 
     // MARK: - Lifecycle

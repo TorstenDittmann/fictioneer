@@ -36,7 +36,8 @@ targets:
         LSMinimumSystemVersion: "15.0"
         LSApplicationCategoryType: public.app-category.productivity
         NSHumanReadableCopyright: ""
-        ATSApplicationFontsPath: Fonts
+        # XcodeGen copies resources flat into Contents/Resources, so fonts live at the root.
+        ATSApplicationFontsPath: "."
         NSSupportsAutomaticTermination: false
         NSSupportsSuddenTermination: false
         CFBundleDocumentTypes:
