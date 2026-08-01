@@ -99,25 +99,10 @@ struct AppCommands: Commands {
     }
 
     private func newScene() {
-        guard let session = appModel.session else { return }
-        let project = session.project
-        let chapter: Chapter?
-        if let selected = session.selectedSceneID, let current = project.chapter(containing: selected) {
-            chapter = current
-        } else {
-            chapter = project.chapters.last
-        }
-        guard let chapter else { return }
-        let scene = project.addScene(to: chapter)
-        chapter.isExpanded = true
-        session.selectedNoteID = nil
-        session.selectedSceneID = scene.id
-        session.markDirty(sceneID: scene.id)
+        appModel.session?.createSceneInCurrentChapter()
     }
 
     private func newChapter() {
-        guard let session = appModel.session else { return }
-        session.project.addChapter()
-        session.markDirty()
+        appModel.session?.createChapter()
     }
 }

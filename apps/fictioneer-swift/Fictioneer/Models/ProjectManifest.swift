@@ -10,6 +10,12 @@ nonisolated struct ProjectManifest: Codable {
     var updatedAt: Date
     var chapters: [ChapterManifest]
     var notes: [NoteManifest]
+    // Optional additions — formatVersion stays 1; old packages decode fine.
+    var progressGoals: ProgressGoals?
+    var dailyProgress: [DailyProgress]?
+    var dailyWordSnapshots: [String: Int]?
+    var lastSessionTime: Date?
+    var epubMetadata: ProjectEpubMetadata?
 }
 
 nonisolated struct ChapterManifest: Codable {
@@ -75,7 +81,12 @@ extension ProjectManifest {
                     createdAt: note.createdAt,
                     updatedAt: note.updatedAt
                 )
-            }
+            },
+            progressGoals: project.progressGoals,
+            dailyProgress: project.dailyProgress.isEmpty ? nil : project.dailyProgress,
+            dailyWordSnapshots: project.dailyWordSnapshots.isEmpty ? nil : project.dailyWordSnapshots,
+            lastSessionTime: project.lastSessionTime,
+            epubMetadata: project.epubMetadata
         )
     }
 }

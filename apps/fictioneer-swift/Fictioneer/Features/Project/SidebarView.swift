@@ -241,23 +241,15 @@ struct SidebarView: View {
     // MARK: - Actions
 
     private func addChapter() {
-        let chapter = project.addChapter()
-        chapter.isExpanded = true
-        session.markDirty()
+        session.createChapter()
     }
 
     private func addScene(to chapter: Chapter) {
-        let scene = project.addScene(to: chapter)
-        chapter.isExpanded = true
-        session.selectedNoteID = nil
-        session.selectedSceneID = scene.id
-        session.markDirty(sceneID: scene.id)
+        session.createScene(in: chapter)
     }
 
     private func addNote() {
-        let note = project.addNote()
-        session.selectedNoteID = note.id
-        session.markDirty(noteID: note.id)
+        session.createNote()
     }
 
     private func beginRename(_ chapter: Chapter) {

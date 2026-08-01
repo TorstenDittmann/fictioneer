@@ -40,12 +40,16 @@ final class GhostTextPresenter {
         textView.onGhostEscape = { [weak self] in
             self?.controller.escapePressed() ?? false
         }
-        editorController.onDocumentEdit = { [weak self] in
+        editorController.documentEditObservers.append { [weak self] in
             self?.controller.documentDidChange()
         }
-        editorController.onSelectionChange = { [weak self] in
+        editorController.selectionChangeObservers.append { [weak self] in
             self?.selectionDidChange()
         }
+    }
+
+    var isGhostActive: Bool {
+        controller.isActive
     }
 
     // MARK: - Inputs
@@ -105,11 +109,11 @@ final class GhostTextPresenter {
     private func render(_ display: GhostDisplay?) {
         guard let textView, let storage = textView.textStorage else { return }
         let undoManager = textView.undoManager
-        editorController?.isPerformingGhostMutation = true
+        editorController?.isPerformingProgrammaticMutation = true
         undoManager?.disableUndoRegistration()
         defer {
             undoManager?.enableUndoRegistration()
-            editorController?.isPerformingGhostMutation = false
+            editorController?.isPerformingProgrammaticMutation = false
         }
 
         if let ghostRange {

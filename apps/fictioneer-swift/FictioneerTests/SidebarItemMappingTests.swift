@@ -45,6 +45,18 @@ struct SidebarItemMappingTests {
         #expect(session.selectedSceneID == sceneID)
     }
 
+    @Test func searchPreservesSceneSelection() {
+        let session = makeSession()
+        let sceneID = session.project.chapters[0].scenes[0].id
+        session.selectedItem = .scene(sceneID)
+        session.selectedItem = .search
+        #expect(session.selectedItem == .search)
+        #expect(session.selectedSceneID == sceneID)
+        session.selectedItem = .scene(sceneID)
+        #expect(session.selectedItem == .scene(sceneID))
+        #expect(session.showsSearch == false)
+    }
+
     @Test func nilSelectionIsIgnored() {
         let session = makeSession()
         let sceneID = session.project.chapters[0].scenes[0].id

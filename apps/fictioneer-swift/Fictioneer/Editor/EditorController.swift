@@ -7,19 +7,39 @@ final class EditorController {
     weak var textView: FictioneerTextView?
     private(set) var theme: EditorTheme?
 
-    /// Set by GhostTextPresenter around its storage mutations so the
-    /// coordinator's textDidChange ignores them.
-    @ObservationIgnored var isPerformingGhostMutation = false
+    /// Set around programmatic storage mutations (ghost text, analysis
+    /// highlights) so the coordinator's textDidChange ignores them.
+    @ObservationIgnored var isPerformingProgrammaticMutation = false
 
-    /// Called on real document edits; the ghost presenter hooks this to dismiss.
-    @ObservationIgnored var onDocumentEdit: (() -> Void)?
+    /// Observers of real document edits (ghost presenter dismissal, analysis
+    /// re-runs, …). Multicast — append, never assign.
+    @ObservationIgnored var documentEditObservers: [() -> Void] = []
 
-    /// Called on selection changes (outside ghost mutations); the ghost
-    /// presenter hooks this to dismiss when the caret moves.
-    @ObservationIgnored var onSelectionChange: (() -> Void)?
+    /// Observers of selection changes outside programmatic mutations.
+    @ObservationIgnored var selectionChangeObservers: [() -> Void] = []
+
+    func notifyDocumentEdit() {
+        for observer in documentEditObservers {
+            observer()
+        }
+    }
+
+    func notifySelectionChange() {
+        for observer in selectionChangeObservers {
+            observer()
+        }
+    }
+
+    /// Whether the text view currently has a non-empty selection (updated by
+    /// the coordinator; drives the Rephrase button).
+    var hasSelection = false
 
     /// Keeps the presenter alive for the editor's lifetime.
     @ObservationIgnored var ghostPresenter: GhostTextPresenter?
+
+    var isGhostActive: Bool {
+        ghostPresenter?.isGhostActive ?? false
+    }
 
     // MARK: - Theme
 

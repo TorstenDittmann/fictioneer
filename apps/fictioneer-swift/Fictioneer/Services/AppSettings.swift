@@ -23,6 +23,10 @@ final class AppSettings {
     var editorLineHeight: Double = 1.75 { didSet { persist() } }
     var intelligenceURLString: String = AppConfig.defaultIntelligenceBaseURL { didSet { persist() } }
     var licenseKey: String = "" { didSet { persist() } }
+    /// Prose-analysis inline highlights (off by default, matching the Tauri app).
+    var proseHighlightsEnabled: Bool = false { didSet { persist() } }
+    /// Raw values of visible AnalysisType cases; empty means "all".
+    var visibleAnalysisTypes: [String] = [] { didSet { persist() } }
 
     private nonisolated struct Snapshot: Codable {
         var theme: Theme
@@ -31,6 +35,8 @@ final class AppSettings {
         var editorLineHeight: Double
         var intelligenceURLString: String
         var licenseKey: String
+        var proseHighlightsEnabled: Bool?
+        var visibleAnalysisTypes: [String]?
     }
 
     private static let defaultsKey = "fictioneer.settings"
@@ -57,6 +63,8 @@ final class AppSettings {
         editorLineHeight = snapshot.editorLineHeight
         intelligenceURLString = snapshot.intelligenceURLString
         licenseKey = snapshot.licenseKey
+        proseHighlightsEnabled = snapshot.proseHighlightsEnabled ?? false
+        visibleAnalysisTypes = snapshot.visibleAnalysisTypes ?? []
         isLoading = false
     }
 
@@ -68,7 +76,9 @@ final class AppSettings {
             editorFontSize: editorFontSize,
             editorLineHeight: editorLineHeight,
             intelligenceURLString: intelligenceURLString,
-            licenseKey: licenseKey
+            licenseKey: licenseKey,
+            proseHighlightsEnabled: proseHighlightsEnabled,
+            visibleAnalysisTypes: visibleAnalysisTypes
         )
         defaults.set(try? JSONEncoder().encode(snapshot), forKey: Self.defaultsKey)
     }

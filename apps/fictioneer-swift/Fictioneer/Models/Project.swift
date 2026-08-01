@@ -12,6 +12,12 @@ final class Project {
     let createdAt: Date
     var updatedAt: Date
 
+    var progressGoals: ProgressGoals?
+    var dailyProgress: [DailyProgress] = []
+    var dailyWordSnapshots: [String: Int] = [:]
+    var lastSessionTime: Date?
+    var epubMetadata: ProjectEpubMetadata?
+
     init(
         id: UUID = UUID(),
         title: String,
@@ -111,6 +117,22 @@ final class Project {
     func touch() {
         updatedAt = .now
     }
+
+    // MARK: - Reordering
+
+    func moveChapters(fromOffsets source: IndexSet, toOffset destination: Int) {
+        chapters.move(fromOffsets: source, toOffset: destination)
+        touch()
+    }
+
+    func moveScene(_ scene: Scene, to targetChapter: Chapter) {
+        guard let sourceChapter = chapter(containing: scene.id), sourceChapter.id != targetChapter.id else { return }
+        sourceChapter.scenes.removeAll { $0.id == scene.id }
+        targetChapter.scenes.append(scene)
+        sourceChapter.updatedAt = .now
+        targetChapter.updatedAt = .now
+        touch()
+    }
 }
 
 @Observable
@@ -121,6 +143,11 @@ final class Chapter {
     var isExpanded: Bool
     let createdAt: Date
     var updatedAt: Date
+
+    func moveScenes(fromOffsets source: IndexSet, toOffset destination: Int) {
+        scenes.move(fromOffsets: source, toOffset: destination)
+        updatedAt = .now
+    }
 
     init(
         id: UUID = UUID(),

@@ -140,7 +140,7 @@ enum ProjectPackage {
             )
         }
 
-        return Project(
+        let project = Project(
             id: manifest.id,
             title: manifest.title,
             details: manifest.details,
@@ -150,6 +150,12 @@ enum ProjectPackage {
             createdAt: manifest.createdAt,
             updatedAt: manifest.updatedAt
         )
+        project.progressGoals = manifest.progressGoals
+        project.dailyProgress = manifest.dailyProgress ?? []
+        project.dailyWordSnapshots = manifest.dailyWordSnapshots ?? [:]
+        project.lastSessionTime = manifest.lastSessionTime
+        project.epubMetadata = manifest.epubMetadata
+        return project
     }
 
     // MARK: - Helpers

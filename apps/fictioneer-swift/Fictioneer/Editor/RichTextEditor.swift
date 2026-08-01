@@ -76,15 +76,16 @@ struct RichTextEditor: NSViewRepresentable {
 
         func textDidChange(_ notification: Notification) {
             guard let textView = notification.object as? FictioneerTextView else { return }
-            guard !controller.isPerformingGhostMutation else { return }
-            controller.onDocumentEdit?()
-            onContentChange(textView.attributedString().strippingGhostText())
+            guard !controller.isPerformingProgrammaticMutation else { return }
+            controller.notifyDocumentEdit()
+            onContentChange(textView.attributedString().strippingTransientAttributes())
             textView.centerCaret()
         }
 
         func textViewDidChangeSelection(_ notification: Notification) {
-            guard !controller.isPerformingGhostMutation else { return }
-            controller.onSelectionChange?()
+            guard !controller.isPerformingProgrammaticMutation else { return }
+            controller.hasSelection = (notification.object as? NSTextView)?.selectedRange().length ?? 0 > 0
+            controller.notifySelectionChange()
         }
 
         func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
