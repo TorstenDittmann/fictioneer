@@ -47,6 +47,7 @@ final class AnalysisHighlighter {
     }
 
     func apply(_ highlights: [AnalysisHighlight], visibleTypes: Set<AnalysisType>?) {
+        var appliedTips: [(range: NSRange, message: String)] = []
         withProgrammaticMutation { storage in
             removeAll(from: storage)
             for highlight in highlights {
@@ -80,16 +81,18 @@ final class AnalysisHighlighter {
                     .backgroundColor: style.background,
                     .underlineStyle: style.underlineStyle,
                     .underlineColor: style.underlineColor,
-                    .toolTip: tooltip,
                 ], range: range)
+                appliedTips.append((range, tooltip))
             }
         }
+        editorController?.textView?.setAnalysisToolTips(appliedTips)
     }
 
     func clear() {
         withProgrammaticMutation { storage in
             removeAll(from: storage)
         }
+        editorController?.textView?.setAnalysisToolTips([])
     }
 
     private func removeAll(from storage: NSTextStorage) {

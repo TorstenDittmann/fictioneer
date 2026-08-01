@@ -155,6 +155,13 @@ struct SceneEditorView: View {
         )
         .shadow(color: .black.opacity(0.12), radius: 8, y: 2)
         .padding(.top, 10)
+        // The NSTextView beneath owns an I-beam cursor rect for this whole
+        // region; keep forcing the arrow while the pointer is over the pill.
+        .onContinuousHover { phase in
+            if case .active = phase {
+                NSCursor.arrow.set()
+            }
+        }
     }
 
     private var toolbarDivider: some View {

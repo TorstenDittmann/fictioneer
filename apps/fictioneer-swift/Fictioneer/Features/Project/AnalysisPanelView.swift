@@ -31,6 +31,11 @@ struct AnalysisPanelView: View {
         )
         .frame(maxWidth: isExpanded ? 300 : nil)
         .padding(12)
+        .onContinuousHover { phase in
+            if case .active = phase {
+                NSCursor.arrow.set()
+            }
+        }
     }
 
     private var header: some View {
@@ -78,8 +83,10 @@ struct AnalysisPanelView: View {
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
-                ProgressView(value: min(Double(scene.wordCount), Double(Self.targetMax)), total: Double(Self.targetMax))
-                    .tint(scene.wordCount < Self.targetMin ? Color.accentColor.opacity(0.5) : Color.accentColor)
+                ProgressBar(
+                    fraction: Double(scene.wordCount) / Double(Self.targetMax),
+                    emphasized: scene.wordCount >= Self.targetMin
+                )
             }
 
             Text(result.summary)

@@ -63,8 +63,10 @@ struct ProgressDashboardView: View {
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
             }
-            ProgressView(value: Double(min(words, target)), total: Double(target))
-                .tint(met || percentage >= 80 ? Color.accentColor : Color.accentColor.opacity(0.5))
+            ProgressBar(
+                fraction: Double(words) / Double(max(1, target)),
+                emphasized: met || percentage >= 80
+            )
             Text(motivation(words: words, target: target, met: met, percentage: percentage))
                 .font(.caption)
                 .foregroundStyle(.secondary)

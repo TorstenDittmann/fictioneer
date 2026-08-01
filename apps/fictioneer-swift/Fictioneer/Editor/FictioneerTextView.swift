@@ -27,6 +27,38 @@ final class FictioneerTextView: NSTextView {
         testUndoManager ?? super.undoManager
     }
 
+    // MARK: - Analysis tooltips
+
+    // The `.toolTip` attributed-string key is not honored by TextKit 2, so
+    // highlight tooltips are registered as real NSView tooltip rects. Rects
+    // are in document-view coordinates (scroll-stable); they refresh on every
+    // analysis pass, which also covers relayout after edits.
+    private var analysisToolTips: [NSView.ToolTipTag: String] = [:]
+
+    func setAnalysisToolTips(_ tips: [(range: NSRange, message: String)]) {
+        removeAllToolTips()
+        analysisToolTips.removeAll()
+        guard let window else { return }
+        for tip in tips {
+            let screenRect = firstRect(forCharacterRange: tip.range, actualRange: nil)
+            guard screenRect != .zero else { continue }
+            let rect = convert(window.convertFromScreen(screenRect), from: nil)
+            guard !rect.isEmpty else { continue }
+            let tag = addToolTip(rect, owner: self, userData: nil)
+            analysisToolTips[tag] = tip.message
+        }
+    }
+
+    // NSViewToolTipOwner (informal protocol; dispatched via the objc runtime).
+    @objc func view(
+        _ view: NSView,
+        stringForToolTip tag: NSView.ToolTipTag,
+        point: NSPoint,
+        userData data: UnsafeMutableRawPointer?
+    ) -> String {
+        analysisToolTips[tag] ?? ""
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         guard string.isEmpty else { return }
