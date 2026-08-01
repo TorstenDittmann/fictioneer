@@ -17,6 +17,14 @@ final class FictioneerTextView: NSTextView {
     private static let maxColumnWidth: CGFloat = 680
     private static let placeholderText = "Start writing…"
 
+    /// Injected by tests: a standalone (windowless) NSTextView resolves no
+    /// undo manager from the responder chain.
+    var testUndoManager: UndoManager?
+
+    override var undoManager: UndoManager? {
+        testUndoManager ?? super.undoManager
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         guard string.isEmpty else { return }

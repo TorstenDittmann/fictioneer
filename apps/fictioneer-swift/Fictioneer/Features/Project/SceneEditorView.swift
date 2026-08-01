@@ -6,6 +6,7 @@ struct SceneEditorView: View {
     let scene: Scene
 
     @State private var controller = EditorController()
+    @State private var analysis = AnalysisCoordinator()
 
     var body: some View {
         RichTextEditor(
@@ -31,14 +32,20 @@ struct SceneEditorView: View {
                             (scene?.title, session?.project.details.isEmpty == false ? session?.project.details : nil)
                         }
                     )
+                    analysis.attach(editorController: editorController, settings: settings)
                 }
             ) { content in
                 scene.updateContent(content)
                 session.markDirty(sceneID: scene.id)
+                analysis.contentDidChange(content.string)
             }
         .background(VisualEffectView().ignoresSafeArea())
         .overlay(alignment: .bottomTrailing) {
-            statsCapsule
+            AnalysisPanelView(
+                analysis: analysis,
+                scene: scene,
+                aiReady: appModel.license.isReadyForSuggestions
+            )
         }
         .overlay(alignment: .top) {
             floatingToolbar
@@ -66,6 +73,17 @@ struct SceneEditorView: View {
                 .keyboardShortcut("u", modifiers: .command)
             formatButton("strikethrough", "Strikethrough") { controller.toggleStrikethrough() }
                 .keyboardShortcut("x", modifiers: [.command, .shift])
+            toolbarDivider
+            Button {
+                analysis.setHighlightsEnabled(!analysis.highlightsEnabled)
+            } label: {
+                Image(systemName: "textformat.abc.dottedunderline")
+                    .frame(width: 24, height: 22)
+                    .contentShape(Rectangle())
+                    .foregroundStyle(analysis.highlightsEnabled ? Color.accentColor : Color.primary)
+            }
+            .buttonStyle(.borderless)
+            .help("Prose highlights — underline adverbs, passive voice, clichés and more")
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
@@ -108,23 +126,4 @@ struct SceneEditorView: View {
         .help(help)
     }
 
-    private var statsCapsule: some View {
-        HStack(spacing: 6) {
-            if appModel.license.isReadyForSuggestions {
-                Image(systemName: "sparkle")
-                    .font(.caption2)
-                    .foregroundStyle(Color.accentColor)
-                    .help("Hold ⌥ for an AI continuation · Tab accepts")
-            }
-            Text("\(scene.wordCount) words · \(scene.characterCount) chars")
-                .font(.caption)
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .background(.regularMaterial, in: .capsule)
-        .padding(12)
-        .allowsHitTesting(false)
-    }
 }
