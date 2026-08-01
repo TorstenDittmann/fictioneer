@@ -44,6 +44,8 @@ struct RichTextEditor: NSViewRepresentable {
         scrollView.autohidesScrollers = true
         scrollView.drawsBackground = true
         scrollView.backgroundColor = EditorTheme.paperBackground
+        // Typewriter mode manages its own bottom overscroll inset.
+        scrollView.automaticallyAdjustsContentInsets = false
 
         DispatchQueue.main.async {
             textView.window?.makeFirstResponder(textView)

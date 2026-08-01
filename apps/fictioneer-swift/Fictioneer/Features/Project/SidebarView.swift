@@ -20,10 +20,12 @@ struct SidebarView: View {
             notesSection
         }
         .listStyle(.sidebar)
-        .safeAreaInset(edge: .bottom) {
+        .safeAreaInset(edge: .top, spacing: 0) {
+            header
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             footer
         }
-        .navigationTitle(project.title)
         .alert("Rename Chapter", isPresented: chapterRenameShown) {
             TextField("Title", text: $renameText)
             Button("Cancel", role: .cancel) { renamingChapter = nil }
@@ -165,18 +167,60 @@ struct SidebarView: View {
         }
     }
 
-    private var footer: some View {
+    /// Project header — layout borrowed from the Tauri sidebar: title + gear.
+    private var header: some View {
         HStack {
-            Text("\(project.totalWordCount) words")
-                .monospacedDigit()
+            Text(project.title)
+                .font(.headline)
+                .lineLimit(1)
             Spacer()
-            saveStateLabel
+            SettingsLink {
+                Image(systemName: "gearshape")
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.borderless)
+            .help("Settings")
         }
-        .font(.caption)
-        .foregroundStyle(.secondary)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .padding(.top, 4)
+        .padding(.bottom, 10)
+    }
+
+    private var footer: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 5) {
+                shortcutRow("New Scene", "⌘N")
+                shortcutRow("New Chapter", "⇧⌘N")
+                shortcutRow("AI Suggestion", "hold ⌥")
+                shortcutRow("Save", "⌘S")
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            Divider()
+            HStack {
+                Text("\(project.totalWordCount) words")
+                    .monospacedDigit()
+                Spacer()
+                saveStateLabel
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+        }
         .background(.bar)
+    }
+
+    private func shortcutRow(_ label: String, _ keys: String) -> some View {
+        HStack {
+            Text(label)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(keys)
+                .foregroundStyle(.tertiary)
+                .monospaced()
+        }
+        .font(.caption2)
     }
 
     @ViewBuilder

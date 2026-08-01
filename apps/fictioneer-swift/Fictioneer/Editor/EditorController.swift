@@ -63,6 +63,16 @@ final class EditorController {
         storage.endEditing()
     }
 
+    // MARK: - Undo
+
+    func undo() {
+        textView?.undoManager?.undo()
+    }
+
+    func redo() {
+        textView?.undoManager?.redo()
+    }
+
     // MARK: - Inline formatting
 
     func toggleBold() {

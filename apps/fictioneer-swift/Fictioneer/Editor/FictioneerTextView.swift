@@ -67,7 +67,21 @@ final class FictioneerTextView: NSTextView {
         }
     }
 
+    /// NSTextView calls this internally to keep the caret visible on every
+    /// keystroke. Redirecting caret scrolls into our centering makes typewriter
+    /// mode the single scroll authority — no competing scroll animations.
+    override func scrollRangeToVisible(_ range: NSRange) {
+        if range.length == 0 {
+            centerCaret()
+        } else {
+            super.scrollRangeToVisible(range)
+        }
+    }
+
     /// Typewriter mode: keep the caret vertically centered while typing.
+    /// Synchronous and unanimated on purpose — per-keystroke movement is at
+    /// most one line height, and starting overlapping animations while reading
+    /// mid-flight scroll positions is what caused visible flicker.
     /// Bottom overscroll (half a viewport of contentInset) lets the last line
     /// reach the middle of the screen.
     func centerCaret() {
@@ -82,7 +96,6 @@ final class FictioneerTextView: NSTextView {
 
         let bottomInset = (visible.height * 0.5).rounded()
         if scrollView.contentInsets.bottom != bottomInset {
-            scrollView.automaticallyAdjustsContentInsets = false
             scrollView.contentInsets.bottom = bottomInset
         }
 
@@ -90,11 +103,7 @@ final class FictioneerTextView: NSTextView {
         let targetY = min(max(0, caretRect.midY - visible.height * 0.5), maxY)
         guard abs(targetY - visible.origin.y) > 1 else { return }
 
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.15
-            context.allowsImplicitAnimation = true
-            scrollView.contentView.animator().setBoundsOrigin(NSPoint(x: visible.origin.x, y: targetY))
-            scrollView.reflectScrolledClipView(scrollView.contentView)
-        }
+        scrollView.contentView.setBoundsOrigin(NSPoint(x: visible.origin.x, y: targetY))
+        scrollView.reflectScrolledClipView(scrollView.contentView)
     }
 }

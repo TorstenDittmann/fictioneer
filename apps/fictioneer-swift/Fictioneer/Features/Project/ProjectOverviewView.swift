@@ -39,6 +39,8 @@ struct ProjectOverviewView: View {
             .frame(maxWidth: 720, alignment: .leading)
             .frame(maxWidth: .infinity)
         }
+        .navigationTitle("Overview")
+        .navigationSubtitle(project.title)
     }
 
     private var mostRecentScene: Scene? {
