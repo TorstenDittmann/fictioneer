@@ -5,6 +5,7 @@ struct RichTextEditor: NSViewRepresentable {
     let initialContent: NSAttributedString
     let settings: AppSettings
     let controller: EditorController
+    var configureGhost: ((FictioneerTextView, EditorController) -> Void)?
     let onContentChange: (NSAttributedString) -> Void
 
     func makeCoordinator() -> Coordinator {
@@ -35,6 +36,7 @@ struct RichTextEditor: NSViewRepresentable {
         textView.textStorage?.setAttributedString(initialContent)
         controller.textView = textView
         controller.applyTheme(EditorTheme(settings: settings))
+        configureGhost?(textView, controller)
 
         let scrollView = NSScrollView()
         scrollView.documentView = textView
@@ -76,6 +78,11 @@ struct RichTextEditor: NSViewRepresentable {
             controller.onDocumentEdit?()
             onContentChange(textView.attributedString().strippingGhostText())
             textView.centerCaret()
+        }
+
+        func textViewDidChangeSelection(_ notification: Notification) {
+            guard !controller.isPerformingGhostMutation else { return }
+            controller.onSelectionChange?()
         }
 
         func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {

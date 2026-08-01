@@ -12,7 +12,27 @@ struct SceneEditorView: View {
             RichTextEditor(
                 initialContent: scene.content,
                 settings: appModel.settings,
-                controller: controller
+                controller: controller,
+                configureGhost: { textView, editorController in
+                    let settings = appModel.settings
+                    let license = appModel.license
+                    let ghostController = GhostTextController { content, context in
+                        IntelligenceClient(
+                            baseURL: settings.intelligenceBaseURL,
+                            licenseKey: settings.licenseKey
+                        )
+                        .continueWriting(content: content, context: context)
+                    }
+                    editorController.ghostPresenter = GhostTextPresenter(
+                        textView: textView,
+                        editorController: editorController,
+                        controller: ghostController,
+                        isEnabled: { license.isReadyForSuggestions },
+                        contextInfo: { [weak scene, weak session] in
+                            (scene?.title, session?.project.details.isEmpty == false ? session?.project.details : nil)
+                        }
+                    )
+                }
             ) { content in
                 scene.updateContent(content)
                 session.markDirty(sceneID: scene.id)

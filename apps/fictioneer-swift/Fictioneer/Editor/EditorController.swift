@@ -14,6 +14,13 @@ final class EditorController {
     /// Called on real document edits; the ghost presenter hooks this to dismiss.
     @ObservationIgnored var onDocumentEdit: (() -> Void)?
 
+    /// Called on selection changes (outside ghost mutations); the ghost
+    /// presenter hooks this to dismiss when the caret moves.
+    @ObservationIgnored var onSelectionChange: (() -> Void)?
+
+    /// Keeps the presenter alive for the editor's lifetime.
+    @ObservationIgnored var ghostPresenter: GhostTextPresenter?
+
     // MARK: - Theme
 
     func applyTheme(_ theme: EditorTheme) {
