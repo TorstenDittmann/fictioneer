@@ -4,15 +4,23 @@ struct ProjectWindowView: View {
     @Environment(AppModel.self) private var appModel
     let session: ProjectSession
 
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
+
     var body: some View {
         @Bindable var appModel = appModel
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView(session: session)
                 .navigationSplitViewColumnWidth(min: 230, ideal: 280, max: 360)
         } detail: {
             detailView
         }
         .frame(minWidth: 900, minHeight: 560)
+        .toolbar(session.isFocusMode ? .hidden : .automatic, for: .windowToolbar)
+        .onChange(of: session.isFocusMode) {
+            withAnimation {
+                columnVisibility = session.isFocusMode ? .detailOnly : .all
+            }
+        }
         .sheet(isPresented: $appModel.isExportSheetRequested) {
             ExportSheet(session: session)
         }

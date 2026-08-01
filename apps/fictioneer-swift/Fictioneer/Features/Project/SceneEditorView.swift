@@ -35,6 +35,11 @@ struct SceneEditorView: View {
                         }
                     )
                     analysis.attach(editorController: editorController, settings: settings)
+                    textView.onEscape = { [weak session] in
+                        guard let session, session.isFocusMode else { return false }
+                        session.isFocusMode = false
+                        return true
+                    }
                 }
             ) { content in
                 let previousWords = scene.wordCount
@@ -50,14 +55,18 @@ struct SceneEditorView: View {
             }
         .background(VisualEffectView().ignoresSafeArea())
         .overlay(alignment: .bottomTrailing) {
-            AnalysisPanelView(
-                analysis: analysis,
-                scene: scene,
-                aiReady: appModel.license.isReadyForSuggestions
-            )
+            if !session.isFocusMode {
+                AnalysisPanelView(
+                    analysis: analysis,
+                    scene: scene,
+                    aiReady: appModel.license.isReadyForSuggestions
+                )
+            }
         }
         .overlay(alignment: .top) {
-            floatingToolbar
+            if !session.isFocusMode {
+                floatingToolbar
+            }
         }
         .overlay(alignment: .bottom) {
             if session.progress.showGoalToast {

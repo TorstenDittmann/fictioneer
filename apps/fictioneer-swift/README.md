@@ -1,8 +1,13 @@
 # Fictioneer (native macOS)
 
-Native SwiftUI MVP of Fictioneer — the focused writing app — covering the core
-writing loop plus the ⌥-hold AI ghost-text continuation, backed by the existing
-`apps/intelligence` service.
+Native SwiftUI version of Fictioneer — the focused writing app — at feature
+parity with the Tauri app: the core writing loop, ⌥-hold AI ghost text,
+offline prose analysis (readability, adverb/passive/cliché highlights, 0–100
+score), progress & goals (streaks, 30-day chart, daily toast), RTF/TXT/EPUB
+export (three EPUB templates, dependency-free zip writer), full-text search,
+a ⌘K command palette, AI rephrase and prompt generation, focus mode (⌘F),
+sidebar drag-reordering, project settings with eBook metadata, and the
+bundled example project.
 
 - macOS 15+, Swift 6 (strict concurrency), SwiftUI + an NSTextView-based editor.
 - No dependencies. The Xcode project is generated with [XcodeGen](https://github.com/yonaskolb/XcodeGen).

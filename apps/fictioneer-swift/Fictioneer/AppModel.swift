@@ -41,6 +41,22 @@ final class AppModel {
         }
     }
 
+    func createExampleProject() {
+        let panel = NSSavePanel()
+        panel.title = "Save Example Project"
+        panel.nameFieldStringValue = "The Bohemian Photograph Affair"
+        panel.allowedContentTypes = [.fictioneerProject]
+        panel.canCreateDirectories = true
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            let project = try ExampleProjectFactory.build()
+            try ProjectPackage.write(project, to: url)
+            openSession(url: url, project: project, ownsSecurityScope: false)
+        } catch {
+            openError = error.localizedDescription
+        }
+    }
+
     func openProjectViaPanel() {
         let panel = NSOpenPanel()
         panel.title = "Open Project"

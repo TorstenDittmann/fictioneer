@@ -60,6 +60,12 @@ struct WelcomeView: View {
                     appModel.openProjectViaPanel()
                 }
                 .buttonStyle(.borderless)
+
+                Button("Try the example project") {
+                    appModel.createExampleProject()
+                }
+                .buttonStyle(.link)
+                .font(.callout)
             }
             Spacer()
         }

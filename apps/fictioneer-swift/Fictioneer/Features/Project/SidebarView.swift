@@ -243,9 +243,9 @@ struct SidebarView: View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 5) {
                 shortcutRow("New Scene", "⌘N")
-                shortcutRow("New Chapter", "⇧⌘N")
+                shortcutRow("Command Palette", "⌘K")
+                shortcutRow("Focus Mode", "⌘F")
                 shortcutRow("AI Suggestion", "hold ⌥")
-                shortcutRow("Save", "⌘S")
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)

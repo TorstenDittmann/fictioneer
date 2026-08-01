@@ -7,6 +7,8 @@ final class FictioneerTextView: NSTextView {
     var onGhostTab: (() -> Bool)?
     var onGhostEscape: (() -> Bool)?
     var onOptionKeyChange: ((Bool) -> Void)?
+    /// Fallback Escape handler (focus-mode exit); runs only when no ghost consumed it.
+    var onEscape: (() -> Bool)?
 
     /// Serif-italic font for the empty-document placeholder, kept in sync
     /// with the theme by EditorController.applyTheme.
@@ -49,6 +51,7 @@ final class FictioneerTextView: NSTextView {
             if onGhostTab?() == true { return }
         case 53: // Escape
             if onGhostEscape?() == true { return }
+            if onEscape?() == true { return }
         default:
             break
         }

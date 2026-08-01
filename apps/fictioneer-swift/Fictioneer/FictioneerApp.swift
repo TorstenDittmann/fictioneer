@@ -89,6 +89,12 @@ struct AppCommands: Commands {
             }
             .keyboardShortcut("k", modifiers: .command)
             .disabled(appModel.session == nil)
+
+            Button(appModel.session?.isFocusMode == true ? "Exit Focus Mode" : "Enter Focus Mode") {
+                appModel.session?.isFocusMode.toggle()
+            }
+            .keyboardShortcut("f", modifiers: .command)
+            .disabled(appModel.session == nil)
         }
         CommandGroup(replacing: .saveItem) {
             Button("Save") {
