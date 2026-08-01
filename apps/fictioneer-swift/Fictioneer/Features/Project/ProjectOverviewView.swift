@@ -26,6 +26,8 @@ struct ProjectOverviewView: View {
                     StatTile(value: project.notes.count, label: "Notes")
                 }
 
+                ProgressDashboardView(session: session)
+
                 if let scene = mostRecentScene {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Pick up where you left off")

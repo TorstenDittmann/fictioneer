@@ -35,7 +35,14 @@ struct SceneEditorView: View {
                     analysis.attach(editorController: editorController, settings: settings)
                 }
             ) { content in
+                let previousWords = scene.wordCount
+                let previousCharacters = scene.characterCount
                 scene.updateContent(content)
+                session.progress.recordEdit(
+                    totalWords: session.project.totalWordCount,
+                    wordDelta: abs(scene.wordCount - previousWords),
+                    characterDelta: abs(scene.characterCount - previousCharacters)
+                )
                 session.markDirty(sceneID: scene.id)
                 analysis.contentDidChange(content.string)
             }
@@ -49,6 +56,15 @@ struct SceneEditorView: View {
         }
         .overlay(alignment: .top) {
             floatingToolbar
+        }
+        .overlay(alignment: .bottom) {
+            if session.progress.showGoalToast {
+                GoalToast()
+                    .task {
+                        try? await Task.sleep(for: .seconds(3))
+                        session.progress.showGoalToast = false
+                    }
+            }
         }
         .navigationTitle(scene.title)
         .navigationSubtitle(session.project.chapter(containing: scene.id)?.title ?? "")

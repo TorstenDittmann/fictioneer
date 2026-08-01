@@ -24,6 +24,7 @@ final class ProjectSession {
 
     let url: URL
     let project: Project
+    let progress: ProgressTracker
     private(set) var saveState: SaveState = .saved(.now)
 
     /// Sidebar/editor navigation state.
@@ -116,6 +117,7 @@ final class ProjectSession {
     init(url: URL, project: Project, ownsSecurityScope: Bool) {
         self.url = url
         self.project = project
+        self.progress = ProgressTracker(project: project)
         self.ownsSecurityScope = ownsSecurityScope
         self.selectedSceneID = project.lastOpenedSceneID ?? project.allScenes.first?.id
     }
