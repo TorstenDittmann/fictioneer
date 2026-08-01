@@ -19,6 +19,11 @@ struct FictioneerApp: App {
         .commands {
             AppCommands(appModel: appModel)
         }
+
+        Settings {
+            SettingsView()
+                .environment(appModel)
+        }
     }
 }
 
@@ -48,6 +53,9 @@ struct RootView: View {
             }
         }
         .preferredColorScheme(appModel.settings.theme.colorScheme)
+        .task {
+            appModel.verifyLicenseIfNeeded()
+        }
     }
 }
 

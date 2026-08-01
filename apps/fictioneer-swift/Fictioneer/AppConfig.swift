@@ -1,6 +1,6 @@
 import Foundation
 
-enum AppConfig {
+nonisolated enum AppConfig {
     // TODO: fill in the production intelligence server URL before shipping.
     // The value is not stored in the repo (it lives in a GitHub Actions variable);
     // it can also be overridden per-user in Settings, matching the Tauri app.

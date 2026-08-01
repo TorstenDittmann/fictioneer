@@ -11,7 +11,14 @@ final class AppModel {
     var session: ProjectSession?
     let recents = RecentProjectsStore()
     let settings = AppSettings()
+    let license = LicenseManager()
     var openError: String?
+
+    /// Re-verifies a persisted license key on launch.
+    func verifyLicenseIfNeeded() {
+        guard license.status == .unknown, !settings.licenseKey.isEmpty else { return }
+        license.verify(key: settings.licenseKey, baseURL: settings.intelligenceBaseURL)
+    }
 
     // MARK: - Lifecycle
 
