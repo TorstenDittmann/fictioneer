@@ -13,6 +13,8 @@ final class AppModel {
     let settings = AppSettings()
     let license = LicenseManager()
     var openError: String?
+    /// Set by the File ▸ Export… menu command; consumed by ProjectWindowView.
+    var isExportSheetRequested = false
 
     /// Re-verifies a persisted license key on launch.
     func verifyLicenseIfNeeded() {

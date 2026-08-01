@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct ProjectWindowView: View {
+    @Environment(AppModel.self) private var appModel
     let session: ProjectSession
 
     var body: some View {
+        @Bindable var appModel = appModel
         NavigationSplitView {
             SidebarView(session: session)
                 .navigationSplitViewColumnWidth(min: 230, ideal: 280, max: 360)
@@ -11,6 +13,9 @@ struct ProjectWindowView: View {
             detailView
         }
         .frame(minWidth: 900, minHeight: 560)
+        .sheet(isPresented: $appModel.isExportSheetRequested) {
+            ExportSheet(session: session)
+        }
     }
 
     @ViewBuilder

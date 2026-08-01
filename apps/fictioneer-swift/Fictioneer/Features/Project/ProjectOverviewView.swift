@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProjectOverviewView: View {
     let session: ProjectSession
+    @State private var showingExportSheet = false
 
     private var project: Project { session.project }
 
@@ -27,6 +28,26 @@ struct ProjectOverviewView: View {
                 }
 
                 ProgressDashboardView(session: session)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Export")
+                        .font(.headline)
+                    HStack {
+                        Text("Compile the manuscript as RTF, EPUB, or plain text.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Export Project…") {
+                            showingExportSheet = true
+                        }
+                        .controlSize(.small)
+                    }
+                    .padding(12)
+                    .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(.separator))
+                }
+                .sheet(isPresented: $showingExportSheet) {
+                    ExportSheet(session: session)
+                }
 
                 if let scene = mostRecentScene {
                     VStack(alignment: .leading, spacing: 8) {

@@ -90,6 +90,12 @@ struct AppCommands: Commands {
             .keyboardShortcut("s", modifiers: .command)
             .disabled(appModel.session == nil)
 
+            Button("Export…") {
+                appModel.isExportSheetRequested = true
+            }
+            .keyboardShortcut("e", modifiers: [.command, .shift])
+            .disabled(appModel.session == nil)
+
             Button("Close Project") {
                 appModel.closeProject()
             }
