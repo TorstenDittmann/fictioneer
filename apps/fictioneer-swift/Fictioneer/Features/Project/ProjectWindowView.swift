@@ -4,30 +4,26 @@ struct ProjectWindowView: View {
     let session: ProjectSession
 
     var body: some View {
-        VStack(spacing: 12) {
-            Text(session.project.title)
-                .font(.title.weight(.semibold))
-            Text("Project window — sidebar and editor arrive in the next milestones.")
-                .foregroundStyle(.secondary)
-            saveStatus
+        NavigationSplitView {
+            SidebarView(session: session)
+                .navigationSplitViewColumnWidth(min: 230, ideal: 280, max: 360)
+        } detail: {
+            detailView
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(minWidth: 900, minHeight: 560)
     }
 
-    private var saveStatus: some View {
-        Group {
-            switch session.saveState {
-            case .saved(let date):
-                Text("Saved \(date, format: .dateTime.hour().minute().second())")
-            case .dirty:
-                Text("Unsaved changes…")
-            case .saving:
-                Text("Saving…")
-            case .failed(let message):
-                Text("Save failed: \(message)").foregroundStyle(.red)
-            }
+    @ViewBuilder
+    private var detailView: some View {
+        let project = session.project
+        if let noteID = session.selectedNoteID, let note = project.note(withID: noteID) {
+            NoteEditorView(session: session, note: note)
+                .id(note.id)
+        } else if let sceneID = session.selectedSceneID, let scene = project.scene(withID: sceneID) {
+            SceneEditorView(session: session, scene: scene)
+                .id(scene.id)
+        } else {
+            ProjectOverviewView(session: session)
         }
-        .font(.caption)
-        .foregroundStyle(.secondary)
     }
 }
