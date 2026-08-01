@@ -12,14 +12,15 @@ struct SidebarView: View {
     private var project: Project { session.project }
 
     var body: some View {
-        VStack(spacing: 0) {
-            List {
-                overviewRow
-                chaptersSection
-                notesSection
-            }
-            .listStyle(.sidebar)
-            Divider()
+        @Bindable var session = session
+        List(selection: $session.selectedItem) {
+            Label("Overview", systemImage: "house")
+                .tag(SidebarItem.overview)
+            chaptersSection
+            notesSection
+        }
+        .listStyle(.sidebar)
+        .safeAreaInset(edge: .bottom) {
             footer
         }
         .navigationTitle(project.title)
@@ -51,18 +52,8 @@ struct SidebarView: View {
 
     // MARK: - Sections
 
-    private var overviewRow: some View {
-        Button {
-            session.selectedSceneID = nil
-            session.selectedNoteID = nil
-        } label: {
-            Label("Overview", systemImage: "house")
-        }
-        .buttonStyle(.plain)
-    }
-
     private var chaptersSection: some View {
-        Section {
+        Section("Manuscript") {
             ForEach(project.chapters, id: \.id) { chapter in
                 chapterGroup(chapter)
             }
@@ -73,8 +64,7 @@ struct SidebarView: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
-        } header: {
-            Text("Manuscript")
+            .selectionDisabled()
         }
     }
 
@@ -92,6 +82,7 @@ struct SidebarView: View {
                     .foregroundStyle(.tertiary)
             }
             .buttonStyle(.plain)
+            .selectionDisabled()
         } label: {
             HStack {
                 Text(chapter.title)
@@ -110,35 +101,26 @@ struct SidebarView: View {
                 Button("Delete Chapter…", role: .destructive) { chapterPendingDeletion = chapter }
             }
         }
+        .selectionDisabled()
     }
 
     private func sceneRow(_ scene: Scene) -> some View {
-        let isSelected = session.selectedNoteID == nil && session.selectedSceneID == scene.id
-        return Button {
-            session.selectedNoteID = nil
-            session.selectedSceneID = scene.id
-        } label: {
-            HStack {
-                Image(systemName: "doc.text")
-                    .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+        HStack {
+            Label {
                 Text(scene.title)
                     .lineLimit(1)
-                Spacer()
-                if scene.wordCount > 0 {
-                    Text("\(scene.wordCount)")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                        .monospacedDigit()
-                }
+            } icon: {
+                Image(systemName: "doc.text")
             }
-            .contentShape(Rectangle())
+            Spacer()
+            if scene.wordCount > 0 {
+                Text("\(scene.wordCount)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .monospacedDigit()
+            }
         }
-        .buttonStyle(.plain)
-        .listRowBackground(
-            isSelected
-                ? RoundedRectangle(cornerRadius: 6).fill(Color.accentColor.opacity(0.16))
-                : nil
-        )
+        .tag(SidebarItem.scene(scene.id))
         .contextMenu {
             Button("Rename…") { beginRename(scene) }
             Divider()
@@ -147,7 +129,7 @@ struct SidebarView: View {
     }
 
     private var notesSection: some View {
-        Section {
+        Section("Notes") {
             ForEach(project.notes, id: \.id) { note in
                 noteRow(note)
             }
@@ -158,31 +140,18 @@ struct SidebarView: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
-        } header: {
-            Text("Notes")
+            .selectionDisabled()
         }
     }
 
     private func noteRow(_ note: Note) -> some View {
-        let isSelected = session.selectedNoteID == note.id
-        return Button {
-            session.selectedNoteID = note.id
-        } label: {
-            HStack {
-                Image(systemName: "note.text")
-                    .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-                Text(note.title)
-                    .lineLimit(1)
-                Spacer()
-            }
-            .contentShape(Rectangle())
+        Label {
+            Text(note.title)
+                .lineLimit(1)
+        } icon: {
+            Image(systemName: "note.text")
         }
-        .buttonStyle(.plain)
-        .listRowBackground(
-            isSelected
-                ? RoundedRectangle(cornerRadius: 6).fill(Color.accentColor.opacity(0.16))
-                : nil
-        )
+        .tag(SidebarItem.note(note.id))
         .contextMenu {
             Button("Delete Note", role: .destructive) {
                 if session.selectedNoteID == note.id {
@@ -205,6 +174,7 @@ struct SidebarView: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
+        .background(.bar)
     }
 
     @ViewBuilder
@@ -212,7 +182,6 @@ struct SidebarView: View {
         switch session.saveState {
         case .saved:
             Label("Saved", systemImage: "checkmark.circle")
-                .labelStyle(.titleAndIcon)
         case .dirty:
             Label("Editing…", systemImage: "pencil")
         case .saving:

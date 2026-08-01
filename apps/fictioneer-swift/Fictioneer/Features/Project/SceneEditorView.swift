@@ -41,18 +41,20 @@ struct SceneEditorView: View {
             footer
         }
         .navigationTitle(scene.title)
+        .navigationSubtitle(session.project.chapter(containing: scene.id)?.title ?? "")
         .toolbar {
-            ToolbarItemGroup {
+            ToolbarItemGroup(placement: .primaryAction) {
                 blockStyleMenu
-                Divider()
-                formatButton("bold", "Bold") { controller.toggleBold() }
-                    .keyboardShortcut("b", modifiers: .command)
-                formatButton("italic", "Italic") { controller.toggleItalic() }
-                    .keyboardShortcut("i", modifiers: .command)
-                formatButton("underline", "Underline") { controller.toggleUnderline() }
-                    .keyboardShortcut("u", modifiers: .command)
-                formatButton("strikethrough", "Strikethrough") { controller.toggleStrikethrough() }
-                    .keyboardShortcut("x", modifiers: [.command, .shift])
+                ControlGroup {
+                    formatButton("bold", "Bold") { controller.toggleBold() }
+                        .keyboardShortcut("b", modifiers: .command)
+                    formatButton("italic", "Italic") { controller.toggleItalic() }
+                        .keyboardShortcut("i", modifiers: .command)
+                    formatButton("underline", "Underline") { controller.toggleUnderline() }
+                        .keyboardShortcut("u", modifiers: .command)
+                    formatButton("strikethrough", "Strikethrough") { controller.toggleStrikethrough() }
+                        .keyboardShortcut("x", modifiers: [.command, .shift])
+                }
             }
         }
     }

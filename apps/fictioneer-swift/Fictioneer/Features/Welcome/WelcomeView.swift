@@ -14,6 +14,7 @@ struct WelcomeView: View {
                 .frame(width: 300)
                 .background(.background.secondary)
         }
+        .navigationTitle("")
         .sheet(isPresented: $showingNewProjectSheet) {
             NewProjectSheet()
         }

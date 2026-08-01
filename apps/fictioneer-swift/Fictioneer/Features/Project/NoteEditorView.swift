@@ -55,20 +55,23 @@ struct NoteEditorView: View {
             }
         }
         .navigationTitle(note.title)
+        .navigationSubtitle("Notes")
         .toolbar {
-            ToolbarItemGroup {
-                Button {
-                    controller.toggleBold()
-                } label: {
-                    Label("Bold", systemImage: "bold")
+            ToolbarItemGroup(placement: .primaryAction) {
+                ControlGroup {
+                    Button {
+                        controller.toggleBold()
+                    } label: {
+                        Label("Bold", systemImage: "bold")
+                    }
+                    .keyboardShortcut("b", modifiers: .command)
+                    Button {
+                        controller.toggleItalic()
+                    } label: {
+                        Label("Italic", systemImage: "italic")
+                    }
+                    .keyboardShortcut("i", modifiers: .command)
                 }
-                .keyboardShortcut("b", modifiers: .command)
-                Button {
-                    controller.toggleItalic()
-                } label: {
-                    Label("Italic", systemImage: "italic")
-                }
-                .keyboardShortcut("i", modifiers: .command)
             }
         }
     }

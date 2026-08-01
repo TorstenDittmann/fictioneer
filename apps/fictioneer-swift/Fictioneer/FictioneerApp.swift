@@ -14,7 +14,7 @@ struct FictioneerApp: App {
                     appDelegate.appModel = appModel
                 }
         }
-        .windowStyle(.hiddenTitleBar)
+        .windowToolbarStyle(.unified)
         .defaultSize(width: 1100, height: 720)
         .commands {
             AppCommands(appModel: appModel)

@@ -1,5 +1,14 @@
 import Foundation
 
+/// Sidebar navigation target. `.note` deliberately preserves the scene
+/// selection underneath — ⌘N chapter targeting and `lastOpenedSceneID`
+/// restoration read `selectedSceneID` even while a note is open.
+enum SidebarItem: Hashable {
+    case overview
+    case scene(UUID)
+    case note(UUID)
+}
+
 /// An open project: the model, its on-disk location, dirty tracking, and
 /// autosave (3s debounce after the last change, at most one save per 5s —
 /// matching the Tauri app's cadence).
@@ -19,6 +28,31 @@ final class ProjectSession {
     /// Sidebar/editor navigation state.
     var selectedSceneID: UUID?
     var selectedNoteID: UUID?
+
+    /// Bridge for the sidebar's native `List(selection:)`.
+    var selectedItem: SidebarItem? {
+        get {
+            selectedNoteID.map(SidebarItem.note)
+                ?? selectedSceneID.map(SidebarItem.scene)
+                ?? .overview
+        }
+        set {
+            switch newValue {
+            case .overview:
+                selectedNoteID = nil
+                selectedSceneID = nil
+            case .scene(let id):
+                selectedNoteID = nil
+                selectedSceneID = id
+            case .note(let id):
+                selectedNoteID = id
+            case nil:
+                // List can emit nil transiently (⌘-click deselect, row removal);
+                // bouncing to Overview would be surprise navigation.
+                break
+            }
+        }
+    }
 
     private var dirtySceneIDs: Set<UUID> = []
     private var dirtyNoteIDs: Set<UUID> = []
