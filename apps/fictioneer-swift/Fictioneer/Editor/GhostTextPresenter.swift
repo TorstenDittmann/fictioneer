@@ -143,9 +143,16 @@ final class GhostTextPresenter {
         textView.setSelectedRange(NSRange(location: location, length: 0))
     }
 
+    /// Muted ghost color. Built from labelColor with an explicit low alpha —
+    /// NOT from tertiaryLabelColor, whose muting lives in its *intrinsic*
+    /// alpha and is destroyed by `withAlphaComponent(1)`.
+    static func ghostColor(alpha: Double) -> NSColor {
+        NSColor.labelColor.withAlphaComponent(0.4 * alpha)
+    }
+
     private func ghostAttributes(alpha: Double) -> [NSAttributedString.Key: Any] {
         var attributes = editorController?.theme?.bodyAttributes ?? [:]
-        attributes[.foregroundColor] = NSColor.tertiaryLabelColor.withAlphaComponent(alpha)
+        attributes[.foregroundColor] = Self.ghostColor(alpha: alpha)
         attributes[.ghostText] = true
         attributes[.headingLevel] = nil
         attributes[.blockquote] = nil

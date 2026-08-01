@@ -67,7 +67,9 @@ final class FictioneerTextView: NSTextView {
         }
     }
 
-    /// Typewriter feel: keep the caret in the middle band of the viewport.
+    /// Typewriter mode: keep the caret vertically centered while typing.
+    /// Bottom overscroll (half a viewport of contentInset) lets the last line
+    /// reach the middle of the screen.
     func centerCaret() {
         guard let scrollView = enclosingScrollView, let window else { return }
         let caretScreenRect = firstRect(
@@ -77,13 +79,19 @@ final class FictioneerTextView: NSTextView {
         guard caretScreenRect != .zero else { return }
         let caretRect = convert(window.convertFromScreen(caretScreenRect), from: nil)
         let visible = scrollView.contentView.bounds
-        let upperBand = visible.minY + visible.height * 0.2
-        let lowerBand = visible.minY + visible.height * 0.65
-        guard caretRect.midY < upperBand || caretRect.midY > lowerBand else { return }
 
-        let targetY = max(0, caretRect.midY - visible.height * 0.5)
+        let bottomInset = (visible.height * 0.5).rounded()
+        if scrollView.contentInsets.bottom != bottomInset {
+            scrollView.automaticallyAdjustsContentInsets = false
+            scrollView.contentInsets.bottom = bottomInset
+        }
+
+        let maxY = max(0, frame.height - visible.height + bottomInset)
+        let targetY = min(max(0, caretRect.midY - visible.height * 0.5), maxY)
+        guard abs(targetY - visible.origin.y) > 1 else { return }
+
         NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.18
+            context.duration = 0.15
             context.allowsImplicitAnimation = true
             scrollView.contentView.animator().setBoundsOrigin(NSPoint(x: visible.origin.x, y: targetY))
             scrollView.reflectScrolledClipView(scrollView.contentView)

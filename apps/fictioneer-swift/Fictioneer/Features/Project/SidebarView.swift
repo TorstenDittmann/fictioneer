@@ -101,7 +101,9 @@ struct SidebarView: View {
                 Button("Delete Chapter…", role: .destructive) { chapterPendingDeletion = chapter }
             }
         }
-        .selectionDisabled()
+        // No .selectionDisabled() here: on a DisclosureGroup it propagates to
+        // every child row, making the scenes unselectable. The label row is
+        // already unselectable because it carries no .tag().
     }
 
     private func sceneRow(_ scene: Scene) -> some View {
