@@ -21,9 +21,13 @@ final class AnalysisHighlighter {
         func rgb(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat, _ alpha: CGFloat) -> NSColor {
             NSColor(srgbRed: r / 255, green: g / 255, blue: b / 255, alpha: alpha)
         }
+        // All underlines are plain .single: TextKit 2 measures pattern
+        // underlines (dash/dot) into line-fragment heights, so toggling
+        // highlights with mixed patterns visibly shifted the layout. Type
+        // identity comes from color plus the margin chips.
         let single = NSUnderlineStyle.single.rawValue
-        let dashed = NSUnderlineStyle.single.rawValue | NSUnderlineStyle.patternDash.rawValue
-        let dotted = NSUnderlineStyle.single.rawValue | NSUnderlineStyle.patternDot.rawValue
+        let dashed = single
+        let dotted = single
         switch type {
         case .adverb:
             return Style(background: rgb(59, 130, 246, 0.15), underlineStyle: single, underlineColor: rgb(59, 130, 246, 0.5))
@@ -148,9 +152,17 @@ final class AnalysisHighlighter {
         textView.undoManager?.enableUndoRegistration()
         controller.isPerformingProgrammaticMutation = false
 
-        if let scrollView, let savedOrigin, scrollView.contentView.bounds.origin != savedOrigin {
-            scrollView.contentView.setBoundsOrigin(savedOrigin)
-            scrollView.reflectScrolledClipView(scrollView.contentView)
+        if let scrollView, let savedOrigin {
+            let restore = {
+                if scrollView.contentView.bounds.origin != savedOrigin {
+                    scrollView.contentView.setBoundsOrigin(savedOrigin)
+                    scrollView.reflectScrolledClipView(scrollView.contentView)
+                }
+            }
+            restore()
+            // TextKit 2 finalizes relayout on the next runloop tick — pin the
+            // scroll position again after it settles.
+            DispatchQueue.main.async(execute: restore)
         }
     }
 }
