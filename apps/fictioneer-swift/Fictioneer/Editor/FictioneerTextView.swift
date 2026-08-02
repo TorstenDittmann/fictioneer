@@ -57,8 +57,18 @@ final class FictioneerTextView: NSTextView {
             }
             let lineRect = convert(window.convertFromScreen(screenRect), from: nil)
             chip.isHidden = marginWidth < 90
-            chip.setFrameOrigin(NSPoint(x: x, y: lineRect.minY + 1))
+            let origin = NSPoint(x: x, y: Self.chipY(forLineRect: lineRect, chipHeight: chip.frame.height))
+            if chip.frame.origin != origin {
+                chip.dismissPopover() // the popover would not follow the move
+                chip.setFrameOrigin(origin)
+            }
         }
+    }
+
+    /// Line boxes carry their extra leading on top (lineHeightMultiple), so
+    /// glyphs sit at the bottom — align chips to the glyph band, not box top.
+    static func chipY(forLineRect lineRect: NSRect, chipHeight: CGFloat) -> CGFloat {
+        lineRect.maxY - chipHeight - 3
     }
 
     override func layout() {
@@ -84,11 +94,12 @@ final class FictioneerTextView: NSTextView {
             // Frame must hug the visible pill: any invisible slack consumes
             // clicks meant for the editor and offsets the popover anchor.
             let size = chip.pillSize
+            let height = min(max(size.height, 18), 22)
             chip.frame = NSRect(
                 x: x,
-                y: lineRect.minY + 1,
+                y: Self.chipY(forLineRect: lineRect, chipHeight: height),
                 width: min(size.width, maxWidth),
-                height: min(max(size.height, 18), 22)
+                height: height
             )
             addSubview(chip)
             marginChips.append(chip)
@@ -155,8 +166,26 @@ final class FictioneerTextView: NSTextView {
                 name: NSView.frameDidChangeNotification,
                 object: clipView
             )
+            // Scrolling moves the chips with the document, but an open
+            // NSPopover is a window and stays put — close them on any scroll
+            // or a stranded popover blocks clicks over its area.
+            clipView.postsBoundsChangedNotifications = true
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(clipViewBoundsDidChange),
+                name: NSView.boundsDidChangeNotification,
+                object: clipView
+            )
             updateOverscrollMinHeight()
         }
+    }
+
+    @objc private func clipViewBoundsDidChange(_ notification: Notification) {
+        dismissAllChipPopovers()
+    }
+
+    func dismissAllChipPopovers() {
+        marginChips.forEach { $0.dismissPopover() }
     }
 
     @objc private func clipViewFrameDidChange(_ notification: Notification) {
