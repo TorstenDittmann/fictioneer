@@ -41,12 +41,36 @@ final class FictioneerTextView: NSTextView {
         rebuildMarginChips()
     }
 
+    /// Recomputes existing chips' frames from current layout without
+    /// recreating views — safe to call from `layout()`, and keeps chips
+    /// correct after attribute-only changes (heading/blockquote toggles)
+    /// that move lines without changing the text.
     func repositionMarginAnnotations() {
-        rebuildMarginChips()
+        guard !marginChips.isEmpty, let window else { return }
+        let marginWidth = textContainerInset.width
+        let x = bounds.width - marginWidth + 8
+        for chip in marginChips {
+            let screenRect = firstRect(forCharacterRange: chip.annotation.lineRange, actualRange: nil)
+            guard screenRect != .zero else {
+                chip.isHidden = true
+                continue
+            }
+            let lineRect = convert(window.convertFromScreen(screenRect), from: nil)
+            chip.isHidden = marginWidth < 90
+            chip.setFrameOrigin(NSPoint(x: x, y: lineRect.minY + 1))
+        }
+    }
+
+    override func layout() {
+        super.layout()
+        repositionMarginAnnotations()
     }
 
     private func rebuildMarginChips() {
-        marginChips.forEach { $0.removeFromSuperview() }
+        marginChips.forEach {
+            $0.dismissPopover()
+            $0.removeFromSuperview()
+        }
         marginChips.removeAll()
         let marginWidth = textContainerInset.width
         guard marginWidth >= 90, let window, !marginAnnotations.isEmpty else { return }
@@ -112,7 +136,7 @@ final class FictioneerTextView: NSTextView {
     override func setFrameSize(_ newSize: NSSize) {
         super.setFrameSize(newSize)
         updateColumnInset()
-        repositionMarginAnnotations()
+        rebuildMarginChips()
     }
 
     // MARK: - Overscroll hit area

@@ -159,8 +159,22 @@ final class MarginChipHostView: NSView {
     }
 
     override func mouseExited(with event: NSEvent) {
+        dismissPopover()
+    }
+
+    func dismissPopover() {
         popover?.close()
         popover = nil
+    }
+
+    // A chip can be torn down (analysis re-pass) while its popover is open;
+    // an orphaned transient popover lingers at a stale position and swallows
+    // the next click to dismiss itself. Always close before detaching.
+    override func viewWillMove(toSuperview newSuperview: NSView?) {
+        if newSuperview == nil {
+            dismissPopover()
+        }
+        super.viewWillMove(toSuperview: newSuperview)
     }
 
     override func mouseDown(with event: NSEvent) {
