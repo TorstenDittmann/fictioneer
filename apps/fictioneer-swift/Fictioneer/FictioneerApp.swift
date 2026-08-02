@@ -30,44 +30,6 @@ struct FictioneerApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     var appModel: AppModel?
 
-    #if DEBUG
-    // Temporary diagnostic: log the hit view of every click so dead-click
-    // reports can be traced to the view that swallows them.
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        let logURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("hittest.log")
-        NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown]) { event in
-            guard let window = event.window, let content = window.contentView else { return event }
-            let point = content.convert(event.locationInWindow, from: nil)
-            let hit = content.hitTest(point)
-            var line = "click at \(Int(event.locationInWindow.x)),\(Int(event.locationInWindow.y)) -> "
-            line += hit.map { String(describing: type(of: $0)) } ?? "nil"
-            if let hit {
-                var chain: [String] = []
-                var view: NSView? = hit.superview
-                while let v = view, chain.count < 5 {
-                    chain.append(String(describing: type(of: v)))
-                    view = v.superview
-                }
-                line += " (in: \(chain.joined(separator: " > ")))"
-                if let textView = hit as? FictioneerTextView ?? hit.superview as? FictioneerTextView {
-                    line += " tvFrame=\(textView.frame.height.rounded()) inset=\(textView.enclosingScrollView?.contentInsets.bottom ?? -1)"
-                }
-            }
-            line += "\n"
-            if let data = line.data(using: .utf8) {
-                if let handle = try? FileHandle(forWritingTo: logURL) {
-                    handle.seekToEndOfFile()
-                    handle.write(data)
-                    try? handle.close()
-                } else {
-                    try? data.write(to: logURL)
-                }
-            }
-            return event
-        }
-    }
-    #endif
-
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         true
     }

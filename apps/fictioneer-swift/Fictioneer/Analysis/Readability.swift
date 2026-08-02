@@ -14,6 +14,15 @@ nonisolated enum Readability {
     /// Sentence splitting matching the JS pipeline. Returned sentences are
     /// trimmed and lack their terminal punctuation.
     static func splitIntoSentences(_ text: String) -> [String] {
+        // Newlines are hard sentence boundaries. Deliberate improvement over
+        // the Tauri engine, which merged unpunctuated paragraphs into one
+        // giant "sentence" and flagged false long-sentence issues across
+        // paragraph breaks.
+        text.split(omittingEmptySubsequences: true, whereSeparator: \.isNewline)
+            .flatMap { splitSegmentIntoSentences(String($0)) }
+    }
+
+    private static func splitSegmentIntoSentences(_ text: String) -> [String] {
         var working = text
         for abbr in abbreviations {
             let pattern = "\\b" + NSRegularExpression.escapedPattern(for: abbr) + "\\."

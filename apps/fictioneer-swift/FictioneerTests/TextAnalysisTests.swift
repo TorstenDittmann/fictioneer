@@ -71,6 +71,11 @@ struct ReadabilityTests {
         #expect(sentences.contains { $0.contains("...") })
     }
 
+    @Test func newlinesAreSentenceBoundaries() {
+        let sentences = Readability.splitIntoSentences("a line without punctuation\nanother line follows\nThird one. And more")
+        #expect(sentences == ["a line without punctuation", "another line follows", "Third one", "And more"])
+    }
+
     @Test func emptyTextScoresZero() {
         let scores = Readability.scores(for: "")
         #expect(scores.fleschReadingEase == 0)
@@ -105,6 +110,16 @@ struct SentenceAnalysisTests {
         let sentences = SentenceAnalysis.parseSentences(words + ".")
         let highlights = SentenceAnalysis.highlights(for: sentences, config: .default)
         #expect(highlights.contains { $0.type == .longSentence })
+    }
+
+    @Test func paragraphBreaksNeverMergeIntoLongSentences() {
+        // Two unpunctuated 20-word paragraphs: merged they'd be a false
+        // 40-word "long sentence"; newline boundaries keep them separate.
+        let line = Array(repeating: "word", count: 20).joined(separator: " ")
+        let sentences = SentenceAnalysis.parseSentences(line + "\n" + line)
+        #expect(sentences.count == 2)
+        let highlights = SentenceAnalysis.highlights(for: sentences, config: .default)
+        #expect(!highlights.contains { $0.type == .longSentence })
     }
 
     @Test func consecutiveStartersFlagged() {
