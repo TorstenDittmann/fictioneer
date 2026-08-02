@@ -143,6 +143,7 @@ final class AnalysisHighlighter {
         // position across the mutation.
         let scrollView = textView.enclosingScrollView
         let savedOrigin = scrollView?.contentView.bounds.origin
+        textView.suppressCaretAutoscroll = true
 
         controller.isPerformingProgrammaticMutation = true
         textView.undoManager?.disableUndoRegistration()
@@ -152,17 +153,18 @@ final class AnalysisHighlighter {
         textView.undoManager?.enableUndoRegistration()
         controller.isPerformingProgrammaticMutation = false
 
-        if let scrollView, let savedOrigin {
-            let restore = {
-                if scrollView.contentView.bounds.origin != savedOrigin {
-                    scrollView.contentView.setBoundsOrigin(savedOrigin)
-                    scrollView.reflectScrolledClipView(scrollView.contentView)
-                }
+        let restore = { [weak textView] in
+            if let scrollView, let savedOrigin, scrollView.contentView.bounds.origin != savedOrigin {
+                scrollView.contentView.setBoundsOrigin(savedOrigin)
+                scrollView.reflectScrolledClipView(scrollView.contentView)
             }
-            restore()
-            // TextKit 2 finalizes relayout on the next runloop tick — pin the
-            // scroll position again after it settles.
-            DispatchQueue.main.async(execute: restore)
+            textView?.suppressCaretAutoscroll = false
         }
+        restore()
+        textView.suppressCaretAutoscroll = true
+        // TextKit 2 finalizes relayout (and may re-request caret visibility)
+        // on the next runloop tick — keep autoscroll suppressed until after
+        // that, then pin the scroll position once more.
+        DispatchQueue.main.async(execute: restore)
     }
 }
