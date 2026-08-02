@@ -204,16 +204,9 @@ final class FictioneerTextView: NSTextView {
     /// NSTextView calls this internally to keep the caret visible on every
     /// keystroke. Redirecting caret scrolls into our centering makes typewriter
     /// mode the single scroll authority — no competing scroll animations.
-    /// Set around programmatic attribute passes (analysis highlights): TextKit
-    /// re-requests caret visibility after invalidation, which would otherwise
-    /// funnel into centerCaret() and jump the view to the caret.
-    var suppressCaretAutoscroll = false
-
     override func scrollRangeToVisible(_ range: NSRange) {
         if range.length == 0 {
-            if !suppressCaretAutoscroll {
-                centerCaret()
-            }
+            centerCaret()
         } else {
             super.scrollRangeToVisible(range)
         }

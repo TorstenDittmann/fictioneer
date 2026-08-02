@@ -1,9 +1,14 @@
 import AppKit
 
-/// Applies prose-analysis highlights to the text storage as display-only
-/// attributes (tint + underline + tooltip), following the ghost-text rules:
-/// undo registration disabled, coordinator suppression, and full restoration
-/// of any user styling the highlight replaced.
+/// Applies prose-analysis highlights as TextKit 2 *rendering attributes* —
+/// display-only decoration that never enters the text storage.
+///
+/// This is deliberate: storage attributes (even plain underlines) participate
+/// in TextKit 2 layout measurement, so applying them grew the scrollable area
+/// and shifted the view when toggling highlights — and they dragged along a
+/// train of mitigations (undo isolation, save-path stripping, scroll pinning).
+/// Rendering attributes are layout-neutral by contract (spell-check squiggles
+/// use the same mechanism) and are invisible to undo, autosave, and export.
 final class AnalysisHighlighter {
     struct Style {
         var background: NSColor
@@ -13,6 +18,9 @@ final class AnalysisHighlighter {
 
     private weak var editorController: EditorController?
 
+    /// Ranges decorated in the last pass (UTF-16 storage offsets).
+    private(set) var appliedRanges: [NSRange] = []
+
     init(editorController: EditorController) {
         self.editorController = editorController
     }
@@ -21,13 +29,9 @@ final class AnalysisHighlighter {
         func rgb(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat, _ alpha: CGFloat) -> NSColor {
             NSColor(srgbRed: r / 255, green: g / 255, blue: b / 255, alpha: alpha)
         }
-        // All underlines are plain .single: TextKit 2 measures pattern
-        // underlines (dash/dot) into line-fragment heights, so toggling
-        // highlights with mixed patterns visibly shifted the layout. Type
-        // identity comes from color plus the margin chips.
         let single = NSUnderlineStyle.single.rawValue
-        let dashed = single
-        let dotted = single
+        let dashed = NSUnderlineStyle.single.rawValue | NSUnderlineStyle.patternDash.rawValue
+        let dotted = NSUnderlineStyle.single.rawValue | NSUnderlineStyle.patternDot.rawValue
         switch type {
         case .adverb:
             return Style(background: rgb(59, 130, 246, 0.15), underlineStyle: single, underlineColor: rgb(59, 130, 246, 0.5))
@@ -51,48 +55,57 @@ final class AnalysisHighlighter {
     }
 
     func apply(_ highlights: [AnalysisHighlight], visibleTypes: Set<AnalysisType>?) {
-        var applied: [AnalysisHighlight] = []
-        withProgrammaticMutation { storage in
-            removeAll(from: storage)
-            for highlight in highlights {
-                if let visibleTypes, !visibleTypes.contains(highlight.type) { continue }
-                let range = highlight.range
-                guard range.location >= 0, range.location + range.length <= storage.length, range.length > 0 else { continue }
-                // Skip any range overlapping an earlier highlight — first wins
-                // (CSS-stacking parity), and overlap would poison the recorded
-                // "previous" styling used for restoration.
-                var overlapsExisting = false
-                storage.enumerateAttribute(.analysisHighlight, in: range) { value, _, stop in
-                    if value != nil {
-                        overlapsExisting = true
-                        stop.pointee = true
-                    }
-                }
-                if overlapsExisting { continue }
+        guard let textView = editorController?.textView,
+              let layoutManager = textView.textLayoutManager else { return }
+        clearRenderingAttributes(layoutManager)
 
-                let previousUnderline = storage.attribute(.underlineStyle, at: range.location, effectiveRange: nil) as? Int
-                let previousBackground = storage.attribute(.backgroundColor, at: range.location, effectiveRange: nil) as? NSColor
-                let style = Self.style(for: highlight.type)
-                storage.addAttributes([
-                    .analysisHighlight: AnalysisMarker(
-                        previousUnderlineStyle: previousUnderline,
-                        previousBackgroundColor: previousBackground
-                    ),
-                    .backgroundColor: style.background,
-                    .underlineStyle: style.underlineStyle,
-                    .underlineColor: style.underlineColor,
-                ], range: range)
-                applied.append(highlight)
-            }
+        let length = (textView.string as NSString).length
+        var applied: [AnalysisHighlight] = []
+        for highlight in highlights {
+            if let visibleTypes, !visibleTypes.contains(highlight.type) { continue }
+            let range = highlight.range
+            guard range.location >= 0, range.length > 0, range.location + range.length <= length else { continue }
+            // First-wins on overlap (CSS-stacking parity with the Tauri app).
+            guard !appliedRanges.contains(where: { NSIntersectionRange($0, range).length > 0 }) else { continue }
+            guard let textRange = Self.textRange(range, in: layoutManager) else { continue }
+
+            let style = Self.style(for: highlight.type)
+            layoutManager.setRenderingAttributes([
+                .backgroundColor: style.background,
+                .underlineStyle: style.underlineStyle,
+                .underlineColor: style.underlineColor,
+            ], for: textRange)
+            appliedRanges.append(range)
+            applied.append(highlight)
         }
+        textView.needsDisplay = true
         updateMarginAnnotations(for: applied)
     }
 
     func clear() {
-        withProgrammaticMutation { storage in
-            removeAll(from: storage)
+        guard let textView = editorController?.textView else { return }
+        if let layoutManager = textView.textLayoutManager {
+            clearRenderingAttributes(layoutManager)
         }
-        editorController?.textView?.setMarginAnnotations([])
+        textView.needsDisplay = true
+        textView.setMarginAnnotations([])
+    }
+
+    private func clearRenderingAttributes(_ layoutManager: NSTextLayoutManager) {
+        let document = layoutManager.documentRange
+        layoutManager.removeRenderingAttribute(.backgroundColor, for: document)
+        layoutManager.removeRenderingAttribute(.underlineStyle, for: document)
+        layoutManager.removeRenderingAttribute(.underlineColor, for: document)
+        appliedRanges = []
+    }
+
+    private static func textRange(_ range: NSRange, in layoutManager: NSTextLayoutManager) -> NSTextRange? {
+        guard let contentManager = layoutManager.textContentManager else { return nil }
+        let document = contentManager.documentRange
+        guard let start = contentManager.location(document.location, offsetBy: range.location),
+              let end = contentManager.location(start, offsetBy: range.length)
+        else { return nil }
+        return NSTextRange(location: start, end: end)
     }
 
     private func updateMarginAnnotations(for applied: [AnalysisHighlight]) {
@@ -107,64 +120,5 @@ final class AnalysisHighlighter {
             return Int(rect.minY.rounded())
         }
         textView.setMarginAnnotations(annotations)
-    }
-
-    private func removeAll(from storage: NSTextStorage) {
-        var markers: [(NSRange, AnalysisMarker)] = []
-        storage.enumerateAttribute(.analysisHighlight, in: NSRange(location: 0, length: storage.length)) { value, range, _ in
-            if let marker = value as? AnalysisMarker {
-                markers.append((range, marker))
-            }
-        }
-        for (range, marker) in markers {
-            storage.removeAttribute(.analysisHighlight, range: range)
-            storage.removeAttribute(.toolTip, range: range)
-            storage.removeAttribute(.underlineColor, range: range)
-            if let previous = marker.previousUnderlineStyle {
-                storage.addAttribute(.underlineStyle, value: previous, range: range)
-            } else {
-                storage.removeAttribute(.underlineStyle, range: range)
-            }
-            if let previous = marker.previousBackgroundColor {
-                storage.addAttribute(.backgroundColor, value: previous, range: range)
-            } else {
-                storage.removeAttribute(.backgroundColor, range: range)
-            }
-        }
-    }
-
-    private func withProgrammaticMutation(_ body: (NSTextStorage) -> Void) {
-        guard let controller = editorController,
-              let textView = controller.textView,
-              let storage = textView.textStorage
-        else { return }
-        // Attribute passes invalidate layout, which can trigger the text
-        // view's caret-scroll and visibly shift content — pin the scroll
-        // position across the mutation.
-        let scrollView = textView.enclosingScrollView
-        let savedOrigin = scrollView?.contentView.bounds.origin
-        textView.suppressCaretAutoscroll = true
-
-        controller.isPerformingProgrammaticMutation = true
-        textView.undoManager?.disableUndoRegistration()
-        storage.beginEditing()
-        body(storage)
-        storage.endEditing()
-        textView.undoManager?.enableUndoRegistration()
-        controller.isPerformingProgrammaticMutation = false
-
-        let restore = { [weak textView] in
-            if let scrollView, let savedOrigin, scrollView.contentView.bounds.origin != savedOrigin {
-                scrollView.contentView.setBoundsOrigin(savedOrigin)
-                scrollView.reflectScrolledClipView(scrollView.contentView)
-            }
-            textView?.suppressCaretAutoscroll = false
-        }
-        restore()
-        textView.suppressCaretAutoscroll = true
-        // TextKit 2 finalizes relayout (and may re-request caret visibility)
-        // on the next runloop tick — keep autoscroll suppressed until after
-        // that, then pin the scroll position once more.
-        DispatchQueue.main.async(execute: restore)
     }
 }

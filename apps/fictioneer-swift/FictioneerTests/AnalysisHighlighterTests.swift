@@ -13,7 +13,7 @@ struct AnalysisHighlighterTests {
         return (textView, controller)
     }
 
-    @Test func applyThenStripRestoresOriginalArchive() throws {
+    @Test func applyNeverTouchesTextStorage() throws {
         let text = "She ran very quickly. It was a dark and stormy night."
         let (textView, controller) = makeEditor(text: text)
         let original = try TextArchive.data(from: textView.attributedString())
@@ -23,25 +23,17 @@ struct AnalysisHighlighterTests {
         let highlighter = AnalysisHighlighter(editorController: controller)
         highlighter.apply(result.highlights, visibleTypes: nil)
 
-        // Highlights are visible in storage…
-        var highlightCount = 0
-        textView.textStorage?.enumerateAttribute(
-            .analysisHighlight,
-            in: NSRange(location: 0, length: textView.textStorage!.length)
-        ) { value, _, _ in
-            if value != nil { highlightCount += 1 }
-        }
-        #expect(highlightCount > 0)
+        // Highlights are rendering attributes only…
+        #expect(!highlighter.appliedRanges.isEmpty)
 
-        // …the persisted form is semantically identical to pre-highlight
-        // content (run boundaries may differ; attributes must not).
-        let originalString = try TextArchive.attributedString(from: original)
-        let stripped = textView.attributedString().strippingTransientAttributes()
-        #expect(stripped.isEqual(to: originalString))
-
-        // …and clear() restores the live storage too.
+        // …so the storage is byte-identical to the pre-highlight archive,
+        // both while applied and after clearing.
+        let after = try TextArchive.data(from: textView.attributedString())
+        #expect(after == original)
         highlighter.clear()
-        #expect(textView.attributedString().isEqual(to: originalString))
+        #expect(highlighter.appliedRanges.isEmpty)
+        let cleared = try TextArchive.data(from: textView.attributedString())
+        #expect(cleared == original)
     }
 
     @Test func applyRegistersNoUndoActions() {
@@ -64,17 +56,11 @@ struct AnalysisHighlighterTests {
         let highlighter = AnalysisHighlighter(editorController: controller)
         highlighter.apply(result.highlights, visibleTypes: [.cliche])
 
-        var types: Set<String> = []
-        textView.textStorage?.enumerateAttribute(
-            .analysisHighlight,
-            in: NSRange(location: 0, length: textView.textStorage!.length)
-        ) { value, range, _ in
-            if value != nil {
-                types.insert((textView.textStorage!.string as NSString).substring(with: range).lowercased())
-            }
+        let decorated = highlighter.appliedRanges.map {
+            (textView.string as NSString).substring(with: $0).lowercased()
         }
-        #expect(types.contains { $0.contains("dark and stormy") })
-        #expect(!types.contains("quickly"))
+        #expect(decorated.contains { $0.contains("dark and stormy") })
+        #expect(!decorated.contains("quickly"))
     }
 }
 
