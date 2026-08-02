@@ -108,15 +108,23 @@ struct AnalysisIssueListView: View {
         }
         .padding(12)
         .frame(width: 300, alignment: .leading)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(.separator))
+        .shadow(color: .black.opacity(0.18), radius: 10, y: 3)
     }
 }
 
 // MARK: - AppKit chip host (own tracking area — no NSTextView interference)
 
+/// The detail card is deliberately NOT an NSPopover: popovers are separate
+/// windows that don't follow a moving anchor (scrolling text), strand
+/// mid-screen, and swallow the click that dismisses them. The card is a plain
+/// subview of the document anchored beneath its pill — always attached.
 final class MarginChipHostView: NSView {
     let annotation: MarginAnnotation
     private let hostingView: NSHostingView<AnalysisMarginChipView>
-    private var popover: NSPopover?
+    private var detailCard: NSHostingView<AnalysisIssueListView>?
+    private var isPinned = false
 
     init(annotation: MarginAnnotation) {
         self.annotation = annotation
@@ -155,46 +163,56 @@ final class MarginChipHostView: NSView {
 
     override func mouseEntered(with event: NSEvent) {
         NSCursor.arrow.set()
-        showPopover()
+        showDetail()
     }
 
     override func mouseExited(with event: NSEvent) {
-        dismissPopover()
+        if !isPinned {
+            dismissDetail()
+        }
     }
 
-    func dismissPopover() {
-        popover?.close()
-        popover = nil
+    override func mouseDown(with event: NSEvent) {
+        if detailCard != nil, isPinned {
+            isPinned = false
+            dismissDetail()
+        } else {
+            isPinned = true
+            showDetail()
+        }
     }
 
-    // A chip can be torn down (analysis re-pass) while its popover is open;
-    // an orphaned transient popover lingers at a stale position and swallows
-    // the next click to dismiss itself. Always close before detaching.
+    func dismissDetail() {
+        detailCard?.removeFromSuperview()
+        detailCard = nil
+        isPinned = false
+    }
+
     override func viewWillMove(toSuperview newSuperview: NSView?) {
         if newSuperview == nil {
-            dismissPopover()
+            dismissDetail()
         }
         super.viewWillMove(toSuperview: newSuperview)
     }
 
-    override func mouseDown(with event: NSEvent) {
-        if let popover, popover.isShown {
-            popover.close()
-            self.popover = nil
-        } else {
-            showPopover()
-        }
+    /// Keeps an open card glued to the pill when the chip is repositioned.
+    func layoutDetailCard() {
+        guard let detailCard, let container = superview else { return }
+        let size = detailCard.fittingSize
+        let x = min(max(8, frame.maxX - size.width), container.bounds.width - size.width - 8)
+        detailCard.frame = NSRect(
+            x: x,
+            y: frame.maxY + 6,
+            width: size.width,
+            height: size.height
+        )
     }
 
-    private func showPopover() {
-        guard popover?.isShown != true else { return }
-        let newPopover = NSPopover()
-        newPopover.behavior = .transient
-        newPopover.animates = false
-        newPopover.contentViewController = NSHostingController(
-            rootView: AnalysisIssueListView(items: annotation.items)
-        )
-        newPopover.show(relativeTo: bounds, of: self, preferredEdge: .maxX)
-        popover = newPopover
+    private func showDetail() {
+        guard detailCard == nil, let container = superview else { return }
+        let card = NSHostingView(rootView: AnalysisIssueListView(items: annotation.items))
+        container.addSubview(card, positioned: .above, relativeTo: self)
+        detailCard = card
+        layoutDetailCard()
     }
 }

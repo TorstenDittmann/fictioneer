@@ -59,9 +59,9 @@ final class FictioneerTextView: NSTextView {
             chip.isHidden = marginWidth < 90
             let origin = NSPoint(x: x, y: Self.chipY(forLineRect: lineRect, chipHeight: chip.frame.height))
             if chip.frame.origin != origin {
-                chip.dismissPopover() // the popover would not follow the move
                 chip.setFrameOrigin(origin)
             }
+            chip.layoutDetailCard() // an open card stays glued to its pill
         }
     }
 
@@ -78,7 +78,7 @@ final class FictioneerTextView: NSTextView {
 
     private func rebuildMarginChips() {
         marginChips.forEach {
-            $0.dismissPopover()
+            $0.dismissDetail()
             $0.removeFromSuperview()
         }
         marginChips.removeAll()
@@ -166,26 +166,8 @@ final class FictioneerTextView: NSTextView {
                 name: NSView.frameDidChangeNotification,
                 object: clipView
             )
-            // Scrolling moves the chips with the document, but an open
-            // NSPopover is a window and stays put — close them on any scroll
-            // or a stranded popover blocks clicks over its area.
-            clipView.postsBoundsChangedNotifications = true
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(clipViewBoundsDidChange),
-                name: NSView.boundsDidChangeNotification,
-                object: clipView
-            )
             updateOverscrollMinHeight()
         }
-    }
-
-    @objc private func clipViewBoundsDidChange(_ notification: Notification) {
-        dismissAllChipPopovers()
-    }
-
-    func dismissAllChipPopovers() {
-        marginChips.forEach { $0.dismissPopover() }
     }
 
     @objc private func clipViewFrameDidChange(_ notification: Notification) {
