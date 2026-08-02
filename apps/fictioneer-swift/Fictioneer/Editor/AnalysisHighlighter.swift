@@ -96,6 +96,10 @@ final class AnalysisHighlighter {
         layoutManager.removeRenderingAttribute(.backgroundColor, for: document)
         layoutManager.removeRenderingAttribute(.underlineStyle, for: document)
         layoutManager.removeRenderingAttribute(.underlineColor, for: document)
+        // Removal alone doesn't repaint fragments that already rendered the
+        // decoration — invalidation drops the cached rendering attributes and
+        // marks the affected fragments for redisplay.
+        layoutManager.invalidateRenderingAttributes(for: document)
         appliedRanges = []
     }
 
