@@ -71,6 +71,19 @@ struct ReadabilityTests {
         #expect(sentences.contains { $0.contains("...") })
     }
 
+    @Test func quotedDialogueSplitsAtSentenceBoundaries() {
+        // Curly quotes around the boundary must not defeat the split.
+        let text = "\u{201C}Marriage agrees with you,\u{201D} he remarked from his armchair. "
+            + "\u{201C}I observe you have gained half a stone.\u{201D}"
+        let sentences = Readability.splitIntoSentences(text)
+        #expect(sentences.count == 2)
+        #expect(sentences[1].hasPrefix("\u{201C}I observe"))
+
+        // Terminator inside the closing quote: `said." He`
+        let inside = "He said \u{201C}stop.\u{201D} Then he left."
+        #expect(Readability.splitIntoSentences(inside).count == 2)
+    }
+
     @Test func newlinesAreSentenceBoundaries() {
         let sentences = Readability.splitIntoSentences("a line without punctuation\nanother line follows\nThird one. And more")
         #expect(sentences == ["a line without punctuation", "another line follows", "Third one", "And more"])

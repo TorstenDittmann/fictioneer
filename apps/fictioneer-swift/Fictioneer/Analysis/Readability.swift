@@ -7,8 +7,13 @@ nonisolated enum Readability {
         "St", "Lt", "Gen", "Col", "Sgt", "Rev", "Inc", "Ltd", "Corp", "Co",
         "No", "Vol", "Ch", "Pg", "Fig",
     ]
+    // Quotes may close the ending sentence (`said." He`) or open the next one
+    // (`armchair. "I observe`) — fiction is dialogue-heavy, so the boundary
+    // tolerates them on both sides. (The Tauri engine required a bare capital
+    // after the space and merged quoted dialogue into giant "sentences".)
+    private static let quotes = "\"'\u{201C}\u{201D}\u{2018}\u{2019}\u{00AB}\u{00BB}"
     private static let boundaryRegex = try! NSRegularExpression(
-        pattern: "([.!?]+)\\s+(?=[A-Z])|([.!?]+)\\s*$"
+        pattern: "([.!?]+[\(quotes)]*)\\s+(?=[\(quotes)]*[A-Z])|([.!?]+[\(quotes)]*)\\s*$"
     )
 
     /// Sentence splitting matching the JS pipeline. Returned sentences are
