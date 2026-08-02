@@ -174,11 +174,22 @@ final class FictioneerTextView: NSTextView {
         updateOverscrollMinHeight()
     }
 
+    // Typewriter overscroll = a stretched text view, NOT NSScrollView
+    // contentInsets: on macOS those shrink the clip view's tile (unlike iOS),
+    // which chopped the visible viewport in half — text could never render in
+    // the inset region and clicks there felt dead.
     func updateOverscrollMinHeight() {
-        guard let scrollView = enclosingScrollView else { return }
-        let height = scrollView.contentView.bounds.height + scrollView.contentInsets.bottom
-        if minSize.height != height {
-            minSize = NSSize(width: 0, height: height)
+        guard let scrollView = enclosingScrollView, let layoutManager = textLayoutManager else { return }
+        let clipHeight = scrollView.contentView.bounds.height
+        layoutManager.ensureLayout(for: layoutManager.documentRange)
+        let contentHeight = layoutManager.usageBoundsForTextContainer.height + textContainerInset.height * 2
+        let overscroll = (clipHeight * 0.5).rounded()
+        let target = max(clipHeight, (contentHeight + overscroll).rounded())
+        if abs(minSize.height - target) > 1 {
+            minSize = NSSize(width: 0, height: target)
+            if frame.height < target {
+                setFrameSize(NSSize(width: frame.width, height: target))
+            }
         }
     }
 
@@ -217,13 +228,9 @@ final class FictioneerTextView: NSTextView {
         let caretRect = convert(window.convertFromScreen(caretScreenRect), from: nil)
         let visible = scrollView.contentView.bounds
 
-        let bottomInset = (visible.height * 0.5).rounded()
-        if scrollView.contentInsets.bottom != bottomInset {
-            scrollView.contentInsets.bottom = bottomInset
-            updateOverscrollMinHeight()
-        }
+        updateOverscrollMinHeight()
 
-        let maxY = max(0, frame.height - visible.height + bottomInset)
+        let maxY = max(0, frame.height - visible.height)
         let targetY = min(max(0, caretRect.midY - visible.height * 0.5), maxY)
 
         // Dead-band of ~half a line: an empty line's caret rect comes from the

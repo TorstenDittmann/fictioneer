@@ -61,8 +61,10 @@ struct RichTextEditor: NSViewRepresentable {
         scrollView.autohidesScrollers = true
         scrollView.drawsBackground = true
         scrollView.backgroundColor = EditorTheme.paperBackground
-        // Typewriter mode manages its own bottom overscroll inset.
+        // Typewriter overscroll comes from stretching the text view itself —
+        // never from contentInsets, which on macOS shrink the clip view tile.
         scrollView.automaticallyAdjustsContentInsets = false
+        scrollView.contentInsets = NSEdgeInsets()
 
         DispatchQueue.main.async {
             textView.window?.makeFirstResponder(textView)
