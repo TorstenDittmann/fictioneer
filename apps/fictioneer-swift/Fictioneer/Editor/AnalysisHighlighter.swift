@@ -54,53 +54,81 @@ final class AnalysisHighlighter {
         }
     }
 
+    /// Current decoration set, consulted by the rendering-attributes
+    /// validator on every fragment repaint. The validator pattern makes stale
+    /// highlights structurally impossible: decoration is always derived from
+    /// this state, never imperatively added/removed.
+    private var activeStyles: [(range: NSRange, style: Style)] = []
+    private var validatorInstalled = false
+    private var chainedValidator: ((NSTextLayoutManager, NSTextLayoutFragment) -> Void)?
+
     func apply(_ highlights: [AnalysisHighlight], visibleTypes: Set<AnalysisType>?) {
         guard let textView = editorController?.textView,
               let layoutManager = textView.textLayoutManager else { return }
-        clearRenderingAttributes(layoutManager)
+        installValidatorIfNeeded(layoutManager)
 
         let length = (textView.string as NSString).length
         var applied: [AnalysisHighlight] = []
+        appliedRanges = []
+        activeStyles = []
         for highlight in highlights {
             if let visibleTypes, !visibleTypes.contains(highlight.type) { continue }
             let range = highlight.range
             guard range.location >= 0, range.length > 0, range.location + range.length <= length else { continue }
             // First-wins on overlap (CSS-stacking parity with the Tauri app).
             guard !appliedRanges.contains(where: { NSIntersectionRange($0, range).length > 0 }) else { continue }
-            guard let textRange = Self.textRange(range, in: layoutManager) else { continue }
-
-            let style = Self.style(for: highlight.type)
-            layoutManager.setRenderingAttributes([
-                .backgroundColor: style.background,
-                .underlineStyle: style.underlineStyle,
-                .underlineColor: style.underlineColor,
-            ], for: textRange)
             appliedRanges.append(range)
+            activeStyles.append((range, Self.style(for: highlight.type)))
             applied.append(highlight)
         }
+        layoutManager.invalidateRenderingAttributes(for: layoutManager.documentRange)
         textView.needsDisplay = true
         updateMarginAnnotations(for: applied)
     }
 
     func clear() {
         guard let textView = editorController?.textView else { return }
+        appliedRanges = []
+        activeStyles = []
         if let layoutManager = textView.textLayoutManager {
-            clearRenderingAttributes(layoutManager)
+            layoutManager.invalidateRenderingAttributes(for: layoutManager.documentRange)
         }
         textView.needsDisplay = true
         textView.setMarginAnnotations([])
     }
 
-    private func clearRenderingAttributes(_ layoutManager: NSTextLayoutManager) {
-        let document = layoutManager.documentRange
-        layoutManager.removeRenderingAttribute(.backgroundColor, for: document)
-        layoutManager.removeRenderingAttribute(.underlineStyle, for: document)
-        layoutManager.removeRenderingAttribute(.underlineColor, for: document)
-        // Removal alone doesn't repaint fragments that already rendered the
-        // decoration — invalidation drops the cached rendering attributes and
-        // marks the affected fragments for redisplay.
-        layoutManager.invalidateRenderingAttributes(for: document)
-        appliedRanges = []
+    private func installValidatorIfNeeded(_ layoutManager: NSTextLayoutManager) {
+        guard !validatorInstalled else { return }
+        validatorInstalled = true
+        chainedValidator = layoutManager.renderingAttributesValidator
+        layoutManager.renderingAttributesValidator = { [weak self] layoutManager, fragment in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.chainedValidator?(layoutManager, fragment)
+                self.decorate(fragment, in: layoutManager)
+            }
+        }
+    }
+
+    private func decorate(_ fragment: NSTextLayoutFragment, in layoutManager: NSTextLayoutManager) {
+        guard !activeStyles.isEmpty,
+              let contentManager = layoutManager.textContentManager else { return }
+        let document = contentManager.documentRange
+        let fragmentRange = fragment.rangeInElement
+        let fragmentStart = contentManager.offset(from: document.location, to: fragmentRange.location)
+        let fragmentEnd = contentManager.offset(from: document.location, to: fragmentRange.endLocation)
+        let fragmentNSRange = NSRange(location: fragmentStart, length: fragmentEnd - fragmentStart)
+
+        for (range, style) in activeStyles {
+            let intersection = NSIntersectionRange(range, fragmentNSRange)
+            guard intersection.length > 0,
+                  let textRange = Self.textRange(intersection, in: layoutManager) else { continue }
+            layoutManager.setRenderingAttributes([
+                .backgroundColor: style.background,
+                .underlineStyle: style.underlineStyle,
+                .underlineColor: style.underlineColor,
+            ], for: textRange)
+        }
     }
 
     private static func textRange(_ range: NSRange, in layoutManager: NSTextLayoutManager) -> NSTextRange? {
