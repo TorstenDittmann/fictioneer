@@ -51,13 +51,21 @@ final class FictioneerTextView: NSTextView {
         let marginWidth = textContainerInset.width
         guard marginWidth >= 90, let window, !marginAnnotations.isEmpty else { return }
         let x = bounds.width - marginWidth + 8
-        let width = min(marginWidth - 20, 220)
+        let maxWidth = min(marginWidth - 20, 220)
         for annotation in marginAnnotations {
             let screenRect = firstRect(forCharacterRange: annotation.lineRange, actualRange: nil)
             guard screenRect != .zero else { continue }
             let lineRect = convert(window.convertFromScreen(screenRect), from: nil)
             let chip = MarginChipHostView(annotation: annotation)
-            chip.frame = NSRect(x: x, y: lineRect.minY + 1, width: width, height: 20)
+            // Frame must hug the visible pill: any invisible slack consumes
+            // clicks meant for the editor and offsets the popover anchor.
+            let size = chip.pillSize
+            chip.frame = NSRect(
+                x: x,
+                y: lineRect.minY + 1,
+                width: min(size.width, maxWidth),
+                height: min(max(size.height, 18), 22)
+            )
             addSubview(chip)
             marginChips.append(chip)
         }

@@ -72,7 +72,6 @@ struct AnalysisMarginChipView: View {
         .padding(.horizontal, 7)
         .padding(.vertical, 3)
         .background(.quaternary.opacity(0.4), in: Capsule())
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var label: String {
@@ -125,6 +124,12 @@ final class MarginChipHostView: NSView {
         super.init(frame: .zero)
         hostingView.autoresizingMask = [.width, .height]
         addSubview(hostingView)
+    }
+
+    /// The pill's natural size — the host frame must match it exactly, or the
+    /// invisible remainder eats editor clicks and misplaces the popover anchor.
+    var pillSize: NSSize {
+        hostingView.fittingSize
     }
 
     @available(*, unavailable)
