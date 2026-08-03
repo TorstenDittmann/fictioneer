@@ -1,0 +1,36 @@
+name: "native"
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - "apps/fictioneer-swift/**"
+            - ".github/workflows/native.yml"
+    pull_request:
+        branches: [main]
+        paths:
+            - "apps/fictioneer-swift/**"
+            - ".github/workflows/native.yml"
+
+jobs:
+    native-tests:
+        runs-on: macos-15
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install XcodeGen
+              run: brew install xcodegen
+
+            - name: Generate Xcode project
+              run: xcodegen
+              working-directory: ./apps/fictioneer-swift
+
+            - name: Run tests
+              run: xcodebuild -scheme Fictioneer -derivedDataPath build -destination 'platform=macOS' test
+              working-directory: ./apps/fictioneer-swift
+
+            - name: Build release configuration
+              run: xcodebuild -scheme Fictioneer -configuration Release -derivedDataPath build -destination 'platform=macOS' build
+              working-directory: ./apps/fictioneer-swift
