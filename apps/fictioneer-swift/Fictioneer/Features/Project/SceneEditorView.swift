@@ -11,6 +11,43 @@ struct SceneEditorView: View {
     @State private var showingPromptSheet = false
 
     var body: some View {
+        ManuscriptPage(header: pageHeader) {
+            editorSurface
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(VisualEffectView().ignoresSafeArea())
+        .overlay(alignment: .bottom) {
+            if session.progress.showGoalToast {
+                GoalToast()
+                    .task {
+                        try? await Task.sleep(for: .seconds(3))
+                        session.progress.showGoalToast = false
+                    }
+            }
+        }
+        .navigationTitle(scene.title)
+        .navigationSubtitle(session.project.chapter(containing: scene.id)?.title ?? "")
+        .sheet(item: $rephrasePayload) { payload in
+            RephraseSheet(payload: payload, controller: controller)
+        }
+        .sheet(isPresented: $showingPromptSheet) {
+            PromptSheet(controller: controller)
+        }
+    }
+
+    private var pageHeader: ManuscriptPageHeader {
+        let chapter = session.project.chapter(containing: scene.id)
+        let numeral = chapter
+            .flatMap { chapter in session.project.chapters.firstIndex { $0.id == chapter.id } }
+            .map { RomanNumeral.format($0 + 1) }
+        return ManuscriptPageHeader(
+            project: session.project.title,
+            section: numeral,
+            title: scene.title
+        )
+    }
+
+    private var editorSurface: some View {
         RichTextEditor(
                 initialContent: scene.content,
                 settings: appModel.settings,
@@ -53,7 +90,6 @@ struct SceneEditorView: View {
                 session.markDirty(sceneID: scene.id)
                 analysis.contentDidChange(content.string)
             }
-        .background(VisualEffectView().ignoresSafeArea())
         .overlay(alignment: .bottomTrailing) {
             if !session.isFocusMode {
                 AnalysisPanelView(
@@ -67,23 +103,6 @@ struct SceneEditorView: View {
             if !session.isFocusMode {
                 floatingToolbar
             }
-        }
-        .overlay(alignment: .bottom) {
-            if session.progress.showGoalToast {
-                GoalToast()
-                    .task {
-                        try? await Task.sleep(for: .seconds(3))
-                        session.progress.showGoalToast = false
-                    }
-            }
-        }
-        .navigationTitle(scene.title)
-        .navigationSubtitle(session.project.chapter(containing: scene.id)?.title ?? "")
-        .sheet(item: $rephrasePayload) { payload in
-            RephraseSheet(payload: payload, controller: controller)
-        }
-        .sheet(isPresented: $showingPromptSheet) {
-            PromptSheet(controller: controller)
         }
     }
 
@@ -149,9 +168,9 @@ struct SceneEditorView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: 6)
                 .strokeBorder(.separator)
         )
         .shadow(color: .black.opacity(0.12), radius: 8, y: 2)

@@ -140,7 +140,7 @@ struct PromptSheet: View {
                         generated = ""
                         dismiss()
                     }
-                    Button("Insert") {
+                    Button("Insert draft") {
                         controller.insertAtCaret(generated)
                         dismiss()
                     }

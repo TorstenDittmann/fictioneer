@@ -24,9 +24,9 @@ struct AnalysisPanelView: View {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
         }
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: isExpanded ? 12 : 14))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
         .overlay(
-            RoundedRectangle(cornerRadius: isExpanded ? 12 : 14)
+            RoundedRectangle(cornerRadius: 6)
                 .strokeBorder(.separator)
         )
         .frame(maxWidth: isExpanded ? 300 : nil)

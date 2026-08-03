@@ -58,9 +58,9 @@ struct SidebarView: View {
     // MARK: - Sections
 
     private var chaptersSection: some View {
-        Section("Manuscript") {
-            ForEach(project.chapters, id: \.id) { chapter in
-                chapterGroup(chapter)
+        Section {
+            ForEach(Array(project.chapters.enumerated()), id: \.element.id) { index, chapter in
+                chapterGroup(chapter, numeral: RomanNumeral.format(index + 1))
             }
             .onMove { source, destination in
                 project.moveChapters(fromOffsets: source, toOffset: destination)
@@ -74,10 +74,12 @@ struct SidebarView: View {
             }
             .buttonStyle(.plain)
             .selectionDisabled()
+        } header: {
+            ManuscriptLabel("Manuscript", size: 10, color: Color(nsColor: .tertiaryLabelColor))
         }
     }
 
-    private func chapterGroup(_ chapter: Chapter) -> some View {
+    private func chapterGroup(_ chapter: Chapter, numeral: String) -> some View {
         @Bindable var chapter = chapter
         return DisclosureGroup(isExpanded: $chapter.isExpanded) {
             ForEach(chapter.scenes, id: \.id) { scene in
@@ -97,14 +99,18 @@ struct SidebarView: View {
             .buttonStyle(.plain)
             .selectionDisabled()
         } label: {
-            HStack {
+            HStack(alignment: .firstTextBaseline, spacing: 7) {
+                Text(numeral)
+                    .font(.custom("Quattrocento-Bold", size: 12))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 24, alignment: .trailing)
                 Text(chapter.title)
-                    .font(.callout.weight(.semibold))
+                    .font(.custom("Quattrocento-Bold", size: 13))
                     .lineLimit(1)
                 Spacer()
                 Text("\(chapter.scenes.count)")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.tertiary)
                     .monospacedDigit()
             }
             .contextMenu {
@@ -125,21 +131,23 @@ struct SidebarView: View {
     }
 
     private func sceneRow(_ scene: Scene, in chapter: Chapter) -> some View {
-        HStack {
-            Label {
-                Text(scene.title)
-                    .lineLimit(1)
-            } icon: {
-                Image(systemName: "doc.text")
-            }
-            Spacer()
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Text(scene.title)
+                .font(.system(size: 13))
+                .lineLimit(1)
+                .layoutPriority(1)
             if scene.wordCount > 0 {
+                LeaderDots()
+                    .frame(height: 13)
                 Text("\(scene.wordCount)")
-                    .font(.caption2)
+                    .font(.system(size: 11))
                     .foregroundStyle(.tertiary)
                     .monospacedDigit()
+            } else {
+                Spacer(minLength: 0)
             }
         }
+        .padding(.leading, 31)
         .tag(SidebarItem.scene(scene.id))
         .contextMenu {
             Button("Rename…") { beginRename(scene) }
@@ -181,7 +189,7 @@ struct SidebarView: View {
     }
 
     private var notesSection: some View {
-        Section("Notes") {
+        Section {
             ForEach(project.notes, id: \.id) { note in
                 noteRow(note)
             }
@@ -193,16 +201,25 @@ struct SidebarView: View {
             }
             .buttonStyle(.plain)
             .selectionDisabled()
+        } header: {
+            ManuscriptLabel("Notes", size: 10, color: Color(nsColor: .tertiaryLabelColor))
         }
     }
 
     private func noteRow(_ note: Note) -> some View {
-        Label {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
             Text(note.title)
+                .font(.custom("Quattrocento-Bold", size: 13))
                 .lineLimit(1)
-        } icon: {
-            Image(systemName: "note.text")
+            Spacer(minLength: 0)
+            if !note.tags.isEmpty {
+                Text("\(note.tags.count)")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.tertiary)
+                    .monospacedDigit()
+            }
         }
+        .padding(.leading, 4)
         .tag(SidebarItem.note(note.id))
         .contextMenu {
             Button("Delete Note", role: .destructive) {
@@ -251,7 +268,7 @@ struct SidebarView: View {
             .padding(.vertical, 10)
             Divider()
             HStack {
-                Text("\(project.totalWordCount) words")
+                ManuscriptLabel("\(project.totalWordCount.formatted()) words", size: 10, color: .secondary)
                     .monospacedDigit()
                 Spacer()
                 saveStateLabel

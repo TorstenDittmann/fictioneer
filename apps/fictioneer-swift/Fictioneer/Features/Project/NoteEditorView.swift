@@ -17,6 +17,38 @@ struct NoteEditorView: View {
     }
 
     var body: some View {
+        ManuscriptPage(header: ManuscriptPageHeader(
+            project: session.project.title,
+            section: "Notes",
+            title: note.title
+        )) {
+            noteSurface
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(VisualEffectView().ignoresSafeArea())
+        .navigationTitle(note.title)
+        .navigationSubtitle("Notes")
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                ControlGroup {
+                    Button {
+                        controller.toggleBold()
+                    } label: {
+                        Label("Bold", systemImage: "bold")
+                    }
+                    .keyboardShortcut("b", modifiers: .command)
+                    Button {
+                        controller.toggleItalic()
+                    } label: {
+                        Label("Italic", systemImage: "italic")
+                    }
+                    .keyboardShortcut("i", modifiers: .command)
+                }
+            }
+        }
+    }
+
+    private var noteSurface: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
                 TextField("Note title", text: $title)
@@ -52,27 +84,6 @@ struct NoteEditorView: View {
                 note.body = content
                 note.updatedAt = .now
                 session.markDirty(noteID: note.id)
-            }
-        }
-        .background(VisualEffectView().ignoresSafeArea())
-        .navigationTitle(note.title)
-        .navigationSubtitle("Notes")
-        .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                ControlGroup {
-                    Button {
-                        controller.toggleBold()
-                    } label: {
-                        Label("Bold", systemImage: "bold")
-                    }
-                    .keyboardShortcut("b", modifiers: .command)
-                    Button {
-                        controller.toggleItalic()
-                    } label: {
-                        Label("Italic", systemImage: "italic")
-                    }
-                    .keyboardShortcut("i", modifiers: .command)
-                }
             }
         }
     }

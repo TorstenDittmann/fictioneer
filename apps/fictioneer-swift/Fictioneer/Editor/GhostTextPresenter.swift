@@ -176,6 +176,11 @@ final class GhostTextPresenter {
 
     private func ghostAttributes(alpha: Double) -> [NSAttributedString.Key: Any] {
         var attributes = editorController?.theme?.bodyAttributes ?? [:]
+        // Pencil, not ink: suggestions render italic + muted; accepting inserts
+        // upright ink attributes, so the transition itself shows authorship.
+        if let font = attributes[.font] as? NSFont {
+            attributes[.font] = NSFontManager.shared.convert(font, toHaveTrait: .italicFontMask)
+        }
         attributes[.foregroundColor] = Self.ghostColor(alpha: alpha)
         attributes[.ghostText] = true
         attributes[.headingLevel] = nil
