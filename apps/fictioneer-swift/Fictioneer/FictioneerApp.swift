@@ -1,9 +1,15 @@
+import Sparkle
 import SwiftUI
 
 @main
 struct FictioneerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var appModel = AppModel()
+    private let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true,
+        updaterDelegate: nil,
+        userDriverDelegate: nil
+    )
 
     // `SwiftUI.Scene` is spelled out because the writing domain has its own `Scene` model.
     var body: some SwiftUI.Scene {
@@ -18,6 +24,11 @@ struct FictioneerApp: App {
         .defaultSize(width: 1100, height: 720)
         .commands {
             AppCommands(appModel: appModel)
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") {
+                    updaterController.checkForUpdates(nil)
+                }
+            }
         }
 
         Settings {
