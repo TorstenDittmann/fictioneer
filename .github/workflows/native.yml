@@ -14,7 +14,11 @@ on:
 
 jobs:
     native-tests:
-        runs-on: macos-15
+        # Xcode 26+ required: the project uses Swift 6.2 settings
+        # (SWIFT_DEFAULT_ACTOR_ISOLATION, SWIFT_APPROACHABLE_CONCURRENCY)
+        # that older toolchains silently ignore and then fail strict
+        # concurrency checks.
+        runs-on: macos-26
 
         steps:
             - name: Checkout code
