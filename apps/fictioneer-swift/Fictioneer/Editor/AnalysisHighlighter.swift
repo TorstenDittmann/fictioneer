@@ -69,6 +69,7 @@ final class AnalysisHighlighter {
 
         let length = (textView.string as NSString).length
         var applied: [AnalysisHighlight] = []
+        let previousRanges = appliedRanges
         appliedRanges = []
         activeStyles = []
         for highlight in highlights {
@@ -81,20 +82,39 @@ final class AnalysisHighlighter {
             activeStyles.append((range, Self.style(for: highlight.type)))
             applied.append(highlight)
         }
-        layoutManager.invalidateRenderingAttributes(for: layoutManager.documentRange)
-        textView.needsDisplay = true
+        redisplay(changed: Set(previousRanges).symmetricDifference(appliedRanges), in: layoutManager)
         updateMarginAnnotations(for: applied)
     }
 
     func clear() {
         guard let textView = editorController?.textView else { return }
+        let previousRanges = appliedRanges
         appliedRanges = []
         activeStyles = []
         if let layoutManager = textView.textLayoutManager {
-            layoutManager.invalidateRenderingAttributes(for: layoutManager.documentRange)
+            redisplay(changed: Set(previousRanges), in: layoutManager)
         }
-        textView.needsDisplay = true
         textView.setMarginAnnotations([])
+    }
+
+    /// Rendering-attribute invalidation alone only refreshes fragments that
+    /// get *regenerated* (e.g. scrolled back into view) — on-screen fragments
+    /// keep their painted decoration. Invalidating layout for the changed
+    /// ranges regenerates those fragments now, re-running the validator.
+    /// Rendering attributes never feed layout, so geometry cannot shift.
+    private func redisplay(changed: Set<NSRange>, in layoutManager: NSTextLayoutManager) {
+        guard !changed.isEmpty else { return }
+        layoutManager.invalidateRenderingAttributes(for: layoutManager.documentRange)
+        if changed.count > 300 {
+            layoutManager.invalidateLayout(for: layoutManager.documentRange)
+        } else {
+            for range in changed {
+                if let textRange = Self.textRange(range, in: layoutManager) {
+                    layoutManager.invalidateLayout(for: textRange)
+                }
+            }
+        }
+        editorController?.textView?.needsDisplay = true
     }
 
     private func installValidatorIfNeeded(_ layoutManager: NSTextLayoutManager) {
