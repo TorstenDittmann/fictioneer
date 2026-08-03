@@ -1,10 +1,16 @@
 import Foundation
 
 nonisolated enum AppConfig {
-    // TODO: fill in the production intelligence server URL before shipping.
-    // The value is not stored in the repo (it lives in a GitHub Actions variable);
-    // it can also be overridden per-user in Settings, matching the Tauri app.
-    static let defaultIntelligenceBaseURL = "http://localhost:3001"
+    // Debug builds talk to a local intelligence server; release builds ship
+    // pointed at production. Either can be overridden per-user in Settings.
+    static let productionIntelligenceBaseURL = "https://intelligence.fictioneer.app"
+    static let debugIntelligenceBaseURL = "http://localhost:3001"
+
+    #if DEBUG
+    static let defaultIntelligenceBaseURL = debugIntelligenceBaseURL
+    #else
+    static let defaultIntelligenceBaseURL = productionIntelligenceBaseURL
+    #endif
 
     static let projectFileExtension = "fictioneer"
     static let formatVersion = 1

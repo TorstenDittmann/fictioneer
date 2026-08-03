@@ -39,9 +39,9 @@ request. Suggestions only fire with an empty selection and at least 10
 characters before the caret, and never run concurrently.
 
 It requires a verified license key (Settings → AI). The server URL defaults to
-`http://localhost:3001` — the production URL is not in the repo (it lives in a
-GitHub Actions variable); set it in `AppConfig.defaultIntelligenceBaseURL` or
-per-user in Settings.
+`https://intelligence.fictioneer.app` in release builds; debug builds default
+to `http://localhost:3001` for local development. Either can be overridden
+per-user in Settings (see `AppConfig` for the compile-time defaults).
 
 ### Manual end-to-end test
 

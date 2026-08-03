@@ -52,6 +52,21 @@ final class AppSettings {
         URL(string: intelligenceURLString) ?? URL(string: AppConfig.defaultIntelligenceBaseURL)!
     }
 
+    /// Installs that persisted the old localhost default must not pin release
+    /// builds to localhost forever; user-customized URLs are preserved.
+    nonisolated static func migratedURL(_ persisted: String, isDebug: Bool) -> String {
+        guard !isDebug, persisted == AppConfig.debugIntelligenceBaseURL else { return persisted }
+        return AppConfig.productionIntelligenceBaseURL
+    }
+
+    private nonisolated static var isDebugBuild: Bool {
+        #if DEBUG
+        true
+        #else
+        false
+        #endif
+    }
+
     private func load() {
         guard let data = defaults.data(forKey: Self.defaultsKey),
               let snapshot = try? JSONDecoder().decode(Snapshot.self, from: data)
@@ -61,7 +76,7 @@ final class AppSettings {
         editorFontFamily = snapshot.editorFontFamily
         editorFontSize = snapshot.editorFontSize
         editorLineHeight = snapshot.editorLineHeight
-        intelligenceURLString = snapshot.intelligenceURLString
+        intelligenceURLString = Self.migratedURL(snapshot.intelligenceURLString, isDebug: Self.isDebugBuild)
         licenseKey = snapshot.licenseKey
         proseHighlightsEnabled = snapshot.proseHighlightsEnabled ?? false
         visibleAnalysisTypes = snapshot.visibleAnalysisTypes ?? []
