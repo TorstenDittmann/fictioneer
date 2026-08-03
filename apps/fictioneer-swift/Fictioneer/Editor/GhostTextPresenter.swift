@@ -83,15 +83,59 @@ final class GhostTextPresenter {
     }
 
     private func acceptIfReady() -> Bool {
-        guard let suggestion = controller.tabPressed() else { return false }
+        GhostDebugLog.append("acceptIfReady: state=\(controller.state)")
+        guard let suggestion = controller.tabPressed() else {
+            GhostDebugLog.append("acceptIfReady: tabPressed returned nil")
+            return false
+        }
+        GhostDebugLog.append("acceptIfReady: accepting '\(suggestion.prefix(20))…' ghostRange=\(String(describing: ghostRange)) insertionLocation=\(String(describing: insertionLocation))")
+        defer {
+            if let textView {
+                let snapshot = textView.attributedString()
+                var ghostRuns = 0
+                snapshot.enumerateAttribute(.ghostText, in: NSRange(location: 0, length: snapshot.length)) { value, _, _ in
+                    if value != nil { ghostRuns += 1 }
+                }
+                let caret = textView.selectedRange().location
+                let windowStart = max(0, caret - 60)
+                let around = (snapshot.string as NSString).substring(
+                    with: NSRange(location: windowStart, length: min(120, snapshot.length - windowStart))
+                )
+                var alpha: CGFloat = -1
+                if caret > 0, caret <= snapshot.length {
+                    alpha = (snapshot.attributes(at: caret - 1, effectiveRange: nil)[.foregroundColor] as? NSColor)?.alphaComponent ?? -2
+                }
+                GhostDebugLog.append("post-accept: ghostRuns=\(ghostRuns) caret=\(caret) alphaBeforeCaret=\(alpha) around='\(around.replacingOccurrences(of: "\n", with: "⏎"))'")
+            }
+        }
         // tabPressed emitted nil → the ghost is gone and the caret is back at
         // the insertion point. Insert as a single, normal, undoable edit.
-        guard let textView else { return true }
+        guard let textView, let storage = textView.textStorage else { return true }
         var insertion = suggestion
         if needsLeadingSpace, let first = insertion.first, !first.isWhitespace {
             insertion = " " + insertion
         }
-        textView.insertText(insertion, replacementRange: textView.selectedRange())
+
+        // Never insert via typingAttributes: live streaming can leave them
+        // contaminated with ghost styling. Derive attributes from the real
+        // text preceding the caret (theme body as fallback) and sanitize.
+        let selection = textView.selectedRange()
+        var attributes: [NSAttributedString.Key: Any]
+        if selection.location > 0, selection.location <= storage.length {
+            attributes = storage.attributes(at: selection.location - 1, effectiveRange: nil)
+        } else {
+            attributes = editorController?.theme?.bodyAttributes ?? textView.typingAttributes
+        }
+        if attributes[.ghostText] != nil {
+            attributes = editorController?.theme?.bodyAttributes ?? [:]
+        }
+        attributes[.ghostText] = nil
+
+        guard textView.shouldChangeText(in: selection, replacementString: insertion) else { return true }
+        storage.replaceCharacters(in: selection, with: NSAttributedString(string: insertion, attributes: attributes))
+        textView.didChangeText()
+        textView.setSelectedRange(NSRange(location: selection.location + (insertion as NSString).length, length: 0))
+        textView.typingAttributes = attributes
         return true
     }
 

@@ -55,14 +55,23 @@ final class FictioneerTextView: NSTextView {
         dismissHoverCard()
     }
 
+    private var hoverTrackingArea: NSTrackingArea?
+
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
-        addTrackingArea(NSTrackingArea(
+        // NSTextView calls this often — replace our area instead of stacking
+        // a new one each time.
+        if let hoverTrackingArea {
+            removeTrackingArea(hoverTrackingArea)
+        }
+        let area = NSTrackingArea(
             rect: .zero,
             options: [.mouseMoved, .mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect],
             owner: self,
             userInfo: nil
-        ))
+        )
+        addTrackingArea(area)
+        hoverTrackingArea = area
     }
 
     override func mouseMoved(with event: NSEvent) {
@@ -214,7 +223,9 @@ final class FictioneerTextView: NSTextView {
     override func keyDown(with event: NSEvent) {
         switch event.keyCode {
         case 48: // Tab
+            GhostDebugLog.append("keyDown tab: handler=\(onGhostTab != nil)")
             if onGhostTab?() == true { return }
+            GhostDebugLog.append("keyDown tab: not consumed, falling through")
         case 53: // Escape
             if onGhostEscape?() == true { return }
             if onEscape?() == true { return }
