@@ -6,11 +6,23 @@ struct ManuscriptPageHeader {
     var title: String
 }
 
-/// The manuscript sheet: a crisp-edged page floating on the glass desk, with
-/// a letterspaced running head pinned to its top like a real typescript.
-struct ManuscriptPage<Content: View>: View {
+/// The manuscript sheet: a crisp-edged, clearly elevated page floating on the
+/// glass desk. The running head doubles as the page's toolbar — controls live
+/// in its trailing edge as quiet icons, not in a floating box over the prose.
+struct ManuscriptPage<Content: View, Accessory: View>: View {
     let header: ManuscriptPageHeader
+    @ViewBuilder let accessory: () -> Accessory
     @ViewBuilder let content: () -> Content
+
+    init(
+        header: ManuscriptPageHeader,
+        @ViewBuilder accessory: @escaping () -> Accessory = { EmptyView() },
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.header = header
+        self.accessory = accessory
+        self.content = content
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,33 +30,39 @@ struct ManuscriptPage<Content: View>: View {
             Divider()
             content()
         }
-        .clipShape(RoundedRectangle(cornerRadius: 3))
+        .clipShape(RoundedRectangle(cornerRadius: 4))
         .overlay(
-            RoundedRectangle(cornerRadius: 3)
+            RoundedRectangle(cornerRadius: 4)
                 .strokeBorder(.separator)
         )
-        .shadow(color: .black.opacity(0.10), radius: 2, y: 1)
-        .shadow(color: .black.opacity(0.22), radius: 18, y: 6)
+        .shadow(color: .black.opacity(0.12), radius: 3, y: 1)
+        .shadow(color: .black.opacity(0.32), radius: 26, y: 10)
         .frame(maxWidth: 960)
-        .padding(.horizontal, 24)
-        .padding(.top, 16)
-        .padding(.bottom, 20)
+        .padding(.horizontal, 28)
+        .padding(.top, 18)
+        .padding(.bottom, 24)
     }
 
     private var runningHead: some View {
-        HStack(spacing: 10) {
-            Spacer(minLength: 0)
-            ManuscriptLabel(header.project, size: 10, color: .init(.tertiaryLabelColor))
-            if let section = header.section, !section.isEmpty {
+        ZStack {
+            HStack(spacing: 10) {
+                Spacer(minLength: 0)
+                ManuscriptLabel(header.project, size: 10, color: Color(nsColor: .tertiaryLabelColor))
+                if let section = header.section, !section.isEmpty {
+                    headSeparator
+                    ManuscriptLabel(section, size: 10, color: .accentColor)
+                }
                 headSeparator
-                ManuscriptLabel(section, size: 10, color: .init(.tertiaryLabelColor))
+                ManuscriptLabel(header.title, size: 10, color: .secondary)
+                Spacer(minLength: 0)
             }
-            headSeparator
-            ManuscriptLabel(header.title, size: 10, color: .secondary)
-            Spacer(minLength: 0)
+            HStack {
+                Spacer()
+                accessory()
+            }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 9)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
         .background(Color(nsColor: EditorTheme.paperBackground))
     }
 

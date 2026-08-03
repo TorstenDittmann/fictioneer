@@ -50,13 +50,7 @@ struct AnalysisPanelView: View {
                         .hoverTip("Hold ⌥ for an AI continuation · Tab accepts")
                 }
                 if let result = analysis.result {
-                    Text("\(result.overallScore)")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(scoreColor(result.overallScore))
-                        .monospacedDigit()
-                    Text("score ·")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
+                    scoreRing(result.overallScore)
                 }
                 Text("\(scene.wordCount) words · \(scene.characterCount) chars")
                     .font(.caption)
@@ -150,6 +144,36 @@ struct AnalysisPanelView: View {
                 .monospacedDigit()
                 .foregroundStyle(warn ? Color.yellow : Color.primary)
         }
+    }
+
+    /// The prose score as a gauge ring — the one place the brand's
+    /// indigo→violet gradient appears inside the app. Static colors, never the
+    /// dynamic accent provider (see the ProgressBar crash note).
+    private func scoreRing(_ score: Int) -> some View {
+        let indigo = Color(red: 0x63 / 255, green: 0x66 / 255, blue: 0xF1 / 255)
+        let violet = Color(red: 0x8B / 255, green: 0x5C / 255, blue: 0xF6 / 255)
+        return ZStack {
+            Circle()
+                .stroke(.quaternary.opacity(0.6), lineWidth: 2.5)
+            Circle()
+                .trim(from: 0, to: Double(score) / 100)
+                .stroke(
+                    AngularGradient(
+                        colors: [indigo, violet],
+                        center: .center,
+                        startAngle: .degrees(0),
+                        endAngle: .degrees(360)
+                    ),
+                    style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+            Text("\(score)")
+                .font(.system(size: 8.5, weight: .bold))
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+        }
+        .frame(width: 22, height: 22)
+        .padding(.vertical, 1)
     }
 
     private func scoreColor(_ score: Int) -> Color {

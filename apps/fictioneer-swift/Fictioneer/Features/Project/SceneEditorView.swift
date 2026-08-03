@@ -12,6 +12,10 @@ struct SceneEditorView: View {
 
     var body: some View {
         ManuscriptPage(header: pageHeader) {
+            if !session.isFocusMode {
+                headControls
+            }
+        } content: {
             editorSurface
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -99,24 +103,17 @@ struct SceneEditorView: View {
                 )
             }
         }
-        .overlay(alignment: .top) {
-            if !session.isFocusMode {
-                floatingToolbar
-            }
-        }
     }
 
-    /// Floating format bar over the writing surface — layout borrowed from the
-    /// Tauri app's editor pill, rendered with native materials.
-    private var floatingToolbar: some View {
-        HStack(spacing: 2) {
+    /// The running head doubles as the toolbar: chromeless icons at its
+    /// trailing edge — no floating box over the prose.
+    private var headControls: some View {
+        HStack(spacing: 1) {
             formatButton("arrow.uturn.backward", "Undo — ⌘Z") { controller.undo() }
             formatButton("arrow.uturn.forward", "Redo — ⇧⌘Z") { controller.redo() }
             toolbarDivider
             blockStyleMenu
                 .menuStyle(.borderlessButton)
-                .fixedSize()
-                .hoverTip("Paragraph style")
             toolbarDivider
             formatButton("bold", "Bold — ⌘B") { controller.toggleBold() }
                 .keyboardShortcut("b", modifiers: .command)
@@ -137,7 +134,7 @@ struct SceneEditorView: View {
                 }
             } label: {
                 Image(systemName: "arrow.2.squarepath")
-                    .frame(width: 24, height: 22)
+                    .frame(width: 20, height: 18)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.borderless)
@@ -148,7 +145,7 @@ struct SceneEditorView: View {
                 showingPromptSheet = true
             } label: {
                 Image(systemName: "sparkles")
-                    .frame(width: 24, height: 22)
+                    .frame(width: 20, height: 18)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.borderless)
@@ -159,35 +156,21 @@ struct SceneEditorView: View {
                 analysis.setHighlightsEnabled(!analysis.highlightsEnabled)
             } label: {
                 Image(systemName: "textformat.abc.dottedunderline")
-                    .frame(width: 24, height: 22)
+                    .frame(width: 20, height: 18)
                     .contentShape(Rectangle())
-                    .foregroundStyle(analysis.highlightsEnabled ? Color.accentColor : Color.primary)
+                    .foregroundStyle(analysis.highlightsEnabled ? Color.accentColor : Color.secondary)
             }
             .buttonStyle(.borderless)
             .hoverTip("Prose highlights — flag adverbs, passive voice, clichés and more")
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 5)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
-        .overlay(
-            RoundedRectangle(cornerRadius: 6)
-                .strokeBorder(.separator)
-        )
-        .shadow(color: .black.opacity(0.12), radius: 8, y: 2)
-        .padding(.top, 10)
-        // The NSTextView beneath owns an I-beam cursor rect for this whole
-        // region; keep forcing the arrow while the pointer is over the pill.
-        .onContinuousHover { phase in
-            if case .active = phase {
-                NSCursor.arrow.set()
-            }
-        }
+        .imageScale(.small)
+        .foregroundStyle(.secondary)
     }
 
     private var toolbarDivider: some View {
         Divider()
-            .frame(height: 16)
-            .padding(.horizontal, 4)
+            .frame(height: 12)
+            .padding(.horizontal, 3)
     }
 
     private var blockStyleMenu: some View {
@@ -195,19 +178,25 @@ struct SceneEditorView: View {
             Button("Body Text") { controller.applyBlockStyle(.body) }
             Divider()
             Button("Heading 1") { controller.applyBlockStyle(.heading(1)) }
+            Divider()
             Button("Heading 2") { controller.applyBlockStyle(.heading(2)) }
             Button("Heading 3") { controller.applyBlockStyle(.heading(3)) }
             Divider()
             Button("Blockquote") { controller.applyBlockStyle(.blockquote) }
         } label: {
-            Label("Paragraph Style", systemImage: "paragraphsign")
+            Image(systemName: "paragraphsign")
+                .frame(width: 20, height: 18)
+                .contentShape(Rectangle())
         }
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .hoverTip("Paragraph style")
     }
 
     private func formatButton(_ icon: String, _ tip: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon)
-                .frame(width: 24, height: 22)
+                .frame(width: 20, height: 18)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.borderless)
