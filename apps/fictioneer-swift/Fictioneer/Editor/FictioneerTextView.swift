@@ -42,6 +42,59 @@ final class FictioneerTextView: NSTextView {
         rebuildMarginChips()
     }
 
+    // MARK: - Selection action bar (AI rephrase at the moment of intent)
+
+    /// Gate + action wired by the scene editor. The bar appears above a
+    /// stabilized selection and dismisses on any selection change or edit.
+    var selectionBarIsEnabled: (() -> Bool)?
+    var onSelectionBarAction: (() -> Void)?
+
+    private var selectionBar: SelectionBarHostView?
+    private var selectionBarTask: Task<Void, Never>?
+
+    func scheduleSelectionBarUpdate() {
+        selectionBarTask?.cancel()
+        dismissSelectionBar()
+        let range = selectedRange()
+        guard range.length > 0, selectionBarIsEnabled?() == true else { return }
+        selectionBarTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(280))
+            guard !Task.isCancelled else { return }
+            self?.presentSelectionBar()
+        }
+    }
+
+    func dismissSelectionBar() {
+        selectionBar?.removeFromSuperview()
+        selectionBar = nil
+    }
+
+    private func presentSelectionBar() {
+        dismissSelectionBar()
+        guard let window else { return }
+        let range = selectedRange()
+        guard range.length > 0 else { return }
+        let screenRect = firstRect(forCharacterRange: range, actualRange: nil)
+        guard screenRect != .zero else { return }
+        let selectionRect = convert(window.convertFromScreen(screenRect), from: nil)
+
+        let bar = SelectionBarHostView()
+        bar.onAction = { [weak self] in
+            self?.dismissSelectionBar()
+            self?.onSelectionBarAction?()
+        }
+        let size = bar.pillSize
+        let x = min(max(8, selectionRect.minX), bounds.width - size.width - 8)
+        // Above the selection's first line; below it when clipped at the top.
+        var y = selectionRect.minY - size.height - 6
+        if y < 4 {
+            y = selectionRect.maxY + 6
+        }
+        bar.frame = NSRect(x: x, y: y, width: size.width, height: size.height)
+        addSubview(bar)
+        selectionBar = bar
+    }
+
     // MARK: - Hover cards on highlighted text
 
     // Experiment: issue details appear when hovering the flagged text itself.

@@ -81,6 +81,25 @@ struct SceneEditorView: View {
                         session.isFocusMode = false
                         return true
                     }
+
+                    // Selection action bar: "✦ Rephrase" appears above a
+                    // stabilized selection when AI is available.
+                    let payloadBinding = $rephrasePayload
+                    textView.selectionBarIsEnabled = { license.isReadyForSuggestions }
+                    textView.onSelectionBarAction = { [weak editorController] in
+                        guard let context = editorController?.selectionContext() else { return }
+                        payloadBinding.wrappedValue = RephrasePayload(
+                            selected: context.selected,
+                            before: context.before,
+                            after: context.after
+                        )
+                    }
+                    editorController.selectionChangeObservers.append { [weak textView] in
+                        textView?.scheduleSelectionBarUpdate()
+                    }
+                    editorController.documentEditObservers.append { [weak textView] in
+                        textView?.dismissSelectionBar()
+                    }
                 }
             ) { content in
                 let previousWords = scene.wordCount
