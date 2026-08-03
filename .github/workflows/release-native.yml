@@ -1,0 +1,162 @@
+name: "release-native"
+
+on:
+    push:
+        tags:
+            - "v*"
+
+jobs:
+    release:
+        # Xcode 26+ required — see .github/workflows/native.yml.
+        runs-on: macos-26
+        permissions:
+            contents: write
+        env:
+            APP_DIR: apps/fictioneer-swift
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Derive and verify version from tag
+              id: version
+              run: |
+                  TAG="${GITHUB_REF_NAME}"
+                  VERSION="${TAG#v}"
+                  BASE_VERSION="${VERSION%%-*}"
+                  PLIST_VERSION=$(grep 'CFBundleShortVersionString' "$APP_DIR/project.yml" | sed 's/.*"\(.*\)".*/\1/')
+                  if [ "$BASE_VERSION" != "$PLIST_VERSION" ]; then
+                      echo "Tag $TAG (base $BASE_VERSION) does not match project.yml version $PLIST_VERSION" >&2
+                      exit 1
+                  fi
+                  echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+                  if [ "$VERSION" != "$BASE_VERSION" ]; then
+                      echo "prerelease=true" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "prerelease=false" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - name: Install XcodeGen
+              run: brew install xcodegen
+
+            - name: Import Apple Developer Certificate
+              env:
+                  APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+                  APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+                  KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+              run: |
+                  echo $APPLE_CERTIFICATE | base64 --decode > certificate.p12
+                  security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+                  security default-keychain -s build.keychain
+                  security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+                  security set-keychain-settings -t 3600 -u build.keychain
+                  security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+                  security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+                  CERT_INFO=$(security find-identity -v -p codesigning build.keychain | grep "Developer ID Application")
+                  CERT_ID=$(echo "$CERT_INFO" | awk -F'"' '{print $2}')
+                  echo "CERT_ID=$CERT_ID" >> $GITHUB_ENV
+
+            - name: Generate Xcode project
+              run: xcodegen
+              working-directory: apps/fictioneer-swift
+
+            - name: Archive
+              run: |
+                  xcodebuild -scheme Fictioneer -configuration Release \
+                      -derivedDataPath build \
+                      -archivePath build/Fictioneer.xcarchive \
+                      archive
+              working-directory: apps/fictioneer-swift
+
+            - name: Export with Developer ID
+              env:
+                  APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+              run: |
+                  cat > export-options.plist <<EOF
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+                  <plist version="1.0">
+                  <dict>
+                      <key>method</key>
+                      <string>developer-id</string>
+                      <key>signingStyle</key>
+                      <string>manual</string>
+                      <key>signingCertificate</key>
+                      <string>${CERT_ID}</string>
+                      <key>teamID</key>
+                      <string>${APPLE_TEAM_ID}</string>
+                  </dict>
+                  </plist>
+                  EOF
+                  xcodebuild -exportArchive \
+                      -archivePath build/Fictioneer.xcarchive \
+                      -exportPath build/export \
+                      -exportOptionsPlist export-options.plist
+              working-directory: apps/fictioneer-swift
+
+            - name: Notarize and staple the app
+              env:
+                  APPLE_ID: ${{ secrets.APPLE_ID }}
+                  APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+                  APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+              run: |
+                  ditto -c -k --keepParent build/export/Fictioneer.app notarize.zip
+                  xcrun notarytool submit notarize.zip \
+                      --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID" \
+                      --wait
+                  xcrun stapler staple build/export/Fictioneer.app
+              working-directory: apps/fictioneer-swift
+
+            - name: Package zip and DMG
+              env:
+                  VERSION: ${{ steps.version.outputs.version }}
+                  APPLE_ID: ${{ secrets.APPLE_ID }}
+                  APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+                  APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+              run: |
+                  mkdir -p dist
+                  ditto -c -k --keepParent build/export/Fictioneer.app "dist/Fictioneer_${VERSION}.zip"
+                  hdiutil create -volname Fictioneer -srcfolder build/export/Fictioneer.app -ov -format UDZO "dist/Fictioneer_${VERSION}.dmg"
+                  codesign --sign "$CERT_ID" --timestamp "dist/Fictioneer_${VERSION}.dmg"
+                  xcrun notarytool submit "dist/Fictioneer_${VERSION}.dmg" \
+                      --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID" \
+                      --wait
+                  xcrun stapler staple "dist/Fictioneer_${VERSION}.dmg"
+              working-directory: apps/fictioneer-swift
+
+            - name: Generate signed appcast
+              env:
+                  SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+                  VERSION: ${{ steps.version.outputs.version }}
+              run: |
+                  curl -sL -o sparkle.tar.xz https://github.com/sparkle-project/Sparkle/releases/download/2.7.0/Sparkle-2.7.0.tar.xz
+                  mkdir -p sparkle-dist && tar -xf sparkle.tar.xz -C sparkle-dist
+                  printf '%s' "$SPARKLE_PRIVATE_KEY" > private_key
+                  mkdir -p updates
+                  cp "$APP_DIR/dist/Fictioneer_${VERSION}.zip" updates/
+                  ./sparkle-dist/bin/generate_appcast \
+                      --ed-key-file private_key \
+                      --download-url-prefix "https://github.com/TorstenDittmann/fictioneer/releases/download/v${VERSION}/" \
+                      -o appcast.xml \
+                      updates
+                  rm private_key
+                  cat appcast.xml
+
+            - name: Publish release and update the appcast feed
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  VERSION: ${{ steps.version.outputs.version }}
+                  PRERELEASE: ${{ steps.version.outputs.prerelease }}
+              run: |
+                  FLAGS="--generate-notes"
+                  if [ "$PRERELEASE" = "true" ]; then FLAGS="$FLAGS --prerelease"; fi
+                  gh release create "v${VERSION}" \
+                      "$APP_DIR/dist/Fictioneer_${VERSION}.dmg" \
+                      "$APP_DIR/dist/Fictioneer_${VERSION}.zip" \
+                      appcast.xml \
+                      --title "Fictioneer ${VERSION}" $FLAGS
+                  # The fixed 'appcast' pseudo-release serves the stable feed URL.
+                  if ! gh release view appcast >/dev/null 2>&1; then
+                      gh release create appcast --title "Sparkle update feed" --prerelease \
+                          --notes "Holds appcast.xml at a stable URL for the in-app updater. Do not delete."
+                  fi
+                  gh release upload appcast appcast.xml --clobber

@@ -20,14 +20,20 @@ retiring `publish.yml`) is a deliberate later step.
 | Channel | Direct download + Sparkle 2 |
 | Release trigger | Pushing a `v*` tag (e.g. `v0.2.0`) |
 | Scope now | Pipeline + Sparkle; landing-page cutover later |
-| Appcast hosting | GitHub Releases asset at `releases/latest/download/appcast.xml` |
+| Appcast hosting | `appcast.xml` asset on a fixed `appcast` pseudo-release, clobbered per release |
 
 ## 1. Update feed
 
-`appcast.xml` is uploaded as an asset on every release. The stable URL
-`https://github.com/TorstenDittmann/fictioneer/releases/latest/download/appcast.xml`
-always resolves to the newest release — the same pattern the Tauri updater
-already uses for `latest.json`. No extra hosting infrastructure.
+*(Amended during planning — originally `releases/latest/download/appcast.xml`.)*
+
+Each release's signed `appcast.xml` is uploaded (`--clobber`) to a permanent
+release tagged `appcast`, giving the stable feed URL
+`https://github.com/TorstenDittmann/fictioneer/releases/download/appcast/appcast.xml`.
+The `releases/latest` pattern was dropped for two reasons: GitHub's "latest"
+excludes prereleases, so transition-period native releases (all prereleases)
+would never feed it; and if a native release ever became "latest", the landing
+page's fetch of `releases/latest/download/latest.json` (Tauri pipeline) would
+404 and break `/download`. No extra hosting infrastructure either way.
 
 ## 2. App-side Sparkle integration
 
@@ -62,8 +68,10 @@ reasoning as `native.yml`). Steps:
 5. **Sign + appcast** — Sparkle's `sign_update`/`generate_appcast` with the
    `SPARKLE_PRIVATE_KEY` secret produce the EdDSA signature and `appcast.xml`
    whose enclosure URLs point at this release's download path.
-6. **Publish** — `gh release create v{v}` with the DMG, zip, and appcast.
-   Prerelease tags (e.g. `v0.2.0-test`) are marked prerelease.
+6. **Publish** — `gh release create v{v}` with the DMG, zip, and appcast, and
+   clobber the `appcast` pseudo-release's `appcast.xml` asset. Prerelease tags
+   (e.g. `v0.2.0-test`) are marked prerelease; all native releases stay
+   prereleases until the landing-page cutover.
 
 Native `v*` tags don't collide with Tauri's `app-v*` tags; both pipelines
 coexist during the transition.

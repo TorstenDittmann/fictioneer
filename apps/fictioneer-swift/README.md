@@ -53,6 +53,23 @@ per-user in Settings (see `AppConfig` for the compile-time defaults).
 4. Press Tab: the suggestion becomes real text; ⌘Z undoes it in one step.
 5. Quit and reopen — the saved scene contains no ghost text.
 
+## Releasing
+
+Releases are tag-driven and fully automated (`.github/workflows/release-native.yml`):
+
+1. Bump `CFBundleShortVersionString` and `CFBundleVersion` (same semver) in `project.yml`; commit.
+2. `git tag vX.Y.Z && git push origin vX.Y.Z`.
+3. CI archives, signs with Developer ID, notarizes, staples, and publishes a
+   GitHub release with a DMG (download), a zip (Sparkle update artifact), and
+   a signed `appcast.xml`. The stable feed the app polls is the `appcast.xml`
+   asset on the fixed `appcast` release.
+
+Tags with a suffix (e.g. `v0.2.0-test1`) are marked prerelease; the suffix
+must extend the `project.yml` version. Until the landing-page cutover, all
+native releases stay prereleases so the Tauri pipeline keeps owning
+`releases/latest`. The Sparkle EdDSA private key lives in the
+`SPARKLE_PRIVATE_KEY` secret (backup in the maintainer's login Keychain).
+
 ## Layout
 
 ```
