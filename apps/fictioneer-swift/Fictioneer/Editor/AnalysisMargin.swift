@@ -211,7 +211,9 @@ final class MarginChipHostView: NSView {
     private func showDetail() {
         guard detailCard == nil, let container = superview else { return }
         let card = NSHostingView(rootView: AnalysisIssueListView(items: annotation.items))
-        container.addSubview(card, positioned: .above, relativeTo: self)
+        // Appended last → topmost sibling: the card must draw above every
+        // pill, not just its own.
+        container.addSubview(card)
         detailCard = card
         layoutDetailCard()
     }
