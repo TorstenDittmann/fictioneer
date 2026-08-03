@@ -5,9 +5,8 @@ struct GoalToast: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "checkmark.seal.fill")
-                .foregroundStyle(Color.accentColor)
-            Text("Daily goal reached")
-                .font(.callout.weight(.medium))
+                .foregroundStyle(Color.manuscriptIndigo)
+            ManuscriptLabel("Daily goal reached", size: 11, color: .primary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 9)

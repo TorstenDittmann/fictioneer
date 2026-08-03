@@ -9,8 +9,7 @@ struct ProgressDashboardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Writing Progress")
-                    .font(.headline)
+                ManuscriptLabel("Writing Progress")
                 Spacer()
                 Button(progress.goals == nil ? "Set Goals" : "Update Goals") {
                     showingGoalsSheet = true
@@ -45,7 +44,7 @@ struct ProgressDashboardView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
-        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(.separator))
+        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.separator))
     }
 
     private var todayCard: some View {
@@ -55,8 +54,7 @@ struct ProgressDashboardView: View {
         let met = progress.todaysProgress?.goalMet ?? false
         return VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("Today")
-                    .font(.callout.weight(.medium))
+                ManuscriptLabel("Today", size: 10)
                 Spacer()
                 Text("\(words) / \(target) words")
                     .font(.callout)
@@ -77,15 +75,14 @@ struct ProgressDashboardView: View {
             }
         }
         .padding(12)
-        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(.separator))
+        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.separator))
     }
 
     private var chart: some View {
         let points = progress.chartPoints(days: 30)
         let maxValue = max(points.map(\.wordsWritten).max() ?? 1, points.first?.goalTarget ?? 1, 1)
         return VStack(alignment: .leading, spacing: 6) {
-            Text("Last 30 days")
-                .font(.callout.weight(.medium))
+            ManuscriptLabel("Last 30 days", size: 10)
             GeometryReader { geometry in
                 let goalY = geometry.size.height * (1 - CGFloat(points.first?.goalTarget ?? 0) / CGFloat(maxValue))
                 ZStack(alignment: .bottom) {
@@ -94,7 +91,7 @@ struct ProgressDashboardView: View {
                         path.move(to: CGPoint(x: 0, y: goalY))
                         path.addLine(to: CGPoint(x: geometry.size.width, y: goalY))
                     }
-                    .stroke(Color.accentColor.opacity(0.35), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                    .stroke(Color.manuscriptIndigo.opacity(0.35), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
 
                     HStack(alignment: .bottom, spacing: 2) {
                         ForEach(points, id: \.date) { point in
@@ -111,12 +108,12 @@ struct ProgressDashboardView: View {
             .frame(height: 72)
         }
         .padding(12)
-        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(.separator))
+        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.separator))
     }
 
     private func barColor(_ point: ChartPoint) -> Color {
-        if point.goalMet { return .accentColor }
-        if point.wordsWritten > 0 { return .accentColor.opacity(0.45) }
+        if point.goalMet { return .manuscriptIndigo }
+        if point.wordsWritten > 0 { return .manuscriptIndigo.opacity(0.45) }
         return Color.secondary.opacity(0.2)
     }
 
@@ -142,13 +139,11 @@ struct ProgressDashboardView: View {
             Text(value)
                 .font(.title3.weight(.semibold))
                 .monospacedDigit()
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+            ManuscriptLabel(label, size: 8, color: Color(nsColor: .tertiaryLabelColor))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
-        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(.separator))
+        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.separator))
     }
 
     private func motivation(words: Int, target: Int, met: Bool, percentage: Int) -> String {
@@ -183,12 +178,10 @@ struct GoalsEditorSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Writing Goals")
-                .font(.title3.weight(.semibold))
+                .font(.custom("Quattrocento-Bold", size: 20))
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Daily word goal")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
+                ManuscriptLabel("Daily word goal", size: 10)
                 TextField("500", text: $dailyText)
                     .textFieldStyle(.roundedBorder)
                 Text("Recommended: 250–1000 words per day for consistent progress.")
@@ -197,9 +190,7 @@ struct GoalsEditorSheet: View {
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Project word goal (optional)")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
+                ManuscriptLabel("Project word goal (optional)", size: 10)
                 TextField("e.g. 80000", text: $projectText)
                     .textFieldStyle(.roundedBorder)
             }

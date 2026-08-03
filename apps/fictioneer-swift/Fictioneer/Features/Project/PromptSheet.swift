@@ -38,7 +38,7 @@ struct PromptSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("AI Prompt")
-                .font(.title3.weight(.semibold))
+                .font(.custom("Quattrocento-Bold", size: 20))
 
             if generated.isEmpty && !isGenerating {
                 idleContent
@@ -59,12 +59,11 @@ struct PromptSheet: View {
                         selectedTemplate = template.id
                         customPrompt = template.prompt
                     } label: {
-                        Text(template.label)
-                            .font(.callout)
+                        ManuscriptLabel(template.label, size: 9, color: .primary)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
+                            .padding(.vertical, 9)
                             .background(
-                                RoundedRectangle(cornerRadius: 7)
+                                RoundedRectangle(cornerRadius: 6)
                                     .fill(selectedTemplate == template.id
                                         ? AnyShapeStyle(Color.accentColor.opacity(0.18))
                                         : AnyShapeStyle(.quaternary.opacity(0.4)))
@@ -76,9 +75,7 @@ struct PromptSheet: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Custom Prompt")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
+                ManuscriptLabel("Custom Prompt", size: 10)
                 TextField("Describe what to write…", text: $customPrompt, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                     .lineLimit(4, reservesSpace: true)
@@ -130,7 +127,7 @@ struct PromptSheet: View {
                     .textSelection(.enabled)
             }
             .frame(maxHeight: 280)
-            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(.separator))
+            .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.separator))
 
             if !isGenerating, !generated.isEmpty {
                 HStack {

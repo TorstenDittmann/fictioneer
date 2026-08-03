@@ -3,6 +3,13 @@ import SwiftUI
 /// The Manuscript design language: letterspaced small-caps serif labels,
 /// Roman chapter numerals, and TOC leader dots.
 
+extension Color {
+    /// Static brand indigo (#6366F1) for ink moments — never the dynamic
+    /// accent provider (tinting AppKit controls with the asset-catalog accent
+    /// crashes on macOS 26; see ProgressBar).
+    static let manuscriptIndigo = Color(red: 0x63 / 255, green: 0x66 / 255, blue: 0xF1 / 255)
+}
+
 nonisolated enum RomanNumeral {
     private static let values: [(Int, String)] = [
         (1000, "M"), (900, "CM"), (500, "D"), (400, "CD"),

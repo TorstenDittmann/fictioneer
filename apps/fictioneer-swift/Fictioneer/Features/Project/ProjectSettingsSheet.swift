@@ -30,14 +30,16 @@ struct ProjectSettingsSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Project Settings")
-                .font(.title3.weight(.semibold))
+                .font(.custom("Quattrocento-Bold", size: 20))
                 .padding(.bottom, 12)
 
             Form {
-                Section("Basic Information") {
+                Section {
                     TextField("Title", text: $title)
                     TextField("Description", text: $details, axis: .vertical)
                         .lineLimit(3, reservesSpace: true)
+                } header: {
+                    ManuscriptLabel("Basic Information", size: 10)
                 }
                 Section {
                     TextField("Author", text: $author)
@@ -46,7 +48,7 @@ struct ProjectSettingsSheet: View {
                     TextField("Rights", text: $rights, prompt: Text("Copyright statement"))
                     TextField("Subjects", text: $subjectsText, prompt: Text("Fantasy, Adventure, Drama"))
                 } header: {
-                    Text("eBook Metadata")
+                    ManuscriptLabel("eBook Metadata", size: 10)
                 } footer: {
                     Text("Used as defaults when exporting EPUB files. Separate subjects with commas.")
                         .font(.caption)

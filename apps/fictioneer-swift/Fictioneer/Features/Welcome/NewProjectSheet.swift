@@ -9,20 +9,16 @@ struct NewProjectSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("New Project")
-                .font(.title2.weight(.semibold))
+                .font(.custom("Quattrocento-Bold", size: 22))
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Title")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
+                ManuscriptLabel("Title", size: 10)
                 TextField("My Great Novel", text: $title)
                     .textFieldStyle(.roundedBorder)
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Description")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
+                ManuscriptLabel("Description", size: 10)
                 TextField("What is this story about? (optional)", text: $details, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                     .lineLimit(3, reservesSpace: true)

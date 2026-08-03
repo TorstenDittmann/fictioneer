@@ -18,7 +18,7 @@ struct ExportSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Export Project")
-                .font(.title3.weight(.semibold))
+                .font(.custom("Quattrocento-Bold", size: 20))
                 .padding(.bottom, 12)
 
             Form {
@@ -29,15 +29,17 @@ struct ExportSheet: View {
                 }
                 .pickerStyle(.segmented)
 
-                Section("Include in Export") {
+                Section {
                     Toggle("Project title", isOn: $options.includeTitle)
                     Toggle("Chapter titles", isOn: $options.includeChapterTitles)
                     Toggle("Scene titles", isOn: $options.includeSceneTitles)
                     Toggle("Word count per scene", isOn: $options.includeWordCount)
+                } header: {
+                    ManuscriptLabel("Include in Export", size: 10)
                 }
 
                 if options.format == .epub {
-                    Section("EPUB Publishing Details") {
+                    Section {
                         Picker("Template", selection: $options.epubTemplate) {
                             ForEach(EpubTemplate.allCases) { template in
                                 Text(template.label).tag(template)
@@ -50,6 +52,8 @@ struct ExportSheet: View {
                         TextField("Publisher", text: $options.epubMetadata.publisher)
                         TextField("Language", text: $options.epubMetadata.language, prompt: Text("en"))
                         TextField("Rights", text: $options.epubMetadata.rights)
+                    } header: {
+                        ManuscriptLabel("EPUB Publishing Details", size: 10)
                     }
                 }
 
@@ -58,6 +62,8 @@ struct ExportSheet: View {
                     LabeledContent("Chapters", value: "\(project.chapters.count)")
                     LabeledContent("Scenes", value: "\(project.allScenes.count)")
                     LabeledContent("Total words", value: "\(project.totalWordCount)")
+                } header: {
+                    ManuscriptLabel("Manuscript", size: 10)
                 }
             }
             .formStyle(.grouped)

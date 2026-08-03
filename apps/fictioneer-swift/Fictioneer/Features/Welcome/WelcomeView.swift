@@ -41,7 +41,7 @@ struct WelcomeView: View {
             Text("Fictioneer")
                 .font(.custom("Quattrocento-Bold", size: 34))
             Text("A focused home for your novel.")
-                .font(.title3)
+                .font(.system(size: 15, design: .serif).italic())
                 .foregroundStyle(.secondary)
                 .padding(.bottom, 28)
 
@@ -75,8 +75,7 @@ struct WelcomeView: View {
     private var recentsPane: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("Recent Projects")
-                    .font(.headline)
+                ManuscriptLabel("Recent Projects", size: 10)
                 Spacer()
                 if !appModel.recents.entries.isEmpty {
                     Button("Clear") {
@@ -118,20 +117,22 @@ private struct RecentProjectRow: View {
         Button {
             appModel.openRecent(entry)
         } label: {
-            VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(entry.title)
                     .font(.body.weight(.medium))
                     .lineLimit(1)
-                HStack(spacing: 6) {
-                    Text(entry.filename)
-                        .lineLimit(1)
-                    Text(entry.lastOpened, format: .relative(presentation: .named))
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                    .layoutPriority(1)
+                LeaderDots()
+                    .frame(height: 13)
+                Text(entry.lastOpened, format: .relative(presentation: .named))
+                    .font(.caption)
+                    .monospacedDigit()
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
             }
             .padding(.horizontal, 8)
-            .padding(.vertical, 6)
+            .padding(.vertical, 8)
+            .help(entry.filename)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 6)

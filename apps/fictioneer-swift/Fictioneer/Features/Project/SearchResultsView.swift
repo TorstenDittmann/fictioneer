@@ -40,12 +40,14 @@ struct SearchResultsView: View {
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 .safeAreaInset(edge: .top, spacing: 0) {
-                    Text("\(results.count) scene\(results.count == 1 ? "" : "s") found")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 32)
-                        .padding(.vertical, 6)
+                    ManuscriptLabel(
+                        "\(results.count) scene\(results.count == 1 ? "" : "s") found",
+                        size: 9,
+                        color: Color(nsColor: .tertiaryLabelColor)
+                    )
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 6)
                 }
             }
         }
@@ -77,14 +79,18 @@ struct SearchResultsView: View {
             session.selectedItem = .scene(result.id)
         } label: {
             VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Image(systemName: "doc.text")
-                        .foregroundStyle(.secondary)
+                HStack(alignment: .firstTextBaseline) {
+                    if let numeral = chapterNumeral(for: result.id) {
+                        Text(numeral)
+                            .font(.custom("Quattrocento-Bold", size: 12))
+                            .foregroundStyle(.tertiary)
+                    }
                     Text(result.title)
-                        .font(.body.weight(.medium))
+                        .font(.custom("Quattrocento-Bold", size: 15))
                     Spacer()
-                    Text("\(result.chapterTitle) • \(result.wordCount) words")
+                    Text("\(result.chapterTitle) · \(result.wordCount) words")
                         .font(.caption)
+                        .monospacedDigit()
                         .foregroundStyle(.tertiary)
                 }
                 ForEach(Array(result.snippets.enumerated()), id: \.offset) { _, snippet in
@@ -97,20 +103,31 @@ struct SearchResultsView: View {
                 }
             }
             .padding(10)
-            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(.separator))
+            .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.separator))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .padding(.horizontal, 24)
     }
 
+    private func chapterNumeral(for sceneID: UUID) -> String? {
+        session.project.chapters
+            .firstIndex { $0.scenes.contains { $0.id == sceneID } }
+            .map { RomanNumeral.format($0 + 1) }
+    }
+
     private func snippetText(_ snippet: SearchSnippet) -> Text {
-        snippet.segments.reduce(Text("")) { accumulated, segment in
-            let piece = segment.highlighted
-                ? Text(segment.text).bold().foregroundStyle(Color.accentColor)
-                : Text(segment.text)
-            return accumulated + piece
+        var attributed = AttributedString()
+        for segment in snippet.segments {
+            var piece = AttributedString(segment.text)
+            if segment.highlighted {
+                piece.backgroundColor = Color.manuscriptIndigo.opacity(0.18)
+                piece.foregroundColor = .primary
+                piece.inlinePresentationIntent = .stronglyEmphasized
+            }
+            attributed += piece
         }
+        return Text(attributed)
     }
 
     private func runSearch() {

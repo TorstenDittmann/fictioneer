@@ -22,6 +22,7 @@ struct PaletteItem: Identifiable {
     let subtitle: String
     let icon: String
     let keywords: [String]
+    var wordCount: Int?
     let action: () -> Void
 }
 
@@ -97,8 +98,8 @@ struct CommandPaletteView: View {
             .padding(.vertical, 8)
         }
         .frame(width: 560)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(.separator))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
+        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.separator))
         .shadow(color: .black.opacity(0.25), radius: 24, y: 8)
         .onAppear {
             NSApp.keyWindow?.makeFirstResponder(nil)
@@ -126,9 +127,7 @@ struct CommandPaletteView: View {
     private func row(_ item: PaletteItem, isSelected: Bool, showGroupHeader: Bool) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             if showGroupHeader {
-                Text(item.group.label)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.tertiary)
+                ManuscriptLabel(item.group.label, size: 9, color: Color(nsColor: .tertiaryLabelColor))
                     .padding(.horizontal, 8)
                     .padding(.top, 6)
             }
@@ -137,9 +136,20 @@ struct CommandPaletteView: View {
                     .frame(width: 18)
                     .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(item.title)
-                        .font(.callout.weight(.medium))
-                        .lineLimit(1)
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(item.title)
+                            .font(.callout.weight(.medium))
+                            .lineLimit(1)
+                            .layoutPriority(1)
+                        if let wordCount = item.wordCount {
+                            LeaderDots()
+                                .frame(height: 13)
+                            Text("\(wordCount)")
+                                .font(.caption)
+                                .monospacedDigit()
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
                     if !item.subtitle.isEmpty {
                         Text(item.subtitle)
                             .font(.caption)
@@ -147,12 +157,12 @@ struct CommandPaletteView: View {
                             .lineLimit(1)
                     }
                 }
-                Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 5)
             .background(
-                RoundedRectangle(cornerRadius: 7)
+                RoundedRectangle(cornerRadius: 6)
                     .fill(isSelected ? AnyShapeStyle(Color.accentColor.opacity(0.18)) : AnyShapeStyle(.clear))
             )
             .contentShape(Rectangle())
@@ -161,11 +171,12 @@ struct CommandPaletteView: View {
 
     private func legend(_ keys: String, _ label: String) -> some View {
         HStack(spacing: 4) {
-            Text(keys).monospaced()
-            Text(label)
+            Text(keys)
+                .monospaced()
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+            ManuscriptLabel(label, size: 8, color: Color(nsColor: .tertiaryLabelColor))
         }
-        .font(.caption2)
-        .foregroundStyle(.tertiary)
     }
 
     private func activate(_ items: [PaletteItem]) {
@@ -199,9 +210,10 @@ struct CommandPaletteView: View {
             items.append(PaletteItem(
                 id: "recent-\(scene.id)", group: .recent,
                 title: scene.title,
-                subtitle: "Recent • \(chapter?.title ?? "") • \(scene.wordCount) words",
+                subtitle: "Recent • \(chapter?.title ?? "")",
                 icon: "clock",
                 keywords: ["recent", "scene", scene.title, chapter?.title ?? ""],
+                wordCount: scene.wordCount,
                 action: { session.selectedItem = .scene(scene.id) }
             ))
         }
@@ -277,9 +289,10 @@ struct CommandPaletteView: View {
                 items.append(PaletteItem(
                     id: "scene-\(scene.id)", group: .scenes,
                     title: scene.title,
-                    subtitle: "\(chapter.title) • \(scene.wordCount) words",
+                    subtitle: chapter.title,
                     icon: "doc.text",
                     keywords: ["scene", scene.title, chapter.title, "write", "edit"],
+                    wordCount: scene.wordCount,
                     action: { session.selectedItem = .scene(scene.id) }
                 ))
             }

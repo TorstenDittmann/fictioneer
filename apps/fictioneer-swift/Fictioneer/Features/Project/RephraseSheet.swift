@@ -20,7 +20,7 @@ struct RephraseSheet: View {
     @State private var errorMessage: String?
 
     private static let typeLabels: [String: String] = [
-        "vivid": "More Vivid",
+        "vivid": "Vivid",
         "tighter": "Tighter",
         "show_dont_tell": "Show Don't Tell",
         "change_pov": "Change POV",
@@ -30,12 +30,10 @@ struct RephraseSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Rephrase Suggestions")
-                .font(.title3.weight(.semibold))
+                .font(.custom("Quattrocento-Bold", size: 20))
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Original")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
+                ManuscriptLabel("Original", size: 10)
                 Text(payload.selected)
                     .font(.callout)
                     .padding(8)
@@ -68,10 +66,11 @@ struct RephraseSheet: View {
                     VStack(alignment: .leading, spacing: 10) {
                         ForEach(alternatives, id: \.type) { alternative in
                             VStack(alignment: .leading, spacing: 3) {
-                                Text(Self.typeLabels[alternative.type] ?? alternative.type)
-                                    .font(.caption2.weight(.semibold))
-                                    .foregroundStyle(Color.accentColor)
-                                    .textCase(.uppercase)
+                                ManuscriptLabel(
+                                    Self.typeLabels[alternative.type] ?? alternative.type,
+                                    size: 10,
+                                    color: .manuscriptIndigo
+                                )
                                 Button {
                                     controller.replaceSelection(with: alternative.alternative)
                                     dismiss()
