@@ -104,7 +104,7 @@ struct SidebarView: View {
                     .font(.custom("Quattrocento-Bold", size: 12))
                     .foregroundStyle(.secondary)
                     .frame(width: 24, alignment: .trailing)
-                Text(chapter.title)
+                Text(ManuscriptTitle.strippingNumbering(chapter.title))
                     .font(.custom("Quattrocento-Bold", size: 13))
                     .lineLimit(1)
                 Spacer()
@@ -112,6 +112,7 @@ struct SidebarView: View {
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .monospacedDigit()
+                    .help("\(chapter.scenes.count) scene\(chapter.scenes.count == 1 ? "" : "s")")
             }
             .contextMenu {
                 Button("Rename…") { beginRename(chapter) }
@@ -217,6 +218,7 @@ struct SidebarView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(.tertiary)
                     .monospacedDigit()
+                    .help(note.tags.joined(separator: ", "))
             }
         }
         .padding(.leading, 4)

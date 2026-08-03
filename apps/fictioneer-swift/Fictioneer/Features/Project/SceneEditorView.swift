@@ -16,7 +16,17 @@ struct SceneEditorView: View {
                 headControls
             }
         } content: {
-            editorSurface
+            VStack(spacing: 0) {
+                editorSurface
+                if !session.isFocusMode {
+                    Divider()
+                    AnalysisPanelView(
+                        analysis: analysis,
+                        scene: scene,
+                        aiReady: appModel.license.isReadyForSuggestions
+                    )
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VisualEffectView().ignoresSafeArea())
@@ -113,15 +123,6 @@ struct SceneEditorView: View {
                 session.markDirty(sceneID: scene.id)
                 analysis.contentDidChange(content.string)
             }
-        .overlay(alignment: .bottomTrailing) {
-            if !session.isFocusMode {
-                AnalysisPanelView(
-                    analysis: analysis,
-                    scene: scene,
-                    aiReady: appModel.license.isReadyForSuggestions
-                )
-            }
-        }
     }
 
     /// The running head doubles as the toolbar: chromeless icons at its

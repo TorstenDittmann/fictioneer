@@ -31,6 +31,17 @@ nonisolated enum RomanNumeral {
     }
 }
 
+nonisolated enum ManuscriptTitle {
+    /// Strips a leading numbering prefix ("1.", "II —", "3)") from a title so
+    /// it doesn't read twice next to a rendered numeral column.
+    static func strippingNumbering(_ title: String) -> String {
+        guard let match = title.wholeMatch(of: #/\s*(?:\d+|[IVXLCDM]+)\s*[.:)\-–—]\s*(\S.*)/#) else {
+            return title
+        }
+        return String(match.1)
+    }
+}
+
 /// Letterspaced uppercase Quattrocento label — the manuscript's structural voice.
 struct ManuscriptLabel: View {
     let text: String

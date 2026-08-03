@@ -88,7 +88,7 @@ struct SearchResultsView: View {
                     Text(result.title)
                         .font(.custom("Quattrocento-Bold", size: 15))
                     Spacer()
-                    Text("\(result.chapterTitle) · \(result.wordCount) words")
+                    Text("\(ManuscriptTitle.strippingNumbering(result.chapterTitle)) · \(result.wordCount) words")
                         .font(.caption)
                         .monospacedDigit()
                         .foregroundStyle(.tertiary)

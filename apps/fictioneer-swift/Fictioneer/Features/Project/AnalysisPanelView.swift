@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// The expandable stats capsule (bottom-right of the editor): collapsed it
-/// shows score + counts; expanded it mirrors the Tauri stats pill — sweet-spot
-/// bar, readability, prose metrics, top issues.
+/// The page's stats folio (docked at the page foot, below the prose so it
+/// never covers it): collapsed it shows score + counts; expanded it mirrors
+/// the Tauri stats pill — sweet-spot bar, readability, prose metrics, top
+/// issues — pushing the editor up rather than overlaying it.
 struct AnalysisPanelView: View {
     let analysis: AnalysisCoordinator
     let scene: Scene
@@ -14,23 +15,19 @@ struct AnalysisPanelView: View {
     private static let targetMax = 1800
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .trailing, spacing: 0) {
             if isExpanded, let result = analysis.result {
                 expandedContent(result)
+                    .frame(width: 300, alignment: .leading)
                     .padding(12)
                 Divider()
             }
             header
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
         }
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
-        .overlay(
-            RoundedRectangle(cornerRadius: 6)
-                .strokeBorder(.separator)
-        )
-        .frame(maxWidth: isExpanded ? 300 : nil)
-        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .background(Color(nsColor: EditorTheme.paperBackground))
         .onContinuousHover { phase in
             if case .active = phase {
                 NSCursor.arrow.set()
