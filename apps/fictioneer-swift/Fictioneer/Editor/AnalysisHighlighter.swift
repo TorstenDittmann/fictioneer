@@ -12,6 +12,10 @@ final class AnalysisHighlighter {
         var underlineColor: NSColor
     }
 
+    /// Experiment: issue details appear as hover cards on the highlighted
+    /// text itself; the margin pills are disabled while this is on.
+    static let useMarginChips = false
+
     private weak var editorController: EditorController?
 
     /// Ranges decorated in the last pass (UTF-16 storage offsets).
@@ -73,7 +77,12 @@ final class AnalysisHighlighter {
             appliedRanges.append(range)
             applied.append(highlight)
         }
-        updateMarginAnnotations(for: applied)
+        textView.setHoverHighlights(applied.map { highlight in
+            (highlight.range, [MarginIssue(type: highlight.type, message: highlight.message, suggestion: highlight.suggestion)])
+        })
+        if Self.useMarginChips {
+            updateMarginAnnotations(for: applied)
+        }
     }
 
     func clear() {
@@ -81,6 +90,7 @@ final class AnalysisHighlighter {
         if let layoutManager = textView.layoutManager {
             removeAllTemporaryAttributes(layoutManager, length: (textView.string as NSString).length)
         }
+        textView.setHoverHighlights([])
         textView.setMarginAnnotations([])
     }
 

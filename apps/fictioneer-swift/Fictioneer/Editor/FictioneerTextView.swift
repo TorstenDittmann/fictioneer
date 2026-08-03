@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 
 /// NSTextView subclass with key hooks for the ghost-text feature and the
 /// centered writing column / typewriter scrolling behavior.
@@ -39,6 +40,92 @@ final class FictioneerTextView: NSTextView {
     func setMarginAnnotations(_ annotations: [MarginAnnotation]) {
         marginAnnotations = annotations
         rebuildMarginChips()
+    }
+
+    // MARK: - Hover cards on highlighted text
+
+    // Experiment: issue details appear when hovering the flagged text itself.
+    private var hoverHighlights: [(range: NSRange, items: [MarginIssue])] = []
+    private var hoverCard: NSHostingView<AnalysisIssueListView>?
+    private var hoverCardRange: NSRange?
+    private var hoverTask: Task<Void, Never>?
+
+    func setHoverHighlights(_ highlights: [(range: NSRange, items: [MarginIssue])]) {
+        hoverHighlights = highlights
+        dismissHoverCard()
+    }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        addTrackingArea(NSTrackingArea(
+            rect: .zero,
+            options: [.mouseMoved, .mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect],
+            owner: self,
+            userInfo: nil
+        ))
+    }
+
+    override func mouseMoved(with event: NSEvent) {
+        super.mouseMoved(with: event)
+        guard !hoverHighlights.isEmpty else { return }
+        let point = convert(event.locationInWindow, from: nil)
+        let containerPoint = NSPoint(
+            x: point.x - textContainerOrigin.x,
+            y: point.y - textContainerOrigin.y
+        )
+        var hit: (range: NSRange, items: [MarginIssue])?
+        if let layoutManager, let textContainer {
+            var fraction: CGFloat = 0
+            let index = layoutManager.characterIndex(
+                for: containerPoint,
+                in: textContainer,
+                fractionOfDistanceBetweenInsertionPoints: &fraction
+            )
+            hit = hoverHighlights.first { NSLocationInRange(index, $0.range) }
+        }
+
+        if let hit {
+            guard hit.range != hoverCardRange else { return }
+            hoverTask?.cancel()
+            hoverTask = Task { [weak self] in
+                try? await Task.sleep(for: .milliseconds(180))
+                guard !Task.isCancelled else { return }
+                self?.showHoverCard(for: hit.range, items: hit.items)
+            }
+        } else if hoverCard != nil || hoverTask != nil {
+            hoverTask?.cancel()
+            hoverTask = nil
+            dismissHoverCard()
+        }
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        super.mouseExited(with: event)
+        hoverTask?.cancel()
+        hoverTask = nil
+        dismissHoverCard()
+    }
+
+    private func showHoverCard(for range: NSRange, items: [MarginIssue]) {
+        dismissHoverCard()
+        guard let window else { return }
+        let screenRect = firstRect(forCharacterRange: range, actualRange: nil)
+        guard screenRect != .zero else { return }
+        let lineRect = convert(window.convertFromScreen(screenRect), from: nil)
+
+        let card = NSHostingView(rootView: AnalysisIssueListView(items: items))
+        let size = card.fittingSize
+        let x = min(max(8, lineRect.minX), bounds.width - size.width - 8)
+        card.frame = NSRect(x: x, y: lineRect.maxY + 4, width: size.width, height: size.height)
+        addSubview(card)
+        hoverCard = card
+        hoverCardRange = range
+    }
+
+    func dismissHoverCard() {
+        hoverCard?.removeFromSuperview()
+        hoverCard = nil
+        hoverCardRange = nil
     }
 
     /// Recomputes existing chips' frames from current layout without
