@@ -30,7 +30,11 @@ struct RichTextEditor: NSViewRepresentable {
     }
 
     func makeNSView(context: Context) -> NSScrollView {
-        let textView = FictioneerTextView(usingTextLayoutManager: true)
+        // TextKit 1 compatibility mode, deliberately: TK2's view layer caused
+        // a long tail of display bugs (fragment repaint, clip-tile insets),
+        // and TK1's temporary attributes are the purpose-built mechanism for
+        // the prose highlights. No feature here needs TK2.
+        let textView = FictioneerTextView(usingTextLayoutManager: false)
         textView.isRichText = true
         textView.allowsUndo = true
         textView.importsGraphics = false

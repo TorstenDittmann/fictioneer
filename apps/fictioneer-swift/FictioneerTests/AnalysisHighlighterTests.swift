@@ -4,7 +4,7 @@ import Testing
 
 struct AnalysisHighlighterTests {
     private func makeEditor(text: String) -> (FictioneerTextView, EditorController) {
-        let textView = FictioneerTextView(usingTextLayoutManager: true)
+        let textView = FictioneerTextView(usingTextLayoutManager: false)
         textView.textStorage?.setAttributedString(NSAttributedString(string: text, attributes: [
             .font: NSFont.systemFont(ofSize: 18),
         ]))

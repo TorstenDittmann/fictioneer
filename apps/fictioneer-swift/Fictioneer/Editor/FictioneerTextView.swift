@@ -179,10 +179,12 @@ final class FictioneerTextView: NSTextView {
     // which chopped the visible viewport in half — text could never render in
     // the inset region and clicks there felt dead.
     func updateOverscrollMinHeight() {
-        guard let scrollView = enclosingScrollView, let layoutManager = textLayoutManager else { return }
+        guard let scrollView = enclosingScrollView,
+              let layoutManager,
+              let textContainer else { return }
         let clipHeight = scrollView.contentView.bounds.height
-        layoutManager.ensureLayout(for: layoutManager.documentRange)
-        let contentHeight = layoutManager.usageBoundsForTextContainer.height + textContainerInset.height * 2
+        layoutManager.ensureLayout(for: textContainer)
+        let contentHeight = layoutManager.usedRect(for: textContainer).height + textContainerInset.height * 2
         let overscroll = (clipHeight * 0.5).rounded()
         let target = max(clipHeight, (contentHeight + overscroll).rounded())
         if abs(minSize.height - target) > 1 {

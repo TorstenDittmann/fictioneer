@@ -1,14 +1,10 @@
 import AppKit
 
-/// Applies prose-analysis highlights as TextKit 2 *rendering attributes* —
-/// display-only decoration that never enters the text storage.
-///
-/// This is deliberate: storage attributes (even plain underlines) participate
-/// in TextKit 2 layout measurement, so applying them grew the scrollable area
-/// and shifted the view when toggling highlights — and they dragged along a
-/// train of mitigations (undo isolation, save-path stripping, scroll pinning).
-/// Rendering attributes are layout-neutral by contract (spell-check squiggles
-/// use the same mechanism) and are invisible to undo, autosave, and export.
+/// Applies prose-analysis highlights as NSLayoutManager *temporary
+/// attributes* (TextKit 1) — the purpose-built mechanism for display-only,
+/// layout-neutral decoration with immediate repaint; spell-check squiggles
+/// use the same path. Temporary attributes never enter the text storage, so
+/// they are invisible to undo, autosave, word counts, and export.
 final class AnalysisHighlighter {
     struct Style {
         var background: NSColor
@@ -54,110 +50,46 @@ final class AnalysisHighlighter {
         }
     }
 
-    /// Current decoration set, consulted by the rendering-attributes
-    /// validator on every fragment repaint. The validator pattern makes stale
-    /// highlights structurally impossible: decoration is always derived from
-    /// this state, never imperatively added/removed.
-    private var activeStyles: [(range: NSRange, style: Style)] = []
-    private var validatorInstalled = false
-    private var chainedValidator: ((NSTextLayoutManager, NSTextLayoutFragment) -> Void)?
-
     func apply(_ highlights: [AnalysisHighlight], visibleTypes: Set<AnalysisType>?) {
         guard let textView = editorController?.textView,
-              let layoutManager = textView.textLayoutManager else { return }
-        installValidatorIfNeeded(layoutManager)
+              let layoutManager = textView.layoutManager else { return }
+        removeAllTemporaryAttributes(layoutManager, length: (textView.string as NSString).length)
 
         let length = (textView.string as NSString).length
         var applied: [AnalysisHighlight] = []
-        let previousRanges = appliedRanges
-        appliedRanges = []
-        activeStyles = []
         for highlight in highlights {
             if let visibleTypes, !visibleTypes.contains(highlight.type) { continue }
             let range = highlight.range
             guard range.location >= 0, range.length > 0, range.location + range.length <= length else { continue }
             // First-wins on overlap (CSS-stacking parity with the Tauri app).
             guard !appliedRanges.contains(where: { NSIntersectionRange($0, range).length > 0 }) else { continue }
+
+            let style = Self.style(for: highlight.type)
+            layoutManager.addTemporaryAttributes([
+                .backgroundColor: style.background,
+                .underlineStyle: style.underlineStyle,
+                .underlineColor: style.underlineColor,
+            ], forCharacterRange: range)
             appliedRanges.append(range)
-            activeStyles.append((range, Self.style(for: highlight.type)))
             applied.append(highlight)
         }
-        redisplay(changed: Set(previousRanges).symmetricDifference(appliedRanges), in: layoutManager)
         updateMarginAnnotations(for: applied)
     }
 
     func clear() {
         guard let textView = editorController?.textView else { return }
-        let previousRanges = appliedRanges
-        appliedRanges = []
-        activeStyles = []
-        if let layoutManager = textView.textLayoutManager {
-            redisplay(changed: Set(previousRanges), in: layoutManager)
+        if let layoutManager = textView.layoutManager {
+            removeAllTemporaryAttributes(layoutManager, length: (textView.string as NSString).length)
         }
         textView.setMarginAnnotations([])
     }
 
-    /// Rendering-attribute invalidation alone only refreshes fragments that
-    /// get *regenerated* (e.g. scrolled back into view) — on-screen fragments
-    /// keep their painted decoration. Invalidating layout for the changed
-    /// ranges regenerates those fragments now, re-running the validator.
-    /// Rendering attributes never feed layout, so geometry cannot shift.
-    private func redisplay(changed: Set<NSRange>, in layoutManager: NSTextLayoutManager) {
-        guard !changed.isEmpty else { return }
-        layoutManager.invalidateRenderingAttributes(for: layoutManager.documentRange)
-        if changed.count > 300 {
-            layoutManager.invalidateLayout(for: layoutManager.documentRange)
-        } else {
-            for range in changed {
-                if let textRange = Self.textRange(range, in: layoutManager) {
-                    layoutManager.invalidateLayout(for: textRange)
-                }
-            }
-        }
-        editorController?.textView?.needsDisplay = true
-    }
-
-    private func installValidatorIfNeeded(_ layoutManager: NSTextLayoutManager) {
-        guard !validatorInstalled else { return }
-        validatorInstalled = true
-        chainedValidator = layoutManager.renderingAttributesValidator
-        layoutManager.renderingAttributesValidator = { [weak self] layoutManager, fragment in
-            MainActor.assumeIsolated {
-                guard let self else { return }
-                self.chainedValidator?(layoutManager, fragment)
-                self.decorate(fragment, in: layoutManager)
-            }
-        }
-    }
-
-    private func decorate(_ fragment: NSTextLayoutFragment, in layoutManager: NSTextLayoutManager) {
-        guard !activeStyles.isEmpty,
-              let contentManager = layoutManager.textContentManager else { return }
-        let document = contentManager.documentRange
-        let fragmentRange = fragment.rangeInElement
-        let fragmentStart = contentManager.offset(from: document.location, to: fragmentRange.location)
-        let fragmentEnd = contentManager.offset(from: document.location, to: fragmentRange.endLocation)
-        let fragmentNSRange = NSRange(location: fragmentStart, length: fragmentEnd - fragmentStart)
-
-        for (range, style) in activeStyles {
-            let intersection = NSIntersectionRange(range, fragmentNSRange)
-            guard intersection.length > 0,
-                  let textRange = Self.textRange(intersection, in: layoutManager) else { continue }
-            layoutManager.setRenderingAttributes([
-                .backgroundColor: style.background,
-                .underlineStyle: style.underlineStyle,
-                .underlineColor: style.underlineColor,
-            ], for: textRange)
-        }
-    }
-
-    private static func textRange(_ range: NSRange, in layoutManager: NSTextLayoutManager) -> NSTextRange? {
-        guard let contentManager = layoutManager.textContentManager else { return nil }
-        let document = contentManager.documentRange
-        guard let start = contentManager.location(document.location, offsetBy: range.location),
-              let end = contentManager.location(start, offsetBy: range.length)
-        else { return nil }
-        return NSTextRange(location: start, end: end)
+    private func removeAllTemporaryAttributes(_ layoutManager: NSLayoutManager, length: Int) {
+        let document = NSRange(location: 0, length: length)
+        layoutManager.removeTemporaryAttribute(.backgroundColor, forCharacterRange: document)
+        layoutManager.removeTemporaryAttribute(.underlineStyle, forCharacterRange: document)
+        layoutManager.removeTemporaryAttribute(.underlineColor, forCharacterRange: document)
+        appliedRanges = []
     }
 
     private func updateMarginAnnotations(for applied: [AnalysisHighlight]) {
