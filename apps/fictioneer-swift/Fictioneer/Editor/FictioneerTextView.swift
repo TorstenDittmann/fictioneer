@@ -28,20 +28,6 @@ final class FictioneerTextView: NSTextView {
         testUndoManager ?? super.undoManager
     }
 
-    // MARK: - Margin annotations
-
-    // Prose-issue details render as chips in the right gutter (tooltips are a
-    // dead end: TextKit 2 ignores the `.toolTip` key and NSTextView's tracking
-    // management swallows foreign tooltip rects). Chips are subviews of the
-    // document view, so they scroll with the text.
-    private var marginAnnotations: [MarginAnnotation] = []
-    private var marginChips: [MarginChipHostView] = []
-
-    func setMarginAnnotations(_ annotations: [MarginAnnotation]) {
-        marginAnnotations = annotations
-        rebuildMarginChips()
-    }
-
     // MARK: - Selection action bar (AI rephrase at the moment of intent)
 
     /// Gate + action wired by the scene editor. The bar appears above a
@@ -190,71 +176,6 @@ final class FictioneerTextView: NSTextView {
         hoverCardRange = nil
     }
 
-    /// Recomputes existing chips' frames from current layout without
-    /// recreating views — safe to call from `layout()`, and keeps chips
-    /// correct after attribute-only changes (heading/blockquote toggles)
-    /// that move lines without changing the text.
-    func repositionMarginAnnotations() {
-        guard !marginChips.isEmpty, let window else { return }
-        let marginWidth = textContainerInset.width
-        let x = bounds.width - marginWidth + 8
-        for chip in marginChips {
-            let screenRect = firstRect(forCharacterRange: chip.annotation.lineRange, actualRange: nil)
-            guard screenRect != .zero else {
-                chip.isHidden = true
-                continue
-            }
-            let lineRect = convert(window.convertFromScreen(screenRect), from: nil)
-            chip.isHidden = marginWidth < 90
-            let origin = NSPoint(x: x, y: Self.chipY(forLineRect: lineRect, chipHeight: chip.frame.height))
-            if chip.frame.origin != origin {
-                chip.setFrameOrigin(origin)
-            }
-            chip.layoutDetailCard() // an open card stays glued to its pill
-        }
-    }
-
-    /// Line boxes carry their extra leading on top (lineHeightMultiple), so
-    /// glyphs sit at the bottom — align chips to the glyph band, not box top.
-    static func chipY(forLineRect lineRect: NSRect, chipHeight: CGFloat) -> CGFloat {
-        lineRect.maxY - chipHeight - 3
-    }
-
-    override func layout() {
-        super.layout()
-        repositionMarginAnnotations()
-    }
-
-    private func rebuildMarginChips() {
-        marginChips.forEach {
-            $0.dismissDetail()
-            $0.removeFromSuperview()
-        }
-        marginChips.removeAll()
-        let marginWidth = textContainerInset.width
-        guard marginWidth >= 90, let window, !marginAnnotations.isEmpty else { return }
-        let x = bounds.width - marginWidth + 8
-        let maxWidth = min(marginWidth - 20, 220)
-        for annotation in marginAnnotations {
-            let screenRect = firstRect(forCharacterRange: annotation.lineRange, actualRange: nil)
-            guard screenRect != .zero else { continue }
-            let lineRect = convert(window.convertFromScreen(screenRect), from: nil)
-            let chip = MarginChipHostView(annotation: annotation)
-            // Frame must hug the visible pill: any invisible slack consumes
-            // clicks meant for the editor and offsets the popover anchor.
-            let size = chip.pillSize
-            let height = min(max(size.height, 18), 22)
-            chip.frame = NSRect(
-                x: x,
-                y: Self.chipY(forLineRect: lineRect, chipHeight: height),
-                width: min(size.width, maxWidth),
-                height: height
-            )
-            addSubview(chip)
-            marginChips.append(chip)
-        }
-    }
-
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         guard string.isEmpty else { return }
@@ -296,7 +217,6 @@ final class FictioneerTextView: NSTextView {
     override func setFrameSize(_ newSize: NSSize) {
         super.setFrameSize(newSize)
         updateColumnInset()
-        rebuildMarginChips()
     }
 
     // MARK: - Overscroll hit area

@@ -12,10 +12,6 @@ final class AnalysisHighlighter {
         var underlineColor: NSColor
     }
 
-    /// Experiment: issue details appear as hover cards on the highlighted
-    /// text itself; the margin pills are disabled while this is on.
-    static let useMarginChips = false
-
     private weak var editorController: EditorController?
 
     /// Ranges decorated in the last pass (UTF-16 storage offsets).
@@ -80,9 +76,6 @@ final class AnalysisHighlighter {
         textView.setHoverHighlights(applied.map { highlight in
             (highlight.range, [MarginIssue(type: highlight.type, message: highlight.message, suggestion: highlight.suggestion)])
         })
-        if Self.useMarginChips {
-            updateMarginAnnotations(for: applied)
-        }
     }
 
     func clear() {
@@ -91,7 +84,6 @@ final class AnalysisHighlighter {
             removeAllTemporaryAttributes(layoutManager, length: (textView.string as NSString).length)
         }
         textView.setHoverHighlights([])
-        textView.setMarginAnnotations([])
     }
 
     private func removeAllTemporaryAttributes(_ layoutManager: NSLayoutManager, length: Int) {
@@ -100,19 +92,5 @@ final class AnalysisHighlighter {
         layoutManager.removeTemporaryAttribute(.underlineStyle, forCharacterRange: document)
         layoutManager.removeTemporaryAttribute(.underlineColor, forCharacterRange: document)
         appliedRanges = []
-    }
-
-    private func updateMarginAnnotations(for applied: [AnalysisHighlight]) {
-        guard let textView = editorController?.textView else { return }
-        guard let window = textView.window else {
-            textView.setMarginAnnotations([])
-            return
-        }
-        let annotations = AnalysisMarginGrouping.groupIntoLines(applied) { range in
-            let screenRect = textView.firstRect(forCharacterRange: range, actualRange: nil)
-            let rect = textView.convert(window.convertFromScreen(screenRect), from: nil)
-            return Int(rect.minY.rounded())
-        }
-        textView.setMarginAnnotations(annotations)
     }
 }
