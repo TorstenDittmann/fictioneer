@@ -306,4 +306,13 @@ struct TextAnalysisEngineTests {
         let elapsed = ContinuousClock.now - start
         #expect(elapsed < .seconds(10))
     }
+
+    @Test func largeManuscriptAnalyzesWithinBudget() {
+        let paragraph = "The detective walked slowly through the very dark corridor. He was followed by shadows that seemed to whisper. "
+        let text = String(repeating: paragraph, count: 900) // ~100k words
+        let start = ContinuousClock.now
+        _ = TextAnalysisEngine.analyze(text)
+        let elapsed = ContinuousClock.now - start
+        #expect(elapsed < .seconds(60))
+    }
 }
