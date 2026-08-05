@@ -98,6 +98,17 @@ private struct AISettingsTab: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            Section {
+                HStack {
+                    Button("Get a license…") {
+                        NSWorkspace.shared.open(AppConfig.checkoutURL)
+                    }
+                    Button("Manage account…") {
+                        NSWorkspace.shared.open(AppConfig.accountURL)
+                    }
+                    Spacer()
+                }
+            }
         }
         .formStyle(.grouped)
     }

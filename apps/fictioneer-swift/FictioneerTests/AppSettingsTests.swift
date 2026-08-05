@@ -55,6 +55,38 @@ struct AppSettingsTests {
         #expect(settings.spellcheckEnabled == true)
     }
 
+    @Test func upsellDismissedRoundTripsThroughPersistence() {
+        let suiteName = "app-settings-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+
+        let settings = AppSettings(defaults: defaults)
+        #expect(settings.upsellDismissed == false)
+        settings.upsellDismissed = true
+
+        let reloaded = AppSettings(defaults: defaults)
+        #expect(reloaded.upsellDismissed == true)
+    }
+
+    @Test func snapshotWithoutUpsellDismissedFieldDecodesToFalse() throws {
+        // Simulates a settings blob persisted before upsellDismissed existed.
+        let suiteName = "app-settings-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        let legacyJSON = """
+        {
+            "theme": "system",
+            "editorFontFamily": "\(FontLoader.defaultEditorFamily)",
+            "editorFontSize": 18,
+            "editorLineHeight": 1.75,
+            "intelligenceURLString": "\(AppConfig.defaultIntelligenceBaseURL)",
+            "licenseKey": ""
+        }
+        """
+        defaults.set(Data(legacyJSON.utf8), forKey: "fictioneer.settings")
+
+        let settings = AppSettings(defaults: defaults)
+        #expect(settings.upsellDismissed == false)
+    }
+
     @Test func exportDefaultsRoundTripThroughPersistence() {
         let suiteName = "app-settings-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!

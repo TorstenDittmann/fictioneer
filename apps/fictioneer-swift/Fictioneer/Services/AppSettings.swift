@@ -41,6 +41,8 @@ final class AppSettings {
     var visibleAnalysisTypes: [String] = [] { didSet { persist() } }
     var spellcheckEnabled: Bool = true { didSet { persist() } }
     var exportDefaults: ExportDefaults? { didSet { persist() } }
+    /// Set once the welcome-screen license upsell card is dismissed; the card never returns.
+    var upsellDismissed: Bool = false { didSet { persist() } }
 
     private nonisolated struct Snapshot: Codable {
         var theme: Theme
@@ -53,6 +55,7 @@ final class AppSettings {
         var visibleAnalysisTypes: [String]?
         var spellcheckEnabled: Bool?
         var exportDefaults: ExportDefaults?
+        var upsellDismissed: Bool?
     }
 
     private static let defaultsKey = "fictioneer.settings"
@@ -98,6 +101,7 @@ final class AppSettings {
         visibleAnalysisTypes = snapshot.visibleAnalysisTypes ?? []
         spellcheckEnabled = snapshot.spellcheckEnabled ?? true
         exportDefaults = snapshot.exportDefaults
+        upsellDismissed = snapshot.upsellDismissed ?? false
         isLoading = false
     }
 
@@ -113,7 +117,8 @@ final class AppSettings {
             proseHighlightsEnabled: proseHighlightsEnabled,
             visibleAnalysisTypes: visibleAnalysisTypes,
             spellcheckEnabled: spellcheckEnabled,
-            exportDefaults: exportDefaults
+            exportDefaults: exportDefaults,
+            upsellDismissed: upsellDismissed
         )
         defaults.set(try? JSONEncoder().encode(snapshot), forKey: Self.defaultsKey)
     }

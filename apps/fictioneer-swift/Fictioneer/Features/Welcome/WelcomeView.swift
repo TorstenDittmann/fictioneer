@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WelcomeView: View {
     @Environment(AppModel.self) private var appModel
+    @Environment(\.openSettings) private var openSettings
     @State private var showingNewProjectSheet = false
 
     var body: some View {
@@ -68,8 +69,54 @@ struct WelcomeView: View {
                 .font(.callout)
             }
             Spacer()
+
+            if showsLicenseUpsell {
+                licenseUpsellCard
+                    .padding(.bottom, 8)
+            }
         }
         .padding(40)
+    }
+
+    private var showsLicenseUpsell: Bool {
+        appModel.settings.licenseKey.isEmpty && !appModel.settings.upsellDismissed
+    }
+
+    private var licenseUpsellCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ManuscriptLabel("AI, in Pencil", size: 10, color: .manuscriptIndigo)
+            Text("Suggestions and quiet continuations stay optional, always in pencil, never on autopilot. A license unlocks them — the words stay yours.")
+                .font(.system(size: 12, design: .serif))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: 360, alignment: .leading)
+            HStack(spacing: 10) {
+                Button("Get a license") {
+                    NSWorkspace.shared.open(AppConfig.checkoutURL)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+
+                Button("Enter key") {
+                    openSettings()
+                }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
+
+                Spacer()
+
+                Button("Maybe later") {
+                    appModel.settings.upsellDismissed = true
+                }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
+                .foregroundStyle(.tertiary)
+            }
+            .frame(maxWidth: 360)
+        }
+        .padding(14)
+        .background(.quinary, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(.separator))
     }
 
     private var recentsPane: some View {

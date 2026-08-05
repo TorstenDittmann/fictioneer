@@ -269,6 +269,13 @@ struct CommandPaletteView: View {
             keywords: ["focus", "distraction", "free", "zen", "mode"],
             action: { session.isFocusMode.toggle() }
         ))
+        items.append(PaletteItem(
+            id: "action-manage-account", group: .actions,
+            title: "Manage Account", subtitle: "Open account settings in browser",
+            icon: "person.crop.circle",
+            keywords: ["account", "manage", "billing", "subscription", "profile", "settings"],
+            action: { NSWorkspace.shared.open(AppConfig.accountURL) }
+        ))
 
         for note in project.notes {
             let tags = note.tags.isEmpty

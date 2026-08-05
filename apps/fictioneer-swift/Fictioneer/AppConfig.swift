@@ -22,4 +22,7 @@ nonisolated enum AppConfig {
     static let ghostTextWordCount = 36
     static let ghostTextContextWindow = 2000
     static let ghostTextMinContextLength = 10
+
+    static let checkoutURL = URL(string: "https://fictioneer.app/checkout")!
+    static let accountURL = URL(string: "https://fictioneer.app/account")!
 }
