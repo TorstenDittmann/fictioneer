@@ -110,7 +110,7 @@ enum EpubBuilder {
         \t\t<dc:identifier id="BookId">\(identifier)</dc:identifier>
         \t\t<dc:title>\(escape(project.title))</dc:title>
         \t\t<dc:creator>\(escape(metadata.author.isEmpty ? "Unknown Author" : metadata.author))</dc:creator>
-        \t\t<dc:language>\(metadata.language)</dc:language>
+        \t\t<dc:language>\(escape(metadata.language))</dc:language>
         """
         if !project.details.isEmpty {
             metadataXML += "\n\t\t<dc:description>\(escape(project.details))</dc:description>"

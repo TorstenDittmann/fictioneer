@@ -6,11 +6,29 @@ import AppKit
 /// the Tauri exporter, which left titles unescaped in places.
 enum XHTMLSerializer {
     static func escape(_ text: String) -> String {
-        text.replacingOccurrences(of: "&", with: "&amp;")
+        var cleaned = text
+        if text.unicodeScalars.contains(where: { !isXMLSafe($0) }) {
+            cleaned = String(String.UnicodeScalarView(text.unicodeScalars.filter(isXMLSafe)))
+        }
+        return cleaned.replacingOccurrences(of: "&", with: "&amp;")
             .replacingOccurrences(of: "<", with: "&lt;")
             .replacingOccurrences(of: ">", with: "&gt;")
             .replacingOccurrences(of: "\"", with: "&quot;")
             .replacingOccurrences(of: "'", with: "&#x27;")
+    }
+
+    /// XML 1.0 forbids most control characters outright — they cannot even be
+    /// escaped — and the attachment placeholder (U+FFFC) plus non-characters
+    /// have no business in an EPUB. Strip them before escaping.
+    private static func isXMLSafe(_ scalar: Unicode.Scalar) -> Bool {
+        switch scalar.value {
+        case 0x09, 0x0A, 0x0D: true
+        case 0x00...0x1F: false // remaining C0 controls: illegal in XML 1.0
+        case 0x7F...0x9F: false // DEL + C1 controls: XML-discouraged
+        case 0xFFFC: false      // object-replacement char (attachment placeholder)
+        case 0xFFFE, 0xFFFF: false
+        default: true
+        }
     }
 
     static func serialize(_ content: NSAttributedString) -> String {

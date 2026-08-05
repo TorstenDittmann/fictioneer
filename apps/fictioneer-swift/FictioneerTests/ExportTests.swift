@@ -11,8 +11,13 @@ private struct ZipEntryRecord {
     var crc: UInt32
     var size: Int
     var data: Data
+    var offset: Int
 }
 
+/// Parses the archive the way a real reader does: walks the local headers,
+/// then locates the end-of-central-directory record, walks the central
+/// directory, and cross-checks every central record (path/CRC/sizes) against
+/// the local header at its recorded offset.
 private func readZip(_ archive: Data) throws -> [ZipEntryRecord] {
     var entries: [ZipEntryRecord] = []
     var cursor = 0
@@ -26,6 +31,7 @@ private func readZip(_ archive: Data) throws -> [ZipEntryRecord] {
             | (UInt32(archive[offset + 3]) << 24)
     }
     while cursor + 4 <= archive.count, u32(cursor) == 0x04034B50 {
+        let entryOffset = cursor
         let method = u16(cursor + 8)
         let crc = u32(cursor + 14)
         let compressedSize = Int(u32(cursor + 18))
@@ -35,10 +41,61 @@ private func readZip(_ archive: Data) throws -> [ZipEntryRecord] {
         let path = String(data: archive.subdata(in: nameStart..<(nameStart + nameLength)), encoding: .utf8)!
         let dataStart = nameStart + nameLength + extraLength
         let data = archive.subdata(in: dataStart..<(dataStart + compressedSize))
-        entries.append(ZipEntryRecord(path: path, method: method, crc: crc, size: compressedSize, data: data))
+        entries.append(ZipEntryRecord(path: path, method: method, crc: crc, size: compressedSize, data: data, offset: entryOffset))
         cursor = dataStart + compressedSize
     }
+
+    // End of central directory (no archive comment → fixed 22-byte tail).
+    let eocd = archive.count - 22
+    #expect(eocd >= 0 && u32(eocd) == 0x06054B50, "missing end-of-central-directory record")
+    guard eocd >= 0, u32(eocd) == 0x06054B50 else { return entries }
+    let totalEntries = u16(eocd + 10)
+    let centralSize = Int(u32(eocd + 12))
+    let centralOffset = Int(u32(eocd + 16))
+    #expect(totalEntries == entries.count)
+    #expect(centralOffset + centralSize == eocd)
+
+    var central = centralOffset
+    var centralCount = 0
+    while central + 4 <= eocd, u32(central) == 0x02014B50 {
+        let crc = u32(central + 16)
+        let compressedSize = Int(u32(central + 20))
+        let uncompressedSize = Int(u32(central + 24))
+        let nameLength = u16(central + 28)
+        let extraLength = u16(central + 30)
+        let commentLength = u16(central + 32)
+        let localOffset = Int(u32(central + 42))
+        let nameStart = central + 46
+        let path = String(data: archive.subdata(in: nameStart..<(nameStart + nameLength)), encoding: .utf8)!
+
+        // Cross-check against the local header this record points at.
+        let local = entries.first { $0.offset == localOffset }
+        #expect(local != nil, "central record \(path) points at offset \(localOffset) with no local header")
+        if let local {
+            #expect(local.path == path)
+            #expect(local.crc == crc)
+            #expect(local.size == compressedSize)
+            #expect(local.size == uncompressedSize) // STORED
+            #expect(ZipWriter.crc32(local.data) == crc)
+        }
+
+        central = nameStart + nameLength + extraLength + commentLength
+        centralCount += 1
+    }
+    #expect(centralCount == entries.count)
     return entries
+}
+
+/// Runs Foundation's XML parser over every XML-family entry (as an EPUB
+/// reader would) and reports any that fail to parse.
+private func expectWellFormedXML(in entries: [ZipEntryRecord]) {
+    let xmlSuffixes = [".xhtml", ".opf", ".ncx", ".xml"]
+    let xmlEntries = entries.filter { entry in xmlSuffixes.contains { entry.path.hasSuffix($0) } }
+    #expect(!xmlEntries.isEmpty)
+    for entry in xmlEntries {
+        let parser = XMLParser(data: entry.data)
+        #expect(parser.parse(), "\(entry.path) is not well-formed XML: \(String(describing: parser.parserError))")
+    }
 }
 
 struct ZipWriterTests {
@@ -181,6 +238,47 @@ struct EpubBuilderTests {
         #expect(chapter.contains("<h2 class=\"chapter-title\">Chapter &lt;1&gt;</h2>"))
         #expect(chapter.contains("<h3 class=\"scene-title\">Scene &lt;One&gt;</h3>"))
         #expect(chapter.contains("<strong>bold</strong>"))
+    }
+
+    @Test func everyXMLEntryParsesLikeAReader() throws {
+        var options = ExportOptions()
+        options.format = .epub
+        options.includeWordCount = true
+        let data = EpubBuilder.export(project: makeProject(), options: options)
+        let entries = try readZip(data)
+        expectWellFormedXML(in: entries)
+    }
+
+    /// XML-illegal control characters and the attachment placeholder must
+    /// never reach the serialized output, and hostile metadata strings must
+    /// be escaped like every other field.
+    @Test func controlCharactersAndHostileMetadataAreSanitized() throws {
+        let scene = Scene(title: "Bell", content: NSAttributedString(
+            string: "A bell\u{07} rang\u{FFFC} and echoed.\n",
+            attributes: [.font: NSFont.systemFont(ofSize: 18)]
+        ))
+        let project = Project(
+            title: "Sanitize",
+            chapters: [Chapter(title: "One", scenes: [scene])]
+        )
+        var options = ExportOptions()
+        options.format = .epub
+        options.epubMetadata = ProjectEpubMetadata(
+            author: "A", publisher: "", language: "de\"><evil>&", rights: "", subjects: []
+        )
+
+        let data = EpubBuilder.export(project: project, options: options)
+        let entries = try readZip(data)
+        expectWellFormedXML(in: entries)
+
+        let opf = String(data: entries.first { $0.path == "OEBPS/content.opf" }!.data, encoding: .utf8)!
+        #expect(opf.contains("<dc:language>de&quot;&gt;&lt;evil&gt;&amp;</dc:language>"))
+        #expect(!opf.contains("<dc:language>de\"><evil>&</dc:language>"))
+
+        let chapter = String(data: entries.first { $0.path == "OEBPS/chapter_01.xhtml" }!.data, encoding: .utf8)!
+        #expect(!chapter.contains("\u{07}"))
+        #expect(!chapter.contains("\u{FFFC}"))
+        #expect(chapter.contains("A bell rang and echoed."))
     }
 
     @Test func metadataOverridesProjectDefaults() throws {
