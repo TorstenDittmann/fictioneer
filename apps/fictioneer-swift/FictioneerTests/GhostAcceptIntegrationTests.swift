@@ -2,6 +2,19 @@ import AppKit
 import Testing
 @testable import Fictioneer
 
+@MainActor
+struct FictioneerTextViewOptionFlagTests {
+    @Test func plainOptionDetectionIgnoresCapsLock() {
+        #expect(FictioneerTextView.isPlainOption([.option]))
+        #expect(FictioneerTextView.isPlainOption([.option, .capsLock]))
+        #expect(!FictioneerTextView.isPlainOption([.capsLock]))
+        #expect(!FictioneerTextView.isPlainOption([.option, .command]))
+        #expect(!FictioneerTextView.isPlainOption([.option, .control]))
+        #expect(!FictioneerTextView.isPlainOption([.option, .shift]))
+        #expect(!FictioneerTextView.isPlainOption([]))
+    }
+}
+
 /// End-to-end ghost pipeline against a real (windowless) TextKit 1 view:
 /// ⌥ down → stream → ready → Tab must materialize the suggestion as normal
 /// text and leave no ghost styling behind.

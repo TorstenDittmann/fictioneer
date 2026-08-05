@@ -29,6 +29,7 @@ struct NoteEditorView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VisualEffectView().ignoresSafeArea())
+        .background(formattingShortcuts)
         .navigationTitle(note.title)
         .navigationSubtitle("Notes")
         .toolbar {
@@ -39,16 +40,34 @@ struct NoteEditorView: View {
                     } label: {
                         Label("Bold", systemImage: "bold")
                     }
-                    .keyboardShortcut("b", modifiers: .command)
+                    .help("Bold — ⌘B")
                     Button {
                         controller.toggleItalic()
                     } label: {
                         Label("Italic", systemImage: "italic")
                     }
-                    .keyboardShortcut("i", modifiers: .command)
+                    .help("Italic — ⌘I")
                 }
             }
         }
+    }
+
+    /// The formatting keyboard shortcuts live on these hidden, always-present
+    /// buttons — the window toolbar (and any shortcut attached to its items)
+    /// is hidden in focus mode.
+    private var formattingShortcuts: some View {
+        Group {
+            Button("Bold") { controller.toggleBold() }
+                .keyboardShortcut("b", modifiers: .command)
+            Button("Italic") { controller.toggleItalic() }
+                .keyboardShortcut("i", modifiers: .command)
+        }
+        .buttonStyle(.plain)
+        .labelsHidden()
+        .frame(width: 0, height: 0)
+        .opacity(0)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 
     /// Distinct tags used elsewhere in the project, minus tags already on

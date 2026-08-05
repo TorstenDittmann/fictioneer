@@ -133,20 +133,22 @@ struct SearchResultsView: View {
     private func runSearch() {
         searchTask?.cancel()
         let currentQuery = query
-        let entries = session.project.chapters.flatMap { chapter in
-            chapter.scenes.map { scene in
-                SceneSearchEntry(
-                    id: scene.id,
-                    title: scene.title,
-                    content: scene.content.strippingTransientAttributes().string,
-                    chapterTitle: chapter.title,
-                    wordCount: scene.wordCount
-                )
-            }
-        }
         searchTask = Task {
             try? await Task.sleep(for: .milliseconds(150))
             guard !Task.isCancelled else { return }
+            // Snapshotting every scene is the expensive part — it must sit
+            // behind the debounce too, not run eagerly on every keystroke.
+            let entries = session.project.chapters.flatMap { chapter in
+                chapter.scenes.map { scene in
+                    SceneSearchEntry(
+                        id: scene.id,
+                        title: scene.title,
+                        content: scene.content.strippingTransientAttributes().string,
+                        chapterTitle: chapter.title,
+                        wordCount: scene.wordCount
+                    )
+                }
+            }
             let found = await Task.detached(priority: .userInitiated) {
                 SearchService.search(query: currentQuery, in: entries)
             }.value

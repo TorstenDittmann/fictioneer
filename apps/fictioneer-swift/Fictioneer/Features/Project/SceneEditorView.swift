@@ -31,6 +31,7 @@ struct SceneEditorView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VisualEffectView().ignoresSafeArea())
+        .background(formattingShortcuts)
         .overlay(alignment: .bottom) {
             if session.progress.showGoalToast {
                 GoalToast()
@@ -150,13 +151,9 @@ struct SceneEditorView: View {
                 .menuStyle(.borderlessButton)
             toolbarDivider
             formatButton("bold", "Bold — ⌘B") { controller.toggleBold() }
-                .keyboardShortcut("b", modifiers: .command)
             formatButton("italic", "Italic — ⌘I") { controller.toggleItalic() }
-                .keyboardShortcut("i", modifiers: .command)
             formatButton("underline", "Underline — ⌘U") { controller.toggleUnderline() }
-                .keyboardShortcut("u", modifiers: .command)
             formatButton("strikethrough", "Strikethrough — ⇧⌘X") { controller.toggleStrikethrough() }
-                .keyboardShortcut("x", modifiers: [.command, .shift])
             toolbarDivider
             Button {
                 if let context = controller.selectionContext() {
@@ -232,6 +229,28 @@ struct SceneEditorView: View {
         }
         .imageScale(.small)
         .foregroundStyle(.secondary)
+    }
+
+    /// The formatting keyboard shortcuts live on these hidden, always-present
+    /// buttons — NOT on the visible toolbar icons, which aren't built in
+    /// focus mode (shortcuts attached only there died with the chrome).
+    private var formattingShortcuts: some View {
+        Group {
+            Button("Bold") { controller.toggleBold() }
+                .keyboardShortcut("b", modifiers: .command)
+            Button("Italic") { controller.toggleItalic() }
+                .keyboardShortcut("i", modifiers: .command)
+            Button("Underline") { controller.toggleUnderline() }
+                .keyboardShortcut("u", modifiers: .command)
+            Button("Strikethrough") { controller.toggleStrikethrough() }
+                .keyboardShortcut("x", modifiers: [.command, .shift])
+        }
+        .buttonStyle(.plain)
+        .labelsHidden()
+        .frame(width: 0, height: 0)
+        .opacity(0)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 
     private var toolbarDivider: some View {

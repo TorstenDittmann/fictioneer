@@ -169,7 +169,12 @@ struct PromptSheet: View {
                     generated = "Generation failed: \(error.localizedDescription)"
                 }
             }
-            isGenerating = false
+            // A cancelled task (Regenerate started a replacement) must not
+            // clobber the replacement's isGenerating — the UI would show
+            // "Complete" mid-stream and offer a partial draft for insertion.
+            if !Task.isCancelled {
+                isGenerating = false
+            }
         }
     }
 

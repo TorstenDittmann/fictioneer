@@ -207,10 +207,16 @@ final class FictioneerTextView: NSTextView {
         super.keyDown(with: event)
     }
 
+    /// Plain ⌥ only — ⌥ combined with ⌘/⌃/⇧ is a shortcut chord, not the AI
+    /// trigger. Caps Lock is subtracted first: it is latched state that would
+    /// otherwise make the comparison fail and leave ghost text dead while
+    /// Caps Lock is on.
+    static func isPlainOption(_ flags: NSEvent.ModifierFlags) -> Bool {
+        flags.intersection(.deviceIndependentFlagsMask).subtracting(.capsLock) == .option
+    }
+
     override func flagsChanged(with event: NSEvent) {
-        // Plain ⌥ only — ⌥ combined with ⌘/⌃ is a shortcut chord, not the AI trigger.
-        let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-        onOptionKeyChange?(flags == .option)
+        onOptionKeyChange?(Self.isPlainOption(event.modifierFlags))
         super.flagsChanged(with: event)
     }
 
