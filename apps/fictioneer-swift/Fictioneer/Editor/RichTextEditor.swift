@@ -43,7 +43,7 @@ struct RichTextEditor: NSViewRepresentable {
         textView.isAutomaticQuoteSubstitutionEnabled = true
         textView.isAutomaticDashSubstitutionEnabled = true
         textView.isAutomaticSpellingCorrectionEnabled = false
-        textView.isContinuousSpellCheckingEnabled = true
+        textView.isContinuousSpellCheckingEnabled = settings.spellcheckEnabled
         textView.drawsBackground = false
         textView.isVerticallyResizable = true
         textView.isHorizontallyResizable = false
@@ -84,6 +84,11 @@ struct RichTextEditor: NSViewRepresentable {
         let theme = EditorTheme(settings: settings)
         if theme != controller.theme {
             controller.applyTheme(theme)
+        }
+
+        if let textView = scrollView.documentView as? FictioneerTextView,
+           textView.isContinuousSpellCheckingEnabled != settings.spellcheckEnabled {
+            textView.isContinuousSpellCheckingEnabled = settings.spellcheckEnabled
         }
     }
 

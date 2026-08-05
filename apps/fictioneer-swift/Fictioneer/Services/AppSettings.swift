@@ -27,6 +27,7 @@ final class AppSettings {
     var proseHighlightsEnabled: Bool = false { didSet { persist() } }
     /// Raw values of visible AnalysisType cases; empty means "all".
     var visibleAnalysisTypes: [String] = [] { didSet { persist() } }
+    var spellcheckEnabled: Bool = true { didSet { persist() } }
 
     private nonisolated struct Snapshot: Codable {
         var theme: Theme
@@ -37,6 +38,7 @@ final class AppSettings {
         var licenseKey: String
         var proseHighlightsEnabled: Bool?
         var visibleAnalysisTypes: [String]?
+        var spellcheckEnabled: Bool?
     }
 
     private static let defaultsKey = "fictioneer.settings"
@@ -80,6 +82,7 @@ final class AppSettings {
         licenseKey = snapshot.licenseKey
         proseHighlightsEnabled = snapshot.proseHighlightsEnabled ?? false
         visibleAnalysisTypes = snapshot.visibleAnalysisTypes ?? []
+        spellcheckEnabled = snapshot.spellcheckEnabled ?? true
         isLoading = false
     }
 
@@ -93,7 +96,8 @@ final class AppSettings {
             intelligenceURLString: intelligenceURLString,
             licenseKey: licenseKey,
             proseHighlightsEnabled: proseHighlightsEnabled,
-            visibleAnalysisTypes: visibleAnalysisTypes
+            visibleAnalysisTypes: visibleAnalysisTypes,
+            spellcheckEnabled: spellcheckEnabled
         )
         defaults.set(try? JSONEncoder().encode(snapshot), forKey: Self.defaultsKey)
     }

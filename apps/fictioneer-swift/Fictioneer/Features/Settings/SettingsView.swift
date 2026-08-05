@@ -60,6 +60,7 @@ private struct EditorSettingsTab: View {
                         .frame(width: 44, alignment: .trailing)
                 }
             }
+            Toggle("Check Spelling", isOn: $settings.spellcheckEnabled)
         }
         .formStyle(.grouped)
     }
