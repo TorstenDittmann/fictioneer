@@ -174,6 +174,8 @@ struct SceneEditorView: View {
             .buttonStyle(.borderless)
             .disabled(!controller.hasSelection || !appModel.license.isReadyForSuggestions)
             .hoverTip("Rephrase selection — five AI alternatives")
+            .accessibilityLabel("Rephrase selection")
+            .accessibilityHint("Five AI alternatives")
 
             Button {
                 showingPromptSheet = true
@@ -185,6 +187,8 @@ struct SceneEditorView: View {
             .buttonStyle(.borderless)
             .disabled(!appModel.license.isReadyForSuggestions)
             .hoverTip("AI Prompt — generate and insert at the caret")
+            .accessibilityLabel("AI Prompt")
+            .accessibilityHint("Generate and insert at the caret")
 
             Button {
                 analysis.setHighlightsEnabled(!analysis.highlightsEnabled)
@@ -196,6 +200,9 @@ struct SceneEditorView: View {
             }
             .buttonStyle(.borderless)
             .hoverTip("Prose highlights — flag adverbs, passive voice, clichés and more")
+            .accessibilityLabel("Prose highlights")
+            .accessibilityHint("Flag adverbs, passive voice, clichés and more")
+            .accessibilityValue(analysis.highlightsEnabled ? "On" : "Off")
 
             if !matchingNotes.isEmpty {
                 toolbarDivider
@@ -213,6 +220,8 @@ struct SceneEditorView: View {
                 }
                 .buttonStyle(.borderless)
                 .hoverTip("Notes mentioned in this scene")
+                .accessibilityLabel("Notes mentioned in this scene")
+                .accessibilityValue("\(matchingNotes.count)")
                 .popover(isPresented: $showingNotesPopover, arrowEdge: .bottom) {
                     NotesInSceneList(notes: matchingNotes) { note in
                         session.selectedItem = .note(note.id)
@@ -249,16 +258,34 @@ struct SceneEditorView: View {
         .menuIndicator(.hidden)
         .fixedSize()
         .hoverTip("Paragraph style")
+        .accessibilityLabel("Paragraph style")
     }
 
+    /// Splits a hover-tip string of the form "Label — Hint" (used throughout
+    /// the toolbar) into VoiceOver's separate label/hint pair, so the
+    /// keyboard-shortcut suffix reads as a hint rather than part of the name.
+    private func accessibilityParts(for tip: String) -> (label: String, hint: String?) {
+        guard let range = tip.range(of: " — ") else { return (tip, nil) }
+        return (String(tip[..<range.lowerBound]), String(tip[range.upperBound...]))
+    }
+
+    @ViewBuilder
     private func formatButton(_ icon: String, _ tip: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+        let parts = accessibilityParts(for: tip)
+        let button = Button(action: action) {
             Image(systemName: icon)
                 .frame(width: 20, height: 18)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.borderless)
         .hoverTip(tip)
+        .accessibilityLabel(parts.label)
+
+        if let hint = parts.hint {
+            button.accessibilityHint(hint)
+        } else {
+            button
+        }
     }
 
 }

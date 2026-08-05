@@ -249,6 +249,7 @@ struct SidebarView: View {
             }
             .buttonStyle(.borderless)
             .help("Project settings and eBook metadata")
+            .accessibilityLabel("Project settings")
         }
         .padding(.horizontal, 16)
         .padding(.top, 4)

@@ -45,6 +45,10 @@ final class SelectionBarHostView: NSView {
         super.init(frame: .zero)
         hostingView.autoresizingMask = [.width, .height]
         addSubview(hostingView)
+
+        setAccessibilityElement(true)
+        setAccessibilityRole(.button)
+        setAccessibilityLabel("Rephrase selection")
     }
 
     @available(*, unavailable)
@@ -83,5 +87,10 @@ final class SelectionBarHostView: NSView {
 
     override func mouseDown(with event: NSEvent) {
         onAction?()
+    }
+
+    override func accessibilityPerformPress() -> Bool {
+        onAction?()
+        return true
     }
 }

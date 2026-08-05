@@ -15,5 +15,7 @@ struct GoalToast: View {
         .shadow(color: .black.opacity(0.15), radius: 10, y: 3)
         .padding(.bottom, 48)
         .transition(.move(edge: .bottom).combined(with: .opacity))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Daily goal reached")
     }
 }

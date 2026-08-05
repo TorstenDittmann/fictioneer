@@ -45,6 +45,7 @@ struct AnalysisPanelView: View {
                         .font(.caption2)
                         .foregroundStyle(Color.accentColor)
                         .hoverTip("Hold ⌥ for an AI continuation · Tab accepts")
+                        .accessibilityHidden(true)
                 }
                 if let result = analysis.result {
                     scoreRing(result.overallScore)
@@ -56,10 +57,12 @@ struct AnalysisPanelView: View {
                 Image(systemName: isExpanded ? "chevron.down" : "chevron.up")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
             }
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityHint(isExpanded ? "Double-tap to collapse analysis" : "Double-tap to expand analysis")
     }
 
     @ViewBuilder
@@ -171,6 +174,8 @@ struct AnalysisPanelView: View {
         }
         .frame(width: 22, height: 22)
         .padding(.vertical, 1)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Prose score \(score) of 100")
     }
 
     private func scoreColor(_ score: Int) -> Color {

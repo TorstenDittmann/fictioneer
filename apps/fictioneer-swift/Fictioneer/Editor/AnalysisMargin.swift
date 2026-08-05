@@ -20,6 +20,7 @@ struct AnalysisIssueListView: View {
                         .fill(Color(nsColor: AnalysisHighlighter.style(for: item.type).underlineColor.withAlphaComponent(1)))
                         .frame(width: 7, height: 7)
                         .padding(.top, 4)
+                        .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(item.message)
                             .font(.callout)
@@ -32,6 +33,7 @@ struct AnalysisIssueListView: View {
                         }
                     }
                 }
+                .accessibilityElement(children: .combine)
             }
         }
         .padding(12)
