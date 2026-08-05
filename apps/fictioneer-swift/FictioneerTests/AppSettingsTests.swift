@@ -108,6 +108,40 @@ struct AppSettingsTests {
         #expect(reloaded.exportDefaults == stored)
     }
 
+    @Test func invalidExportDefaultsDegradesWithoutWipingOtherSettings() throws {
+        // A future app version could persist an ExportDefaults with an enum
+        // rawValue this build doesn't know. That must degrade exportDefaults
+        // to nil — not fail the whole snapshot and reset every setting
+        // (including the license key).
+        let suiteName = "app-settings-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        let blob = """
+        {
+            "theme": "dark",
+            "editorFontFamily": "\(FontLoader.defaultEditorFamily)",
+            "editorFontSize": 21,
+            "editorLineHeight": 1.5,
+            "intelligenceURLString": "\(AppConfig.defaultIntelligenceBaseURL)",
+            "licenseKey": "LICENSE-123",
+            "exportDefaults": {
+                "format": "holographic_scroll",
+                "includeTitle": true,
+                "includeChapterTitles": true,
+                "includeSceneTitles": true,
+                "includeWordCount": false,
+                "epubTemplate": "generic_novel"
+            }
+        }
+        """
+        defaults.set(Data(blob.utf8), forKey: "fictioneer.settings")
+
+        let settings = AppSettings(defaults: defaults)
+        #expect(settings.licenseKey == "LICENSE-123")
+        #expect(settings.theme == .dark)
+        #expect(settings.editorFontSize == 21)
+        #expect(settings.exportDefaults == nil)
+    }
+
     @Test func snapshotWithoutExportDefaultsFieldDecodesToNil() throws {
         // Simulates a settings blob persisted before exportDefaults existed.
         let suiteName = "app-settings-\(UUID().uuidString)"

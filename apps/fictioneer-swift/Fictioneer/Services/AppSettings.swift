@@ -56,6 +56,51 @@ final class AppSettings {
         var spellcheckEnabled: Bool?
         var exportDefaults: ExportDefaults?
         var upsellDismissed: Bool?
+
+        init(
+            theme: Theme,
+            editorFontFamily: String,
+            editorFontSize: Double,
+            editorLineHeight: Double,
+            intelligenceURLString: String,
+            licenseKey: String,
+            proseHighlightsEnabled: Bool?,
+            visibleAnalysisTypes: [String]?,
+            spellcheckEnabled: Bool?,
+            exportDefaults: ExportDefaults?,
+            upsellDismissed: Bool?
+        ) {
+            self.theme = theme
+            self.editorFontFamily = editorFontFamily
+            self.editorFontSize = editorFontSize
+            self.editorLineHeight = editorLineHeight
+            self.intelligenceURLString = intelligenceURLString
+            self.licenseKey = licenseKey
+            self.proseHighlightsEnabled = proseHighlightsEnabled
+            self.visibleAnalysisTypes = visibleAnalysisTypes
+            self.spellcheckEnabled = spellcheckEnabled
+            self.exportDefaults = exportDefaults
+            self.upsellDismissed = upsellDismissed
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            theme = try container.decode(Theme.self, forKey: .theme)
+            editorFontFamily = try container.decode(String.self, forKey: .editorFontFamily)
+            editorFontSize = try container.decode(Double.self, forKey: .editorFontSize)
+            editorLineHeight = try container.decode(Double.self, forKey: .editorLineHeight)
+            intelligenceURLString = try container.decode(String.self, forKey: .intelligenceURLString)
+            licenseKey = try container.decode(String.self, forKey: .licenseKey)
+            proseHighlightsEnabled = try container.decodeIfPresent(Bool.self, forKey: .proseHighlightsEnabled)
+            visibleAnalysisTypes = try container.decodeIfPresent([String].self, forKey: .visibleAnalysisTypes)
+            spellcheckEnabled = try container.decodeIfPresent(Bool.self, forKey: .spellcheckEnabled)
+            // Deliberately lenient: ExportDefaults nests non-optional enums,
+            // so an unknown rawValue written by a future version must degrade
+            // to nil — not fail the whole snapshot and wipe every setting
+            // (including the license key).
+            exportDefaults = try? container.decodeIfPresent(ExportDefaults.self, forKey: .exportDefaults)
+            upsellDismissed = try container.decodeIfPresent(Bool.self, forKey: .upsellDismissed)
+        }
     }
 
     private static let defaultsKey = "fictioneer.settings"
