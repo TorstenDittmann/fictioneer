@@ -13,11 +13,6 @@ nonisolated enum NoteMatcher {
     struct Candidate: Sendable, Equatable {
         let id: UUID
         let tags: [String]
-
-        init(id: UUID, tags: [String]) {
-            self.id = id
-            self.tags = tags
-        }
     }
 
     /// Returns the ids of candidates with at least one tag that appears,
