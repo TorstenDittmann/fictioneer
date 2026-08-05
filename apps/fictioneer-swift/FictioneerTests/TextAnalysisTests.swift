@@ -300,7 +300,7 @@ struct TextAnalysisEngineTests {
 
     @Test func largeDocumentAnalyzesWithinBudget() {
         let paragraph = "The detective walked slowly through the very dark corridor. He was followed by shadows that seemed to whisper. "
-        let text = String(repeating: paragraph, count: 180) // ~20k words
+        let text = String(repeating: paragraph, count: 180) // ~3k words
         let start = ContinuousClock.now
         _ = TextAnalysisEngine.analyze(text)
         let elapsed = ContinuousClock.now - start
@@ -309,7 +309,7 @@ struct TextAnalysisEngineTests {
 
     @Test func largeManuscriptAnalyzesWithinBudget() {
         let paragraph = "The detective walked slowly through the very dark corridor. He was followed by shadows that seemed to whisper. "
-        let text = String(repeating: paragraph, count: 900) // ~100k words
+        let text = String(repeating: paragraph, count: 5600) // ~100k words
         let start = ContinuousClock.now
         _ = TextAnalysisEngine.analyze(text)
         let elapsed = ContinuousClock.now - start
