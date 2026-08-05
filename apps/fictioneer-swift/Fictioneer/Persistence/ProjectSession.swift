@@ -113,12 +113,23 @@ final class ProjectSession {
     private var autosaveTask: Task<Void, Never>?
     private var lastSaveDate: Date?
     private let ownsSecurityScope: Bool
+    private var securityScopeReleased = false
+    private let autosaveDebounce: TimeInterval
+    private let autosaveThrottle: TimeInterval
 
-    init(url: URL, project: Project, ownsSecurityScope: Bool) {
+    init(
+        url: URL,
+        project: Project,
+        ownsSecurityScope: Bool,
+        autosaveDebounce: TimeInterval = AppConfig.autosaveDebounce,
+        autosaveThrottle: TimeInterval = AppConfig.autosaveThrottle
+    ) {
         self.url = url
         self.project = project
         self.progress = ProgressTracker(project: project)
         self.ownsSecurityScope = ownsSecurityScope
+        self.autosaveDebounce = autosaveDebounce
+        self.autosaveThrottle = autosaveThrottle
         self.selectedSceneID = project.lastOpenedSceneID ?? project.allScenes.first?.id
     }
 
@@ -140,22 +151,46 @@ final class ProjectSession {
         performSave()
     }
 
-    /// Flushes pending changes and releases the security scope. Call exactly once.
-    func close() {
+    /// Flushes pending changes and, on success, releases the security scope.
+    /// Returns false when the final save failed — the scope is kept so a
+    /// retry (calling `close()` again) can still write; callers that give up
+    /// must call `closeDiscardingChanges()` instead of dropping the session
+    /// silently.
+    @discardableResult
+    func close() -> Bool {
         autosaveTask?.cancel()
         autosaveTask = nil
         project.lastOpenedSceneID = selectedSceneID
-        performSave(force: true)
-        if ownsSecurityScope {
-            url.stopAccessingSecurityScopedResource()
-        }
+        guard performSave(force: true) else { return false }
+        releaseSecurityScope()
+        return true
+    }
+
+    /// Gives up on a failed final save: releases the security scope without
+    /// another save attempt. Only meaningful after `close()` returned false.
+    func closeDiscardingChanges() {
+        autosaveTask?.cancel()
+        autosaveTask = nil
+        releaseSecurityScope()
+    }
+
+    /// The human-readable reason of the last failed save, if any.
+    var saveFailureMessage: String? {
+        if case .failed(let message) = saveState { return message }
+        return nil
+    }
+
+    private func releaseSecurityScope() {
+        guard ownsSecurityScope, !securityScopeReleased else { return }
+        securityScopeReleased = true
+        url.stopAccessingSecurityScopedResource()
     }
 
     private func scheduleAutosave() {
         autosaveTask?.cancel()
-        var delay = AppConfig.autosaveDebounce
+        var delay = autosaveDebounce
         if let lastSaveDate {
-            let earliestNextSave = lastSaveDate.addingTimeInterval(AppConfig.autosaveThrottle)
+            let earliestNextSave = lastSaveDate.addingTimeInterval(autosaveThrottle)
             delay = max(delay, earliestNextSave.timeIntervalSince(.now))
         }
         autosaveTask = Task { [weak self] in
@@ -165,8 +200,9 @@ final class ProjectSession {
         }
     }
 
-    private func performSave(force: Bool = false) {
-        guard force || hasPendingChanges else { return }
+    @discardableResult
+    private func performSave(force: Bool = false) -> Bool {
+        guard force || hasPendingChanges else { return true }
         saveState = .saving
         do {
             try ProjectPackage.save(project, to: url, dirtySceneIDs: dirtySceneIDs, dirtyNoteIDs: dirtyNoteIDs)
@@ -174,8 +210,10 @@ final class ProjectSession {
             dirtyNoteIDs = []
             lastSaveDate = .now
             saveState = .saved(.now)
+            return true
         } catch {
             saveState = .failed(error.localizedDescription)
+            return false
         }
     }
 }

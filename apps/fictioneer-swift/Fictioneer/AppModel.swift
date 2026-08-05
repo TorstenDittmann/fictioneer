@@ -88,14 +88,43 @@ final class AppModel {
     }
 
     private func openSession(url: URL, project: Project, ownsSecurityScope: Bool) {
-        session?.close()
+        if let existing = session {
+            closeReportingFailure(existing)
+        }
         session = ProjectSession(url: url, project: project, ownsSecurityScope: ownsSecurityScope)
         recents.noteOpened(url: url, title: project.title)
         NSDocumentController.shared.noteNewRecentDocumentURL(url)
     }
 
     func closeProject() {
-        session?.close()
-        session = nil
+        guard let session else { return }
+        closeReportingFailure(session)
+        self.session = nil
+    }
+
+    /// Closes a session; if the final save fails, the user chooses between
+    /// retrying and closing anyway — unsaved work is never dropped silently.
+    private func closeReportingFailure(_ session: ProjectSession) {
+        while !session.close() {
+            if presentSaveFailureAlert(for: session) == .alertFirstButtonReturn {
+                continue // Try Again
+            }
+            session.closeDiscardingChanges()
+            return
+        }
+    }
+
+    private func presentSaveFailureAlert(for session: ProjectSession) -> NSApplication.ModalResponse {
+        let alert = NSAlert()
+        alert.alertStyle = .critical
+        alert.messageText = "Couldn't save “\(session.project.title)”"
+        var informative = "The latest changes could not be written to disk."
+        if let reason = session.saveFailureMessage {
+            informative += "\n\n\(reason)"
+        }
+        alert.informativeText = informative
+        alert.addButton(withTitle: "Try Again")
+        alert.addButton(withTitle: "Close Anyway")
+        return alert.runModal()
     }
 }

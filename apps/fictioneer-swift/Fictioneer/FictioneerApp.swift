@@ -45,8 +45,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         true
     }
 
-    func applicationWillTerminate(_ notification: Notification) {
-        appModel?.session?.close()
+    /// The final flush happens BEFORE termination proceeds, so a failed save
+    /// can stop the quit instead of silently discarding work.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard let session = appModel?.session else { return .terminateNow }
+        while !session.close() {
+            let alert = NSAlert()
+            alert.alertStyle = .critical
+            alert.messageText = "Couldn't save “\(session.project.title)”"
+            var informative = "The latest changes could not be written to disk."
+            if let reason = session.saveFailureMessage {
+                informative += "\n\n\(reason)"
+            }
+            alert.informativeText = informative
+            alert.addButton(withTitle: "Try Again")
+            alert.addButton(withTitle: "Quit Anyway")
+            alert.addButton(withTitle: "Cancel")
+            switch alert.runModal() {
+            case .alertFirstButtonReturn:
+                continue // Try Again
+            case .alertSecondButtonReturn:
+                session.closeDiscardingChanges()
+                return .terminateNow
+            default:
+                return .terminateCancel
+            }
+        }
+        appModel?.session = nil
+        return .terminateNow
     }
 }
 
