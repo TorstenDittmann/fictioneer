@@ -1,6 +1,6 @@
 import Foundation
 
-enum EpubTemplate: String, CaseIterable, Identifiable {
+enum EpubTemplate: String, CaseIterable, Identifiable, Codable {
     case genericNovel = "generic_novel"
     case modernCompact = "modern_compact"
     case classicBook = "classic_book"

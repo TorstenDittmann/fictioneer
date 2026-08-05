@@ -3,9 +3,11 @@ import SwiftUI
 struct ExportSheet: View {
     let session: ProjectSession
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppModel.self) private var appModel
 
     @State private var options: ExportOptions
     @State private var exportError: String?
+    @State private var didSeedDefaults = false
 
     init(session: ProjectSession, format: ExportFormat = .rtf) {
         self.session = session
@@ -85,12 +87,36 @@ struct ExportSheet: View {
         }
         .padding(20)
         .frame(width: 460, height: 540)
+        .onAppear { seedFromStoredDefaults() }
+    }
+
+    /// Applies the user's last-used export preferences, if any were saved.
+    /// Runs once per presentation; per-project EPUB metadata (already seeded
+    /// in init) is left untouched.
+    private func seedFromStoredDefaults() {
+        guard !didSeedDefaults else { return }
+        didSeedDefaults = true
+        guard let stored = appModel.settings.exportDefaults else { return }
+        options.format = stored.format
+        options.includeTitle = stored.includeTitle
+        options.includeChapterTitles = stored.includeChapterTitles
+        options.includeSceneTitles = stored.includeSceneTitles
+        options.includeWordCount = stored.includeWordCount
+        options.epubTemplate = stored.epubTemplate
     }
 
     private func runExport() {
         session.saveNow()
         do {
             if try ExportService.exportViaPanel(project: session.project, options: options) {
+                appModel.settings.exportDefaults = ExportDefaults(
+                    format: options.format,
+                    includeTitle: options.includeTitle,
+                    includeChapterTitles: options.includeChapterTitles,
+                    includeSceneTitles: options.includeSceneTitles,
+                    includeWordCount: options.includeWordCount,
+                    epubTemplate: options.epubTemplate
+                )
                 dismiss()
             }
         } catch {

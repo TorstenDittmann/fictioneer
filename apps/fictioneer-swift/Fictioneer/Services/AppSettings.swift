@@ -1,6 +1,18 @@
 import Foundation
 import SwiftUI
 
+/// Persisted export sheet preferences (include-toggles, format, EPUB
+/// template). Per-project book metadata (author, publisher, ...) is not
+/// part of this — it lives on the project itself.
+nonisolated struct ExportDefaults: Codable, Equatable {
+    var format: ExportFormat
+    var includeTitle: Bool
+    var includeChapterTitles: Bool
+    var includeSceneTitles: Bool
+    var includeWordCount: Bool
+    var epubTemplate: EpubTemplate
+}
+
 @Observable
 final class AppSettings {
     enum Theme: String, Codable, CaseIterable, Identifiable {
@@ -28,6 +40,7 @@ final class AppSettings {
     /// Raw values of visible AnalysisType cases; empty means "all".
     var visibleAnalysisTypes: [String] = [] { didSet { persist() } }
     var spellcheckEnabled: Bool = true { didSet { persist() } }
+    var exportDefaults: ExportDefaults? { didSet { persist() } }
 
     private nonisolated struct Snapshot: Codable {
         var theme: Theme
@@ -39,6 +52,7 @@ final class AppSettings {
         var proseHighlightsEnabled: Bool?
         var visibleAnalysisTypes: [String]?
         var spellcheckEnabled: Bool?
+        var exportDefaults: ExportDefaults?
     }
 
     private static let defaultsKey = "fictioneer.settings"
@@ -83,6 +97,7 @@ final class AppSettings {
         proseHighlightsEnabled = snapshot.proseHighlightsEnabled ?? false
         visibleAnalysisTypes = snapshot.visibleAnalysisTypes ?? []
         spellcheckEnabled = snapshot.spellcheckEnabled ?? true
+        exportDefaults = snapshot.exportDefaults
         isLoading = false
     }
 
@@ -97,7 +112,8 @@ final class AppSettings {
             licenseKey: licenseKey,
             proseHighlightsEnabled: proseHighlightsEnabled,
             visibleAnalysisTypes: visibleAnalysisTypes,
-            spellcheckEnabled: spellcheckEnabled
+            spellcheckEnabled: spellcheckEnabled,
+            exportDefaults: exportDefaults
         )
         defaults.set(try? JSONEncoder().encode(snapshot), forKey: Self.defaultsKey)
     }
