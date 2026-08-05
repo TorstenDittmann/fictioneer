@@ -126,6 +126,13 @@ struct AppCommands: Commands {
             .keyboardShortcut("w", modifiers: .command)
             .disabled(appModel.session == nil)
         }
+        CommandGroup(after: .help) {
+            Button("Send Feedback…") {
+                if let url = URL(string: "mailto:support@fictioneer.app") {
+                    NSWorkspace.shared.open(url)
+                }
+            }
+        }
     }
 
     private func newScene() {
