@@ -105,6 +105,31 @@ nonisolated enum ProseQuality {
         pattern: "\\b(\\w+ly)\\b", options: [.caseInsensitive]
     )
 
+    // Word-list regexes are constant — compile each exactly once instead of
+    // per sentence per pass (~55 compiles × sentences added up fast).
+    private static func wordRegexes(_ words: [String]) -> [(word: String, regex: NSRegularExpression)] {
+        words.compactMap { word in
+            let pattern = "\\b" + NSRegularExpression.escapedPattern(for: word) + "\\b"
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { return nil }
+            return (word, regex)
+        }
+    }
+
+    private static let nonLyAdverbRegexes = wordRegexes(nonLyAdverbs)
+    private static let filterWordRegexes = wordRegexes(filterWords)
+    private static let vagueWordRegexes = wordRegexes(vagueWords)
+    private static let passiveIndicatorRegexes: [NSRegularExpression] = passiveIndicators.compactMap { auxiliary in
+        try? NSRegularExpression(
+            pattern: "\\b(\(auxiliary))\\s+(\\w+ly\\s+)?(\\w+)\\b",
+            options: [.caseInsensitive]
+        )
+    }
+    private static let clicheRegexes: [(word: String, regex: NSRegularExpression)] = cliches.compactMap { cliche in
+        let pattern = NSRegularExpression.escapedPattern(for: cliche)
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { return nil }
+        return (cliche, regex)
+    }
+
     // MARK: - Detection
 
     static func detectAdverbs(_ text: String, sentences: [SentenceInfo]) -> [AdverbMatch] {
@@ -118,9 +143,7 @@ nonisolated enum ProseQuality {
                     results.append(AdverbMatch(word: word, position: match.range.location))
                 }
             }
-            for adverb in nonLyAdverbs {
-                let pattern = "\\b" + adverb + "\\b"
-                guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+            for (adverb, regex) in nonLyAdverbRegexes {
                 for match in regex.matches(in: text, range: sentenceRange) {
                     results.append(AdverbMatch(word: adverb, position: match.range.location))
                 }
@@ -134,9 +157,7 @@ nonisolated enum ProseQuality {
         let ns = text as NSString
         for sentence in sentences {
             let sentenceRange = NSRange(location: sentence.start, length: sentence.end - sentence.start)
-            for auxiliary in passiveIndicators {
-                let pattern = "\\b(\(auxiliary))\\s+(\\w+ly\\s+)?(\\w+)\\b"
-                guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+            for regex in passiveIndicatorRegexes {
                 for match in regex.matches(in: text, range: sentenceRange) {
                     let candidate = ns.substring(with: match.range(at: 3))
                     if isPastParticiple(candidate) {
@@ -159,14 +180,15 @@ nonisolated enum ProseQuality {
         return false
     }
 
+    // Matching runs on the ORIGINAL text (the regexes are case-insensitive
+    // already): lowercasing can change UTF-16 length (e.g. İ), which would
+    // misalign every highlight range computed afterwards.
+
     static func detectFilterWords(_ text: String) -> [PositionedMatch] {
-        let lowered = text.lowercased() as NSString
+        let ns = text as NSString
         var results: [PositionedMatch] = []
-        for filter in filterWords {
-            let pattern = "\\b" + NSRegularExpression.escapedPattern(for: filter) + "\\b"
-            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
-            let matches = regex.matches(in: lowered as String, range: NSRange(location: 0, length: lowered.length))
-            for match in matches {
+        for (filter, regex) in filterWordRegexes {
+            for match in regex.matches(in: text, range: NSRange(location: 0, length: ns.length)) {
                 results.append(PositionedMatch(word: filter, position: match.range.location))
             }
         }
@@ -174,12 +196,10 @@ nonisolated enum ProseQuality {
     }
 
     static func detectCliches(_ text: String) -> [PositionedMatch] {
-        let lowered = text.lowercased() as NSString
+        let ns = text as NSString
         var results: [PositionedMatch] = []
-        for cliche in cliches {
-            let pattern = NSRegularExpression.escapedPattern(for: cliche)
-            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
-            for match in regex.matches(in: lowered as String, range: NSRange(location: 0, length: lowered.length)) {
+        for (cliche, regex) in clicheRegexes {
+            for match in regex.matches(in: text, range: NSRange(location: 0, length: ns.length)) {
                 results.append(PositionedMatch(word: cliche, position: match.range.location))
             }
         }
@@ -189,9 +209,7 @@ nonisolated enum ProseQuality {
     static func detectVagueWords(_ text: String) -> [PositionedMatch] {
         let ns = text as NSString
         var results: [PositionedMatch] = []
-        for vague in vagueWords {
-            let pattern = "\\b" + vague + "\\b"
-            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+        for (_, regex) in vagueWordRegexes {
             for match in regex.matches(in: text, range: NSRange(location: 0, length: ns.length)) {
                 results.append(PositionedMatch(word: ns.substring(with: match.range), position: match.range.location))
             }

@@ -20,6 +20,10 @@ final class AnalysisCoordinator {
     @ObservationIgnored private var highlighter: AnalysisHighlighter?
     @ObservationIgnored private var debounceTask: Task<Void, Never>?
     @ObservationIgnored private var lastAnalyzedHash: Int?
+    /// Monotonic token: an analysis run only publishes its result if no newer
+    /// run started while it was computing (older runs can finish later and
+    /// would otherwise clobber `result` / `lastAnalyzedHash` / `isAnalyzing`).
+    @ObservationIgnored private var generation = 0
 
     func attach(editorController: EditorController, settings: AppSettings, noteCandidates: [NoteMatcher.Candidate] = []) {
         self.editorController = editorController
@@ -35,8 +39,7 @@ final class AnalysisCoordinator {
         debounceTask = Task { [weak self] in
             try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }
-            await self?.analyze(plainText)
-            self?.matchingNoteIDs = NoteMatcher.matchingIDs(in: plainText, notes: noteCandidates)
+            await self?.analyze(plainText, noteCandidates: noteCandidates)
         }
     }
 
@@ -53,9 +56,13 @@ final class AnalysisCoordinator {
         settings?.proseHighlightsEnabled ?? false
     }
 
-    private func analyze(_ text: String) async {
+    private func analyze(_ text: String, noteCandidates: [NoteMatcher.Candidate]) async {
+        generation += 1
+        let myGeneration = generation
+
         let hash = TextAnalysisEngine.contentHash(text)
         if hash == lastAnalyzedHash, result != nil {
+            matchingNoteIDs = NoteMatcher.matchingIDs(in: text, notes: noteCandidates)
             applyIfPossible()
             return
         }
@@ -63,9 +70,13 @@ final class AnalysisCoordinator {
         let computed = await Task.detached(priority: .utility) {
             TextAnalysisEngine.analyze(text)
         }.value
+        // A newer run started while this one computed: its result is the one
+        // that matches the editor, so this run must not touch any state.
+        guard generation == myGeneration else { return }
         isAnalyzing = false
         lastAnalyzedHash = hash
         result = computed
+        matchingNoteIDs = NoteMatcher.matchingIDs(in: text, notes: noteCandidates)
         applyIfPossible()
     }
 

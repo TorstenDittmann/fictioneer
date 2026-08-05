@@ -30,11 +30,15 @@ nonisolated enum Readability {
     private static func splitSegmentIntoSentences(_ text: String) -> [String] {
         var working = text
         for abbr in abbreviations {
-            let pattern = "\\b" + NSRegularExpression.escapedPattern(for: abbr) + "\\."
+            // Capture and reuse the matched text ($1): substituting the
+            // canonical spelling would change the casing ("no." → "No…"),
+            // and the restored sentence would no longer be findable in the
+            // original text, silently dropping it from analysis.
+            let pattern = "\\b(" + NSRegularExpression.escapedPattern(for: abbr) + ")\\."
             if let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) {
                 let range = NSRange(location: 0, length: (working as NSString).length)
                 working = regex.stringByReplacingMatches(
-                    in: working, range: range, withTemplate: NSRegularExpression.escapedTemplate(for: abbr) + "<<<DOT>>>"
+                    in: working, range: range, withTemplate: "$1<<<DOT>>>"
                 )
             }
         }

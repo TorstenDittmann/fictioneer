@@ -71,6 +71,15 @@ struct ReadabilityTests {
         #expect(sentences.contains { $0.contains("...") })
     }
 
+    @Test func abbreviationMatchPreservesOriginalCasing() {
+        // "no." matches the abbreviation "No" case-insensitively. The
+        // canonicalized replacement used to rewrite it as "No", so the
+        // restored sentence no longer existed in the original text and
+        // silently dropped out of all downstream analysis.
+        let sentences = Readability.splitIntoSentences("she said no. He walked slowly.")
+        #expect(sentences == ["she said no. He walked slowly"])
+    }
+
     @Test func quotedDialogueSplitsAtSentenceBoundaries() {
         // Curly quotes around the boundary must not defeat the split.
         let text = "\u{201C}Marriage agrees with you,\u{201D} he remarked from his armchair. "
@@ -208,6 +217,14 @@ struct ProseQualityTests {
         let matches = ProseQuality.detectVagueWords("Things happened. Nice view.")
         #expect(matches.contains { $0.word == "Things" })
         #expect(matches.contains { $0.word == "Nice" })
+    }
+
+    @Test func sentenceAfterLowercasedAbbreviationStaysAnalyzed() {
+        let text = "she said no. He walked slowly."
+        let parsed = sentences(text)
+        #expect(!parsed.isEmpty)
+        let adverbs = ProseQuality.detectAdverbs(text, sentences: parsed)
+        #expect(adverbs.contains { $0.word == "slowly" })
     }
 
     @Test func positionsIndexIntoUnicodeTextCorrectly() {
