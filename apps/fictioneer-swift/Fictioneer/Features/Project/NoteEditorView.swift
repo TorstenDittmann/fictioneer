@@ -48,6 +48,37 @@ struct NoteEditorView: View {
         }
     }
 
+    /// Distinct tags used elsewhere in the project, minus tags already on
+    /// this note, filtered to the fragment currently being typed.
+    private var tagSuggestions: [String] {
+        TagSuggestions.suggestions(
+            allTags: session.project.notes.flatMap(\.tags),
+            appliedTags: note.tags,
+            fragment: TagSuggestions.currentFragment(in: tagsText)
+        )
+    }
+
+    private var tagSuggestionRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(tagSuggestions, id: \.self) { tag in
+                    Button {
+                        tagsText = TagSuggestions.applying(tag, to: tagsText)
+                    } label: {
+                        Text(tag)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(.quaternary.opacity(0.4), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
     private var noteSurface: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
@@ -71,6 +102,9 @@ struct NoteEditorView: View {
                         note.updatedAt = .now
                         session.markDirty(noteID: note.id)
                     }
+                if !tagSuggestions.isEmpty {
+                    tagSuggestionRow
+                }
             }
             .padding(.horizontal, 32)
             .padding(.top, 24)
