@@ -89,4 +89,72 @@ struct GhostAcceptIntegrationTests {
         undoManager.undo()
         #expect(textView.string == text)
     }
+
+    /// Regression: a keystroke landing while a ghost is showing (e.g. inside
+    /// the fade-out window) shifts the ghost in the storage. The dismissal
+    /// must locate the *actual* ghost — deleting the stale cached range would
+    /// destroy the typed character and leave ghost residue behind.
+    @Test func typingWhileGhostShowingSurvivesDismissal() async throws {
+        let text = "It was a dark and stormy night and"
+        let textView = FictioneerTextView(usingTextLayoutManager: false)
+        textView.textStorage?.setAttributedString(NSAttributedString(string: text, attributes: [
+            .font: NSFont.systemFont(ofSize: 18),
+            .foregroundColor: NSColor.labelColor,
+        ]))
+        textView.setSelectedRange(NSRange(location: (text as NSString).length, length: 0))
+
+        let editorController = EditorController()
+        editorController.textView = textView
+
+        let box = StreamBox()
+        let ghostController = GhostTextController(dotsInterval: 0.01, fadeDuration: 0.01) { _, _ in
+            AsyncThrowingStream { continuation in
+                Task { @MainActor in
+                    box.continuation = continuation
+                }
+            }
+        }
+        let presenter = GhostTextPresenter(
+            textView: textView,
+            editorController: editorController,
+            controller: ghostController,
+            isEnabled: { true },
+            contextInfo: { (nil, nil) }
+        )
+        _ = presenter
+
+        textView.onOptionKeyChange?(true)
+        for _ in 0..<400 where box.continuation == nil {
+            try? await Task.sleep(for: .milliseconds(5))
+        }
+        let continuation = try #require(box.continuation)
+        continuation.yield(" the wind howled.")
+        continuation.finish()
+        for _ in 0..<400 {
+            if case .ready = ghostController.state { break }
+            try? await Task.sleep(for: .milliseconds(5))
+        }
+        guard case .ready = ghostController.state else {
+            Issue.record("controller never reached .ready: \(ghostController.state)")
+            return
+        }
+
+        // The user types at the caret (before the ghost), shifting the ghost.
+        // Then the edit notification dismisses the ghost — as the live app's
+        // coordinator does via textDidChange → notifyDocumentEdit.
+        textView.insertText("!", replacementRange: textView.selectedRange())
+        editorController.notifyDocumentEdit()
+
+        #expect(ghostController.state == .idle)
+        let final = textView.attributedString()
+        #expect(final.string == text + "!")
+        // Caret stays after the typed character.
+        #expect(textView.selectedRange() == NSRange(location: (text as NSString).length + 1, length: 0))
+        // No ghost residue anywhere.
+        var ghostAttributeFound = false
+        final.enumerateAttribute(.ghostText, in: NSRange(location: 0, length: final.length)) { value, _, _ in
+            if value != nil { ghostAttributeFound = true }
+        }
+        #expect(!ghostAttributeFound)
+    }
 }

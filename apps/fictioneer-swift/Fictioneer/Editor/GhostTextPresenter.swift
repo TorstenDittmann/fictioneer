@@ -136,17 +136,10 @@ final class GhostTextPresenter {
             editorController?.isPerformingProgrammaticMutation = false
         }
 
-        if let ghostRange {
-            storage.deleteCharacters(in: ghostRange)
-            self.ghostRange = nil
-        }
+        removeExistingGhost(from: storage, textView: textView)
 
         guard let display else {
-            let caret = insertionLocation
             insertionLocation = nil
-            if let caret {
-                textView.setSelectedRange(NSRange(location: min(caret, storage.length), length: 0))
-            }
             return
         }
 
@@ -165,6 +158,31 @@ final class GhostTextPresenter {
         storage.insert(ghost, at: min(location, storage.length))
         ghostRange = NSRange(location: location, length: ghost.length)
         textView.setSelectedRange(NSRange(location: location, length: 0))
+    }
+
+    /// Deletes the rendered ghost, if any. Never trusts the cached
+    /// `ghostRange`: a user edit can land between renders (typing during the
+    /// fade-out window, ⌥-dead-key input, paste while streaming) and shift
+    /// the ghost, and deleting the stale range would destroy real text. The
+    /// ghost is located by its `.ghostText` marker instead, and the caret is
+    /// re-derived from the actual deletions so a just-typed character keeps
+    /// its caret position.
+    private func removeExistingGhost(from storage: NSTextStorage, textView: FictioneerTextView) {
+        guard ghostRange != nil else { return }
+        ghostRange = nil
+        var ranges: [NSRange] = []
+        storage.enumerateAttribute(.ghostText, in: NSRange(location: 0, length: storage.length)) { value, range, _ in
+            if value != nil { ranges.append(range) }
+        }
+        guard !ranges.isEmpty else { return }
+        var caret = textView.selectedRange().location
+        for range in ranges.reversed() {
+            storage.deleteCharacters(in: range)
+            if range.location < caret {
+                caret -= min(range.length, caret - range.location)
+            }
+        }
+        textView.setSelectedRange(NSRange(location: min(caret, storage.length), length: 0))
     }
 
     /// Muted ghost color. Built from labelColor with an explicit low alpha —
