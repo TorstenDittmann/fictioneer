@@ -122,6 +122,92 @@ struct ProjectPackageRoundTripTests {
         #expect(restored.chapters[0].scenes[0].content.string == "Real text.")
     }
 
+    /// Pasted rich text can carry attributes beyond the editor's own set —
+    /// a Safari link (NSURL), bulleted lists (NSTextList inside the paragraph
+    /// style), attachments. The secure-decoding allowlist must round-trip
+    /// them all; a too-narrow list permanently bricked the project.
+    @Test func pastedRichAttributesRoundTrip() throws {
+        let url = temporaryPackageURL()
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
+
+        let content = NSMutableAttributedString()
+        content.append(NSAttributedString(string: "A link", attributes: [
+            .link: URL(string: "https://example.com/page")! as NSURL,
+            .font: NSFont.systemFont(ofSize: 18),
+        ]))
+        content.append(NSAttributedString(string: " and shadowed text.\n", attributes: [
+            .shadow: NSShadow(),
+            .font: NSFont.systemFont(ofSize: 18),
+        ]))
+        let listStyle = NSMutableParagraphStyle()
+        listStyle.textLists = [NSTextList(markerFormat: .disc, options: 0)]
+        content.append(NSAttributedString(string: "\t•\tBullet item\n", attributes: [
+            .paragraphStyle: listStyle,
+            .font: NSFont.systemFont(ofSize: 18),
+        ]))
+        let attachment = NSTextAttachment()
+        attachment.fileWrapper = FileWrapper(regularFileWithContents: Data([0x1, 0x2, 0x3]))
+        attachment.fileWrapper?.preferredFilename = "blob.bin"
+        content.append(NSAttributedString(attachment: attachment))
+
+        let scene = Scene(title: "Pasted", content: content)
+        let project = Project(title: "P", chapters: [Chapter(title: "C", scenes: [scene])])
+        try ProjectPackage.write(project, to: url)
+
+        let restored = try ProjectPackage.read(from: url)
+        let restoredContent = restored.chapters[0].scenes[0].content
+        #expect(restoredContent.string == content.string)
+        let linkAttributes = restoredContent.attributes(at: 0, effectiveRange: nil)
+        #expect((linkAttributes[.link] as? URL)?.absoluteString == "https://example.com/page"
+            || (linkAttributes[.link] as? NSURL)?.absoluteString == "https://example.com/page")
+        let bulletLocation = (restoredContent.string as NSString).range(of: "Bullet").location
+        let bulletStyle = restoredContent.attribute(.paragraphStyle, at: bulletLocation, effectiveRange: nil) as? NSParagraphStyle
+        #expect(bulletStyle?.textLists.isEmpty == false)
+    }
+
+    /// A corrupt archive must not fail the whole read — the project opens
+    /// with that one scene degraded to empty content.
+    @Test func corruptArchiveDegradesToEmptyScene() throws {
+        let url = temporaryPackageURL()
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
+
+        let project = makeProject()
+        try ProjectPackage.write(project, to: url)
+        let corruptedScene = project.chapters[0].scenes[0]
+        let archiveURL = url
+            .appendingPathComponent("scenes")
+            .appendingPathComponent("\(corruptedScene.id.uuidString).textarchive")
+        try Data("not an archive".utf8).write(to: archiveURL)
+
+        let restored = try ProjectPackage.read(from: url)
+        #expect(restored.chapters[0].scenes[0].content.string.isEmpty)
+        // The rest of the manuscript survives untouched.
+        #expect(restored.chapters[0].scenes[1].content.string == "They met at dawn.")
+        #expect(restored.notes[0].body.string == "A detective.")
+    }
+
+    /// A missing archive (crash between manifest and archive writes) also
+    /// degrades to an empty scene rather than refusing to open.
+    @Test func missingArchiveDegradesToEmptyScene() throws {
+        let url = temporaryPackageURL()
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
+
+        let project = makeProject()
+        try ProjectPackage.write(project, to: url)
+        let missingScene = project.chapters[0].scenes[0]
+        let archiveURL = url
+            .appendingPathComponent("scenes")
+            .appendingPathComponent("\(missingScene.id.uuidString).textarchive")
+        try FileManager.default.removeItem(at: archiveURL)
+
+        let restored = try ProjectPackage.read(from: url)
+        #expect(restored.chapters[0].scenes[0].content.string.isEmpty)
+        #expect(restored.chapters[0].scenes[1].content.string == "They met at dawn.")
+    }
+
     @Test func newerFormatVersionIsRejected() throws {
         let url = temporaryPackageURL()
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)

@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import os
 
 enum ProjectPackageError: Error, LocalizedError {
     case missingManifest
@@ -160,6 +161,8 @@ enum ProjectPackage {
 
     // MARK: - Helpers
 
+    private static let logger = Logger(subsystem: "app.fictioneer", category: "ProjectPackage")
+
     private static func readArchive(named filename: String, in directory: URL) throws -> NSAttributedString {
         let fileURL = directory.appendingPathComponent(filename)
         guard let data = try? Data(contentsOf: fileURL) else {
@@ -170,7 +173,11 @@ enum ProjectPackage {
         do {
             return try TextArchive.attributedString(from: data)
         } catch {
-            throw ProjectPackageError.corruptTextArchive(filename)
+            // A corrupt or undecodable archive must never brick the whole
+            // project — degrade that one scene/note to empty content, like the
+            // missing-archive branch, so the rest of the manuscript opens.
+            logger.error("Corrupt text archive \(filename, privacy: .public): \(error.localizedDescription, privacy: .public)")
+            return NSAttributedString()
         }
     }
 
@@ -217,6 +224,13 @@ nonisolated enum TextArchive {
                     NSAttributedString.self, NSMutableAttributedString.self, NSString.self,
                     NSNumber.self, NSFont.self, NSColor.self, NSParagraphStyle.self,
                     NSMutableParagraphStyle.self, NSDictionary.self, NSArray.self,
+                    // Rich-text attributes the editor can pick up from pastes
+                    // (a Safari link carries NSURL, styled clipboards can carry
+                    // shadows, lists, tables, tabs, attachments). Omitting
+                    // these made a paste permanently unreadable on reopen.
+                    NSURL.self, NSTextAttachment.self, NSShadow.self,
+                    NSTextList.self, NSTextBlock.self, NSTextTab.self,
+                    NSData.self,
                 ],
                 forKey: NSKeyedArchiveRootObjectKey
             ) as? NSAttributedString
