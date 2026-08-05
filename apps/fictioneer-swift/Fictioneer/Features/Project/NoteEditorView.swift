@@ -17,11 +17,14 @@ struct NoteEditorView: View {
     }
 
     var body: some View {
-        ManuscriptPage(header: ManuscriptPageHeader(
-            project: session.project.title,
-            section: "Notes",
-            title: note.title
-        )) {
+        ManuscriptPage(
+            header: ManuscriptPageHeader(
+                project: session.project.title,
+                section: "Notes",
+                title: note.title
+            ),
+            isChromeless: session.isFocusMode
+        ) {
             noteSurface
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -12,7 +12,7 @@ struct SceneEditorView: View {
     @State private var showingNotesPopover = false
 
     var body: some View {
-        ManuscriptPage(header: pageHeader) {
+        ManuscriptPage(header: pageHeader, isChromeless: session.isFocusMode) {
             if !session.isFocusMode {
                 headControls
             }
