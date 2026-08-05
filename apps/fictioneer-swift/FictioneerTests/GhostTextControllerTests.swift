@@ -5,8 +5,24 @@ import Testing
 /// Drives the controller through a hand-controlled suggestion stream.
 @MainActor
 private final class Harness {
+    /// Written from `onTermination` (arbitrary thread), read from MainActor —
+    /// locked like StubURLProtocol.Recorder.
     nonisolated final class Flags: @unchecked Sendable {
-        var terminated = false
+        private let lock = NSLock()
+        private var _terminated = false
+
+        var terminated: Bool {
+            get {
+                lock.lock()
+                defer { lock.unlock() }
+                return _terminated
+            }
+            set {
+                lock.lock()
+                defer { lock.unlock() }
+                _terminated = newValue
+            }
+        }
     }
 
     @MainActor
@@ -162,6 +178,101 @@ struct GhostTextControllerTests {
         #expect(harness.controller.escapePressed() == true)
         #expect(harness.controller.state == .idle)
         #expect(harness.controller.escapePressed() == false)
+    }
+
+    @Test func optionReleaseWhileWaitingFadesDotsThenIdles() async {
+        let harness = Harness()
+        harness.holdOption()
+        await harness.waitForStreamStart()
+        guard case .waiting = harness.controller.state else {
+            Issue.record("expected .waiting, got \(harness.controller.state)")
+            return
+        }
+
+        harness.controller.optionKeyUp()
+        guard case .fadingOut = harness.controller.state else {
+            Issue.record("expected .fadingOut, got \(harness.controller.state)")
+            return
+        }
+        await harness.waitUntil { harness.controller.state == .idle }
+        #expect(harness.displays.last! == nil)
+        await harness.waitUntil { harness.flags.terminated }
+    }
+
+    @Test func optionReleaseWhenReadyDiscardsCompletedSuggestion() async {
+        let harness = Harness()
+        harness.holdOption()
+        await harness.waitForStreamStart()
+        harness.continuation?.yield("done.")
+        await harness.waitUntil { harness.controller.state == .streaming("done.") }
+        harness.continuation?.finish()
+        await harness.waitUntil { harness.controller.state == .ready("done.") }
+
+        harness.controller.optionKeyUp()
+        #expect(harness.controller.state == .fadingOut("done."))
+        // Nothing left to accept once release chose to discard.
+        #expect(harness.controller.tabPressed() == nil)
+        await harness.waitUntil { harness.controller.state == .idle }
+        #expect(harness.displays.last! == nil)
+    }
+
+    @Test func escapeDismissesWhileWaiting() async {
+        let harness = Harness()
+        harness.holdOption()
+        await harness.waitForStreamStart()
+
+        #expect(harness.controller.escapePressed() == true)
+        #expect(harness.controller.state == .idle)
+        #expect(harness.displays.last! == nil)
+        await harness.waitUntil { harness.flags.terminated }
+    }
+
+    @Test func escapeDismissesWhileStreaming() async {
+        let harness = Harness()
+        harness.holdOption()
+        await harness.waitForStreamStart()
+        harness.continuation?.yield("half a tho")
+        await harness.waitUntil { harness.controller.state == .streaming("half a tho") }
+
+        #expect(harness.controller.escapePressed() == true)
+        #expect(harness.controller.state == .idle)
+        #expect(harness.displays.last! == nil)
+        await harness.waitUntil { harness.flags.terminated }
+    }
+
+    @Test func lateYieldDuringFadeIsIgnored() async {
+        let harness = Harness()
+        harness.holdOption()
+        await harness.waitForStreamStart()
+        harness.continuation?.yield("some words")
+        await harness.waitUntil { harness.controller.state == .streaming("some words") }
+
+        harness.controller.optionKeyUp()
+        #expect(harness.controller.state == .fadingOut("some words"))
+        harness.continuation?.yield("some words arriving late")
+
+        await harness.waitUntil { harness.controller.state == .idle }
+        #expect(!harness.displays.contains { $0?.text.contains("late") == true })
+    }
+
+    /// Pins the chosen behavior: re-pressing ⌥ during the fade-out is
+    /// ignored (the presenter refuses re-entry while a ghost is active) —
+    /// no second request starts and the fade completes normally.
+    @Test func rePressDuringFadeIsIgnored() async {
+        let harness = Harness()
+        harness.holdOption()
+        await harness.waitForStreamStart()
+        harness.continuation?.yield("some words")
+        await harness.waitUntil { harness.controller.state == .streaming("some words") }
+
+        harness.controller.optionKeyUp()
+        #expect(harness.controller.state == .fadingOut("some words"))
+        harness.holdOption()
+        #expect(harness.controller.state == .fadingOut("some words"))
+        #expect(harness.providerCalls == 1)
+
+        await harness.waitUntil { harness.controller.state == .idle }
+        #expect(harness.providerCalls == 1)
     }
 
     @Test func neverRunsConcurrentRequests() async {

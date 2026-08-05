@@ -62,9 +62,11 @@ final class GhostTextController {
         context: IntelligenceClient.ContinueContext,
         selectionEmpty: Bool
     ) {
-        guard case .idle = state else { return } // never concurrent
+        // Never concurrent — and deliberately ignored during .fadingOut: the
+        // presenter refuses re-entry while a ghost is still active, so a
+        // re-press during the fade simply waits for idle.
+        guard case .idle = state else { return }
         guard selectionEmpty, contextText.count >= minContextLength else { return }
-        fadeTask?.cancel()
         state = .waiting(dots: 1)
         emit()
         startDotsAnimation()

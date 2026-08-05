@@ -315,6 +315,12 @@ struct TextAnalysisEngineTests {
         #expect(TextAnalysisEngine.contentHash("abc") != TextAnalysisEngine.contentHash("abd"))
     }
 
+}
+
+/// Wall-clock ceilings live in their own serialized suite so the two heavy
+/// runs never overlap each other and CI contention is minimized.
+@Suite(.serialized)
+struct TextAnalysisPerformanceTests {
     @Test func largeDocumentAnalyzesWithinBudget() {
         let paragraph = "The detective walked slowly through the very dark corridor. He was followed by shadows that seemed to whisper. "
         let text = String(repeating: paragraph, count: 180) // ~3k words

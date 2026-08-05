@@ -9,7 +9,31 @@ nonisolated final class StubURLProtocol: URLProtocol {
         var statusCode: Int
         var chunks: [Data]
         var chunkDelay: TimeInterval = 0
+        /// Transport-level failure delivered instead of any response.
+        var error: Error?
     }
+
+    /// Set by `stopLoading` (client thread) and checked by the delayed chunk
+    /// loop (background thread) so cancellation actually stops delivery.
+    private final class StopFlag: @unchecked Sendable {
+        private let lock = NSLock()
+        private var _stopped = false
+
+        var stopped: Bool {
+            get {
+                lock.lock()
+                defer { lock.unlock() }
+                return _stopped
+            }
+            set {
+                lock.lock()
+                defer { lock.unlock() }
+                _stopped = newValue
+            }
+        }
+    }
+
+    private let stopFlag = StopFlag()
 
     final class Recorder: @unchecked Sendable {
         private let lock = NSLock()
@@ -46,6 +70,11 @@ nonisolated final class StubURLProtocol: URLProtocol {
         let script = Self.script
         Self.recorder.record(request, body: Self.drainBody(of: request))
 
+        if let error = script.error {
+            client?.urlProtocol(self, didFailWithError: error)
+            return
+        }
+
         let response = HTTPURLResponse(
             url: request.url!,
             statusCode: script.statusCode,
@@ -53,16 +82,36 @@ nonisolated final class StubURLProtocol: URLProtocol {
             headerFields: ["Content-Type": "text/plain"]
         )!
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-        for chunk in script.chunks {
-            if script.chunkDelay > 0 {
-                Thread.sleep(forTimeInterval: script.chunkDelay)
+
+        guard script.chunkDelay > 0 else {
+            for chunk in script.chunks {
+                client?.urlProtocol(self, didLoad: chunk)
             }
-            client?.urlProtocol(self, didLoad: chunk)
+            client?.urlProtocolDidFinishLoading(self)
+            return
         }
-        client?.urlProtocolDidFinishLoading(self)
+
+        // Delayed delivery happens off the protocol's thread so stopLoading
+        // can interleave; the loop re-checks the stop flag around each sleep,
+        // so a cancelled load neither delivers more data nor leaks a thread
+        // sleeping through the rest of the script.
+        nonisolated(unsafe) let stub = self
+        DispatchQueue.global().async {
+            for chunk in script.chunks {
+                if stub.stopFlag.stopped { return }
+                Thread.sleep(forTimeInterval: script.chunkDelay)
+                if stub.stopFlag.stopped { return }
+                stub.client?.urlProtocol(stub, didLoad: chunk)
+            }
+            if !stub.stopFlag.stopped {
+                stub.client?.urlProtocolDidFinishLoading(stub)
+            }
+        }
     }
 
-    override func stopLoading() {}
+    override func stopLoading() {
+        stopFlag.stopped = true
+    }
 
     private static func drainBody(of request: URLRequest) -> Data {
         if let body = request.httpBody { return body }
@@ -158,23 +207,69 @@ struct IntelligenceClientTests {
         // actually streams to the consumer before the cancellation point.
         let chunks = (0..<20).map { _ in Data(String(repeating: "x", count: 1024).utf8) }
         let totalBytes = chunks.reduce(0) { $0 + $1.count }
-        StubURLProtocol.script = .init(statusCode: 200, chunks: chunks, chunkDelay: 0.1)
+        StubURLProtocol.script = .init(statusCode: 200, chunks: chunks, chunkDelay: 0.05)
         let client = makeClient()
 
+        // Cancellation is driven off the first observed value — no fixed
+        // sleeps racing the delivery cadence.
+        let (firstValue, firstValueContinuation) = AsyncStream.makeStream(of: Void.self)
         let consumer = Task {
             var last = ""
             do {
                 for try await accumulated in client.continueWriting(content: "0123456789", context: .init()) {
+                    if last.isEmpty { firstValueContinuation.yield() }
                     last = accumulated
                 }
             } catch {}
             return last
         }
-        try await Task.sleep(for: .milliseconds(350))
+        var iterator = firstValue.makeAsyncIterator()
+        _ = await iterator.next()
         consumer.cancel()
         let received = await consumer.value
         #expect(!received.isEmpty)
         #expect(received.utf8.count < totalBytes)
+    }
+
+    @Test(arguments: [
+        (401, IntelligenceError.invalidLicense),
+        (403, IntelligenceError.invalidLicense),
+        (429, IntelligenceError.rateLimited),
+        (500, IntelligenceError.server(500)),
+    ])
+    func streamingSurfacesMappedStatusErrors(status: Int, expected: IntelligenceError) async {
+        StubURLProtocol.script = .init(statusCode: status, chunks: [])
+        let client = makeClient()
+        await #expect(throws: expected) {
+            for try await _ in client.continueWriting(content: "0123456789", context: .init()) {}
+        }
+    }
+
+    @Test func verifyThrowsServerErrorOn500() async {
+        StubURLProtocol.script = .init(statusCode: 500, chunks: [])
+        await #expect(throws: IntelligenceError.server(500)) {
+            try await makeClient().verify()
+        }
+    }
+
+    @Test func rephraseThrowsOnMalformedJSON() async {
+        StubURLProtocol.script = .init(statusCode: 200, chunks: [Data("{not json at all".utf8)])
+        await #expect(throws: DecodingError.self) {
+            _ = try await makeClient().rephrase(
+                selectedSentence: "She was sad.", contextBefore: "", contextAfter: ""
+            )
+        }
+    }
+
+    @Test func transportFailureSurfacesFromStream() async {
+        StubURLProtocol.script = .init(
+            statusCode: 200, chunks: [],
+            error: URLError(.notConnectedToInternet)
+        )
+        let client = makeClient()
+        await #expect(throws: URLError.self) {
+            for try await _ in client.continueWriting(content: "0123456789", context: .init()) {}
+        }
     }
 
     @Test func verifySucceedsOn200() async throws {
