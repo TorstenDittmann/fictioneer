@@ -9,27 +9,34 @@ final class AnalysisCoordinator {
     private(set) var result: AnalysisResult?
     private(set) var isAnalyzing = false
 
+    /// Ids of project notes whose tags appear in the current scene text —
+    /// recomputed on the same debounce cadence as `result` (piggybacked, not
+    /// a separate timer). Populated by the caller-supplied candidates, so
+    /// this layer never depends on the `Note` model or persistence.
+    private(set) var matchingNoteIDs: [UUID] = []
+
     @ObservationIgnored private weak var editorController: EditorController?
     @ObservationIgnored private weak var settings: AppSettings?
     @ObservationIgnored private var highlighter: AnalysisHighlighter?
     @ObservationIgnored private var debounceTask: Task<Void, Never>?
     @ObservationIgnored private var lastAnalyzedHash: Int?
 
-    func attach(editorController: EditorController, settings: AppSettings) {
+    func attach(editorController: EditorController, settings: AppSettings, noteCandidates: [NoteMatcher.Candidate] = []) {
         self.editorController = editorController
         self.settings = settings
         highlighter = AnalysisHighlighter(editorController: editorController)
         if let text = currentPlainText() {
-            contentDidChange(text)
+            contentDidChange(text, noteCandidates: noteCandidates)
         }
     }
 
-    func contentDidChange(_ plainText: String) {
+    func contentDidChange(_ plainText: String, noteCandidates: [NoteMatcher.Candidate] = []) {
         debounceTask?.cancel()
         debounceTask = Task { [weak self] in
             try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }
             await self?.analyze(plainText)
+            self?.matchingNoteIDs = NoteMatcher.matchingIDs(in: plainText, notes: noteCandidates)
         }
     }
 

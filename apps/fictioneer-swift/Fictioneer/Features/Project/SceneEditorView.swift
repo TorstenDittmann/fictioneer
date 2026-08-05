@@ -9,6 +9,7 @@ struct SceneEditorView: View {
     @State private var analysis = AnalysisCoordinator()
     @State private var rephrasePayload: RephrasePayload?
     @State private var showingPromptSheet = false
+    @State private var showingNotesPopover = false
 
     var body: some View {
         ManuscriptPage(header: pageHeader) {
@@ -85,7 +86,7 @@ struct SceneEditorView: View {
                             (scene?.title, session?.project.details.isEmpty == false ? session?.project.details : nil)
                         }
                     )
-                    analysis.attach(editorController: editorController, settings: settings)
+                    analysis.attach(editorController: editorController, settings: settings, noteCandidates: noteCandidates)
                     textView.onEscape = { [weak session] in
                         guard let session, session.isFocusMode else { return false }
                         session.isFocusMode = false
@@ -121,8 +122,21 @@ struct SceneEditorView: View {
                     characterDelta: abs(scene.characterCount - previousCharacters)
                 )
                 session.markDirty(sceneID: scene.id)
-                analysis.contentDidChange(content.string)
+                analysis.contentDidChange(content.string, noteCandidates: noteCandidates)
             }
+    }
+
+    /// Lightweight (id, tags) view of `session.project.notes` — decouples the
+    /// editor's analysis coordinator from the `Note` model/persistence layer.
+    private var noteCandidates: [NoteMatcher.Candidate] {
+        session.project.notes.map { NoteMatcher.Candidate(id: $0.id, tags: $0.tags) }
+    }
+
+    /// The notes matched on the current analysis pass, in project order.
+    private var matchingNotes: [Note] {
+        guard !analysis.matchingNoteIDs.isEmpty else { return [] }
+        let ids = Set(analysis.matchingNoteIDs)
+        return session.project.notes.filter { ids.contains($0.id) }
     }
 
     /// The running head doubles as the toolbar: chromeless icons at its
@@ -182,6 +196,30 @@ struct SceneEditorView: View {
             }
             .buttonStyle(.borderless)
             .hoverTip("Prose highlights — flag adverbs, passive voice, clichés and more")
+
+            if !matchingNotes.isEmpty {
+                toolbarDivider
+                Button {
+                    showingNotesPopover = true
+                } label: {
+                    HStack(spacing: 3) {
+                        Image(systemName: "note.text")
+                        Text("\(matchingNotes.count)")
+                            .font(.caption2)
+                            .monospacedDigit()
+                    }
+                    .frame(height: 18)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.borderless)
+                .hoverTip("Notes mentioned in this scene")
+                .popover(isPresented: $showingNotesPopover, arrowEdge: .bottom) {
+                    NotesInSceneList(notes: matchingNotes) { note in
+                        session.selectedItem = .note(note.id)
+                        showingNotesPopover = false
+                    }
+                }
+            }
         }
         .imageScale(.small)
         .foregroundStyle(.secondary)
@@ -223,4 +261,34 @@ struct SceneEditorView: View {
         .hoverTip(tip)
     }
 
+}
+
+/// Popover content for the running head's "notes in this scene" indicator —
+/// a quiet list of note titles, Manuscript-styled, that navigates on click.
+private struct NotesInSceneList: View {
+    let notes: [Note]
+    let onSelect: (Note) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            ManuscriptLabel("Notes in this scene")
+                .padding(.bottom, 4)
+            ForEach(notes, id: \.id) { note in
+                Button {
+                    onSelect(note)
+                } label: {
+                    Text(note.title)
+                        .font(.custom("Quattrocento-Bold", size: 13))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 3)
+            }
+        }
+        .padding(12)
+        .frame(minWidth: 220, alignment: .leading)
+    }
 }
