@@ -47,7 +47,11 @@ nonisolated enum ProgressMath {
         }
 
         var current = 0
-        let byDate = Dictionary(uniqueKeysWithValues: sorted.map { ($0.date, $0) })
+        // Manifest data is unvalidated — duplicate dates (e.g. sync-conflict
+        // copies) must not trap; keep the last entry in manifest order (the
+        // original array, because `sorted` does not order duplicates
+        // deterministically).
+        let byDate = Dictionary(progress.map { ($0.date, $0) }, uniquingKeysWith: { _, latest in latest })
         var cursor = today
         while true {
             let key = dayKey(for: cursor, calendar: calendar)
@@ -103,7 +107,8 @@ nonisolated enum ProgressMath {
         today: Date,
         calendar: Calendar
     ) -> [ChartPoint] {
-        let byDate = Dictionary(uniqueKeysWithValues: progress.map { ($0.date, $0) })
+        // Duplicate dates in unvalidated manifest data must not trap.
+        let byDate = Dictionary(progress.map { ($0.date, $0) }, uniquingKeysWith: { _, latest in latest })
         let goal = goals?.dailyWordTarget ?? ProgressGoals.defaultDailyTarget
         let todayKey = dayKey(for: today, calendar: calendar)
         var points: [ChartPoint] = []

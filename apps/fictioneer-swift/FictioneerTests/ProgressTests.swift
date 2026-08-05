@@ -89,6 +89,27 @@ struct ProgressMathTests {
         #expect(stats.estimatedCompletionDate == day("2026-08-05"))
     }
 
+    @Test func duplicateDayEntriesDoNotTrap() {
+        // Sync-conflict copies can leave two entries for the same date in the
+        // manifest; the dashboard must survive and prefer the latest.
+        let goals = ProgressGoals(dailyWordTarget: 500, projectWordTarget: nil, createdAt: .now, updatedAt: .now)
+        let progress = [
+            entry("2026-08-01", words: 100, met: false),
+            entry("2026-08-01", words: 700, met: true),
+            entry("2026-07-31", words: 600, met: true),
+        ]
+        let streaks = ProgressMath.streaks(progress: progress, today: day("2026-08-01"), calendar: calendar)
+        #expect(streaks.current == 2)
+
+        let points = ProgressMath.chartPoints(
+            progress: progress, goals: goals, days: 3,
+            today: day("2026-08-01"), calendar: calendar
+        )
+        #expect(points.count == 3)
+        #expect(points.last?.wordsWritten == 700)
+        #expect(points.last?.goalMet == true)
+    }
+
     @Test func chartPointsAreDenseAndOrdered() {
         let goals = ProgressGoals(dailyWordTarget: 500, projectWordTarget: nil, createdAt: .now, updatedAt: .now)
         let progress = [entry("2026-08-01", words: 700, met: true)]
