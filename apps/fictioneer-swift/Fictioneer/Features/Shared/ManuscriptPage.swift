@@ -52,6 +52,7 @@ struct ManuscriptPage<Content: View, Accessory: View>: View {
         .padding(.horizontal, isChromeless ? 0 : 28)
         .padding(.top, isChromeless ? 0 : 18)
         .padding(.bottom, isChromeless ? 0 : 24)
+        .ignoresSafeArea(.container, edges: isChromeless ? .top : [])
     }
 
     private var runningHead: some View {

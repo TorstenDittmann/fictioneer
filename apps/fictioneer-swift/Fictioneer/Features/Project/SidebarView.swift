@@ -112,6 +112,7 @@ struct SidebarView: View {
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .monospacedDigit()
+                    .fixedSize()
                     .help("\(chapter.scenes.count) scene\(chapter.scenes.count == 1 ? "" : "s")")
             }
             .contextMenu {
@@ -144,11 +145,13 @@ struct SidebarView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(.tertiary)
                     .monospacedDigit()
+                    .fixedSize()
+                    .layoutPriority(1)
             } else {
                 Spacer(minLength: 0)
             }
         }
-        .padding(.leading, 31)
+        .padding(.leading, 4)
         .tag(SidebarItem.scene(scene.id))
         .contextMenu {
             Button("Rename…") { beginRename(scene) }
@@ -212,12 +215,14 @@ struct SidebarView: View {
             Text(note.title)
                 .font(.custom("Quattrocento-Bold", size: 13))
                 .lineLimit(1)
+                .layoutPriority(1)
             Spacer(minLength: 0)
             if !note.tags.isEmpty {
                 Text("\(note.tags.count)")
                     .font(.system(size: 11))
                     .foregroundStyle(.tertiary)
                     .monospacedDigit()
+                    .fixedSize()
                     .help(note.tags.joined(separator: ", "))
             }
         }
