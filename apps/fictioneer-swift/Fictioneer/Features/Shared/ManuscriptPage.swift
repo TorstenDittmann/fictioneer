@@ -56,22 +56,18 @@ struct ManuscriptPage<Content: View, Accessory: View>: View {
     }
 
     private var runningHead: some View {
-        ZStack {
-            HStack(spacing: 10) {
-                Spacer(minLength: 0)
-                ManuscriptLabel(header.project, size: 10, color: Color(nsColor: .tertiaryLabelColor))
-                if let section = header.section, !section.isEmpty {
-                    headSeparator
-                    ManuscriptLabel(section, size: 10, color: .accentColor)
-                }
+        HStack(spacing: 10) {
+            Spacer(minLength: 12)
+            ManuscriptLabel(header.project, size: 10, color: Color(nsColor: .tertiaryLabelColor))
+                .layoutPriority(1)
+            if let section = header.section, !section.isEmpty {
                 headSeparator
-                ManuscriptLabel(header.title, size: 10, color: .secondary)
-                Spacer(minLength: 0)
+                ManuscriptLabel(section, size: 10, color: .accentColor)
             }
-            HStack {
-                Spacer()
-                accessory()
-            }
+            headSeparator
+            ManuscriptLabel(header.title, size: 10, color: .secondary)
+            Spacer(minLength: 12)
+            accessory()
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
