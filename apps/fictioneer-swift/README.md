@@ -30,6 +30,10 @@ open build/Build/Products/Debug/Fictioneer.app
 xcodebuild -scheme Fictioneer -derivedDataPath build -destination 'platform=macOS' test
 ```
 
+CI runs the same suite on pull requests and pushes to `main` that touch this
+app (`.github/workflows/native.yml`, macOS 26 runner, Xcode 26). Failed runs
+upload the `.xcresult` bundle as an artifact.
+
 ## iCloud
 
 Projects are `NSDocument`s, so iCloud Drive sync, version history and the

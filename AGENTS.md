@@ -106,6 +106,7 @@ This guide is for agentic coding tasks in the Fictioneer monorepo.
 ## CI signals
 - GitHub Actions `diagnostics` runs `bun run lint` and `bun run check`.
 - Publish workflow builds the Tauri app from `apps/fictioneer`.
+- GitHub Actions `native` runs the `apps/fictioneer-swift` XCTest/Swift Testing suite on a macOS 26 runner (XcodeGen + `xcodebuild test`) when that app changes.
 - `PUBLIC_INTELLIGENCE_SERVER_URL` is expected in CI for diagnostics.
 
 ## Workspace etiquette for agents

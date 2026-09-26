@@ -2,3 +2,4 @@ Fictioneer.xcodeproj/
 build/
 DerivedData/
 .DS_Store
+TestResults.xcresult/
