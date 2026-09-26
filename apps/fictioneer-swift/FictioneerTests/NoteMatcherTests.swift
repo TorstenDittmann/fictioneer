@@ -57,21 +57,17 @@ struct NoteMatcherTests {
         #expect(NoteMatcher.matchingIDs(in: "I watched Drx Strange yesterday.", notes: notes).isEmpty)
     }
 
-    @Test func tagWithRepeatedRegexQuantifierCharactersDoesNotCrash() {
+    @Test func tagWithRegexQuantifierCharactersMatchesLiterally() {
         let id = UUID()
         let notes = [candidate(["C++"], id: id)]
-        // Unescaped, "++" is an invalid nested quantifier that would make the
-        // underlying regex fail to compile; escaping must prevent that crash.
-        #expect(NoteMatcher.matchingIDs(in: "I love C++ programming.", notes: notes).isEmpty)
+        // Unescaped, "++" is an invalid nested quantifier; escaping keeps it literal.
+        #expect(NoteMatcher.matchingIDs(in: "I love C++ programming.", notes: notes) == [id])
     }
 
-    @Test func tagWithTrailingSymbolsMatchesWhenGluedToAWordCharacter() {
-        // Faithful port quirk (shared with the Tauri reference's `\b`-based
-        // regex): a trailing `\b` after a non-word character like "+" only
-        // matches when immediately followed by a word character, not a space.
+    @Test func tagWithTrailingSymbolsDoesNotMatchInsideLongerWords() {
         let id = UUID()
         let notes = [candidate(["C++"], id: id)]
-        #expect(NoteMatcher.matchingIDs(in: "the C++Builder tool", notes: notes) == [id])
+        #expect(NoteMatcher.matchingIDs(in: "the C++Builder tool", notes: notes).isEmpty)
     }
 
     // MARK: - Empty tag handling
@@ -130,5 +126,23 @@ struct NoteMatcherTests {
             notes: notes
         )
         #expect(matched == [first, second])
+    }
+
+    @Test func punctuationEdgedTagsMatchAsWholeWords() {
+        let hashtag = UUID()
+        let title = UUID()
+        let notes = [
+            candidate(["#hero"], id: hashtag),
+            candidate(["Dr."], id: title),
+        ]
+        #expect(NoteMatcher.matchingIDs(in: "Tagged #hero, then Dr. Vance arrived.", notes: notes) == [hashtag, title])
+        #expect(NoteMatcher.matchingIDs(in: "Tagged #heroes and Dr.s", notes: notes).isEmpty)
+    }
+
+    @Test func tagsInsideLongerWordsDoNotMatch() {
+        let notes = [candidate(["Ann"])]
+        #expect(NoteMatcher.matchingIDs(in: "Annabel and Joanna", notes: notes).isEmpty)
+        #expect(NoteMatcher.matchingIDs(in: "Ann_2 was a username", notes: notes).isEmpty)
+        #expect(NoteMatcher.matchingIDs(in: "Élodie met Ann.", notes: notes).count == 1)
     }
 }

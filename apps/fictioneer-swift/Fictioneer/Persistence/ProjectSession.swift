@@ -102,16 +102,17 @@ final class ProjectSession {
     }
 
     /// Adds a scene to the chapter of the current scene (falling back to the
-    /// last chapter) and selects it.
+    /// last chapter, or a new one in an empty project) and selects it.
     @discardableResult
-    func createSceneInCurrentChapter() -> Scene? {
-        let chapter: Chapter?
+    func createSceneInCurrentChapter() -> Scene {
+        let chapter: Chapter
         if let selected = selectedSceneID, let current = project.chapter(containing: selected) {
             chapter = current
+        } else if let last = project.chapters.last {
+            chapter = last
         } else {
-            chapter = project.chapters.last
+            chapter = createChapter()
         }
-        guard let chapter else { return nil }
         return createScene(in: chapter)
     }
 

@@ -86,4 +86,12 @@ struct SidebarItemMappingTests {
         #expect(session.chapterScrollRequest == second.id)
         #expect(session.selectedItem == .scene(second.id))
     }
+
+    @Test func newSceneInEmptyProjectCreatesAChapter() {
+        let session = ProjectSession(project: Project(title: "Empty"))
+        let scene = session.createSceneInCurrentChapter()
+        #expect(session.project.chapters.count == 1)
+        #expect(session.project.chapters[0].scenes.map(\.id) == [scene.id])
+        #expect(session.selectedSceneID == scene.id)
+    }
 }

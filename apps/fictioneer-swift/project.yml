@@ -50,7 +50,7 @@ targets:
         CFBundleVersion: "0.1.1"
         LSMinimumSystemVersion: "15.0"
         LSApplicationCategoryType: public.app-category.productivity
-        NSHumanReadableCopyright: ""
+        NSHumanReadableCopyright: "Copyright © 2026 Torsten Dittmann. All rights reserved."
         # XcodeGen copies resources flat into Contents/Resources, so fonts live at the root.
         ATSApplicationFontsPath: "."
         NSSupportsAutomaticTermination: false
