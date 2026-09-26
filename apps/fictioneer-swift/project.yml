@@ -1,0 +1,105 @@
+name: Fictioneer
+options:
+  bundleIdPrefix: app.fictioneer
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+    # Default builds are ad-hoc signed and run without iCloud. iCloud needs a
+    # paid team's provisioning profile: build with
+    # `-xcconfig Config/iCloud.xcconfig -allowProvisioningUpdates` (README).
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: ""
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.7.0
+targets:
+  Fictioneer:
+    type: application
+    platform: macOS
+    sources:
+      - Fictioneer
+    dependencies:
+      - package: Sparkle
+    # Keep Config/Fictioneer-iCloud.entitlements in sync with these: it is
+    # this set plus the iCloud Documents keys.
+    entitlements:
+      path: Fictioneer/Resources/Fictioneer.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.files.user-selected.read-write: true
+        # Sparkle sandboxing: mach-lookup to its installer XPC services.
+        com.apple.security.temporary-exception.mach-lookup.global-name:
+          - "$(PRODUCT_BUNDLE_IDENTIFIER)-spks"
+          - "$(PRODUCT_BUNDLE_IDENTIFIER)-spki"
+    info:
+      path: Fictioneer/Info.plist
+      properties:
+        CFBundleName: Fictioneer
+        CFBundleDisplayName: Fictioneer
+        CFBundleShortVersionString: "0.1.1"
+        CFBundleVersion: "0.1.1"
+        LSMinimumSystemVersion: "15.0"
+        LSApplicationCategoryType: public.app-category.productivity
+        NSHumanReadableCopyright: ""
+        # XcodeGen copies resources flat into Contents/Resources, so fonts live at the root.
+        ATSApplicationFontsPath: "."
+        NSSupportsAutomaticTermination: false
+        NSSupportsSuddenTermination: false
+        SUFeedURL: "https://github.com/TorstenDittmann/fictioneer/releases/download/appcast/appcast.xml"
+        SUPublicEDKey: "hB8kCa/jIeAVUVxRIpJh+9LbuHaKvLhoXxIkrtMt1qU="
+        SUEnableInstallerLauncherService: true
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Fictioneer Project
+            LSItemContentTypes:
+              - app.fictioneer.project
+            CFBundleTypeRole: Editor
+            LSHandlerRank: Owner
+            LSTypeIsPackage: true
+            NSDocumentClass: ProjectDocument
+        NSUbiquitousContainers:
+          iCloud.app.fictioneer:
+            NSUbiquitousContainerIsDocumentScopePublic: true
+            NSUbiquitousContainerName: Fictioneer
+            NSUbiquitousContainerSupportedFolderLevels: Any
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: app.fictioneer.project
+            UTTypeDescription: Fictioneer Project
+            UTTypeConformsTo:
+              - com.apple.package
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - fictioneer
+  FictioneerTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - FictioneerTests
+    dependencies:
+      - target: Fictioneer
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Fictioneer.app/Contents/MacOS/Fictioneer"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  Fictioneer:
+    build:
+      targets:
+        Fictioneer: all
+        FictioneerTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - FictioneerTests

@@ -1,0 +1,8 @@
+// iCloud-enabled signing. Requires an active Apple Developer Program team
+// (personal teams can't use iCloud). Usage:
+//   xcodebuild -scheme Fictioneer -derivedDataPath build \
+//     -xcconfig Config/iCloud.xcconfig -allowProvisioningUpdates build
+CODE_SIGN_STYLE = Automatic
+CODE_SIGN_IDENTITY = Apple Development
+DEVELOPMENT_TEAM = D48NCUQ5R6
+CODE_SIGN_ENTITLEMENTS = Config/Fictioneer-iCloud.entitlements
