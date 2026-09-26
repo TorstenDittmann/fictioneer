@@ -168,7 +168,7 @@ struct ChapterEditingIntegrationTests {
             Scene(title: "B", content: NSAttributedString(string: "Beta.")),
         ])
         let composer = ChapterComposer(chapter: chapter)
-        let settings = AppSettings(defaults: UserDefaults(suiteName: "chapter-\(UUID().uuidString)")!)
+        let settings = AppSettings(defaults: UserDefaults(suiteName: "chapter-\(UUID().uuidString)")!, secrets: InMemorySecretStore())
         let theme = EditorTheme(settings: settings)
         let content = composer.compose(bodyAttributes: theme.bodyAttributes) { scene, index in
             ChapterEditorView.heading(for: scene, isFirst: index == 0, fontSize: theme.fontSize)

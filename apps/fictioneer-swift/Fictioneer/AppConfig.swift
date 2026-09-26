@@ -19,6 +19,8 @@ nonisolated enum AppConfig {
 
     /// NSDocument autosave-in-place delay after the last edit.
     static let autosaveDelay: TimeInterval = 3.0
+    /// Longest edits may go unsaved while the writer types without pause.
+    static let maxUnsavedInterval: TimeInterval = 30
     static let maxRecentProjects = 10
 
     static let ghostTextWordCount = 36

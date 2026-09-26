@@ -34,7 +34,13 @@ final class AppSettings {
     var editorFontSize: Double = 18 { didSet { persist() } }
     var editorLineHeight: Double = 1.75 { didSet { persist() } }
     var intelligenceURLString: String = AppConfig.defaultIntelligenceBaseURL { didSet { persist() } }
-    var licenseKey: String = "" { didSet { persist() } }
+    /// Kept in the Keychain, never in the preferences blob.
+    var licenseKey: String = "" {
+        didSet {
+            guard !isLoading else { return }
+            secrets.set(licenseKey, forKey: Self.licenseKeyAccount)
+        }
+    }
     /// Prose-analysis inline highlights (off by default, matching the Tauri app).
     var proseHighlightsEnabled: Bool = false { didSet { persist() } }
     /// Raw values of visible AnalysisType cases; empty means "all".
@@ -52,7 +58,8 @@ final class AppSettings {
         var editorFontSize: Double
         var editorLineHeight: Double
         var intelligenceURLString: String
-        var licenseKey: String
+        /// Legacy: read once to migrate into the Keychain, never written.
+        var licenseKey: String?
         var proseHighlightsEnabled: Bool?
         var visibleAnalysisTypes: [String]?
         var spellcheckEnabled: Bool?
@@ -66,7 +73,6 @@ final class AppSettings {
             editorFontSize: Double,
             editorLineHeight: Double,
             intelligenceURLString: String,
-            licenseKey: String,
             proseHighlightsEnabled: Bool?,
             visibleAnalysisTypes: [String]?,
             spellcheckEnabled: Bool?,
@@ -79,7 +85,7 @@ final class AppSettings {
             self.editorFontSize = editorFontSize
             self.editorLineHeight = editorLineHeight
             self.intelligenceURLString = intelligenceURLString
-            self.licenseKey = licenseKey
+            self.licenseKey = nil
             self.proseHighlightsEnabled = proseHighlightsEnabled
             self.visibleAnalysisTypes = visibleAnalysisTypes
             self.spellcheckEnabled = spellcheckEnabled
@@ -95,7 +101,7 @@ final class AppSettings {
             editorFontSize = try container.decode(Double.self, forKey: .editorFontSize)
             editorLineHeight = try container.decode(Double.self, forKey: .editorLineHeight)
             intelligenceURLString = try container.decode(String.self, forKey: .intelligenceURLString)
-            licenseKey = try container.decode(String.self, forKey: .licenseKey)
+            licenseKey = try container.decodeIfPresent(String.self, forKey: .licenseKey)
             proseHighlightsEnabled = try container.decodeIfPresent(Bool.self, forKey: .proseHighlightsEnabled)
             visibleAnalysisTypes = try container.decodeIfPresent([String].self, forKey: .visibleAnalysisTypes)
             spellcheckEnabled = try container.decodeIfPresent(Bool.self, forKey: .spellcheckEnabled)
@@ -110,11 +116,14 @@ final class AppSettings {
     }
 
     private static let defaultsKey = "fictioneer.settings"
+    private static let licenseKeyAccount = "license-key"
     private let defaults: UserDefaults
+    private let secrets: SecretStore
     private var isLoading = false
 
-    init(defaults: UserDefaults = .standard) {
+    init(defaults: UserDefaults = .standard, secrets: SecretStore = KeychainSecretStore()) {
         self.defaults = defaults
+        self.secrets = secrets
         load()
     }
 
@@ -138,6 +147,9 @@ final class AppSettings {
     }
 
     private func load() {
+        isLoading = true
+        licenseKey = secrets.string(forKey: Self.licenseKeyAccount) ?? ""
+        isLoading = false
         guard let data = defaults.data(forKey: Self.defaultsKey),
               let snapshot = try? JSONDecoder().decode(Snapshot.self, from: data)
         else { return }
@@ -147,7 +159,6 @@ final class AppSettings {
         editorFontSize = snapshot.editorFontSize
         editorLineHeight = snapshot.editorLineHeight
         intelligenceURLString = Self.migratedURL(snapshot.intelligenceURLString, isDebug: Self.isDebugBuild)
-        licenseKey = snapshot.licenseKey
         proseHighlightsEnabled = snapshot.proseHighlightsEnabled ?? false
         visibleAnalysisTypes = snapshot.visibleAnalysisTypes ?? []
         spellcheckEnabled = snapshot.spellcheckEnabled ?? true
@@ -155,6 +166,15 @@ final class AppSettings {
         upsellDismissed = snapshot.upsellDismissed ?? false
         dimsParagraphsInFocusMode = snapshot.dimsParagraphsInFocusMode ?? true
         isLoading = false
+
+        // Builds before the Keychain kept the key in the blob: move it over
+        // (unless the Keychain already has one) and rewrite the blob without it.
+        if let legacyKey = snapshot.licenseKey {
+            if licenseKey.isEmpty, !legacyKey.isEmpty {
+                licenseKey = legacyKey
+            }
+            persist()
+        }
     }
 
     private func persist() {
@@ -165,7 +185,6 @@ final class AppSettings {
             editorFontSize: editorFontSize,
             editorLineHeight: editorLineHeight,
             intelligenceURLString: intelligenceURLString,
-            licenseKey: licenseKey,
             proseHighlightsEnabled: proseHighlightsEnabled,
             visibleAnalysisTypes: visibleAnalysisTypes,
             spellcheckEnabled: spellcheckEnabled,

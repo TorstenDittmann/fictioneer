@@ -22,40 +22,50 @@ nonisolated enum ProgressMath {
         return calendar.date(from: DateComponents(year: parts[0], month: parts[1], day: parts[2]))
     }
 
-    /// Streak semantics ported from the Tauri app:
-    /// - `longest`: the maximum run of goal-met entries in date order; days with
-    ///   no entry at all do NOT break it, entries below goal DO.
-    /// - `current`: requires a goal-met entry for *today*, then extends
-    ///   backwards through consecutive calendar days that are goal-met.
+    /// One entry per day. Manifest data is unvalidated: sync-conflict copies
+    /// can leave several entries for a date, and the last one in manifest
+    /// order wins. The result is sorted oldest first.
+    static func deduplicated(_ progress: [DailyProgress]) -> [DailyProgress] {
+        let byDate = Dictionary(progress.map { ($0.date, $0) }, uniquingKeysWith: { _, latest in latest })
+        return byDate.values.sorted { $0.date < $1.date }
+    }
+
+    /// Streaks are runs of consecutive calendar days with the goal met.
+    /// - `current`: ends today, or yesterday while today's goal is still
+    ///   open, so a streak doesn't read as lost until the day is over.
+    /// - `longest`: the longest such run anywhere in the history.
     static func streaks(
         progress: [DailyProgress],
         today: Date,
         calendar: Calendar
     ) -> (current: Int, longest: Int) {
-        guard !progress.isEmpty else { return (0, 0) }
-        let sorted = progress.sorted { $0.date < $1.date }
+        let days = deduplicated(progress)
+        guard !days.isEmpty else { return (0, 0) }
 
         var longest = 0
         var run = 0
-        for entry in sorted {
-            if entry.goalMet {
-                run += 1
-                longest = max(longest, run)
-            } else {
+        var previousDay: Date?
+        for entry in days {
+            guard entry.goalMet, let day = date(fromKey: entry.date, calendar: calendar) else {
                 run = 0
+                previousDay = nil
+                continue
             }
+            let isNextDay = previousDay.flatMap { calendar.date(byAdding: .day, value: 1, to: $0) }
+                .map { calendar.isDate($0, inSameDayAs: day) } ?? false
+            run = isNextDay ? run + 1 : 1
+            longest = max(longest, run)
+            previousDay = day
         }
 
-        var current = 0
-        // Manifest data is unvalidated — duplicate dates (e.g. sync-conflict
-        // copies) must not trap; keep the last entry in manifest order (the
-        // original array, because `sorted` does not order duplicates
-        // deterministically).
-        let byDate = Dictionary(progress.map { ($0.date, $0) }, uniquingKeysWith: { _, latest in latest })
+        let metDays = Set(days.filter(\.goalMet).map(\.date))
         var cursor = today
-        while true {
-            let key = dayKey(for: cursor, calendar: calendar)
-            guard let entry = byDate[key], entry.goalMet else { break }
+        if !metDays.contains(dayKey(for: today, calendar: calendar)),
+           let yesterday = calendar.date(byAdding: .day, value: -1, to: today) {
+            cursor = yesterday
+        }
+        var current = 0
+        while metDays.contains(dayKey(for: cursor, calendar: calendar)) {
             current += 1
             guard let previous = calendar.date(byAdding: .day, value: -1, to: cursor) else { break }
             cursor = previous
@@ -77,7 +87,7 @@ nonisolated enum ProgressMath {
             )
         }
         let (current, longest) = streaks(progress: progress, today: today, calendar: calendar)
-        let activeDays = progress.filter { $0.wordsWritten > 0 }
+        let activeDays = deduplicated(progress).filter { $0.wordsWritten > 0 }
         let average = activeDays.isEmpty
             ? 0
             : Int((Double(activeDays.reduce(0) { $0 + $1.wordsWritten }) / Double(activeDays.count)).rounded())
@@ -107,8 +117,7 @@ nonisolated enum ProgressMath {
         today: Date,
         calendar: Calendar
     ) -> [ChartPoint] {
-        // Duplicate dates in unvalidated manifest data must not trap.
-        let byDate = Dictionary(progress.map { ($0.date, $0) }, uniquingKeysWith: { _, latest in latest })
+        let byDate = Dictionary(deduplicated(progress).map { ($0.date, $0) }, uniquingKeysWith: { $1 })
         let goal = goals?.dailyWordTarget ?? ProgressGoals.defaultDailyTarget
         let todayKey = dayKey(for: today, calendar: calendar)
         var points: [ChartPoint] = []

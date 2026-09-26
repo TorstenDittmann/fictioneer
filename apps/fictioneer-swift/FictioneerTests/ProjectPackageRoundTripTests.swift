@@ -195,11 +195,46 @@ struct ProjectPackageRoundTripTests {
             .appendingPathComponent("\(corruptedScene.id.uuidString).textarchive")
         try Data("not an archive".utf8).write(to: archiveURL)
 
-        let restored = try ProjectPackage.read(from: url)
+        let (restored, unreadable) = try ProjectPackage.readReporting(from: FileWrapper(url: url, options: .immediate))
         #expect(restored.chapters[0].scenes[0].content.string.isEmpty)
+        #expect(unreadable == [corruptedScene.title])
         // The rest of the manuscript survives untouched.
         #expect(restored.chapters[0].scenes[1].content.string == "They met at dawn.")
         #expect(restored.notes[0].body.string == "A detective.")
+    }
+
+    /// Saving without editing the damaged scene must keep its original file,
+    /// so it can still be recovered.
+    @Test func unchangedCorruptArchiveSurvivesSave() throws {
+        let url = temporaryPackageURL()
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
+
+        let project = makeProject()
+        try ProjectPackage.write(project, to: url)
+        let filename = "\(project.chapters[0].scenes[0].id.uuidString).textarchive"
+        try Data("not an archive".utf8).write(to: url.appendingPathComponent("scenes").appendingPathComponent(filename))
+
+        let original = try FileWrapper(url: url, options: .immediate)
+        let restored = try ProjectPackage.read(from: original)
+        let saved = try ProjectPackage.fileWrapper(
+            for: restored,
+            reusing: original,
+            dirtySceneIDs: [restored.chapters[0].scenes[1].id]
+        )
+        let kept = saved.fileWrappers?["scenes"]?.fileWrappers?[filename]?.regularFileContents
+        #expect(kept == Data("not an archive".utf8))
+    }
+
+    @Test func damagedManifestThrowsReadableError() throws {
+        let url = temporaryPackageURL()
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
+
+        try Data("{ not json".utf8).write(to: url.appendingPathComponent("project.json"))
+        #expect(throws: ProjectPackageError.corruptManifest) {
+            _ = try ProjectPackage.read(from: url)
+        }
     }
 
     /// A missing archive (crash between manifest and archive writes) also
@@ -217,8 +252,9 @@ struct ProjectPackageRoundTripTests {
             .appendingPathComponent("\(missingScene.id.uuidString).textarchive")
         try FileManager.default.removeItem(at: archiveURL)
 
-        let restored = try ProjectPackage.read(from: url)
+        let (restored, unreadable) = try ProjectPackage.readReporting(from: FileWrapper(url: url, options: .immediate))
         #expect(restored.chapters[0].scenes[0].content.string.isEmpty)
+        #expect(unreadable == [missingScene.title])
         #expect(restored.chapters[0].scenes[1].content.string == "They met at dawn.")
     }
 

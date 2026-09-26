@@ -27,11 +27,11 @@ struct AppSettingsTests {
         let suiteName = "app-settings-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
 
-        let settings = AppSettings(defaults: defaults)
+        let settings = AppSettings(defaults: defaults, secrets: InMemorySecretStore())
         #expect(settings.spellcheckEnabled == true)
         settings.spellcheckEnabled = false
 
-        let reloaded = AppSettings(defaults: defaults)
+        let reloaded = AppSettings(defaults: defaults, secrets: InMemorySecretStore())
         #expect(reloaded.spellcheckEnabled == false)
     }
 
@@ -51,7 +51,7 @@ struct AppSettingsTests {
         """
         defaults.set(Data(legacyJSON.utf8), forKey: "fictioneer.settings")
 
-        let settings = AppSettings(defaults: defaults)
+        let settings = AppSettings(defaults: defaults, secrets: InMemorySecretStore())
         #expect(settings.spellcheckEnabled == true)
     }
 
@@ -59,11 +59,11 @@ struct AppSettingsTests {
         let suiteName = "app-settings-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
 
-        let settings = AppSettings(defaults: defaults)
+        let settings = AppSettings(defaults: defaults, secrets: InMemorySecretStore())
         #expect(settings.upsellDismissed == false)
         settings.upsellDismissed = true
 
-        let reloaded = AppSettings(defaults: defaults)
+        let reloaded = AppSettings(defaults: defaults, secrets: InMemorySecretStore())
         #expect(reloaded.upsellDismissed == true)
     }
 
@@ -83,7 +83,7 @@ struct AppSettingsTests {
         """
         defaults.set(Data(legacyJSON.utf8), forKey: "fictioneer.settings")
 
-        let settings = AppSettings(defaults: defaults)
+        let settings = AppSettings(defaults: defaults, secrets: InMemorySecretStore())
         #expect(settings.upsellDismissed == false)
     }
 
@@ -91,7 +91,7 @@ struct AppSettingsTests {
         let suiteName = "app-settings-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
 
-        let settings = AppSettings(defaults: defaults)
+        let settings = AppSettings(defaults: defaults, secrets: InMemorySecretStore())
         #expect(settings.exportDefaults == nil)
 
         let stored = ExportDefaults(
@@ -104,7 +104,7 @@ struct AppSettingsTests {
         )
         settings.exportDefaults = stored
 
-        let reloaded = AppSettings(defaults: defaults)
+        let reloaded = AppSettings(defaults: defaults, secrets: InMemorySecretStore())
         #expect(reloaded.exportDefaults == stored)
     }
 
@@ -135,7 +135,7 @@ struct AppSettingsTests {
         """
         defaults.set(Data(blob.utf8), forKey: "fictioneer.settings")
 
-        let settings = AppSettings(defaults: defaults)
+        let settings = AppSettings(defaults: defaults, secrets: InMemorySecretStore())
         #expect(settings.licenseKey == "LICENSE-123")
         #expect(settings.theme == .dark)
         #expect(settings.editorFontSize == 21)
@@ -158,7 +158,54 @@ struct AppSettingsTests {
         """
         defaults.set(Data(legacyJSON.utf8), forKey: "fictioneer.settings")
 
-        let settings = AppSettings(defaults: defaults)
+        let settings = AppSettings(defaults: defaults, secrets: InMemorySecretStore())
         #expect(settings.exportDefaults == nil)
+    }
+
+    @Test func licenseKeyIsStoredInSecretsNotDefaults() throws {
+        let defaults = UserDefaults(suiteName: "app-settings-\(UUID().uuidString)")!
+        let secrets = InMemorySecretStore()
+
+        let settings = AppSettings(defaults: defaults, secrets: secrets)
+        settings.licenseKey = "LICENSE-456"
+        settings.theme = .dark
+
+        #expect(secrets.string(forKey: "license-key") == "LICENSE-456")
+        let blob = try #require(defaults.data(forKey: "fictioneer.settings"))
+        #expect(!String(decoding: blob, as: UTF8.self).contains("LICENSE-456"))
+        #expect(AppSettings(defaults: defaults, secrets: secrets).licenseKey == "LICENSE-456")
+    }
+
+    @Test func legacyPlaintextLicenseKeyMigratesToSecrets() throws {
+        let defaults = UserDefaults(suiteName: "app-settings-\(UUID().uuidString)")!
+        let secrets = InMemorySecretStore()
+        let legacyJSON = """
+        {
+            "theme": "system",
+            "editorFontFamily": "\(FontLoader.defaultEditorFamily)",
+            "editorFontSize": 18,
+            "editorLineHeight": 1.75,
+            "intelligenceURLString": "\(AppConfig.defaultIntelligenceBaseURL)",
+            "licenseKey": "LEGACY-KEY"
+        }
+        """
+        defaults.set(Data(legacyJSON.utf8), forKey: "fictioneer.settings")
+
+        let settings = AppSettings(defaults: defaults, secrets: secrets)
+        #expect(settings.licenseKey == "LEGACY-KEY")
+        #expect(secrets.string(forKey: "license-key") == "LEGACY-KEY")
+        let blob = try #require(defaults.data(forKey: "fictioneer.settings"))
+        #expect(!String(decoding: blob, as: UTF8.self).contains("LEGACY-KEY"))
+    }
+
+    @Test func clearingLicenseKeyRemovesSecret() {
+        let secrets = InMemorySecretStore()
+        let settings = AppSettings(
+            defaults: UserDefaults(suiteName: "app-settings-\(UUID().uuidString)")!,
+            secrets: secrets
+        )
+        settings.licenseKey = "LICENSE-789"
+        settings.licenseKey = ""
+        #expect(secrets.string(forKey: "license-key") == nil)
     }
 }

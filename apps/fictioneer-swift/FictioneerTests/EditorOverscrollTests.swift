@@ -119,7 +119,7 @@ struct HostedEditorOverscrollTests {
     @Test func lastLineReachesMiddleInHostedEditor() async throws {
         let text = Array(repeating: "A paragraph of prose that wraps across a line or two.", count: 60)
             .joined(separator: "\n\n")
-        let settings = AppSettings(defaults: UserDefaults(suiteName: "overscroll-\(UUID().uuidString)")!)
+        let settings = AppSettings(defaults: UserDefaults(suiteName: "overscroll-\(UUID().uuidString)")!, secrets: InMemorySecretStore())
         let controller = EditorController()
         let editor = RichTextEditor(
             initialContent: NSAttributedString(string: text),

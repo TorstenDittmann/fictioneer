@@ -2,8 +2,9 @@ import AppKit
 import Foundation
 import os
 
-enum ProjectPackageError: Error, LocalizedError {
+enum ProjectPackageError: Error, LocalizedError, Equatable {
     case missingManifest
+    case corruptManifest
     case unsupportedFormatVersion(Int)
     case corruptTextArchive(String)
 
@@ -11,6 +12,8 @@ enum ProjectPackageError: Error, LocalizedError {
         switch self {
         case .missingManifest:
             "The project file is missing its manifest (project.json)."
+        case .corruptManifest:
+            "The project's manifest (project.json) is damaged and could not be read."
         case .unsupportedFormatVersion(let version):
             "This project was saved with a newer version of Fictioneer (format \(version))."
         case .corruptTextArchive(let name):
@@ -98,23 +101,43 @@ enum ProjectPackage {
     }
 
     static func read(from wrapper: FileWrapper) throws -> Project {
+        try readReporting(from: wrapper).project
+    }
+
+    /// Reads the package and lists the scenes and notes whose text could not
+    /// be read. Those open empty instead of failing the whole project; the
+    /// damaged files stay on disk until the writer edits that scene or note.
+    static func readReporting(from wrapper: FileWrapper) throws -> (project: Project, unreadable: [String]) {
         guard let manifestData = wrapper.fileWrappers?[manifestFilename]?.regularFileContents else {
             throw ProjectPackageError.missingManifest
         }
-        let manifest = try decoder().decode(ProjectManifest.self, from: manifestData)
+        let manifest: ProjectManifest
+        do {
+            manifest = try decoder().decode(ProjectManifest.self, from: manifestData)
+        } catch {
+            logger.error("Unreadable manifest: \(error.localizedDescription, privacy: .public)")
+            throw ProjectPackageError.corruptManifest
+        }
         guard manifest.formatVersion <= AppConfig.formatVersion else {
             throw ProjectPackageError.unsupportedFormatVersion(manifest.formatVersion)
         }
 
         let sceneFiles = wrapper.fileWrappers?[scenesDirectory]?.fileWrappers ?? [:]
         let noteFiles = wrapper.fileWrappers?[notesDirectory]?.fileWrappers ?? [:]
+        var unreadable: [String] = []
 
         let chapters = manifest.chapters.map { chapterManifest in
             let scenes = chapterManifest.scenes.map { sceneManifest in
                 Scene(
                     id: sceneManifest.id,
                     title: sceneManifest.title,
-                    content: readArchive(named: archiveFilename(for: sceneManifest.id), in: sceneFiles),
+                    content: readArchive(
+                        named: archiveFilename(for: sceneManifest.id),
+                        in: sceneFiles,
+                        expectsContent: sceneManifest.wordCount > 0,
+                        reportingAs: sceneManifest.title,
+                        into: &unreadable
+                    ),
                     createdAt: sceneManifest.createdAt,
                     updatedAt: sceneManifest.updatedAt,
                     synopsis: sceneManifest.synopsis ?? "",
@@ -137,7 +160,13 @@ enum ProjectPackage {
             Note(
                 id: noteManifest.id,
                 title: noteManifest.title,
-                body: readArchive(named: archiveFilename(for: noteManifest.id), in: noteFiles),
+                body: readArchive(
+                    named: archiveFilename(for: noteManifest.id),
+                    in: noteFiles,
+                    expectsContent: false,
+                    reportingAs: noteManifest.title,
+                    into: &unreadable
+                ),
                 tags: noteManifest.tags,
                 createdAt: noteManifest.createdAt,
                 updatedAt: noteManifest.updatedAt
@@ -164,17 +193,27 @@ enum ProjectPackage {
         for beat in manifest.beats ?? [] {
             project.beats[BeatKey(sceneID: beat.sceneID, plotLineID: beat.plotLineID)] = beat.text
         }
-        return project
+        return (project, unreadable)
     }
 
     // MARK: - Helpers
 
     private static let logger = Logger(subsystem: "app.fictioneer", category: "ProjectPackage")
 
-    private static func readArchive(named filename: String, in files: [String: FileWrapper]) -> NSAttributedString {
+    private static func readArchive(
+        named filename: String,
+        in files: [String: FileWrapper],
+        expectsContent: Bool,
+        reportingAs title: String,
+        into unreadable: inout [String]
+    ) -> NSAttributedString {
         guard let data = files[filename]?.regularFileContents else {
             // A missing archive (e.g. crash between manifest and archive writes)
             // degrades to an empty scene rather than refusing to open the project.
+            if expectsContent {
+                logger.error("Missing text archive \(filename, privacy: .public)")
+                unreadable.append(title)
+            }
             return NSAttributedString()
         }
         do {
@@ -184,6 +223,7 @@ enum ProjectPackage {
             // project — degrade that one scene/note to empty content, like the
             // missing-archive branch, so the rest of the manuscript opens.
             logger.error("Corrupt text archive \(filename, privacy: .public): \(error.localizedDescription, privacy: .public)")
+            unreadable.append(title)
             return NSAttributedString()
         }
     }
