@@ -40,7 +40,7 @@ struct GhostAcceptIntegrationTests {
         textView.setUndoManagerOverride(undoManager)
 
         let box = StreamBox()
-        let ghostController = GhostTextController(dotsInterval: 0.01, fadeDuration: 0.01) { _, _ in
+        let ghostController = GhostTextController(dotsInterval: 0.01) { _, _ in
             AsyncThrowingStream { continuation in
                 Task { @MainActor in
                     box.continuation = continuation
@@ -120,7 +120,7 @@ struct GhostAcceptIntegrationTests {
         editorController.textView = textView
 
         let box = StreamBox()
-        let ghostController = GhostTextController(dotsInterval: 0.01, fadeDuration: 0.01) { _, _ in
+        let ghostController = GhostTextController(dotsInterval: 0.01) { _, _ in
             AsyncThrowingStream { continuation in
                 Task { @MainActor in
                     box.continuation = continuation

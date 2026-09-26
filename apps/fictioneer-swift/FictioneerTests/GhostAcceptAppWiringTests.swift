@@ -61,7 +61,7 @@ struct GhostAcceptAppWiringTests {
         textView.setSelectedRange(NSRange(location: (text as NSString).length, length: 0))
 
         let box = StreamBox()
-        let ghostController = GhostTextController(dotsInterval: 0.01, fadeDuration: 0.01) { _, _ in
+        let ghostController = GhostTextController(dotsInterval: 0.01) { _, _ in
             AsyncThrowingStream { continuation in
                 Task { @MainActor in
                     box.continuation = continuation

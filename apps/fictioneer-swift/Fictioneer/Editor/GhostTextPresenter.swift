@@ -153,7 +153,7 @@ final class GhostTextPresenter {
         }
         let ghost = NSMutableAttributedString(string: text, attributes: ghostAttributes(alpha: display.alpha))
         if display.showsAcceptHint {
-            ghost.append(NSAttributedString(string: "  ⇥ Tab", attributes: hintAttributes()))
+            ghost.append(acceptHint())
         }
         storage.insert(ghost, at: min(location, storage.length))
         ghostRange = NSRange(location: location, length: ghost.length)
@@ -161,8 +161,8 @@ final class GhostTextPresenter {
     }
 
     /// Deletes the rendered ghost, if any. Never trusts the cached
-    /// `ghostRange`: a user edit can land between renders (typing during the
-    /// fade-out window, ⌥-dead-key input, paste while streaming) and shift
+    /// `ghostRange`: a user edit can land between renders (⌥-dead-key input,
+    /// paste while streaming) and shift
     /// the ghost, and deleting the stale range would destroy real text. The
     /// ghost is located by its `.ghostText` marker instead, and the caret is
     /// re-derived from the actual deletions so a just-typed character keeps
@@ -206,12 +206,51 @@ final class GhostTextPresenter {
         return attributes
     }
 
-    private func hintAttributes() -> [NSAttributedString.Key: Any] {
-        let size = editorController?.theme?.fontSize ?? 18
-        return [
-            .font: NSFont.systemFont(ofSize: size * 0.65, weight: .medium),
-            .foregroundColor: NSColor.controlAccentColor.withAlphaComponent(0.65),
-            .ghostText: true,
-        ]
+    /// The "⇥ Tab" keycap as a single attachment glyph, glued to the last
+    /// word with a no-break space + word joiner so the line can neither split
+    /// the hint nor strand it alone on the next line.
+    private func acceptHint() -> NSAttributedString {
+        var attributes = ghostAttributes(alpha: 1)
+        let bodyFont = attributes[.font] as? NSFont ?? NSFont.systemFont(ofSize: 18)
+        let attachment = NSTextAttachment()
+        attachment.image = Self.keycapImage(fontSize: bodyFont.pointSize)
+        let size = attachment.image?.size ?? .zero
+        // Center the keycap on the x-height rather than sitting it on the baseline.
+        let offset = (bodyFont.xHeight - size.height) / 2
+        attachment.bounds = CGRect(x: 0, y: offset.rounded(), width: size.width, height: size.height)
+
+        let hint = NSMutableAttributedString(string: "\u{00A0}\u{2060}", attributes: attributes)
+        attributes[.attachment] = attachment
+        hint.append(NSAttributedString(string: "\u{FFFC}", attributes: attributes))
+        return hint
+    }
+
+    /// Drawn lazily so the accent color follows appearance changes.
+    static func keycapImage(fontSize: CGFloat) -> NSImage {
+        let label = NSAttributedString(
+            string: "⇥ Tab",
+            attributes: [.font: NSFont.systemFont(ofSize: (fontSize * 0.6).rounded(), weight: .medium)]
+        )
+        let textSize = label.size()
+        let padding = CGSize(width: 5, height: 1)
+        let size = CGSize(
+            width: ceil(textSize.width + padding.width * 2),
+            height: ceil(textSize.height + padding.height * 2)
+        )
+        let image = NSImage(size: size, flipped: false) { rect in
+            let color = NSColor.controlAccentColor.withAlphaComponent(0.75)
+            let path = NSBezierPath(roundedRect: rect.insetBy(dx: 0.5, dy: 0.5), xRadius: 4, yRadius: 4)
+            color.withAlphaComponent(0.12).setFill()
+            path.fill()
+            color.withAlphaComponent(0.45).setStroke()
+            path.lineWidth = 1
+            path.stroke()
+            let tinted = NSMutableAttributedString(attributedString: label)
+            tinted.addAttribute(.foregroundColor, value: color, range: NSRange(location: 0, length: tinted.length))
+            tinted.draw(at: CGPoint(x: padding.width, y: padding.height))
+            return true
+        }
+        image.accessibilityDescription = "Press Tab to accept"
+        return image
     }
 }

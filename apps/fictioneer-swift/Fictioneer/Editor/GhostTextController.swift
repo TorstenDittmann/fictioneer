@@ -11,7 +11,7 @@ struct GhostDisplay: Equatable {
 /// ⌥-hold → stream → accept/dismiss matrix is unit-testable.
 ///
 ///     idle → waiting(dots) → streaming(text) → ready(text) → idle (Tab accept)
-///                    └────────────┴────────────────┴→ fadingOut → idle (⌥ release)
+///                    └────────────┴────────────────┴→ idle (⌥ release, Esc, edit)
 @Observable
 final class GhostTextController {
     enum State: Equatable {
@@ -19,7 +19,6 @@ final class GhostTextController {
         case waiting(dots: Int)
         case streaming(String)
         case ready(String)
-        case fadingOut(String)
     }
 
     /// Returns a stream of the *accumulated* suggestion text for a request.
@@ -34,20 +33,16 @@ final class GhostTextController {
     private let provider: SuggestionProvider
     private let minContextLength: Int
     private let dotsInterval: TimeInterval
-    private let fadeDuration: TimeInterval
     private var streamTask: Task<Void, Never>?
     private var dotsTask: Task<Void, Never>?
-    private var fadeTask: Task<Void, Never>?
 
     init(
         minContextLength: Int = AppConfig.ghostTextMinContextLength,
         dotsInterval: TimeInterval = 0.15,
-        fadeDuration: TimeInterval = 0.2,
         provider: @escaping SuggestionProvider
     ) {
         self.minContextLength = minContextLength
         self.dotsInterval = dotsInterval
-        self.fadeDuration = fadeDuration
         self.provider = provider
     }
 
@@ -62,9 +57,7 @@ final class GhostTextController {
         context: IntelligenceClient.ContinueContext,
         selectionEmpty: Bool
     ) {
-        // Never concurrent — and deliberately ignored during .fadingOut: the
-        // presenter refuses re-entry while a ghost is still active, so a
-        // re-press during the fade simply waits for idle.
+        // Never concurrent.
         guard case .idle = state else { return }
         guard selectionEmpty, contextText.count >= minContextLength else { return }
         state = .waiting(dots: 1)
@@ -86,22 +79,12 @@ final class GhostTextController {
         }
     }
 
+    /// Releasing ⌥ discards the suggestion immediately. Storage attributes
+    /// can't animate, so a "fade" would only be a stepped color change plus
+    /// a lag before the text disappears.
     func optionKeyUp() {
-        switch state {
-        case .idle, .fadingOut:
-            return
-        case .waiting, .streaming, .ready:
-            let text = currentText
-            cancelWork()
-            state = .fadingOut(text)
-            emit()
-            fadeTask = Task { [weak self] in
-                try? await Task.sleep(for: .seconds(self?.fadeDuration ?? 0.2))
-                guard let self, !Task.isCancelled, case .fadingOut = state else { return }
-                state = .idle
-                emit()
-            }
-        }
+        guard isActive else { return }
+        dismiss()
     }
 
     /// Returns the suggestion to insert when a complete suggestion is showing.
@@ -134,7 +117,7 @@ final class GhostTextController {
             dotsTask?.cancel()
             state = .streaming(accumulated)
             emit()
-        case .idle, .ready, .fadingOut:
+        case .idle, .ready:
             break
         }
     }
@@ -155,14 +138,6 @@ final class GhostTextController {
 
     // MARK: - Helpers
 
-    private var currentText: String {
-        switch state {
-        case .waiting(let dots): String(repeating: ".", count: dots)
-        case .streaming(let text), .ready(let text), .fadingOut(let text): text
-        case .idle: ""
-        }
-    }
-
     private func startDotsAnimation() {
         dotsTask = Task { [weak self] in
             while !Task.isCancelled {
@@ -176,7 +151,6 @@ final class GhostTextController {
 
     private func dismiss() {
         cancelWork()
-        fadeTask?.cancel()
         state = .idle
         emit()
     }
@@ -198,8 +172,6 @@ final class GhostTextController {
             GhostDisplay(text: text, showsAcceptHint: false, alpha: 1)
         case .ready(let text):
             GhostDisplay(text: text, showsAcceptHint: true, alpha: 1)
-        case .fadingOut(let text):
-            GhostDisplay(text: text, showsAcceptHint: false, alpha: 0.35)
         }
         onDisplayChange?(display)
     }
