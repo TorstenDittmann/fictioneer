@@ -28,12 +28,12 @@ final class FictioneerTextView: NSTextView {
         testUndoManager ?? super.undoManager
     }
 
-    // MARK: - Selection action bar (AI rephrase at the moment of intent)
+    // MARK: - Selection action bar (formatting + AI at the point of use)
 
-    /// Gate + action wired by the scene editor. The bar appears above a
-    /// stabilized selection and dismisses on any selection change or edit.
-    var selectionBarIsEnabled: (() -> Bool)?
-    var onSelectionBarAction: (() -> Void)?
+    /// The bar's buttons for the current selection, wired by the editor
+    /// views. The bar appears above a stabilized selection and dismisses on
+    /// any selection change or edit; formatting re-presents it afterwards.
+    var selectionBarItems: (() -> [SelectionBarItem])?
 
     private var selectionBar: SelectionBarHostView?
     private var selectionBarTask: Task<Void, Never>?
@@ -42,7 +42,7 @@ final class FictioneerTextView: NSTextView {
         selectionBarTask?.cancel()
         dismissSelectionBar()
         let range = selectedRange()
-        guard range.length > 0, selectionBarIsEnabled?() == true else { return }
+        guard range.length > 0, selectionBarItems?().isEmpty == false else { return }
         selectionBarTask = Task { [weak self] in
             try? await Task.sleep(for: .milliseconds(280))
             guard !Task.isCancelled else { return }
@@ -64,10 +64,13 @@ final class FictioneerTextView: NSTextView {
         guard screenRect != .zero else { return }
         let selectionRect = convert(window.convertFromScreen(screenRect), from: nil)
 
-        let bar = SelectionBarHostView()
-        bar.onAction = { [weak self] in
+        guard let items = selectionBarItems?(), !items.isEmpty else { return }
+        let bar = SelectionBarHostView(items: items) { [weak self] item in
             self?.dismissSelectionBar()
-            self?.onSelectionBarAction?()
+            item.action()
+            if item.keepsBarOpen {
+                self?.scheduleSelectionBarUpdate()
+            }
         }
         let size = bar.pillSize
         let x = min(max(8, selectionRect.minX), bounds.width - size.width - 8)
@@ -180,8 +183,8 @@ final class FictioneerTextView: NSTextView {
         super.draw(dirtyRect)
         guard string.isEmpty else { return }
         let origin = NSPoint(
-            x: textContainerInset.width + (textContainer?.lineFragmentPadding ?? 5),
-            y: textContainerInset.height
+            x: textContainerOrigin.x + (textContainer?.lineFragmentPadding ?? 5),
+            y: textContainerOrigin.y
         )
         Self.placeholderText.draw(at: origin, withAttributes: [
             .font: placeholderFont,
@@ -189,8 +192,80 @@ final class FictioneerTextView: NSTextView {
         ])
     }
 
+    /// The project's quotation marks; typed `"` and `'` are replaced from
+    /// context. Read at insert time so a settings change applies at once.
+    var quoteStyle: (() -> QuoteStyle?)?
+
+    override func insertText(_ string: Any, replacementRange: NSRange) {
+        guard let typed = string as? String, typed.count == 1, let key = typed.first,
+              key == "\"" || key == "'", let style = quoteStyle?(),
+              !hasMarkedText() else {
+            super.insertText(string, replacementRange: replacementRange)
+            return
+        }
+        let text = self.string as NSString
+        let target = replacementRange.location == NSNotFound ? selectedRange() : replacementRange
+        let previous = target.location > 0
+            ? Character(text.substring(with: text.rangeOfComposedCharacterSequence(at: target.location - 1)))
+            : nil
+        let nextLocation = target.location + target.length
+        let next = nextLocation < text.length
+            ? Character(text.substring(with: text.rangeOfComposedCharacterSequence(at: nextLocation)))
+            : nil
+        let mark = style.mark(forTyped: key, after: previous, before: next) ?? key
+        super.insertText(String(mark), replacementRange: replacementRange)
+    }
+
+    // MARK: - Focus dimming
+
+    /// Focus mode: every paragraph except the caret's fades back. Drawn with
+    /// a temporary attribute (display-only, never saved), separate from the
+    /// analysis highlights, which use background and underline.
+    var dimsInactiveParagraphs = false {
+        didSet {
+            guard dimsInactiveParagraphs != oldValue else { return }
+            updateParagraphDimming()
+        }
+    }
+
+    private static let dimmedTextColor = NSColor.labelColor.withAlphaComponent(0.28)
+
+    func updateParagraphDimming() {
+        guard let layoutManager else { return }
+        let text = string as NSString
+        let whole = NSRange(location: 0, length: text.length)
+        layoutManager.removeTemporaryAttribute(.foregroundColor, forCharacterRange: whole)
+        guard dimsInactiveParagraphs, text.length > 0 else { return }
+        let caret = min(selectedRange().location, text.length)
+        let active = text.paragraphRange(for: NSRange(location: caret, length: 0))
+        let dimmed = [NSAttributedString.Key.foregroundColor: Self.dimmedTextColor]
+        if active.location > 0 {
+            layoutManager.addTemporaryAttributes(dimmed, forCharacterRange: NSRange(location: 0, length: active.location))
+        }
+        if NSMaxRange(active) < text.length {
+            layoutManager.addTemporaryAttributes(
+                dimmed,
+                forCharacterRange: NSRange(location: NSMaxRange(active), length: text.length - NSMaxRange(active))
+            )
+        }
+    }
+
+    override func setSelectedRanges(
+        _ ranges: [NSValue],
+        affinity: NSSelectionAffinity,
+        stillSelecting stillSelectingFlag: Bool
+    ) {
+        super.setSelectedRanges(ranges, affinity: affinity, stillSelecting: stillSelectingFlag)
+        if dimsInactiveParagraphs {
+            updateParagraphDimming()
+        }
+    }
+
     override func didChangeText() {
         super.didChangeText()
+        if dimsInactiveParagraphs {
+            updateParagraphDimming()
+        }
         needsDisplay = true
     }
 
@@ -221,8 +296,18 @@ final class FictioneerTextView: NSTextView {
     }
 
     override func setFrameSize(_ newSize: NSSize) {
-        super.setFrameSize(newSize)
+        let widthChanged = abs(newSize.width - frame.width) > 0.5
+        // Every resize path (sizeToFit after layout, clip-view tiling) goes
+        // through here, so the overscroll height can't be shrunk away.
+        var size = newSize
+        size.height = max(size.height, overscrollHeight)
+        super.setFrameSize(size)
         updateColumnInset()
+        layoutPageHeader()
+        // A new width reflows the column, so the content height changes.
+        if widthChanged {
+            scheduleOverscrollUpdate()
+        }
     }
 
     // MARK: - Overscroll hit area
@@ -243,11 +328,45 @@ final class FictioneerTextView: NSTextView {
             )
             updateOverscrollMinHeight()
         }
+        if let textStorage {
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(storageDidProcessEditing),
+                name: NSTextStorage.didProcessEditingNotification,
+                object: textStorage
+            )
+        }
     }
 
     @objc private func clipViewFrameDidChange(_ notification: Notification) {
         updateOverscrollMinHeight()
     }
+
+    /// Any storage change (typing, load, re-theming, ghost text) can change
+    /// the content height. Deferred: layout isn't valid mid-edit.
+    @objc private func storageDidProcessEditing(_ notification: Notification) {
+        scheduleOverscrollUpdate()
+    }
+
+    private var isOverscrollUpdateScheduled = false
+
+    /// Coalesces bursts (a re-theme, a streamed suggestion) into one relayout.
+    private func scheduleOverscrollUpdate() {
+        guard !isOverscrollUpdateScheduled else { return }
+        isOverscrollUpdateScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            isOverscrollUpdateScheduled = false
+            updateOverscrollMinHeight()
+        }
+    }
+
+    /// Content height plus half a viewport, so the last line can scroll up
+    /// to the middle. Enforced in setFrameSize rather than via minSize:
+    /// AppKit resets a text view's minSize to the clip height whenever the
+    /// scroll view tiles, which silently dropped the overscroll until the
+    /// next keystroke.
+    private var overscrollHeight: CGFloat = 0
 
     // Typewriter overscroll = a stretched text view, NOT NSScrollView
     // contentInsets: on macOS those shrink the clip view's tile (unlike iOS),
@@ -259,15 +378,66 @@ final class FictioneerTextView: NSTextView {
               let textContainer else { return }
         let clipHeight = scrollView.contentView.bounds.height
         layoutManager.ensureLayout(for: textContainer)
-        let contentHeight = layoutManager.usedRect(for: textContainer).height + textContainerInset.height * 2
+        let contentHeight = layoutManager.usedRect(for: textContainer).height
+            + textContainerInset.height * 2
+            + pageHeaderHeight
         let overscroll = (clipHeight * 0.5).rounded()
         let target = max(clipHeight, (contentHeight + overscroll).rounded())
-        if abs(minSize.height - target) > 1 {
-            minSize = NSSize(width: 0, height: target)
-            if frame.height < target {
-                setFrameSize(NSSize(width: frame.width, height: target))
+        guard abs(overscrollHeight - target) > 1 || abs(frame.height - target) > 1 else { return }
+        overscrollHeight = target
+        // Also shrinks the frame when content got shorter; the clamp in
+        // setFrameSize keeps it at the new target.
+        setFrameSize(NSSize(width: frame.width, height: target))
+    }
+
+    // MARK: - Page header
+
+    /// A view laid out above the first line (the scene title), inside the
+    /// scrolling document so it moves with the text. The text starts below
+    /// it via `textContainerOrigin`, so caret, clicks and highlights follow.
+    var pageHeaderView: NSView? {
+        didSet {
+            oldValue?.removeFromSuperview()
+            if let pageHeaderView {
+                addSubview(pageHeaderView)
             }
+            layoutPageHeader()
         }
+    }
+
+    private var pageHeaderHeight: CGFloat = 0
+    private static let pageHeaderSpacing: CGFloat = 28
+
+    override var textContainerOrigin: NSPoint {
+        let origin = super.textContainerOrigin
+        return NSPoint(x: origin.x, y: origin.y + pageHeaderHeight)
+    }
+
+    private var isLayingOutPageHeader = false
+
+    func layoutPageHeader() {
+        // Setting the header's frame can report a size change back here.
+        guard !isLayingOutPageHeader else { return }
+        isLayingOutPageHeader = true
+        defer { isLayingOutPageHeader = false }
+        var height: CGFloat = 0
+        if let header = pageHeaderView {
+            let padding = textContainer?.lineFragmentPadding ?? 5
+            let width = max(0, frame.width - textContainerInset.width * 2 - padding * 2)
+            let headerHeight = ceil(header.fittingSize.height)
+            header.frame = NSRect(
+                x: textContainerInset.width + padding,
+                y: textContainerInset.height,
+                width: width,
+                height: headerHeight
+            )
+            height = headerHeight + Self.pageHeaderSpacing
+        }
+        guard abs(height - pageHeaderHeight) > 0.5 else { return }
+        pageHeaderHeight = height
+        invalidateTextContainerOrigin()
+        needsDisplay = true
+        scheduleOverscrollUpdate()
     }
 
     private func updateColumnInset() {
@@ -296,6 +466,9 @@ final class FictioneerTextView: NSTextView {
     /// Bottom overscroll (half a viewport of contentInset) lets the last line
     /// reach the middle of the screen.
     func centerCaret() {
+        // Before the guards: on first load the caret rect isn't available yet,
+        // but the overscroll must still be in place for manual scrolling.
+        updateOverscrollMinHeight()
         guard let scrollView = enclosingScrollView, let window else { return }
         let caretScreenRect = firstRect(
             forCharacterRange: NSRange(location: selectedRange().location, length: 0),
@@ -304,8 +477,6 @@ final class FictioneerTextView: NSTextView {
         guard caretScreenRect != .zero else { return }
         let caretRect = convert(window.convertFromScreen(caretScreenRect), from: nil)
         let visible = scrollView.contentView.bounds
-
-        updateOverscrollMinHeight()
 
         let maxY = max(0, frame.height - visible.height)
         let targetY = min(max(0, caretRect.midY - visible.height * 0.5), maxY)

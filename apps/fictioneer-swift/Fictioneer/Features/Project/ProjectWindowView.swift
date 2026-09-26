@@ -1,13 +1,12 @@
 import SwiftUI
 
 struct ProjectWindowView: View {
-    @Environment(AppModel.self) private var appModel
     let session: ProjectSession
 
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
     var body: some View {
-        @Bindable var appModel = appModel
+        @Bindable var session = session
         NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView(session: session)
                 .navigationSplitViewColumnWidth(min: 230, ideal: 280, max: 360)
@@ -21,7 +20,7 @@ struct ProjectWindowView: View {
                 columnVisibility = session.isFocusMode ? .detailOnly : .all
             }
         }
-        .sheet(isPresented: $appModel.isExportSheetRequested) {
+        .sheet(isPresented: $session.isExportSheetRequested) {
             ExportSheet(session: session)
         }
         .overlay {

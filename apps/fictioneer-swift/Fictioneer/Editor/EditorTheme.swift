@@ -23,10 +23,8 @@ struct EditorTheme: Equatable {
 
     // Paper tones from the Tauri app (`app.css`): #fefefe light / #0f0f14 dark.
     // Translucent so the behind-window vibrancy (VisualEffectView) glows
-    // through — the glass look of the original app.
-    // Dark paper is deliberately ELEVATED above the desk (not the same
-    // near-black): the sheet must read as a distinct layer or the whole
-    // manuscript concept collapses into grey-on-grey.
+    // through — the glass look of the original app. Dark paper stays a
+    // touch lighter than the sidebar so the canvas reads as its own surface.
     static let paperBackground = NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
             ? NSColor(srgbRed: 0x1C / 255, green: 0x1C / 255, blue: 0x24 / 255, alpha: 0.86)

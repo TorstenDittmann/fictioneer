@@ -119,24 +119,15 @@ struct WelcomeView: View {
         .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(.separator))
     }
 
+    /// Recents minus projects already listed under iCloud Drive.
+    private var localRecents: [RecentProject] {
+        let cloudPaths = Set(appModel.cloud.projects.map { $0.url.standardizedFileURL.path })
+        return appModel.recentProjects.filter { !cloudPaths.contains($0.url.standardizedFileURL.path) }
+    }
+
     private var recentsPane: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                ManuscriptLabel("Recent Projects", size: 10)
-                Spacer()
-                if !appModel.recents.entries.isEmpty {
-                    Button("Clear") {
-                        appModel.recents.clear()
-                    }
-                    .buttonStyle(.plain)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-
-            if appModel.recents.entries.isEmpty {
+            if appModel.cloud.projects.isEmpty && localRecents.isEmpty {
                 Spacer()
                 Text("Projects you open will appear here.")
                     .font(.callout)
@@ -144,42 +135,99 @@ struct WelcomeView: View {
                     .frame(maxWidth: .infinity)
                 Spacer()
             } else {
-                List(appModel.recents.entries) { entry in
-                    RecentProjectRow(entry: entry)
-                        .listRowSeparator(.hidden)
+                List {
+                    if !appModel.cloud.projects.isEmpty {
+                        Section {
+                            ForEach(appModel.cloud.projects) { item in
+                                ProjectRow(
+                                    title: item.title,
+                                    url: item.url,
+                                    modified: item.modified,
+                                    status: item.hasConflicts ? .conflict : item.isDownloaded ? nil : .notDownloaded
+                                )
+                                .listRowSeparator(.hidden)
+                            }
+                        } header: {
+                            ManuscriptLabel("iCloud Drive", size: 10)
+                        }
+                    }
+                    if !localRecents.isEmpty {
+                        Section {
+                            ForEach(localRecents) { project in
+                                ProjectRow(
+                                    title: project.title,
+                                    url: project.url,
+                                    modified: project.modified,
+                                    onRemove: { appModel.removeFromRecents(project) }
+                                )
+                                .listRowSeparator(.hidden)
+                            }
+                        } header: {
+                            HStack {
+                                ManuscriptLabel("Recent Projects", size: 10)
+                                Spacer()
+                                Button("Clear") {
+                                    appModel.clearRecents()
+                                }
+                                .buttonStyle(.plain)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
             }
+
+            if appModel.cloud.availability == .unavailable {
+                Text("iCloud Drive is off. New projects are saved on this Mac.")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .padding(16)
+            }
         }
+        .padding(.top, 8)
     }
 }
 
-private struct RecentProjectRow: View {
+private struct ProjectRow: View {
+    enum Status {
+        case notDownloaded
+        case conflict
+    }
+
     @Environment(AppModel.self) private var appModel
-    let entry: RecentProjectsStore.Entry
+    let title: String
+    let url: URL
+    let modified: Date?
+    var status: Status?
+    var onRemove: (() -> Void)?
     @State private var isHovered = false
 
     var body: some View {
         Button {
-            appModel.openRecent(entry)
+            appModel.openProject(at: url)
         } label: {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text(entry.title)
+                Text(title)
                     .font(.body.weight(.medium))
                     .lineLimit(1)
                     .layoutPriority(1)
                 LeaderDots()
                     .frame(height: 13)
-                Text(entry.lastOpened, format: .relative(presentation: .named))
-                    .font(.caption)
-                    .monospacedDigit()
-                    .foregroundStyle(.tertiary)
-                    .lineLimit(1)
+                statusIcon
+                if let modified {
+                    Text(modified, format: .relative(presentation: .named))
+                        .font(.caption)
+                        .monospacedDigit()
+                        .foregroundStyle(.tertiary)
+                        .lineLimit(1)
+                }
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
-            .help(entry.filename)
+            .help(url.path)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 6)
@@ -190,9 +238,32 @@ private struct RecentProjectRow: View {
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
         .contextMenu {
-            Button("Remove from Recents") {
-                appModel.recents.remove(entry)
+            Button("Show in Finder") {
+                NSWorkspace.shared.activateFileViewerSelecting([url])
             }
+            if let onRemove {
+                Button("Remove from Recents", action: onRemove)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var statusIcon: some View {
+        switch status {
+        case .notDownloaded:
+            Image(systemName: "icloud.and.arrow.down")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .help("Not downloaded yet. Opening it downloads it.")
+                .accessibilityLabel("Not downloaded")
+        case .conflict:
+            Image(systemName: "exclamationmark.triangle")
+                .font(.caption)
+                .foregroundStyle(.orange)
+                .help("Edited on two devices. Open it to choose which version to keep.")
+                .accessibilityLabel("Has conflicting versions")
+        case nil:
+            EmptyView()
         }
     }
 }

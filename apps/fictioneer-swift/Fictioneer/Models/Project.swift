@@ -17,6 +17,13 @@ final class Project {
     var dailyWordSnapshots: [String: Int] = [:]
     var lastSessionTime: Date?
     var epubMetadata: ProjectEpubMetadata?
+    /// nil until the writer picks one; `effectiveQuoteStyle` then follows
+    /// their language.
+    var quoteStyle: QuoteStyle?
+
+    var effectiveQuoteStyle: QuoteStyle {
+        quoteStyle ?? QuoteStyle.defaultStyle()
+    }
 
     init(
         id: UUID = UUID(),

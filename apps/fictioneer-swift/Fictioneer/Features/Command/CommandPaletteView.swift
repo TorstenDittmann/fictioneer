@@ -28,7 +28,6 @@ struct PaletteItem: Identifiable {
 
 /// ⌘K command palette: fuzzy-filtered commands, navigation, and content.
 struct CommandPaletteView: View {
-    @Environment(AppModel.self) private var appModel
     let session: ProjectSession
 
     @State private var query = ""
@@ -253,7 +252,7 @@ struct CommandPaletteView: View {
             id: "action-export", group: .actions,
             title: "Export Project…", subtitle: "Compile as RTF, EPUB, or plain text",
             icon: "square.and.arrow.up", keywords: ["export", "epub", "rtf", "compile"],
-            action: { appModel.isExportSheetRequested = true }
+            action: { session.isExportSheetRequested = true }
         ))
         items.append(PaletteItem(
             id: "action-goals", group: .actions,

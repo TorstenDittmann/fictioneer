@@ -4,10 +4,7 @@ import Testing
 
 struct SidebarItemMappingTests {
     private func makeSession() -> ProjectSession {
-        let project = Project.makeNew(title: "T")
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("mapping-\(UUID().uuidString).fictioneer")
-        return ProjectSession(url: url, project: project, ownsSecurityScope: false)
+        ProjectSession(project: Project.makeNew(title: "T"))
     }
 
     @Test func freshSessionSelectsFirstScene() {

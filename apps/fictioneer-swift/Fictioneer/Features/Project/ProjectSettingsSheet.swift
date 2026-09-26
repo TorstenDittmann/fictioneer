@@ -13,6 +13,7 @@ struct ProjectSettingsSheet: View {
     @State private var language: String
     @State private var rights: String
     @State private var subjectsText: String
+    @State private var quoteStyle: QuoteStyle
 
     init(session: ProjectSession) {
         self.session = session
@@ -25,6 +26,7 @@ struct ProjectSettingsSheet: View {
         _language = State(initialValue: metadata.language)
         _rights = State(initialValue: metadata.rights)
         _subjectsText = State(initialValue: metadata.subjects.joined(separator: ", "))
+        _quoteStyle = State(initialValue: project.effectiveQuoteStyle)
     }
 
     var body: some View {
@@ -40,6 +42,19 @@ struct ProjectSettingsSheet: View {
                         .lineLimit(3, reservesSpace: true)
                 } header: {
                     ManuscriptLabel("Basic Information", size: 10)
+                }
+                Section {
+                    Picker("Quotation marks", selection: $quoteStyle) {
+                        ForEach(QuoteStyle.allCases) { style in
+                            Text(style.displayName).tag(style)
+                        }
+                    }
+                } header: {
+                    ManuscriptLabel("Writing", size: 10)
+                } footer: {
+                    Text("Used as you type. Format ▸ Convert Quotes updates existing text in a scene.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
                 Section {
                     TextField("Author", text: $author)
@@ -63,6 +78,7 @@ struct ProjectSettingsSheet: View {
             .onChange(of: language) { save() }
             .onChange(of: rights) { save() }
             .onChange(of: subjectsText) { save() }
+            .onChange(of: quoteStyle) { save() }
 
             HStack {
                 let stats = session.project
@@ -77,7 +93,7 @@ struct ProjectSettingsSheet: View {
             .padding(.top, 12)
         }
         .padding(20)
-        .frame(width: 460, height: 480)
+        .frame(width: 460, height: 560)
     }
 
     private func save() {
@@ -98,6 +114,7 @@ struct ProjectSettingsSheet: View {
                 .map { $0.trimmingCharacters(in: .whitespaces) }
                 .filter { !$0.isEmpty }
         )
+        project.quoteStyle = quoteStyle
         project.touch()
         session.markDirty()
     }

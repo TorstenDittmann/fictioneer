@@ -13,10 +13,12 @@ nonisolated enum AppConfig {
     #endif
 
     static let projectFileExtension = "fictioneer"
+    /// Must match the entitlements and NSUbiquitousContainers in project.yml.
+    static let iCloudContainerIdentifier = "iCloud.app.fictioneer"
     static let formatVersion = 1
 
-    static let autosaveDebounce: TimeInterval = 3.0
-    static let autosaveThrottle: TimeInterval = 5.0
+    /// NSDocument autosave-in-place delay after the last edit.
+    static let autosaveDelay: TimeInterval = 3.0
     static let maxRecentProjects = 10
 
     static let ghostTextWordCount = 36

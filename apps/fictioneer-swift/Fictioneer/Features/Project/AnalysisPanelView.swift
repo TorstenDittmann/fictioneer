@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// The page's stats folio (docked at the page foot, below the prose so it
-/// never covers it): collapsed it shows score + counts; expanded it mirrors
-/// the Tauri stats pill — sweet-spot bar, readability, prose metrics, top
-/// issues — pushing the editor up rather than overlaying it.
+/// The quiet corner readout over the canvas: score + word count, dimmed by
+/// the editor while typing. Clicking it opens the full analysis — sweet-spot
+/// bar, readability, prose metrics, top issues — in a popover, so it never
+/// pushes or covers the prose.
 struct AnalysisPanelView: View {
     let analysis: AnalysisCoordinator
     let scene: Scene
@@ -15,27 +15,6 @@ struct AnalysisPanelView: View {
     private static let targetMax = 1800
 
     var body: some View {
-        VStack(alignment: .trailing, spacing: 0) {
-            if isExpanded, let result = analysis.result {
-                expandedContent(result)
-                    .frame(width: 300, alignment: .leading)
-                    .padding(12)
-                Divider()
-            }
-            header
-                .padding(.horizontal, 14)
-                .padding(.vertical, 6)
-        }
-        .frame(maxWidth: .infinity, alignment: .trailing)
-        .background(Color(nsColor: EditorTheme.paperBackground))
-        .onContinuousHover { phase in
-            if case .active = phase {
-                NSCursor.arrow.set()
-            }
-        }
-    }
-
-    private var header: some View {
         Button {
             isExpanded.toggle()
         } label: {
@@ -50,19 +29,36 @@ struct AnalysisPanelView: View {
                 if let result = analysis.result {
                     scoreRing(result.overallScore)
                 }
-                Text("\(scene.wordCount) words · \(scene.characterCount) chars")
+                Text("\(scene.wordCount) words")
                     .font(.caption)
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
-                Image(systemName: isExpanded ? "chevron.down" : "chevron.up")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                    .accessibilityHidden(true)
             }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityHint(isExpanded ? "Double-tap to collapse analysis" : "Double-tap to expand analysis")
+        .onContinuousHover { phase in
+            // The editor below sets the I-beam; the readout is a button.
+            if case .active = phase {
+                NSCursor.arrow.set()
+            }
+        }
+        .accessibilityLabel("Scene analysis, \(scene.wordCount) words")
+        .accessibilityHint("Shows readability, prose metrics and top issues")
+        .popover(isPresented: $isExpanded, arrowEdge: .top) {
+            if let result = analysis.result {
+                expandedContent(result)
+                    .frame(width: 300, alignment: .leading)
+                    .padding(14)
+            } else {
+                Text("Write a few sentences to see the analysis.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(14)
+            }
+        }
     }
 
     @ViewBuilder
@@ -82,6 +78,11 @@ struct AnalysisPanelView: View {
                     emphasized: scene.wordCount >= Self.targetMin
                 )
             }
+
+            Text("\(scene.wordCount) words · \(scene.characterCount) characters")
+                .font(.caption)
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
 
             Text(result.summary)
                 .font(.caption)

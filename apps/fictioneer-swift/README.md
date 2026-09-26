@@ -30,6 +30,27 @@ open build/Build/Products/Debug/Fictioneer.app
 xcodebuild -scheme Fictioneer -derivedDataPath build -destination 'platform=macOS' test
 ```
 
+## iCloud
+
+Projects are `NSDocument`s, so iCloud Drive sync, version history and the
+conflict panel ("select which versions to keep") come from AppKit. New
+projects are created in iCloud Drive ▸ Fictioneer when iCloud is available;
+otherwise a save panel picks a local folder.
+
+Default builds are ad-hoc signed and run **without** iCloud. iCloud needs an
+active Apple Developer Program team (personal teams can't use the capability):
+
+```sh
+xcodebuild -scheme Fictioneer -derivedDataPath build \
+  -xcconfig Config/iCloud.xcconfig -allowProvisioningUpdates build
+```
+
+The first such build registers the `iCloud.app.fictioneer` container.
+`Config/Fictioneer-iCloud.entitlements` must stay in sync with the entitlements
+in `project.yml` (it is that set plus the iCloud keys). Release builds signed
+with Developer ID additionally need a Developer ID provisioning profile with
+iCloud enabled.
+
 ## AI ghost text
 
 The signature interaction: **hold ⌥** in a scene to stream a ~36-word

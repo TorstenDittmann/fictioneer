@@ -11,6 +11,9 @@ settings:
     SWIFT_APPROACHABLE_CONCURRENCY: YES
     SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
     MACOSX_DEPLOYMENT_TARGET: "15.0"
+    # Default builds are ad-hoc signed and run without iCloud. iCloud needs a
+    # paid team's provisioning profile: build with
+    # `-xcconfig Config/iCloud.xcconfig -allowProvisioningUpdates` (README).
     CODE_SIGN_IDENTITY: "-"
     CODE_SIGN_STYLE: Manual
     DEVELOPMENT_TEAM: ""
@@ -26,6 +29,8 @@ targets:
       - Fictioneer
     dependencies:
       - package: Sparkle
+    # Keep Config/Fictioneer-iCloud.entitlements in sync with these: it is
+    # this set plus the iCloud Documents keys.
     entitlements:
       path: Fictioneer/Resources/Fictioneer.entitlements
       properties:
@@ -59,6 +64,13 @@ targets:
               - app.fictioneer.project
             CFBundleTypeRole: Editor
             LSHandlerRank: Owner
+            LSTypeIsPackage: true
+            NSDocumentClass: ProjectDocument
+        NSUbiquitousContainers:
+          iCloud.app.fictioneer:
+            NSUbiquitousContainerIsDocumentScopePublic: true
+            NSUbiquitousContainerName: Fictioneer
+            NSUbiquitousContainerSupportedFolderLevels: Any
         UTExportedTypeDeclarations:
           - UTTypeIdentifier: app.fictioneer.project
             UTTypeDescription: Fictioneer Project

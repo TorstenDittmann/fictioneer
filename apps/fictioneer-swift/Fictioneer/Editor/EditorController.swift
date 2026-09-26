@@ -202,6 +202,27 @@ final class EditorController {
 
     // MARK: - Block styles
 
+    /// Rewrites every quotation mark in the document in `style`, as one
+    /// undoable edit. Characters are swapped one-for-one, so formatting stays.
+    func convertQuotes(to style: QuoteStyle) {
+        guard let textView, let storage = textView.textStorage else { return }
+        let original = storage.string
+        let converted = style.convert(original) as NSString
+        let source = original as NSString
+        guard converted.length == source.length, converted != source else { return }
+        let whole = NSRange(location: 0, length: source.length)
+        guard textView.shouldChangeText(in: whole, replacementString: nil) else { return }
+        storage.beginEditing()
+        for index in 0..<source.length where source.character(at: index) != converted.character(at: index) {
+            storage.replaceCharacters(
+                in: NSRange(location: index, length: 1),
+                with: converted.substring(with: NSRange(location: index, length: 1))
+            )
+        }
+        storage.endEditing()
+        textView.didChangeText()
+    }
+
     func applyBlockStyle(_ requested: BlockStyle) {
         guard let textView, let theme, let storage = textView.textStorage else { return }
         let paragraph = (storage.string as NSString).paragraphRange(for: textView.selectedRange())

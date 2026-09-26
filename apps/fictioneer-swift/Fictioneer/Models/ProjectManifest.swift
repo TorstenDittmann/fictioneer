@@ -16,6 +16,7 @@ nonisolated struct ProjectManifest: Codable {
     var dailyWordSnapshots: [String: Int]?
     var lastSessionTime: Date?
     var epubMetadata: ProjectEpubMetadata?
+    var quoteStyle: QuoteStyle?
 }
 
 nonisolated struct ChapterManifest: Codable {
@@ -86,7 +87,8 @@ extension ProjectManifest {
             dailyProgress: project.dailyProgress.isEmpty ? nil : project.dailyProgress,
             dailyWordSnapshots: project.dailyWordSnapshots.isEmpty ? nil : project.dailyWordSnapshots,
             lastSessionTime: project.lastSessionTime,
-            epubMetadata: project.epubMetadata
+            epubMetadata: project.epubMetadata,
+            quoteStyle: project.quoteStyle
         )
     }
 }

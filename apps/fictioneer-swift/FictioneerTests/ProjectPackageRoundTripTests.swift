@@ -82,20 +82,34 @@ struct ProjectPackageRoundTripTests {
         #expect(restored.notes[0].body.string == "A detective.")
     }
 
-    @Test func incrementalSaveWritesDirtyAndRemovesOrphans() throws {
+    @Test func incrementalWrapperReusesCleanArchivesAndDropsDeleted() throws {
         let url = temporaryPackageURL()
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
 
         let project = makeProject()
         try ProjectPackage.write(project, to: url)
+        let previous = try FileWrapper(url: url, options: .immediate)
 
         let editedScene = project.chapters[0].scenes[0]
         editedScene.updateContent(NSAttributedString(string: "Rewritten entirely."))
         let deletedScene = project.chapters[0].scenes[1]
         project.deleteScene(deletedScene)
 
-        try ProjectPackage.save(project, to: url, dirtySceneIDs: [editedScene.id], dirtyNoteIDs: [])
+        let wrapper = try ProjectPackage.fileWrapper(
+            for: project,
+            reusing: previous,
+            dirtySceneIDs: [editedScene.id]
+        )
+        let previousScenes = previous.fileWrappers!["scenes"]!.fileWrappers!
+        let newScenes = wrapper.fileWrappers!["scenes"]!.fileWrappers!
+        for scene in project.allScenes where scene.id != editedScene.id {
+            let name = "\(scene.id.uuidString).textarchive"
+            #expect(newScenes[name] === previousScenes[name])
+        }
+        #expect(newScenes["\(editedScene.id.uuidString).textarchive"] !== previousScenes["\(editedScene.id.uuidString).textarchive"])
+
+        try wrapper.write(to: url, options: .atomic, originalContentsURL: nil)
 
         let restored = try ProjectPackage.read(from: url)
         #expect(restored.chapters[0].scenes.count == 1)

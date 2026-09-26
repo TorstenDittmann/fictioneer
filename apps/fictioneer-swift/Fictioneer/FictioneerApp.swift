@@ -4,95 +4,59 @@ import SwiftUI
 @main
 struct FictioneerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @State private var appModel = AppModel()
+    private let appModel = AppModel.shared
     private let updaterController = SPUStandardUpdaterController(
         startingUpdater: true,
         updaterDelegate: nil,
         userDriverDelegate: nil
     )
 
+    // Project windows belong to ProjectDocument (NSDocument) and the welcome
+    // window to AppModel; SwiftUI only owns Settings and the menu commands.
     // `SwiftUI.Scene` is spelled out because the writing domain has its own `Scene` model.
     var body: some SwiftUI.Scene {
-        WindowGroup {
-            RootView()
+        Settings {
+            SettingsView()
                 .environment(appModel)
-                .onAppear {
-                    appDelegate.appModel = appModel
-                }
         }
-        .windowToolbarStyle(.unified)
-        .defaultSize(width: 1100, height: 720)
         .commands {
+            SidebarCommands()
             AppCommands(appModel: appModel)
+            FormatCommands(appModel: appModel)
             CommandGroup(after: .appInfo) {
                 Button("Check for Updates…") {
                     updaterController.checkForUpdates(nil)
                 }
             }
         }
-
-        Settings {
-            SettingsView()
-                .environment(appModel)
-        }
     }
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    var appModel: AppModel?
-
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        true
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        NSDocumentController.shared.autosavingDelay = AppConfig.autosaveDelay
+        let appModel = AppModel.shared
+        appModel.migrateLegacyRecents()
+        appModel.cloud.start()
+        appModel.verifyLicenseIfNeeded()
+        // Restored or Finder-opened documents arrive after launch finishes.
+        DispatchQueue.main.async {
+                if NSDocumentController.shared.documents.isEmpty {
+                appModel.showWelcome()
+            }
+        }
     }
 
-    /// The final flush happens BEFORE termination proceeds, so a failed save
-    /// can stop the quit instead of silently discarding work.
-    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        guard let session = appModel?.session else { return .terminateNow }
-        while !session.close() {
-            let alert = NSAlert()
-            alert.alertStyle = .critical
-            alert.messageText = "Couldn't save “\(session.project.title)”"
-            var informative = "The latest changes could not be written to disk."
-            if let reason = session.saveFailureMessage {
-                informative += "\n\n\(reason)"
-            }
-            alert.informativeText = informative
-            alert.addButton(withTitle: "Try Again")
-            alert.addButton(withTitle: "Quit Anyway")
-            alert.addButton(withTitle: "Cancel")
-            switch alert.runModal() {
-            case .alertFirstButtonReturn:
-                continue // Try Again
-            case .alertSecondButtonReturn:
-                session.closeDiscardingChanges()
-                return .terminateNow
-            default:
-                return .terminateCancel
-            }
-        }
-        appModel?.session = nil
-        return .terminateNow
+    /// The welcome window stands in for an untitled document.
+    func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool {
+        false
     }
-}
 
-struct RootView: View {
-    @Environment(AppModel.self) private var appModel
-
-    var body: some View {
-        Group {
-            if let session = appModel.session {
-                ProjectWindowView(session: session)
-                    .id(session.url)
-            } else {
-                WelcomeView()
-                    .frame(minWidth: 800, minHeight: 540)
-            }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag {
+            AppModel.shared.showWelcome()
         }
-        .preferredColorScheme(appModel.settings.theme.colorScheme)
-        .task {
-            appModel.verifyLicenseIfNeeded()
-        }
+        return false
     }
 }
 
@@ -105,13 +69,13 @@ struct AppCommands: Commands {
                 newScene()
             }
             .keyboardShortcut("n", modifiers: .command)
-            .disabled(appModel.session == nil)
+            .disabled(appModel.activeSession == nil)
 
             Button("New Chapter") {
                 newChapter()
             }
             .keyboardShortcut("n", modifiers: [.command, .shift])
-            .disabled(appModel.session == nil)
+            .disabled(appModel.activeSession == nil)
 
             Divider()
 
@@ -119,40 +83,85 @@ struct AppCommands: Commands {
                 appModel.openProjectViaPanel()
             }
             .keyboardShortcut("o", modifiers: .command)
+
+            Menu("Open Recent") {
+                ForEach(appModel.recentProjects) { project in
+                    Button(project.title) {
+                        appModel.openProject(at: project.url)
+                    }
+                }
+                if !appModel.recentProjects.isEmpty {
+                    Divider()
+                }
+                Button("Clear Menu") {
+                    appModel.clearRecents()
+                }
+                .disabled(appModel.recentProjects.isEmpty)
+            }
         }
         CommandGroup(after: .toolbar) {
             Button("Command Palette") {
-                appModel.session?.isCommandPaletteVisible.toggle()
+                appModel.activeSession?.isCommandPaletteVisible.toggle()
             }
             .keyboardShortcut("k", modifiers: .command)
-            .disabled(appModel.session == nil)
+            .disabled(appModel.activeSession == nil)
 
-            Button(appModel.session?.isFocusMode == true ? "Exit Focus Mode" : "Enter Focus Mode") {
-                appModel.session?.isFocusMode.toggle()
+            Button(appModel.activeSession?.isFocusMode == true ? "Exit Focus Mode" : "Enter Focus Mode") {
+                appModel.activeSession?.isFocusMode.toggle()
             }
             .keyboardShortcut("f", modifiers: .command)
-            .disabled(appModel.session == nil)
+            .disabled(appModel.activeSession == nil)
         }
         CommandGroup(replacing: .saveItem) {
-            Button("Save") {
-                appModel.session?.saveNow()
-            }
-            .keyboardShortcut("s", modifiers: .command)
-            .disabled(appModel.session == nil)
-
-            Button("Export…") {
-                appModel.isExportSheetRequested = true
-            }
-            .keyboardShortcut("e", modifiers: [.command, .shift])
-            .disabled(appModel.session == nil)
-
-            Button("Close Project") {
-                appModel.closeProject()
+            Button("Close") {
+                NSApp.keyWindow?.performClose(nil)
             }
             .keyboardShortcut("w", modifiers: .command)
-            .disabled(appModel.session == nil)
+
+            Button("Save") {
+                sendToDocument("saveDocument:")
+            }
+            .keyboardShortcut("s", modifiers: .command)
+            .disabled(appModel.activeSession == nil)
+
+            Button("Duplicate") {
+                sendToDocument("duplicateDocument:")
+            }
+            .keyboardShortcut("s", modifiers: [.command, .shift])
+            .disabled(appModel.activeSession == nil)
+
+            Button("Rename…") {
+                sendToDocument("renameDocument:")
+            }
+            .disabled(appModel.activeSession == nil)
+
+            Button("Move To…") {
+                sendToDocument("moveDocument:")
+            }
+            .disabled(appModel.activeSession == nil)
+
+            Menu("Revert To") {
+                Button("Last Saved Version") {
+                    sendToDocument("revertDocumentToSaved:")
+                }
+                Button("Browse All Versions…") {
+                    sendToDocument("browseDocumentVersions:")
+                }
+            }
+            .disabled(appModel.activeSession == nil)
+
+            Divider()
+
+            Button("Export…") {
+                appModel.activeSession?.isExportSheetRequested = true
+            }
+            .keyboardShortcut("e", modifiers: [.command, .shift])
+            .disabled(appModel.activeSession == nil)
         }
-        CommandGroup(after: .help) {
+        // Replaces SwiftUI's default Help group: its "Fictioneer Help" opens a
+        // help book the app doesn't ship, and a duplicate "Toggle Sidebar"
+        // lands there (View ▸ Show/Hide Sidebar is the real one).
+        CommandGroup(replacing: .help) {
             Button("Send Feedback…") {
                 if let url = URL(string: "mailto:support@fictioneer.app") {
                     NSWorkspace.shared.open(url)
@@ -162,10 +171,17 @@ struct AppCommands: Commands {
     }
 
     private func newScene() {
-        appModel.session?.createSceneInCurrentChapter()
+        appModel.activeSession?.createSceneInCurrentChapter()
     }
 
     private func newChapter() {
-        appModel.session?.createChapter()
+        appModel.activeSession?.createChapter()
+    }
+
+    /// NSDocument's standard actions, routed through the responder chain to
+    /// the key window's document.
+    private func sendToDocument(_ action: String) {
+        NSApp.sendAction(Selector(action), to: nil, from: nil)
     }
 }
+

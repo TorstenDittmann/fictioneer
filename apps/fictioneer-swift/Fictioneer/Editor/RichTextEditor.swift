@@ -40,7 +40,9 @@ struct RichTextEditor: NSViewRepresentable {
         textView.importsGraphics = false
         textView.usesFontPanel = false
         textView.usesFindPanel = true
-        textView.isAutomaticQuoteSubstitutionEnabled = true
+        // Quotes follow the project's style (FictioneerTextView.quoteStyle),
+        // not the system language.
+        textView.isAutomaticQuoteSubstitutionEnabled = false
         textView.isAutomaticDashSubstitutionEnabled = true
         textView.isAutomaticSpellingCorrectionEnabled = false
         textView.isContinuousSpellCheckingEnabled = settings.spellcheckEnabled

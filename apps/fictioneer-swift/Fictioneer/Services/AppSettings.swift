@@ -40,6 +40,8 @@ final class AppSettings {
     /// Raw values of visible AnalysisType cases; empty means "all".
     var visibleAnalysisTypes: [String] = [] { didSet { persist() } }
     var spellcheckEnabled: Bool = true { didSet { persist() } }
+    /// Focus mode fades every paragraph except the one being written.
+    var dimsParagraphsInFocusMode: Bool = true { didSet { persist() } }
     var exportDefaults: ExportDefaults? { didSet { persist() } }
     /// Set once the welcome-screen license upsell card is dismissed; the card never returns.
     var upsellDismissed: Bool = false { didSet { persist() } }
@@ -56,6 +58,7 @@ final class AppSettings {
         var spellcheckEnabled: Bool?
         var exportDefaults: ExportDefaults?
         var upsellDismissed: Bool?
+        var dimsParagraphsInFocusMode: Bool?
 
         init(
             theme: Theme,
@@ -68,7 +71,8 @@ final class AppSettings {
             visibleAnalysisTypes: [String]?,
             spellcheckEnabled: Bool?,
             exportDefaults: ExportDefaults?,
-            upsellDismissed: Bool?
+            upsellDismissed: Bool?,
+            dimsParagraphsInFocusMode: Bool?
         ) {
             self.theme = theme
             self.editorFontFamily = editorFontFamily
@@ -81,6 +85,7 @@ final class AppSettings {
             self.spellcheckEnabled = spellcheckEnabled
             self.exportDefaults = exportDefaults
             self.upsellDismissed = upsellDismissed
+            self.dimsParagraphsInFocusMode = dimsParagraphsInFocusMode
         }
 
         init(from decoder: Decoder) throws {
@@ -100,6 +105,7 @@ final class AppSettings {
             // (including the license key).
             exportDefaults = try? container.decodeIfPresent(ExportDefaults.self, forKey: .exportDefaults)
             upsellDismissed = try container.decodeIfPresent(Bool.self, forKey: .upsellDismissed)
+            dimsParagraphsInFocusMode = try container.decodeIfPresent(Bool.self, forKey: .dimsParagraphsInFocusMode)
         }
     }
 
@@ -147,6 +153,7 @@ final class AppSettings {
         spellcheckEnabled = snapshot.spellcheckEnabled ?? true
         exportDefaults = snapshot.exportDefaults
         upsellDismissed = snapshot.upsellDismissed ?? false
+        dimsParagraphsInFocusMode = snapshot.dimsParagraphsInFocusMode ?? true
         isLoading = false
     }
 
@@ -163,7 +170,8 @@ final class AppSettings {
             visibleAnalysisTypes: visibleAnalysisTypes,
             spellcheckEnabled: spellcheckEnabled,
             exportDefaults: exportDefaults,
-            upsellDismissed: upsellDismissed
+            upsellDismissed: upsellDismissed,
+            dimsParagraphsInFocusMode: dimsParagraphsInFocusMode
         )
         defaults.set(try? JSONEncoder().encode(snapshot), forKey: Self.defaultsKey)
     }

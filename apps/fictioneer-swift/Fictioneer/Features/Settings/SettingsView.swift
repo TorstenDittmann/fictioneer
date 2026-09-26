@@ -61,6 +61,7 @@ private struct EditorSettingsTab: View {
                 }
             }
             Toggle("Check Spelling", isOn: $settings.spellcheckEnabled)
+            Toggle("Dim other paragraphs in focus mode", isOn: $settings.dimsParagraphsInFocusMode)
         }
         .formStyle(.grouped)
     }

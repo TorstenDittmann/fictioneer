@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The project's title page: centered title, epigraph, and a small-caps stat
-/// line on a manuscript sheet, followed by the progress dashboard.
+/// line on the paper canvas, followed by the progress dashboard.
 struct ProjectOverviewView: View {
     let session: ProjectSession
     @State private var showingExportSheet = false
@@ -9,7 +9,7 @@ struct ProjectOverviewView: View {
     private var project: Project { session.project }
 
     var body: some View {
-        ManuscriptPage(header: ManuscriptPageHeader(project: project.title, title: "Overview")) {
+        ManuscriptPage {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     titlePage
@@ -57,8 +57,6 @@ struct ProjectOverviewView: View {
             }
             .background(Color(nsColor: EditorTheme.paperBackground))
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(VisualEffectView().ignoresSafeArea())
         .navigationTitle("Overview")
         .navigationSubtitle(project.title)
     }

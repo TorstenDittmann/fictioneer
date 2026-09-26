@@ -33,72 +33,72 @@ enum ProjectPackage {
 
     // MARK: - Write
 
-    /// Full atomic write of the entire package (used for create and save-as).
-    static func write(_ project: Project, to url: URL) throws {
-        let manifest = ProjectManifest(project)
-        let manifestData = try encoder().encode(manifest)
+    /// Builds the package as a file wrapper tree. Archives for scenes/notes
+    /// that are not dirty are reused from `previous` (the wrapper last read or
+    /// written), so saving rewrites only what changed — NSDocument hard-links
+    /// unchanged files, and iCloud only uploads the changed ones. Scenes/notes
+    /// that no longer exist are simply left out.
+    static func fileWrapper(
+        for project: Project,
+        reusing previous: FileWrapper? = nil,
+        dirtySceneIDs: Set<UUID> = [],
+        dirtyNoteIDs: Set<UUID> = []
+    ) throws -> FileWrapper {
+        let manifestData = try encoder().encode(ProjectManifest(project))
+        let previousScenes = previous?.fileWrappers?[scenesDirectory]?.fileWrappers ?? [:]
+        let previousNotes = previous?.fileWrappers?[notesDirectory]?.fileWrappers ?? [:]
 
         var sceneWrappers: [String: FileWrapper] = [:]
         for scene in project.allScenes {
-            let data = try TextArchive.data(from: scene.content.strippingGhostText())
-            sceneWrappers[archiveFilename(for: scene.id)] = FileWrapper(regularFileWithContents: data)
+            let filename = archiveFilename(for: scene.id)
+            if !dirtySceneIDs.contains(scene.id), let reused = previousScenes[filename] {
+                sceneWrappers[filename] = reused
+            } else {
+                let data = try TextArchive.data(from: scene.content.strippingGhostText())
+                sceneWrappers[filename] = FileWrapper(regularFileWithContents: data)
+            }
         }
         var noteWrappers: [String: FileWrapper] = [:]
         for note in project.notes {
-            let data = try TextArchive.data(from: note.body.strippingGhostText())
-            noteWrappers[archiveFilename(for: note.id)] = FileWrapper(regularFileWithContents: data)
+            let filename = archiveFilename(for: note.id)
+            if !dirtyNoteIDs.contains(note.id), let reused = previousNotes[filename] {
+                noteWrappers[filename] = reused
+            } else {
+                let data = try TextArchive.data(from: note.body.strippingGhostText())
+                noteWrappers[filename] = FileWrapper(regularFileWithContents: data)
+            }
         }
 
-        let root = FileWrapper(directoryWithFileWrappers: [
+        return FileWrapper(directoryWithFileWrappers: [
             manifestFilename: FileWrapper(regularFileWithContents: manifestData),
-            scenesDirectory: FileWrapper(directoryWithFileWrappers: sceneWrappers),
-            notesDirectory: FileWrapper(directoryWithFileWrappers: noteWrappers),
+            scenesDirectory: directory(named: scenesDirectory, sceneWrappers),
+            notesDirectory: directory(named: notesDirectory, noteWrappers),
         ])
-        try root.write(to: url, options: .atomic, originalContentsURL: url)
     }
 
-    /// Incremental save: always rewrites the manifest, but only the archives whose
-    /// ids appear in the dirty sets. Removes archive files for deleted scenes/notes.
-    static func save(
-        _ project: Project,
-        to url: URL,
-        dirtySceneIDs: Set<UUID>,
-        dirtyNoteIDs: Set<UUID>
-    ) throws {
-        let fileManager = FileManager.default
-        guard fileManager.fileExists(atPath: url.appendingPathComponent(manifestFilename).path) else {
-            // Package doesn't exist yet (or was moved out from under us) — full write.
-            try write(project, to: url)
-            return
-        }
+    /// FileWrapper hard-links an unchanged file from the previous revision
+    /// only when it can resolve the file's original path, which needs an
+    /// accurate `filename` on every directory above it.
+    private static func directory(named name: String, _ children: [String: FileWrapper]) -> FileWrapper {
+        let directory = FileWrapper(directoryWithFileWrappers: children)
+        directory.filename = name
+        directory.preferredFilename = name
+        return directory
+    }
 
-        let manifest = ProjectManifest(project)
-        let manifestData = try encoder().encode(manifest)
-        try manifestData.write(to: url.appendingPathComponent(manifestFilename), options: .atomic)
-
-        let scenesURL = url.appendingPathComponent(scenesDirectory, isDirectory: true)
-        let notesURL = url.appendingPathComponent(notesDirectory, isDirectory: true)
-        try fileManager.createDirectory(at: scenesURL, withIntermediateDirectories: true)
-        try fileManager.createDirectory(at: notesURL, withIntermediateDirectories: true)
-
-        for scene in project.allScenes where dirtySceneIDs.contains(scene.id) {
-            let data = try TextArchive.data(from: scene.content.strippingGhostText())
-            try data.write(to: scenesURL.appendingPathComponent(archiveFilename(for: scene.id)), options: .atomic)
-        }
-        for note in project.notes where dirtyNoteIDs.contains(note.id) {
-            let data = try TextArchive.data(from: note.body.strippingGhostText())
-            try data.write(to: notesURL.appendingPathComponent(archiveFilename(for: note.id)), options: .atomic)
-        }
-
-        try removeOrphans(in: scenesURL, keeping: Set(project.allScenes.map(\.id)))
-        try removeOrphans(in: notesURL, keeping: Set(project.notes.map(\.id)))
+    /// Full atomic write of the entire package (create, example project, tests).
+    static func write(_ project: Project, to url: URL) throws {
+        try fileWrapper(for: project).write(to: url, options: .atomic, originalContentsURL: nil)
     }
 
     // MARK: - Read
 
     static func read(from url: URL) throws -> Project {
-        let manifestURL = url.appendingPathComponent(manifestFilename)
-        guard let manifestData = try? Data(contentsOf: manifestURL) else {
+        try read(from: FileWrapper(url: url, options: .immediate))
+    }
+
+    static func read(from wrapper: FileWrapper) throws -> Project {
+        guard let manifestData = wrapper.fileWrappers?[manifestFilename]?.regularFileContents else {
             throw ProjectPackageError.missingManifest
         }
         let manifest = try decoder().decode(ProjectManifest.self, from: manifestData)
@@ -106,16 +106,15 @@ enum ProjectPackage {
             throw ProjectPackageError.unsupportedFormatVersion(manifest.formatVersion)
         }
 
-        let scenesURL = url.appendingPathComponent(scenesDirectory, isDirectory: true)
-        let notesURL = url.appendingPathComponent(notesDirectory, isDirectory: true)
+        let sceneFiles = wrapper.fileWrappers?[scenesDirectory]?.fileWrappers ?? [:]
+        let noteFiles = wrapper.fileWrappers?[notesDirectory]?.fileWrappers ?? [:]
 
-        let chapters = try manifest.chapters.map { chapterManifest in
-            let scenes = try chapterManifest.scenes.map { sceneManifest in
-                let content = try readArchive(named: archiveFilename(for: sceneManifest.id), in: scenesURL)
-                return Scene(
+        let chapters = manifest.chapters.map { chapterManifest in
+            let scenes = chapterManifest.scenes.map { sceneManifest in
+                Scene(
                     id: sceneManifest.id,
                     title: sceneManifest.title,
-                    content: content,
+                    content: readArchive(named: archiveFilename(for: sceneManifest.id), in: sceneFiles),
                     createdAt: sceneManifest.createdAt,
                     updatedAt: sceneManifest.updatedAt
                 )
@@ -129,12 +128,11 @@ enum ProjectPackage {
                 updatedAt: chapterManifest.updatedAt
             )
         }
-        let notes = try manifest.notes.map { noteManifest in
-            let body = try readArchive(named: archiveFilename(for: noteManifest.id), in: notesURL)
-            return Note(
+        let notes = manifest.notes.map { noteManifest in
+            Note(
                 id: noteManifest.id,
                 title: noteManifest.title,
-                body: body,
+                body: readArchive(named: archiveFilename(for: noteManifest.id), in: noteFiles),
                 tags: noteManifest.tags,
                 createdAt: noteManifest.createdAt,
                 updatedAt: noteManifest.updatedAt
@@ -156,6 +154,7 @@ enum ProjectPackage {
         project.dailyWordSnapshots = manifest.dailyWordSnapshots ?? [:]
         project.lastSessionTime = manifest.lastSessionTime
         project.epubMetadata = manifest.epubMetadata
+        project.quoteStyle = manifest.quoteStyle
         return project
     }
 
@@ -163,9 +162,8 @@ enum ProjectPackage {
 
     private static let logger = Logger(subsystem: "app.fictioneer", category: "ProjectPackage")
 
-    private static func readArchive(named filename: String, in directory: URL) throws -> NSAttributedString {
-        let fileURL = directory.appendingPathComponent(filename)
-        guard let data = try? Data(contentsOf: fileURL) else {
+    private static func readArchive(named filename: String, in files: [String: FileWrapper]) -> NSAttributedString {
+        guard let data = files[filename]?.regularFileContents else {
             // A missing archive (e.g. crash between manifest and archive writes)
             // degrades to an empty scene rather than refusing to open the project.
             return NSAttributedString()
@@ -178,14 +176,6 @@ enum ProjectPackage {
             // missing-archive branch, so the rest of the manuscript opens.
             logger.error("Corrupt text archive \(filename, privacy: .public): \(error.localizedDescription, privacy: .public)")
             return NSAttributedString()
-        }
-    }
-
-    private static func removeOrphans(in directory: URL, keeping ids: Set<UUID>) throws {
-        let keep = Set(ids.map(archiveFilename(for:)))
-        let contents = (try? FileManager.default.contentsOfDirectory(atPath: directory.path)) ?? []
-        for filename in contents where filename.hasSuffix(".\(textArchiveExtension)") && !keep.contains(filename) {
-            try FileManager.default.removeItem(at: directory.appendingPathComponent(filename))
         }
     }
 

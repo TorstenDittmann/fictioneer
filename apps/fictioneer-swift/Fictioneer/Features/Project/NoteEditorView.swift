@@ -17,57 +17,15 @@ struct NoteEditorView: View {
     }
 
     var body: some View {
-        ManuscriptPage(
-            header: ManuscriptPageHeader(
-                project: session.project.title,
-                section: "Notes",
-                title: note.title
-            ),
-            isChromeless: session.isFocusMode
-        ) {
+        ManuscriptPage {
             noteSurface
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(VisualEffectView().ignoresSafeArea())
-        .background(formattingShortcuts)
+        .onAppear { session.activeEditor = controller }
+        .onDisappear {
+            if session.activeEditor === controller { session.activeEditor = nil }
+        }
         .navigationTitle(note.title)
         .navigationSubtitle("Notes")
-        .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                ControlGroup {
-                    Button {
-                        controller.toggleBold()
-                    } label: {
-                        Label("Bold", systemImage: "bold")
-                    }
-                    .help("Bold — ⌘B")
-                    Button {
-                        controller.toggleItalic()
-                    } label: {
-                        Label("Italic", systemImage: "italic")
-                    }
-                    .help("Italic — ⌘I")
-                }
-            }
-        }
-    }
-
-    /// The formatting keyboard shortcuts live on these hidden, always-present
-    /// buttons — the window toolbar (and any shortcut attached to its items)
-    /// is hidden in focus mode.
-    private var formattingShortcuts: some View {
-        Group {
-            Button("Bold") { controller.toggleBold() }
-                .keyboardShortcut("b", modifiers: .command)
-            Button("Italic") { controller.toggleItalic() }
-                .keyboardShortcut("i", modifiers: .command)
-        }
-        .buttonStyle(.plain)
-        .labelsHidden()
-        .frame(width: 0, height: 0)
-        .opacity(0)
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
     }
 
     /// Distinct tags used elsewhere in the project, minus tags already on
@@ -135,7 +93,13 @@ struct NoteEditorView: View {
             RichTextEditor(
                 initialContent: note.body,
                 settings: appModel.settings,
-                controller: controller
+                controller: controller,
+                configureGhost: { [weak session] textView, editorController in
+                    textView.quoteStyle = { session?.project.effectiveQuoteStyle }
+                    editorController.attachSelectionBar(to: textView) { [weak editorController] in
+                        editorController?.formattingBarItems() ?? []
+                    }
+                }
             ) { content in
                 note.body = content
                 note.updatedAt = .now
