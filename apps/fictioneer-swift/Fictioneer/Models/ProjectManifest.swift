@@ -17,6 +17,8 @@ nonisolated struct ProjectManifest: Codable {
     var lastSessionTime: Date?
     var epubMetadata: ProjectEpubMetadata?
     var quoteStyle: QuoteStyle?
+    var plotLines: [PlotLine]?
+    var beats: [PlotBeat]?
 }
 
 nonisolated struct ChapterManifest: Codable {
@@ -35,6 +37,12 @@ nonisolated struct SceneManifest: Codable {
     var characterCount: Int
     var createdAt: Date
     var updatedAt: Date
+    // Scene details — optional so older packages decode unchanged.
+    var synopsis: String?
+    var status: SceneStatus?
+    var povNoteID: UUID?
+    var labels: [String]?
+    var targetWords: Int?
 }
 
 nonisolated struct NoteManifest: Codable {
@@ -69,7 +77,12 @@ extension ProjectManifest {
                             wordCount: scene.wordCount,
                             characterCount: scene.characterCount,
                             createdAt: scene.createdAt,
-                            updatedAt: scene.updatedAt
+                            updatedAt: scene.updatedAt,
+                            synopsis: scene.synopsis.isEmpty ? nil : scene.synopsis,
+                            status: scene.status,
+                            povNoteID: scene.povNoteID,
+                            labels: scene.labels.isEmpty ? nil : scene.labels,
+                            targetWords: scene.targetWords
                         )
                     }
                 )
@@ -88,7 +101,21 @@ extension ProjectManifest {
             dailyWordSnapshots: project.dailyWordSnapshots.isEmpty ? nil : project.dailyWordSnapshots,
             lastSessionTime: project.lastSessionTime,
             epubMetadata: project.epubMetadata,
-            quoteStyle: project.quoteStyle
+            quoteStyle: project.quoteStyle,
+            plotLines: project.plotLines.isEmpty ? nil : project.plotLines,
+            beats: Self.beats(of: project)
         )
+    }
+
+    /// Beats of existing scenes and plot lines only, in a stable order so
+    /// unchanged grids don't rewrite the manifest differently.
+    private static func beats(of project: Project) -> [PlotBeat]? {
+        let sceneIDs = Set(project.allScenes.map(\.id))
+        let lineIDs = Set(project.plotLines.map(\.id))
+        let beats = project.beats
+            .filter { sceneIDs.contains($0.key.sceneID) && lineIDs.contains($0.key.plotLineID) && !$0.value.isEmpty }
+            .map { PlotBeat(sceneID: $0.key.sceneID, plotLineID: $0.key.plotLineID, text: $0.value) }
+            .sorted { ($0.sceneID.uuidString, $0.plotLineID.uuidString) < ($1.sceneID.uuidString, $1.plotLineID.uuidString) }
+        return beats.isEmpty ? nil : beats
     }
 }

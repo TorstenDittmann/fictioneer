@@ -18,6 +18,8 @@ struct SidebarView: View {
         List(selection: $session.selectedItem) {
             Label("Overview", systemImage: "house")
                 .tag(SidebarItem.overview)
+            Label("Plot Grid", systemImage: "square.grid.3x3")
+                .tag(SidebarItem.plotGrid)
             Label("Search", systemImage: "magnifyingglass")
                 .tag(SidebarItem.search)
             chaptersSection
@@ -59,6 +61,8 @@ struct SidebarView: View {
     // MARK: - Sections
 
     private static let numeralSpacing: CGFloat = 6
+    /// Status dot (6pt) plus the row's HStack spacing.
+    private static let statusDotWidth: CGFloat = 12
     private static let numeralFontName = "Quattrocento-Bold"
     private static let numeralFontSize: CGFloat = 12
 
@@ -143,12 +147,18 @@ struct SidebarView: View {
                     .fixedSize()
                     .help("\(chapter.scenes.count) scene\(chapter.scenes.count == 1 ? "" : "s")")
             }
-            Image(systemName: "chevron.right")
-                .font(.system(size: 9, weight: .semibold))
-                .foregroundStyle(.tertiary)
-                .rotationEffect(.degrees(chapter.isExpanded ? 90 : 0))
-                .frame(width: 10)
-                .accessibilityHidden(true)
+            Button {
+                toggle(chapter)
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+                    .rotationEffect(.degrees(chapter.isExpanded ? 90 : 0))
+                    .frame(width: 14, height: 14)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(chapter.isExpanded ? "Collapse chapter" : "Expand chapter")
         }
         .contentShape(Rectangle())
         .onTapGesture { toggle(chapter) }
@@ -160,7 +170,6 @@ struct SidebarView: View {
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityAddTraits(.isButton)
         .accessibilityValue(chapter.isExpanded ? "Expanded" : "Collapsed")
         .accessibilityAction { toggle(chapter) }
         .contextMenu {
@@ -201,6 +210,9 @@ struct SidebarView: View {
 
     private func sceneRow(_ scene: Scene, in chapter: Chapter, indent: CGFloat) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
+            StatusDot(status: scene.status, size: 6)
+                .alignmentGuide(.firstTextBaseline) { $0[.bottom] - 1 }
+                .help(scene.status.title)
             Text(scene.title)
                 .font(.system(size: 13))
                 .lineLimit(1)
@@ -218,11 +230,20 @@ struct SidebarView: View {
                 Spacer(minLength: 0)
             }
         }
-        .padding(.leading, indent)
+        // The dot hangs in the numeral column so scene titles stay aligned
+        // with the chapter title.
+        .padding(.leading, max(0, indent - Self.statusDotWidth))
         .tag(SidebarItem.scene(scene.id))
         .contextMenu {
             Button("Rename…") { beginRename(scene) }
+            Picker("Status", selection: statusBinding(for: scene)) {
+                ForEach(SceneStatus.allCases) { status in
+                    Text(status.title).tag(status)
+                }
+            }
             Divider()
+            Button("Merge into Previous Scene") { mergeIntoPrevious(scene, in: chapter) }
+                .disabled(chapter.scenes.first?.id == scene.id)
             Button("Move Up") { moveScene(scene, in: chapter, by: -1) }
                 .disabled(chapter.scenes.first?.id == scene.id)
             Button("Move Down") { moveScene(scene, in: chapter, by: 1) }
@@ -241,6 +262,15 @@ struct SidebarView: View {
             Divider()
             Button("Delete Scene…", role: .destructive) { scenePendingDeletion = scene }
         }
+    }
+
+    private func mergeIntoPrevious(_ scene: Scene, in chapter: Chapter) {
+        let wasSelected = session.selectedSceneID == scene.id
+        guard let previous = project.mergeSceneIntoPrevious(scene) else { return }
+        if wasSelected {
+            session.selectedItem = .scene(previous.id)
+        }
+        session.markDirty(sceneID: previous.id)
     }
 
     private func moveChapter(_ chapter: Chapter, by offset: Int) {
@@ -414,6 +444,17 @@ struct SidebarView: View {
     }
 
     // MARK: - Presentation bindings
+
+    private func statusBinding(for scene: Scene) -> Binding<SceneStatus> {
+        Binding(
+            get: { scene.status },
+            set: { status in
+                scene.status = status
+                scene.updatedAt = .now
+                session.markDirty()
+            }
+        )
+    }
 
     private var chapterRenameShown: Binding<Bool> {
         Binding(get: { renamingChapter != nil }, set: { if !$0 { renamingChapter = nil } })

@@ -20,6 +20,9 @@ final class Project {
     /// nil until the writer picks one; `effectiveQuoteStyle` then follows
     /// their language.
     var quoteStyle: QuoteStyle?
+    /// Plot grid: columns and the beats in their cells.
+    var plotLines: [PlotLine] = []
+    var beats: [BeatKey: String] = [:]
 
     var effectiveQuoteStyle: QuoteStyle {
         quoteStyle ?? QuoteStyle.defaultStyle()
@@ -118,11 +121,93 @@ final class Project {
 
     func deleteNote(_ note: Note) {
         notes.removeAll { $0.id == note.id }
+        for scene in allScenes where scene.povNoteID == note.id {
+            scene.povNoteID = nil
+        }
         touch()
     }
 
     func touch() {
         updatedAt = .now
+    }
+
+    // MARK: - Plot grid
+
+    func beat(scene: Scene, line: PlotLine) -> String {
+        beats[BeatKey(sceneID: scene.id, plotLineID: line.id)] ?? ""
+    }
+
+    func setBeat(_ text: String, scene: Scene, line: PlotLine) {
+        let key = BeatKey(sceneID: scene.id, plotLineID: line.id)
+        beats[key] = text.isEmpty ? nil : text
+        touch()
+    }
+
+    @discardableResult
+    func addPlotLine(titled title: String? = nil) -> PlotLine {
+        let used = Set(plotLines.map(\.tint))
+        let tint = PlotLine.Tint.allCases.first { !used.contains($0) }
+            ?? PlotLine.Tint.allCases[plotLines.count % PlotLine.Tint.allCases.count]
+        let line = PlotLine(title: title ?? "Plot Line \(plotLines.count + 1)", tint: tint)
+        plotLines.append(line)
+        touch()
+        return line
+    }
+
+    func deletePlotLine(_ line: PlotLine) {
+        plotLines.removeAll { $0.id == line.id }
+        beats = beats.filter { $0.key.plotLineID != line.id }
+        touch()
+    }
+
+    // MARK: - Splitting and merging scenes
+
+    /// Splits `scene` at a UTF-16 `offset`: the text after it moves into a new
+    /// scene right after this one. A single newline at the split is dropped
+    /// so neither scene starts or ends with an empty paragraph.
+    @discardableResult
+    func splitScene(_ scene: Scene, at offset: Int) -> Scene? {
+        guard let chapter = chapter(containing: scene.id),
+              let index = chapter.scenes.firstIndex(where: { $0.id == scene.id }) else { return nil }
+        let content = scene.content
+        let split = min(max(offset, 0), content.length)
+        var head = content.attributedSubstring(from: NSRange(location: 0, length: split))
+        var tail = content.attributedSubstring(from: NSRange(location: split, length: content.length - split))
+        if tail.string.hasPrefix("\n") {
+            tail = tail.attributedSubstring(from: NSRange(location: 1, length: tail.length - 1))
+        } else if head.string.hasSuffix("\n") {
+            head = head.attributedSubstring(from: NSRange(location: 0, length: head.length - 1))
+        }
+        scene.updateContent(head)
+        let newScene = Scene(title: "\(scene.title) (continued)", content: tail, status: scene.status, povNoteID: scene.povNoteID)
+        chapter.scenes.insert(newScene, at: index + 1)
+        chapter.updatedAt = .now
+        touch()
+        return newScene
+    }
+
+    /// Appends `scene` to the scene before it in the same chapter and deletes
+    /// it. Returns the merged-into scene.
+    @discardableResult
+    func mergeSceneIntoPrevious(_ scene: Scene) -> Scene? {
+        guard let chapter = chapter(containing: scene.id),
+              let index = chapter.scenes.firstIndex(where: { $0.id == scene.id }), index > 0 else { return nil }
+        let previous = chapter.scenes[index - 1]
+        let merged = NSMutableAttributedString(attributedString: previous.content)
+        if merged.length > 0, scene.content.length > 0 {
+            let attributes = merged.attributes(at: merged.length - 1, effectiveRange: nil)
+            merged.append(NSAttributedString(string: "\n", attributes: attributes))
+        }
+        merged.append(scene.content)
+        previous.updateContent(merged)
+        for key in beats.keys where key.sceneID == scene.id {
+            let target = BeatKey(sceneID: previous.id, plotLineID: key.plotLineID)
+            if let text = beats[key], (beats[target] ?? "").isEmpty {
+                beats[target] = text
+            }
+        }
+        deleteScene(scene)
+        return previous
     }
 
     // MARK: - Reordering
@@ -197,12 +282,25 @@ final class Scene {
     let createdAt: Date
     var updatedAt: Date
 
+    // Scene details (planning metadata).
+    var synopsis: String
+    var status: SceneStatus
+    /// The note of the point-of-view character, if one is set.
+    var povNoteID: UUID?
+    var labels: [String]
+    var targetWords: Int?
+
     init(
         id: UUID = UUID(),
         title: String,
         content: NSAttributedString = NSAttributedString(),
         createdAt: Date = .now,
-        updatedAt: Date = .now
+        updatedAt: Date = .now,
+        synopsis: String = "",
+        status: SceneStatus? = nil,
+        povNoteID: UUID? = nil,
+        labels: [String] = [],
+        targetWords: Int? = nil
     ) {
         self.id = id
         self.title = title
@@ -212,6 +310,11 @@ final class Scene {
         self.characterCount = counts.characters
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.synopsis = synopsis
+        self.status = status ?? SceneStatus.inferred(wordCount: counts.words)
+        self.povNoteID = povNoteID
+        self.labels = labels
+        self.targetWords = targetWords
     }
 
     func updateContent(_ content: NSAttributedString) {

@@ -69,14 +69,11 @@ struct AnalysisPanelView: View {
                     Text("Scene progress")
                         .font(.caption.weight(.medium))
                     Spacer()
-                    Text("\(Self.targetMin)–\(Self.targetMax) words")
+                    Text(targetLabel)
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
-                ProgressBar(
-                    fraction: Double(scene.wordCount) / Double(Self.targetMax),
-                    emphasized: scene.wordCount >= Self.targetMin
-                )
+                ProgressBar(fraction: targetFraction, emphasized: targetReached)
             }
 
             Text("\(scene.wordCount) words · \(scene.characterCount) characters")
@@ -132,6 +129,25 @@ struct AnalysisPanelView: View {
                 }
             }
         }
+    }
+
+    /// The scene's own target when set (scene details), else the default
+    /// 800–1,800 word sweet spot.
+    private var sceneTarget: Int? {
+        scene.targetWords.flatMap { $0 > 0 ? $0 : nil }
+    }
+
+    private var targetLabel: String {
+        if let target = sceneTarget { return "target \(target.formatted()) words" }
+        return "\(Self.targetMin)–\(Self.targetMax) words"
+    }
+
+    private var targetFraction: Double {
+        Double(scene.wordCount) / Double(sceneTarget ?? Self.targetMax)
+    }
+
+    private var targetReached: Bool {
+        scene.wordCount >= (sceneTarget ?? Self.targetMin)
     }
 
     private func metricRow(_ label: String, _ value: String, warn: Bool = false) -> some View {

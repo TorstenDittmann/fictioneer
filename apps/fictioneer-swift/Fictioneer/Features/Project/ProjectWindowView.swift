@@ -39,14 +39,18 @@ struct ProjectWindowView: View {
     @ViewBuilder
     private var detailView: some View {
         let project = session.project
-        if session.showsSearch {
+        if session.showsPlotGrid {
+            PlotGridView(session: session)
+        } else if session.showsSearch {
             SearchResultsView(session: session)
         } else if let noteID = session.selectedNoteID, let note = project.note(withID: noteID) {
             NoteEditorView(session: session, note: note)
                 .id(note.id)
-        } else if let sceneID = session.selectedSceneID, let scene = project.scene(withID: sceneID) {
-            SceneEditorView(session: session, scene: scene)
-                .id(scene.id)
+        } else if let sceneID = session.selectedSceneID,
+                  let chapter = project.chapter(containing: sceneID) {
+            // A scene is edited inside its chapter, shown as one document.
+            ChapterEditorView(session: session, chapter: chapter)
+                .id(ChapterEditorView.identity(of: chapter))
         } else {
             ProjectOverviewView(session: session)
         }

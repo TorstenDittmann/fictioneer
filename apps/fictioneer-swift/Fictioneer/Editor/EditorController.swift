@@ -34,6 +34,10 @@ final class EditorController {
     /// the coordinator; drives the Rephrase button).
     var hasSelection = false
 
+    /// Splits the current scene at the caret (⌘↩); set by scene and chapter
+    /// editors, absent for notes.
+    @ObservationIgnored var onSplitScene: (() -> Void)?
+
     /// Keeps the presenter alive for the editor's lifetime.
     @ObservationIgnored var ghostPresenter: GhostTextPresenter?
 
@@ -61,6 +65,11 @@ final class EditorController {
         var location = 0
         while location < string.length {
             let paragraph = string.paragraphRange(for: NSRange(location: location, length: 0))
+            // Scene headings in the continuous chapter keep their own styling.
+            if paragraph.length > 0, storage.attribute(.sceneBoundary, at: paragraph.location, effectiveRange: nil) != nil {
+                location = NSMaxRange(paragraph)
+                continue
+            }
             let style = blockStyle(in: storage, at: paragraph.location)
             let base = theme.attributes(for: style)
             let baseFont = base[.font] as! NSFont

@@ -62,4 +62,28 @@ struct SidebarItemMappingTests {
         #expect(session.selectedItem == .scene(sceneID))
         #expect(session.selectedSceneID == sceneID)
     }
+
+    @Test func plotGridKeepsSceneUnderneathAndLeavesOnSceneSelection() {
+        let session = makeSession()
+        let sceneID = session.project.chapters[0].scenes[0].id
+        session.selectedItem = .plotGrid
+        #expect(session.selectedItem == .plotGrid)
+        #expect(session.selectedSceneID == sceneID)
+        session.selectedItem = .scene(sceneID)
+        #expect(!session.showsPlotGrid)
+        #expect(session.selectedItem == .scene(sceneID))
+        session.selectedItem = .plotGrid
+        session.selectedItem = .search
+        #expect(session.selectedItem == .search)
+    }
+
+    @Test func selectingASceneRequestsAScroll() {
+        let session = makeSession()
+        let chapter = session.project.chapters[0]
+        let second = session.project.addScene(to: chapter)
+        session.selectedItem = .scene(second.id)
+        #expect(session.selectedSceneID == second.id)
+        #expect(session.chapterScrollRequest == second.id)
+        #expect(session.selectedItem == .scene(second.id))
+    }
 }

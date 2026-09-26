@@ -102,8 +102,7 @@ private struct ContinueWritingCard: View {
 
     var body: some View {
         Button {
-            session.selectedNoteID = nil
-            session.selectedSceneID = scene.id
+            session.selectedItem = .scene(scene.id)
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {

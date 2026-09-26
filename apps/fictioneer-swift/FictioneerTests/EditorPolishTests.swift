@@ -65,7 +65,10 @@ struct EditorPolishTests {
 
         textView.setSelectedRange(NSRange(location: 2, length: 8))
         textView.scheduleSelectionBarUpdate()
-        try? await Task.sleep(for: .milliseconds(450))
+        // Poll: other suites can hold the main actor past the bar's delay.
+        for _ in 0..<300 where !textView.subviews.contains(where: { $0 is SelectionBarHostView }) {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
         #expect(textView.subviews.contains { $0 is SelectionBarHostView })
 
         textView.dismissSelectionBar()

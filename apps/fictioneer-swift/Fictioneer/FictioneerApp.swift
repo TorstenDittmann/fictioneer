@@ -77,6 +77,12 @@ struct AppCommands: Commands {
             .keyboardShortcut("n", modifiers: [.command, .shift])
             .disabled(appModel.activeSession == nil)
 
+            Button("Split Scene at Cursor") {
+                appModel.activeSession?.activeEditor?.onSplitScene?()
+            }
+            .keyboardShortcut(.return, modifiers: .command)
+            .disabled(appModel.activeSession?.activeEditor == nil)
+
             Divider()
 
             Button("Open Project…") {

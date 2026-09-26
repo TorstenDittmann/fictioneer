@@ -6,6 +6,7 @@ import Foundation
 enum SidebarItem: Hashable {
     case overview
     case search
+    case plotGrid
     case scene(UUID)
     case note(UUID)
 }
@@ -30,6 +31,14 @@ final class ProjectSession {
     var selectedSceneID: UUID?
     var selectedNoteID: UUID?
     var showsSearch = false
+    var showsPlotGrid = false
+    /// Scenes are edited inside their chapter, shown as one continuous
+    /// document. A sidebar selection asks it to scroll to the scene; moving
+    /// the caret updates `selectedSceneID` directly, without a request.
+    var chapterScrollRequest: UUID?
+    /// Where the caret was, restored when the chapter view rebuilds (split,
+    /// merge, scenes added or removed). Not observed: it changes per keystroke.
+    @ObservationIgnored var chapterCaret: (sceneID: UUID, offset: Int)?
     var isCommandPaletteVisible = false
     var isFocusMode = false
     /// Set by File ▸ Export… and the command palette; this window's sheet.
@@ -41,6 +50,7 @@ final class ProjectSession {
     /// Bridge for the sidebar's native `List(selection:)`.
     var selectedItem: SidebarItem? {
         get {
+            if showsPlotGrid { return .plotGrid }
             if showsSearch { return .search }
             return selectedNoteID.map(SidebarItem.note)
                 ?? selectedSceneID.map(SidebarItem.scene)
@@ -49,18 +59,28 @@ final class ProjectSession {
         set {
             switch newValue {
             case .overview:
+                showsPlotGrid = false
                 showsSearch = false
                 selectedNoteID = nil
                 selectedSceneID = nil
             case .search:
                 // Scene selection is preserved beneath search, like notes.
+                showsPlotGrid = false
                 showsSearch = true
                 selectedNoteID = nil
+            case .plotGrid:
+                // Scene selection is preserved beneath the grid too.
+                showsPlotGrid = true
+                showsSearch = false
+                selectedNoteID = nil
             case .scene(let id):
+                showsPlotGrid = false
                 showsSearch = false
                 selectedNoteID = nil
                 selectedSceneID = id
+                chapterScrollRequest = id
             case .note(let id):
+                showsPlotGrid = false
                 showsSearch = false
                 selectedNoteID = id
             case nil:
@@ -188,6 +208,7 @@ final class ProjectSession {
             selectedNoteID = id
         }
         showsSearch = other.showsSearch
+        showsPlotGrid = other.showsPlotGrid
         isFocusMode = other.isFocusMode
     }
 }

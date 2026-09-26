@@ -23,10 +23,20 @@ struct RichTextEditor: NSViewRepresentable {
     let settings: AppSettings
     let controller: EditorController
     var configureGhost: ((FictioneerTextView, EditorController) -> Void)?
+    /// Vetoes user edits by range and replacement (the continuous chapter
+    /// protects its scene headings). nil allows everything.
+    var shouldChangeText: ((NSRange, String?, NSAttributedString) -> Bool)?
+    /// Where to put the caret on first appearance; nil: end of the text.
+    var initialSelection: (() -> NSRange?)?
+    /// A click on an attachment (scene headings): its character index and
+    /// frame in the text view.
+    var onAttachmentClick: ((Int, NSRect) -> Void)?
     let onContentChange: (NSAttributedString) -> Void
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(controller: controller, onContentChange: onContentChange)
+        let coordinator = Coordinator(controller: controller, shouldChangeText: shouldChangeText, onContentChange: onContentChange)
+        coordinator.onAttachmentClick = onAttachmentClick
+        return coordinator
     }
 
     func makeNSView(context: Context) -> NSScrollView {
@@ -74,7 +84,8 @@ struct RichTextEditor: NSViewRepresentable {
 
         DispatchQueue.main.async {
             textView.window?.makeFirstResponder(textView)
-            textView.setSelectedRange(NSRange(location: textView.string.utf16.count, length: 0))
+            let selection = initialSelection?() ?? NSRange(location: textView.string.utf16.count, length: 0)
+            textView.setSelectedRange(selection)
             textView.scrollRangeToVisible(textView.selectedRange())
         }
         return scrollView
@@ -97,11 +108,41 @@ struct RichTextEditor: NSViewRepresentable {
     @MainActor
     final class Coordinator: NSObject, NSTextViewDelegate {
         let controller: EditorController
+        let shouldChangeText: ((NSRange, String?, NSAttributedString) -> Bool)?
         let onContentChange: (NSAttributedString) -> Void
+        var onAttachmentClick: ((Int, NSRect) -> Void)?
 
-        init(controller: EditorController, onContentChange: @escaping (NSAttributedString) -> Void) {
+        func textView(_ textView: NSTextView, clickedOn cell: any NSTextAttachmentCellProtocol, in cellFrame: NSRect, at charIndex: Int) {
+            onAttachmentClick?(charIndex, cellFrame)
+        }
+
+        init(
+            controller: EditorController,
+            shouldChangeText: ((NSRange, String?, NSAttributedString) -> Bool)? = nil,
+            onContentChange: @escaping (NSAttributedString) -> Void
+        ) {
             self.controller = controller
+            self.shouldChangeText = shouldChangeText
             self.onContentChange = onContentChange
+        }
+
+        func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
+            guard let shouldChangeText, !controller.isPerformingProgrammaticMutation,
+                  let storage = textView.textStorage else { return true }
+            let allowed = shouldChangeText(affectedCharRange, replacementString, storage)
+            if !allowed { NSSound.beep() }
+            return allowed
+        }
+
+        /// Text typed right after a protected scene heading must not inherit
+        /// its centered heading style or boundary marker.
+        func textView(
+            _ textView: NSTextView,
+            shouldChangeTypingAttributes oldTypingAttributes: [String: Any],
+            toAttributes newTypingAttributes: [NSAttributedString.Key: Any]
+        ) -> [NSAttributedString.Key: Any] {
+            guard newTypingAttributes[.sceneBoundary] != nil else { return newTypingAttributes }
+            return controller.theme?.bodyAttributes ?? newTypingAttributes.filter { $0.key != .sceneBoundary && $0.key != .attachment }
         }
 
         func textDidChange(_ notification: Notification) {

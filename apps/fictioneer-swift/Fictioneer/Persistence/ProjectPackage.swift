@@ -116,7 +116,12 @@ enum ProjectPackage {
                     title: sceneManifest.title,
                     content: readArchive(named: archiveFilename(for: sceneManifest.id), in: sceneFiles),
                     createdAt: sceneManifest.createdAt,
-                    updatedAt: sceneManifest.updatedAt
+                    updatedAt: sceneManifest.updatedAt,
+                    synopsis: sceneManifest.synopsis ?? "",
+                    status: sceneManifest.status,
+                    povNoteID: sceneManifest.povNoteID,
+                    labels: sceneManifest.labels ?? [],
+                    targetWords: sceneManifest.targetWords
                 )
             }
             return Chapter(
@@ -155,6 +160,10 @@ enum ProjectPackage {
         project.lastSessionTime = manifest.lastSessionTime
         project.epubMetadata = manifest.epubMetadata
         project.quoteStyle = manifest.quoteStyle
+        project.plotLines = manifest.plotLines ?? []
+        for beat in manifest.beats ?? [] {
+            project.beats[BeatKey(sceneID: beat.sceneID, plotLineID: beat.plotLineID)] = beat.text
+        }
         return project
     }
 
