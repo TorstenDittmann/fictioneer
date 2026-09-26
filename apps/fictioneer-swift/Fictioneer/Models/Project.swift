@@ -16,7 +16,9 @@ final class Project {
     var dailyProgress: [DailyProgress] = []
     var dailyWordSnapshots: [String: Int] = [:]
     var lastSessionTime: Date?
-    var epubMetadata: ProjectEpubMetadata?
+    var book = BookSettings()
+    /// Supplied cover art; used when `book.cover` is `.image`.
+    var coverImage: BookCoverImage?
     /// nil until the writer picks one; `effectiveQuoteStyle` then follows
     /// their language.
     var quoteStyle: QuoteStyle?

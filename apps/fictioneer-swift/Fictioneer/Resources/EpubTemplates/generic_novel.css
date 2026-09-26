@@ -1,182 +1,54 @@
-/* Generic Novel EPUB Styles */
+/* Generic Novel: a warm, familiar trade-paperback look. */
 body {
-	font-family: 'Times New Roman', Times, serif;
-	font-size: 1em;
-	line-height: 1.6;
-	margin: 0;
-	padding: 1em;
-	text-align: justify;
+	line-height: 1.5;
 }
 
-h1 {
-	font-size: 2em;
-	font-weight: bold;
+.chapter-heading {
+	margin: 3em 0 2.5em 0;
 	text-align: center;
-	margin: 2em 0 1em 0;
-	page-break-before: always;
 }
 
-h2 {
-	font-size: 1.5em;
-	font-weight: bold;
-	text-align: center;
-	margin: 1.5em 0 1em 0;
-	page-break-before: always;
+.chapter-label {
+	font-size: 0.8em;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	margin-bottom: 0.6em;
 }
 
-h3 {
-	font-size: 1.2em;
-	font-weight: bold;
-	text-align: left;
-	margin: 1.5em 0 0.5em 0;
-}
-
-.title-page {
-	text-align: center;
-	page-break-after: always;
-}
-
-.title-page h1 {
-	font-size: 3em;
-	margin: 3em 0 1em 0;
-	page-break-before: avoid;
-}
-
-.title-page .author {
-	font-size: 1.5em;
-	margin: 2em 0;
-	font-style: italic;
-}
-
-.title-page .description {
-	font-size: 1em;
-	margin: 2em 0;
-	text-align: left;
-	font-style: normal;
+.chapter-numeral {
+	font-size: 2.6em;
+	line-height: 1;
+	margin-bottom: 0.2em;
 }
 
 .chapter-title {
-	text-transform: uppercase;
-	letter-spacing: 0.1em;
+	font-size: 1.6em;
+	font-weight: normal;
+	line-height: 1.25;
+	margin: 0;
+}
+
+.chapter-heading .chapter-label:only-child {
+	font-size: 1.1em;
 }
 
 .scene-title {
-	border-bottom: 1px solid #ccc;
-	padding-bottom: 0.5em;
-}
-
-.scene-break {
-	text-align: center;
-	margin: 2em 0;
-	font-size: 1.5em;
+	font-size: 1em;
 	font-weight: bold;
-}
-
-.word-count {
-	font-size: 0.8em;
-	font-style: italic;
-	color: #666;
-	text-align: right;
-	margin: 1em 0;
-}
-
-p {
-	margin: 0 0 1em 0;
-	text-indent: 1.5em;
-}
-
-p:first-child,
-h1 + p,
-h2 + p,
-h3 + p,
-.scene-break + p {
-	text-indent: 0;
-}
-
-blockquote {
-	margin: 1em 2em;
-	font-style: italic;
-	border-left: 3px solid #ccc;
-	padding-left: 1em;
-}
-
-strong,
-b {
-	font-weight: bold;
-}
-
-em,
-i {
-	font-style: italic;
-}
-
-u {
-	text-decoration: underline;
-}
-
-ul,
-ol {
-	margin: 1em 0;
-	padding-left: 2em;
-}
-
-li {
-	margin: 0.5em 0;
-}
-
-hr {
-	border: none;
-	border-top: 1px solid #ccc;
-	margin: 2em 0;
-}
-
-.toc {
-	page-break-before: always;
-}
-
-.toc h2 {
+	margin: 2em 0 0.8em 0;
 	text-align: center;
-	margin-bottom: 2em;
 }
 
-.toc ol {
-	list-style-type: none;
-	padding-left: 0;
+.book-title {
+	font-size: 2.4em;
+	font-weight: normal;
+	line-height: 1.2;
+	margin: 0 0 0.4em 0;
 }
 
-.toc li {
-	margin: 0.5em 0;
-	padding-left: 1em;
-	text-indent: -1em;
-}
-
-.toc a {
-	text-decoration: none;
-	color: inherit;
-}
-
-.toc a:hover {
-	text-decoration: underline;
-}
-
-/* Print styles */
-@page {
-	margin: 1in;
-}
-
-@media print {
-	body {
-		font-size: 12pt;
-		line-height: 1.5;
-	}
-
-	h1,
-	h2 {
-		page-break-after: avoid;
-	}
-
-	p {
-		orphans: 3;
-		widows: 3;
-	}
+.matter-title {
+	font-size: 1.4em;
+	font-weight: normal;
+	text-align: center;
+	margin: 2em 0 1.5em 0;
 }

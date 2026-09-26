@@ -28,11 +28,13 @@ enum ProjectPackageError: Error, LocalizedError, Equatable {
 ///       project.json               manifest (ids, titles, order, counts, dates)
 ///       scenes/<uuid>.textarchive  archived NSAttributedString per scene
 ///       notes/<uuid>.textarchive   archived NSAttributedString per note body
+///       cover.jpg | cover.png      optional cover art for exported books
 enum ProjectPackage {
     static let manifestFilename = "project.json"
     static let scenesDirectory = "scenes"
     static let notesDirectory = "notes"
     static let textArchiveExtension = "textarchive"
+    static let coverBasename = "cover"
 
     // MARK: - Write
 
@@ -72,11 +74,21 @@ enum ProjectPackage {
             }
         }
 
-        return FileWrapper(directoryWithFileWrappers: [
+        var children: [String: FileWrapper] = [
             manifestFilename: FileWrapper(regularFileWithContents: manifestData),
             scenesDirectory: directory(named: scenesDirectory, sceneWrappers),
             notesDirectory: directory(named: notesDirectory, noteWrappers),
-        ])
+        ]
+        if let cover = project.coverImage {
+            let filename = "\(coverBasename).\(cover.fileExtension)"
+            if let previousCover = previous?.fileWrappers?[filename],
+               previousCover.regularFileContents == cover.data {
+                children[filename] = previousCover
+            } else {
+                children[filename] = FileWrapper(regularFileWithContents: cover.data)
+            }
+        }
+        return FileWrapper(directoryWithFileWrappers: children)
     }
 
     /// FileWrapper hard-links an unchanged file from the previous revision
@@ -187,7 +199,13 @@ enum ProjectPackage {
         project.dailyProgress = manifest.dailyProgress ?? []
         project.dailyWordSnapshots = manifest.dailyWordSnapshots ?? [:]
         project.lastSessionTime = manifest.lastSessionTime
-        project.epubMetadata = manifest.epubMetadata
+        project.book = manifest.book
+            ?? manifest.epubMetadata.map(BookSettings.init(legacy:))
+            ?? BookSettings()
+        project.coverImage = ["jpg", "png"].lazy.compactMap { ext in
+            wrapper.fileWrappers?["\(coverBasename).\(ext)"]?.regularFileContents
+                .map { BookCoverImage(data: $0, fileExtension: ext) }
+        }.first
         project.quoteStyle = manifest.quoteStyle
         project.plotLines = manifest.plotLines ?? []
         for beat in manifest.beats ?? [] {

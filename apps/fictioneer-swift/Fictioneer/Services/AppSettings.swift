@@ -1,16 +1,16 @@
 import Foundation
 import SwiftUI
 
-/// Persisted export sheet preferences (include-toggles, format, EPUB
-/// template). Per-project book metadata (author, publisher, ...) is not
-/// part of this — it lives on the project itself.
+/// Persisted export window preferences (format and manuscript include
+/// toggles). Everything about the book itself lives on the project.
 nonisolated struct ExportDefaults: Codable, Equatable {
     var format: ExportFormat
     var includeTitle: Bool
     var includeChapterTitles: Bool
     var includeSceneTitles: Bool
     var includeWordCount: Bool
-    var epubTemplate: EpubTemplate
+    /// Legacy: templates are per project now (`BookSettings.template`).
+    var epubTemplate: EpubTemplate?
 }
 
 @Observable

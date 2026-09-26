@@ -41,8 +41,6 @@ final class ProjectSession {
     @ObservationIgnored var chapterCaret: (sceneID: UUID, offset: Int)?
     var isCommandPaletteVisible = false
     var isFocusMode = false
-    /// Set by File ▸ Export… and the command palette; this window's sheet.
-    var isExportSheetRequested = false
     /// The editor currently shown (scene or note), targeted by the Format
     /// menu. Set by the editor views on appear.
     weak var activeEditor: EditorController?
@@ -151,6 +149,8 @@ final class ProjectSession {
     /// autosave), a save request flushes immediately.
     @ObservationIgnored var onChange: (() -> Void)?
     @ObservationIgnored var onSaveRequest: (() -> Void)?
+    /// Wired by the document: opens its export window.
+    @ObservationIgnored var onExportRequest: (() -> Void)?
 
     init(project: Project) {
         self.project = project
@@ -172,6 +172,10 @@ final class ProjectSession {
 
     func saveNow() {
         onSaveRequest?()
+    }
+
+    func requestExport() {
+        onExportRequest?()
     }
 
     /// The human-readable reason of the last failed save, if any.

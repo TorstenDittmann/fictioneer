@@ -2,8 +2,8 @@ import AppKit
 import Foundation
 import UniformTypeIdentifiers
 
-enum ExportFormat: String, CaseIterable, Identifiable, Codable {
-    case rtf, epub, txt
+nonisolated enum ExportFormat: String, CaseIterable, Identifiable, Codable, Sendable {
+    case epub, rtf, txt
 
     var id: String { rawValue }
     var label: String {
@@ -11,6 +11,27 @@ enum ExportFormat: String, CaseIterable, Identifiable, Codable {
         case .rtf: "Rich Text (RTF)"
         case .epub: "eBook (EPUB)"
         case .txt: "Plain Text"
+        }
+    }
+    var shortLabel: String {
+        switch self {
+        case .epub: "eBook"
+        case .rtf: "Manuscript"
+        case .txt: "Plain Text"
+        }
+    }
+    var detail: String {
+        switch self {
+        case .epub: "EPUB for Apple Books, Kobo, Kindle and stores"
+        case .rtf: "RTF for Word, Pages and editors"
+        case .txt: "Unformatted text, anywhere"
+        }
+    }
+    var systemImage: String {
+        switch self {
+        case .epub: "book.closed"
+        case .rtf: "doc.richtext"
+        case .txt: "doc.plaintext"
         }
     }
     var fileExtension: String { rawValue }
@@ -23,66 +44,94 @@ enum ExportFormat: String, CaseIterable, Identifiable, Codable {
     }
 }
 
-struct ExportOptions {
-    var format: ExportFormat = .rtf
+/// Per-export choices for the manuscript formats (RTF, plain text). EPUB
+/// takes everything from the project's `BookSettings`.
+struct ExportOptions: Equatable {
+    var format: ExportFormat = .epub
     var includeTitle = true
     var includeChapterTitles = true
     var includeSceneTitles = true
     var includeWordCount = false
-    var epubTemplate: EpubTemplate = .genericNovel
-    /// Empty fields mean "use the project's saved metadata".
-    var epubMetadata = ProjectEpubMetadata(author: "", publisher: "", language: "", rights: "", subjects: [])
 }
 
-/// Builds export payloads from the project and drives the save panel.
+/// Renders a book in the chosen format and remembers where each project was
+/// last exported, for File ▸ Export Again.
 enum ExportService {
-    static func suggestedFilename(for project: Project, format: ExportFormat) -> String {
-        let base = project.title
+    static func suggestedFilename(for title: String, format: ExportFormat) -> String {
+        let base = title
             .map { $0.isLetter || $0.isNumber ? String($0) : "_" }
             .joined()
             .lowercased()
-        return "\(base).\(format.fileExtension)"
+        return "\(base.isEmpty ? "book" : base).\(format.fileExtension)"
     }
 
-    static func exportData(project: Project, options: ExportOptions) throws -> Data {
+    /// EPUB builds off the main actor; RTF needs AppKit's font manager.
+    static func render(_ book: BookDocument, options: ExportOptions) async throws -> Data {
         switch options.format {
-        case .txt:
-            Data(TextExporter.export(project: project, options: options).utf8)
-        case .rtf:
-            try RTFExporter.export(project: project, options: options)
         case .epub:
-            EpubBuilder.export(project: project, options: options)
+            await Task.detached(priority: .userInitiated) { EpubBuilder.export(book) }.value
+        case .txt:
+            Data(TextExporter.export(book, options: options).utf8)
+        case .rtf:
+            try RTFExporter.export(book, options: options)
         }
     }
 
-    /// Runs the save panel and writes the payload. Returns false when the
-    /// user cancels.
-    @discardableResult
-    static func exportViaPanel(project: Project, options: ExportOptions) throws -> Bool {
-        let panel = NSSavePanel()
-        panel.title = "Export Project"
-        panel.nameFieldStringValue = suggestedFilename(for: project, format: options.format)
-        panel.allowedContentTypes = [options.format.contentType]
-        panel.canCreateDirectories = true
-        guard panel.runModal() == .OK, let url = panel.url else { return false }
-        let data = try exportData(project: project, options: options)
+    // MARK: - Export Again
+
+    private static func bookmarkKey(projectID: UUID, format: ExportFormat) -> String {
+        "export.lastDestination.\(projectID.uuidString).\(format.rawValue)"
+    }
+
+    static func rememberDestination(_ url: URL, projectID: UUID, format: ExportFormat, defaults: UserDefaults = .standard) {
+        guard let bookmark = try? url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+        else { return }
+        defaults.set(bookmark, forKey: bookmarkKey(projectID: projectID, format: format))
+        defaults.set(format.rawValue, forKey: "export.lastFormat.\(projectID.uuidString)")
+    }
+
+    /// The format and destination of this project's last export, if the
+    /// destination can still be reached.
+    static func lastDestination(projectID: UUID, defaults: UserDefaults = .standard) -> (url: URL, format: ExportFormat)? {
+        guard let raw = defaults.string(forKey: "export.lastFormat.\(projectID.uuidString)"),
+              let format = ExportFormat(rawValue: raw),
+              let bookmark = defaults.data(forKey: bookmarkKey(projectID: projectID, format: format))
+        else { return nil }
+        var isStale = false
+        guard let url = try? URL(resolvingBookmarkData: bookmark, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &isStale)
+        else { return nil }
+        if isStale {
+            rememberDestination(url, projectID: projectID, format: format, defaults: defaults)
+        }
+        return (url, format)
+    }
+
+    static func write(_ data: Data, to url: URL) throws {
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         try data.write(to: url, options: .atomic)
-        return true
     }
 }
 
 // MARK: - Plain text
 
-enum TextExporter {
-    static func export(project: Project, options: ExportOptions) -> String {
+nonisolated enum TextExporter {
+    static func export(_ book: BookDocument, options: ExportOptions) -> String {
         var output = ""
         if options.includeTitle {
-            output += project.title + "\n\n"
+            output += book.title + "\n"
+            if !book.subtitle.isEmpty {
+                output += book.subtitle + "\n"
+            }
+            if !book.author.isEmpty {
+                output += "by \(book.author)\n"
+            }
+            output += "\n"
         }
-        if !project.details.isEmpty {
-            output += project.details + "\n\n"
+        if !book.description.isEmpty {
+            output += book.description + "\n\n"
         }
-        for chapter in project.chapters {
+        for chapter in book.chapters {
             if options.includeChapterTitles {
                 output += chapter.title.uppercased() + "\n\n"
             }
@@ -90,8 +139,7 @@ enum TextExporter {
                 if options.includeSceneTitles {
                     output += scene.title + "\n\n"
                 }
-                let text = scene.content.strippingTransientAttributes().string
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                let text = scene.content.string.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !text.isEmpty {
                     output += text + "\n\n"
                 }
@@ -113,7 +161,7 @@ enum RTFExporter {
 
     /// Assembles one attributed document with a fixed export theme (Times New
     /// Roman body, concrete heading fonts) and lets AppKit write the RTF.
-    static func export(project: Project, options: ExportOptions) throws -> Data {
+    static func export(_ book: BookDocument, options: ExportOptions) throws -> Data {
         let document = NSMutableAttributedString()
         let bodyFont = NSFont(name: "Times New Roman", size: 12) ?? .systemFont(ofSize: 12)
 
@@ -131,12 +179,18 @@ enum RTFExporter {
         }
 
         if options.includeTitle {
-            append(project.title, size: 18, bold: true, centered: true)
+            append(book.title, size: 18, bold: true, centered: true)
+            if !book.subtitle.isEmpty {
+                append(book.subtitle, size: 14, italic: true, centered: true)
+            }
+            if !book.author.isEmpty {
+                append("by \(book.author)", size: 12, centered: true)
+            }
         }
-        if !project.details.isEmpty {
-            append(project.details, size: 12, italic: true)
+        if !book.description.isEmpty {
+            append(book.description, size: 12, italic: true)
         }
-        for chapter in project.chapters {
+        for chapter in book.chapters {
             if options.includeChapterTitles {
                 append(chapter.title, size: 16, bold: true)
             }
@@ -144,7 +198,7 @@ enum RTFExporter {
                 if options.includeSceneTitles {
                     append(scene.title, size: 14, bold: true)
                 }
-                let content = scene.content.strippingTransientAttributes()
+                let content = scene.content
                 if content.length > 0 {
                     document.append(rematerialized(content, bodyFont: bodyFont))
                     document.append(NSAttributedString(string: "\n"))
@@ -194,5 +248,28 @@ enum RTFExporter {
             result.removeAttribute(.blockquote, range: range)
         }
         return result
+    }
+}
+
+extension ExportOptions {
+    init(defaults: ExportDefaults) {
+        self.init(
+            format: defaults.format,
+            includeTitle: defaults.includeTitle,
+            includeChapterTitles: defaults.includeChapterTitles,
+            includeSceneTitles: defaults.includeSceneTitles,
+            includeWordCount: defaults.includeWordCount
+        )
+    }
+
+    var defaults: ExportDefaults {
+        ExportDefaults(
+            format: format,
+            includeTitle: includeTitle,
+            includeChapterTitles: includeChapterTitles,
+            includeSceneTitles: includeSceneTitles,
+            includeWordCount: includeWordCount,
+            epubTemplate: nil
+        )
     }
 }

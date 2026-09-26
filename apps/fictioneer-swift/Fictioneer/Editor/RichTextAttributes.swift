@@ -1,6 +1,6 @@
 import AppKit
 
-extension NSAttributedString.Key {
+nonisolated extension NSAttributedString.Key {
     /// Heading level 1–3 (NSNumber). Absent means body text.
     static let headingLevel = NSAttributedString.Key("app.fictioneer.headingLevel")
     /// Blockquote paragraph marker (NSNumber bool).
@@ -14,7 +14,7 @@ extension NSAttributedString.Key {
 
 /// Payload for `.analysisHighlight`: remembers what the highlight replaced so
 /// stripping restores the user's own formatting exactly.
-final class AnalysisMarker {
+nonisolated final class AnalysisMarker {
     let previousUnderlineStyle: Int?
     let previousBackgroundColor: NSColor?
 
@@ -24,7 +24,7 @@ final class AnalysisMarker {
     }
 }
 
-extension NSAttributedString {
+nonisolated extension NSAttributedString {
     /// A copy with all transient display state removed: ghost-text ranges are
     /// deleted, analysis highlights are unwound (restoring recorded underline/
     /// background). Returns self when nothing transient exists.

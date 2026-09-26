@@ -123,7 +123,7 @@ struct ZipWriterTests {
     }
 }
 
-// MARK: - Serializers / exporters
+// MARK: - Fixtures
 
 @MainActor
 private func makeRichScene() -> Scene {
@@ -155,11 +155,22 @@ private func makeProject() -> Project {
         details: "A story about \"quotes\".",
         chapters: [Chapter(title: "Chapter <1>", scenes: [makeRichScene()])]
     )
-    project.epubMetadata = ProjectEpubMetadata(
-        author: "T. Author", publisher: "", language: "de", rights: "", subjects: ["Mystery & Co"]
-    )
+    project.book.author = "T. Author"
+    project.book.language = "de"
+    project.book.subjects = ["Mystery & Co"]
     return project
 }
+
+private func text(_ entries: [ZipEntryRecord], _ path: String) -> String {
+    entries.first { $0.path == path }.map { String(decoding: $0.data, as: UTF8.self) } ?? ""
+}
+
+@MainActor
+private func epubEntries(_ project: Project) throws -> [ZipEntryRecord] {
+    try readZip(EpubBuilder.export(BookDocument.make(from: project)))
+}
+
+// MARK: - Serializers / exporters
 
 @MainActor
 struct XHTMLSerializerTests {
@@ -170,6 +181,11 @@ struct XHTMLSerializerTests {
         #expect(xhtml.contains("&amp; &lt;escaped&gt;."))
         #expect(xhtml.contains("<blockquote><p>A quote line.</p></blockquote>"))
         #expect(!xhtml.contains("<p></p>"))
+    }
+
+    @Test func headingOffsetDemotesSceneHeadings() {
+        let xhtml = XHTMLSerializer.serialize(makeRichScene().content, headingOffset: 1)
+        #expect(xhtml.contains("<h3>The Heading</h3>"))
     }
 
     @Test func escapingCoversAllFive() {
@@ -183,12 +199,21 @@ struct TextExporterTests {
         var options = ExportOptions()
         options.format = .txt
         options.includeWordCount = true
-        let text = TextExporter.export(project: makeProject(), options: options)
-        #expect(text.hasPrefix("Export & Test\n\n"))
+        let text = TextExporter.export(BookDocument.make(from: makeProject()), options: options)
+        #expect(text.hasPrefix("Export & Test\nby T. Author\n\n"))
         #expect(text.contains("CHAPTER <1>\n\n"))
         #expect(text.contains("Scene <One>\n\n"))
         #expect(text.contains("The Heading"))
         #expect(text.contains("Words: "))
+    }
+
+    @Test func excludedScenesAreLeftOut() {
+        let project = makeProject()
+        let hidden = Scene(title: "Hidden", content: NSAttributedString(string: "Secret words."))
+        project.chapters[0].scenes.append(hidden)
+        project.book.excludedSceneIDs = [hidden.id]
+        let text = TextExporter.export(BookDocument.make(from: project), options: ExportOptions())
+        #expect(!text.contains("Secret words."))
     }
 }
 
@@ -197,7 +222,7 @@ struct RTFExporterTests {
     @Test func rtfRoundTripsThroughAppKit() throws {
         var options = ExportOptions()
         options.format = .rtf
-        let data = try RTFExporter.export(project: makeProject(), options: options)
+        let data = try RTFExporter.export(BookDocument.make(from: makeProject()), options: options)
         let parsed = NSAttributedString(rtf: data, documentAttributes: nil)
         let string = try #require(parsed?.string)
         #expect(string.contains("Export & Test"))
@@ -211,42 +236,122 @@ struct RTFExporterTests {
 @MainActor
 struct EpubBuilderTests {
     @Test func structureMatchesContract() throws {
-        var options = ExportOptions()
-        options.format = .epub
-        let data = EpubBuilder.export(project: makeProject(), options: options)
-        let entries = try readZip(data)
+        let entries = try epubEntries(makeProject())
 
         #expect(entries.first?.path == "mimetype")
         #expect(entries.first?.method == 0)
-        let paths = entries.map(\.path)
-        #expect(paths.contains("META-INF/container.xml"))
-        #expect(paths.contains("OEBPS/content.opf"))
-        #expect(paths.contains("OEBPS/toc.ncx"))
-        #expect(paths.contains("OEBPS/nav.xhtml"))
-        #expect(paths.contains("OEBPS/stylesheet.css"))
-        #expect(paths.contains("OEBPS/title.xhtml"))
-        #expect(paths.contains("OEBPS/chapter_01.xhtml"))
+        let paths = Set(entries.map(\.path))
+        for path in [
+            "META-INF/container.xml", "OEBPS/content.opf", "OEBPS/toc.ncx", "OEBPS/nav.xhtml",
+            "OEBPS/styles/book.css", "OEBPS/images/cover.jpg", "OEBPS/text/cover.xhtml",
+            "OEBPS/text/title.xhtml", "OEBPS/text/copyright.xhtml", "OEBPS/text/chapter_01.xhtml",
+        ] {
+            #expect(paths.contains(path), "missing \(path)")
+        }
 
-        let opf = String(data: entries.first { $0.path == "OEBPS/content.opf" }!.data, encoding: .utf8)!
-        #expect(opf.contains("<dc:title>Export &amp; Test</dc:title>"))
-        #expect(opf.contains("<dc:creator>T. Author</dc:creator>"))
+        let opf = text(entries, "OEBPS/content.opf")
+        #expect(opf.contains("<dc:title id=\"title\">Export &amp; Test</dc:title>"))
+        #expect(opf.contains("<dc:creator id=\"author\">T. Author</dc:creator>"))
         #expect(opf.contains("<dc:language>de</dc:language>"))
         #expect(opf.contains("<dc:subject>Mystery &amp; Co</dc:subject>"))
         #expect(opf.contains("properties=\"nav\""))
+        #expect(opf.contains("properties=\"cover-image\""))
+        #expect(opf.contains("<meta property=\"schema:accessMode\">textual</meta>"))
+        #expect(opf.range(of: #"dcterms:modified">\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ<"#, options: .regularExpression) != nil)
 
-        let chapter = String(data: entries.first { $0.path == "OEBPS/chapter_01.xhtml" }!.data, encoding: .utf8)!
-        #expect(chapter.contains("<h2 class=\"chapter-title\">Chapter &lt;1&gt;</h2>"))
-        #expect(chapter.contains("<h3 class=\"scene-title\">Scene &lt;One&gt;</h3>"))
+        let chapter = text(entries, "OEBPS/text/chapter_01.xhtml")
+        #expect(chapter.contains("<p class=\"chapter-label\" aria-hidden=\"true\">Kapitel Eins</p>"))
+        #expect(chapter.contains("class=\"chapter-title\" aria-label=\"Kapitel Eins: Chapter &lt;1&gt;\">Chapter &lt;1&gt;</h1>"))
+        #expect(!chapter.contains("scene-title"))
+        #expect(chapter.contains("<h3>The Heading</h3>"))
         #expect(chapter.contains("<strong>bold</strong>"))
+        #expect(chapter.contains("xml:lang=\"de\""))
     }
 
-    @Test func everyXMLEntryParsesLikeAReader() throws {
-        var options = ExportOptions()
-        options.format = .epub
-        options.includeWordCount = true
-        let data = EpubBuilder.export(project: makeProject(), options: options)
-        let entries = try readZip(data)
+    @Test func identifierIsStableAcrossExports() throws {
+        let project = makeProject()
+        let first = text(try epubEntries(project), "OEBPS/content.opf")
+        let second = text(try epubEntries(project), "OEBPS/content.opf")
+        let identifier = "urn:uuid:\(project.id.uuidString.lowercased())"
+        #expect(first.contains(identifier))
+        #expect(second.contains(identifier))
+    }
+
+    @Test func fullBookParsesLikeAReader() throws {
+        let project = makeProject()
+        project.chapters.append(Chapter(title: "Second", scenes: [
+            Scene(title: "A", content: NSAttributedString(string: "First scene.")),
+            Scene(title: "B", content: NSAttributedString(string: "Second scene.")),
+        ]))
+        project.book.subtitle = "A <Subtitle>"
+        project.book.isbn = "978-0-306-40615-7"
+        project.book.series = "The & Series"
+        project.book.seriesNumber = "2"
+        project.book.dedication = "For you & me"
+        project.book.epigraph = "Words <matter>."
+        project.book.epigraphAttribution = "Someone"
+        project.book.acknowledgements = "Thanks.\nMore thanks."
+        project.book.aboutAuthor = "Writes things."
+        project.book.alsoBy = "Book One\nBook Two"
+        project.book.showsSceneTitles = true
+        project.book.sceneBreak = .fleuron
+        project.book.bodyFont = .quattrocento
+        let entries = try epubEntries(project)
         expectWellFormedXML(in: entries)
+
+        let paths = Set(entries.map(\.path))
+        for path in ["dedication", "epigraph", "acknowledgements", "about", "also_by"] {
+            #expect(paths.contains("OEBPS/text/\(path).xhtml"), "missing \(path)")
+        }
+        #expect(paths.contains("OEBPS/fonts/Quattrocento-Regular.ttf"))
+
+        let opf = text(entries, "OEBPS/content.opf")
+        #expect(opf.contains("urn:isbn:9780306406157"))
+        #expect(opf.contains("<meta refines=\"#series\" property=\"group-position\">2</meta>"))
+        #expect(opf.contains("<dc:title id=\"subtitle\">A &lt;Subtitle&gt;</dc:title>"))
+
+        let chapter = text(entries, "OEBPS/text/chapter_02.xhtml")
+        #expect(chapter.contains("<h2 class=\"scene-title\">A</h2>"))
+        #expect(chapter.contains(">❦</p>"))
+
+        let nav = text(entries, "OEBPS/nav.xhtml")
+        #expect(nav.contains("chapter_02.xhtml#scene-"))
+        #expect(nav.contains("epub:type=\"landmarks\""))
+        #expect(nav.contains("Also by T. Author"))
+    }
+
+    @Test func spineFollowsBookOrder() {
+        let project = makeProject()
+        project.book.dedication = "For you"
+        project.book.aboutAuthor = "Bio"
+        let publication = EpubBuilder.publication(for: BookDocument.make(from: project))
+        #expect(publication.spine.map(\.kind) == [.cover, .titlePage, .copyright, .dedication, .contents, .chapter, .backMatter])
+    }
+
+    @Test func optionalPagesCanBeTurnedOff() {
+        let project = makeProject()
+        project.book.cover = .none
+        project.book.includesTitlePage = false
+        project.book.includesCopyrightPage = false
+        project.book.includesTableOfContents = false
+        let publication = EpubBuilder.publication(for: BookDocument.make(from: project))
+        #expect(publication.spine.map(\.kind) == [.chapter])
+        // The navigation document stays in the package; it's required.
+        #expect(publication.file(at: "OEBPS/nav.xhtml") != nil)
+        #expect(publication.file(at: "OEBPS/images/cover.jpg") == nil)
+    }
+
+    @Test func excludedChaptersAreDroppedAndRenumbered() throws {
+        let project = makeProject()
+        let skipped = project.chapters[0]
+        project.chapters.append(Chapter(title: "Kept", scenes: [Scene(title: "S", content: NSAttributedString(string: "Text."))]))
+        project.book.excludedChapterIDs = [skipped.id]
+        project.book.language = "en"
+        let entries = try epubEntries(project)
+        let chapter = text(entries, "OEBPS/text/chapter_01.xhtml")
+        #expect(chapter.contains("Chapter One"))
+        #expect(chapter.contains(">Kept</h1>"))
+        #expect(!entries.contains { $0.path == "OEBPS/text/chapter_02.xhtml" })
     }
 
     /// XML-illegal control characters and the attachment placeholder must
@@ -257,40 +362,119 @@ struct EpubBuilderTests {
             string: "A bell\u{07} rang\u{FFFC} and echoed.\n",
             attributes: [.font: NSFont.systemFont(ofSize: 18)]
         ))
-        let project = Project(
-            title: "Sanitize",
-            chapters: [Chapter(title: "One", scenes: [scene])]
-        )
-        var options = ExportOptions()
-        options.format = .epub
-        options.epubMetadata = ProjectEpubMetadata(
-            author: "A", publisher: "", language: "de\"><evil>&", rights: "", subjects: []
-        )
+        let project = Project(title: "Sanitize", chapters: [Chapter(title: "One", scenes: [scene])])
+        project.book.author = "A"
+        project.book.language = "de\"><evil>&"
 
-        let data = EpubBuilder.export(project: project, options: options)
-        let entries = try readZip(data)
+        let entries = try epubEntries(project)
         expectWellFormedXML(in: entries)
 
-        let opf = String(data: entries.first { $0.path == "OEBPS/content.opf" }!.data, encoding: .utf8)!
+        let opf = text(entries, "OEBPS/content.opf")
         #expect(opf.contains("<dc:language>de&quot;&gt;&lt;evil&gt;&amp;</dc:language>"))
         #expect(!opf.contains("<dc:language>de\"><evil>&</dc:language>"))
 
-        let chapter = String(data: entries.first { $0.path == "OEBPS/chapter_01.xhtml" }!.data, encoding: .utf8)!
+        let chapter = text(entries, "OEBPS/text/chapter_01.xhtml")
         #expect(!chapter.contains("\u{07}"))
         #expect(!chapter.contains("\u{FFFC}"))
         #expect(chapter.contains("A bell rang and echoed."))
     }
 
-    @Test func metadataOverridesProjectDefaults() throws {
-        var options = ExportOptions()
-        options.format = .epub
-        options.epubMetadata = ProjectEpubMetadata(
-            author: "Override Author", publisher: "", language: "", rights: "", subjects: []
+    @Test func manuscriptPreviewIsWellFormed() throws {
+        for format in [ExportFormat.rtf, .txt] {
+            var options = ExportOptions()
+            options.format = format
+            let publication = ManuscriptPreview.publication(for: BookDocument.make(from: makeProject()), options: options)
+            let file = try #require(publication.files.first)
+            let parser = XMLParser(data: file.data)
+            #expect(parser.parse(), "\(format) preview is not well-formed")
+        }
+    }
+}
+
+// MARK: - Book model
+
+@MainActor
+struct BookDocumentTests {
+    @Test func chapterLabelsFollowTheBookLanguage() {
+        #expect(ChapterNumbering.label(for: 1, language: "en") == "Chapter One")
+        #expect(ChapterNumbering.label(for: 21, language: "en-GB") == "Chapter Twenty-one")
+        #expect(ChapterNumbering.label(for: 3, language: "de") == "Kapitel Drei")
+        #expect(ChapterNumbering.label(for: 12, language: "ja") == "Chapter 12")
+    }
+
+    @Test func copyrightLineIsGeneratedUnlessCustom() {
+        let project = makeProject()
+        let now = ISO8601DateFormatter().date(from: "2026-05-01T12:00:00Z")!
+        #expect(BookDocument.make(from: project, now: now).copyrightLine == "Copyright © 2026 T. Author. All rights reserved.")
+        project.book.rights = "© The Estate"
+        #expect(BookDocument.make(from: project, now: now).copyrightLine == "© The Estate")
+    }
+
+    @Test func isbnChecksums() {
+        #expect(ISBN.isValid("978-0-306-40615-7"))
+        #expect(ISBN.isValid("0-306-40615-2"))
+        #expect(ISBN.isValid("0-8044-2957-X"))
+        #expect(!ISBN.isValid("978-0-306-40615-8"))
+        #expect(!ISBN.isValid("12345"))
+    }
+
+    @Test func readinessFlagsWhatMatters() {
+        let project = makeProject()
+        project.book.author = ""
+        project.book.isbn = "978-0-306-40615-8"
+        project.book.cover = .image
+        let issues = BookReadiness.issues(for: BookDocument.make(from: project), format: .epub)
+        let ids = Set(issues.map(\.id))
+        #expect(ids.isSuperset(of: ["author", "isbn", "cover"]))
+        #expect(!issues.contains { $0.severity == .blocking })
+
+        // Manuscript formats don't need store metadata.
+        let manuscript = BookReadiness.issues(for: BookDocument.make(from: project), format: .rtf)
+        #expect(!manuscript.contains { $0.id == "author" })
+    }
+
+    @Test func excludingEverythingBlocksExport() {
+        let project = makeProject()
+        project.book.excludedChapterIDs = Set(project.chapters.map(\.id))
+        let issues = BookReadiness.issues(for: BookDocument.make(from: project), format: .txt)
+        #expect(issues.first?.severity == .blocking)
+    }
+
+    @Test func draftScenesAreSuggested() {
+        let project = makeProject()
+        project.chapters[0].scenes[0].status = .draft
+        let issues = BookReadiness.issues(for: BookDocument.make(from: project), format: .epub)
+        #expect(issues.contains { $0.id == "drafts" && $0.severity == .suggestion })
+    }
+
+    @Test func unknownSettingValuesDegradeFieldByField() throws {
+        let json = #"{"author":"Kept","template":"holographic","sceneBreak":"fleuron","excludedSceneIDs":"nonsense"}"#
+        let settings = try JSONDecoder().decode(BookSettings.self, from: Data(json.utf8))
+        #expect(settings.author == "Kept")
+        #expect(settings.template == .genericNovel)
+        #expect(settings.sceneBreak == .fleuron)
+        #expect(settings.excludedSceneIDs.isEmpty)
+    }
+}
+
+// MARK: - Covers
+
+struct CoverRendererTests {
+    @Test(arguments: CoverDesign.allCases)
+    func rendersEveryDesign(design: CoverDesign) throws {
+        let input = CoverRenderer.Input(
+            title: "The Extraordinarily Long Title of a Book That Keeps Going",
+            subtitle: "A Novel", author: "Jane Writer", series: "Saga · Book 2",
+            design: design, palette: .ink
         )
-        let data = EpubBuilder.export(project: makeProject(), options: options)
-        let entries = try readZip(data)
-        let opf = String(data: entries.first { $0.path == "OEBPS/content.opf" }!.data, encoding: .utf8)!
-        #expect(opf.contains("<dc:creator>Override Author</dc:creator>"))
-        #expect(opf.contains("<dc:language>de</dc:language>")) // project value survives empty override
+        let data = try #require(CoverRenderer.jpegData(for: input))
+        let rep = try #require(NSBitmapImageRep(data: data))
+        #expect(rep.pixelsWide == 1600)
+        #expect(rep.pixelsHigh == 2560)
+    }
+
+    @Test func emptyFieldsStillRender() {
+        let input = CoverRenderer.Input(title: "", subtitle: "", author: "", series: "", design: .modern, palette: .paper)
+        #expect(CoverRenderer.render(input, size: CGSize(width: 160, height: 256)) != nil)
     }
 }

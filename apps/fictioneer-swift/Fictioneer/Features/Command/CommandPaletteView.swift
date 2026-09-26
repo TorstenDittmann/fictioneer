@@ -252,7 +252,7 @@ struct CommandPaletteView: View {
             id: "action-export", group: .actions,
             title: "Export Project…", subtitle: "Compile as RTF, EPUB, or plain text",
             icon: "square.and.arrow.up", keywords: ["export", "epub", "rtf", "compile"],
-            action: { session.isExportSheetRequested = true }
+            action: { session.requestExport() }
         ))
         items.append(PaletteItem(
             id: "action-goals", group: .actions,

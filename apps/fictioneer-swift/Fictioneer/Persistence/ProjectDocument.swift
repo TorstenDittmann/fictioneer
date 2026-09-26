@@ -70,6 +70,9 @@ final class ProjectDocument: NSDocument {
         session.onSaveRequest = { [weak self] in
             self?.autosave(withImplicitCancellability: false) { _ in }
         }
+        session.onExportRequest = { [weak self] in
+            self?.showExportWindow()
+        }
         state.session = session
     }
 
@@ -175,6 +178,45 @@ final class ProjectDocument: NSDocument {
         addWindowController(ProjectWindowController(document: self))
     }
 
+    /// One export window per document; it closes with the document.
+    func showExportWindow() {
+        guard let session else { return }
+        if let existing = windowControllers.first(where: { $0 is ExportWindowController }) {
+            existing.showWindow(nil)
+            return
+        }
+        let controller = ExportWindowController(session: session)
+        addWindowController(controller)
+        controller.showWindow(nil)
+    }
+
+    /// Re-exports to the last destination without asking; falls back to the
+    /// export window when there is none (or it can't be written).
+    func exportAgain() {
+        guard let session else { return }
+        guard let last = ExportService.lastDestination(projectID: session.project.id) else {
+            showExportWindow()
+            return
+        }
+        session.saveNow()
+        let book = BookDocument.make(from: session.project)
+        guard !BookReadiness.issues(for: book, format: last.format).contains(where: { $0.severity == .blocking }) else {
+            showExportWindow()
+            return
+        }
+        var options = AppModel.shared.settings.exportDefaults.map(ExportOptions.init(defaults:)) ?? ExportOptions()
+        options.format = last.format
+        Task {
+            do {
+                let data = try await ExportService.render(book, options: options)
+                try ExportService.write(data, to: last.url)
+                NSSound(named: "Glass")?.play()
+            } catch {
+                showExportWindow()
+            }
+        }
+    }
+
     /// Every open path (panel, Finder, Open Recent, restoration) ends here.
     override func showWindows() {
         super.showWindows()
@@ -239,6 +281,9 @@ final class ProjectWindowController: NSWindowController {
         window.tabbingMode = .preferred
         super.init(window: window)
         shouldCascadeWindows = true
+        // Closing the project window closes the document and with it any
+        // secondary window (export).
+        shouldCloseDocument = true
 
         NotificationCenter.default.addObserver(
             self,

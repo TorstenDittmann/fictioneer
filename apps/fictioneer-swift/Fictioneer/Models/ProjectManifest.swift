@@ -15,7 +15,9 @@ nonisolated struct ProjectManifest: Codable {
     var dailyProgress: [DailyProgress]?
     var dailyWordSnapshots: [String: Int]?
     var lastSessionTime: Date?
+    /// Legacy book metadata, read to seed `book`; no longer written.
     var epubMetadata: ProjectEpubMetadata?
+    var book: BookSettings?
     var quoteStyle: QuoteStyle?
     var plotLines: [PlotLine]?
     var beats: [PlotBeat]?
@@ -100,7 +102,8 @@ extension ProjectManifest {
             dailyProgress: project.dailyProgress.isEmpty ? nil : project.dailyProgress,
             dailyWordSnapshots: project.dailyWordSnapshots.isEmpty ? nil : project.dailyWordSnapshots,
             lastSessionTime: project.lastSessionTime,
-            epubMetadata: project.epubMetadata,
+            epubMetadata: nil,
+            book: project.book == BookSettings() ? nil : project.book,
             quoteStyle: project.quoteStyle,
             plotLines: project.plotLines.isEmpty ? nil : project.plotLines,
             beats: Self.beats(of: project)

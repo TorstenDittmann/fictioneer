@@ -1,102 +1,65 @@
+/* Modern Compact: clean, left-aligned headings and a brisk reading rhythm. */
 body {
-	font-family: 'Helvetica Neue', Arial, sans-serif;
-	font-size: 1em;
-	line-height: 1.5;
-	margin: 0;
-	padding: 0.8em;
-	color: #1f2937;
-	text-align: left;
-}
-
-h1,
-h2,
-h3 {
-	font-family: Arial, sans-serif;
-	font-weight: 700;
-	line-height: 1.2;
-	color: #111827;
-}
-
-h1 {
-	font-size: 2.4em;
-	text-align: center;
-	margin: 2.6em 0 0.8em 0;
-	page-break-before: always;
-}
-
-h2 {
-	font-size: 1.45em;
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
-	margin: 1.8em 0 1em 0;
-	page-break-before: always;
-}
-
-h3 {
-	font-size: 1.05em;
-	margin: 1.3em 0 0.8em 0;
-	padding-bottom: 0.35em;
-	border-bottom: 1px solid #d1d5db;
+	line-height: 1.45;
 }
 
 p {
-	margin: 0 0 0.85em 0;
-	text-indent: 0;
+	text-indent: 1.2em;
 }
 
-p + p {
-	text-indent: 1.1em;
-}
-
-.title-page {
-	text-align: center;
-	page-break-after: always;
-}
-
-.title-page .author {
-	font-size: 1.05em;
-	margin: 1.5em 0 0 0;
-	letter-spacing: 0.02em;
-	color: #4b5563;
-}
-
-.title-page .description {
-	font-size: 0.92em;
-	max-width: 32em;
-	margin: 2.2em auto 0 auto;
+.chapter-heading {
+	margin: 2em 0 2em 0;
 	text-align: left;
-	line-height: 1.55;
-	color: #374151;
+}
+
+.chapter-label {
+	font-size: 0.75em;
+	font-weight: bold;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	margin-bottom: 0.5em;
+	opacity: 0.7;
+}
+
+.chapter-numeral {
+	font-size: 3.2em;
+	font-weight: bold;
+	line-height: 1;
+	margin-bottom: 0.1em;
+}
+
+.chapter-title {
+	font-size: 1.7em;
+	font-weight: bold;
+	line-height: 1.2;
+	margin: 0;
+}
+
+.scene-title {
+	font-size: 0.9em;
+	font-weight: bold;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	margin: 1.8em 0 0.6em 0;
 }
 
 .scene-break {
-	text-align: center;
-	margin: 1.8em 0;
-	letter-spacing: 0.2em;
-	color: #6b7280;
+	text-align: left;
 }
 
-.word-count {
-	font-size: 0.78em;
-	color: #6b7280;
-	text-align: right;
-	margin-top: 1.2em;
+hr.scene-break.rule {
+	margin-left: 0;
 }
 
-.toc {
-	page-break-before: always;
+.book-title {
+	font-size: 2.5em;
+	font-weight: bold;
+	line-height: 1.1;
+	margin: 0 0 0.4em 0;
 }
 
-.toc ol {
-	list-style: none;
-	padding-left: 0;
-}
-
-.toc li {
-	margin: 0.4em 0;
-}
-
-.toc a {
-	text-decoration: none;
-	color: #1f2937;
+.matter-title {
+	font-size: 1.3em;
+	font-weight: bold;
+	margin: 1.5em 0 1em 0;
 }
