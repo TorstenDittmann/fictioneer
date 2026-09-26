@@ -109,7 +109,10 @@ nonisolated enum QuoteStyle: String, Codable, CaseIterable, Identifiable, Sendab
         for index in characters.indices {
             let character = characters[index]
             let previous = index > 0 ? characters[index - 1] : nil
-            let next = index + 1 < characters.count ? characters[index + 1] : nil
+            // The end of the text is a known boundary here (unlike while
+            // typing), so a final mark after a word closes a quote rather
+            // than being an apostrophe.
+            let next: Character = index + 1 < characters.count ? characters[index + 1] : " "
             if Self.doubleQuoteCharacters.contains(character) {
                 result[index] = mark(forTyped: "\"", after: previous, before: next) ?? character
             } else if Self.singleQuoteCharacters.contains(character) {

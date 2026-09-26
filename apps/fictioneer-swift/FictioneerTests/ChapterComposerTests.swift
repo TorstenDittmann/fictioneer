@@ -130,6 +130,16 @@ struct SceneSplitMergeTests {
         #expect(newScene.status == .revised)
     }
 
+    @Test func mergeKeepsBothBeatsWhenBothScenesHaveOne() throws {
+        let (project, chapter) = makeProject()
+        let line = project.addPlotLine()
+        project.setBeat("Opening beat", scene: chapter.scenes[0], line: line)
+        project.setBeat("Later beat", scene: chapter.scenes[1], line: line)
+        let merged = try #require(project.mergeSceneIntoPrevious(chapter.scenes[1]))
+        #expect(project.beat(scene: merged, line: line) == "Opening beat\nLater beat")
+        #expect(project.beats.count == 1)
+    }
+
     @Test func mergeAppendsToPreviousAndCarriesBeats() throws {
         let (project, chapter) = makeProject()
         let line = project.addPlotLine()

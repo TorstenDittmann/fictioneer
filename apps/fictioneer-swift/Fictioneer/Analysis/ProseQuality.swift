@@ -1,18 +1,25 @@
 import Foundation
 
+// `length` is the UTF-16 length of the matched text itself. The display
+// strings (`word`, `phrase`) can differ from it — lowercased (İ grows), list
+// spellings, collapsed whitespace — so highlight ranges never use them.
+
 nonisolated struct AdverbMatch: Sendable {
     var word: String
     var position: Int
+    var length: Int
 }
 
 nonisolated struct PassiveVoiceMatch: Sendable {
     var phrase: String
     var position: Int
+    var length: Int
 }
 
 nonisolated struct PositionedMatch: Sendable {
     var word: String
     var position: Int
+    var length: Int
 }
 
 /// Port of text_analysis/prose_quality.ts (inline word lists — the module-level
@@ -140,12 +147,12 @@ nonisolated enum ProseQuality {
             for match in lyRegex.matches(in: text, range: sentenceRange) {
                 let word = ns.substring(with: match.range).lowercased()
                 if !lyExceptions.contains(word) {
-                    results.append(AdverbMatch(word: word, position: match.range.location))
+                    results.append(AdverbMatch(word: word, position: match.range.location, length: match.range.length))
                 }
             }
             for (adverb, regex) in nonLyAdverbRegexes {
                 for match in regex.matches(in: text, range: sentenceRange) {
-                    results.append(AdverbMatch(word: adverb, position: match.range.location))
+                    results.append(AdverbMatch(word: adverb, position: match.range.location, length: match.range.length))
                 }
             }
         }
@@ -164,7 +171,7 @@ nonisolated enum ProseQuality {
                         let phrase = ns.substring(with: match.range)
                             .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
                             .trimmingCharacters(in: .whitespaces)
-                        results.append(PassiveVoiceMatch(phrase: phrase, position: match.range.location))
+                        results.append(PassiveVoiceMatch(phrase: phrase, position: match.range.location, length: match.range.length))
                     }
                 }
             }
@@ -189,7 +196,7 @@ nonisolated enum ProseQuality {
         var results: [PositionedMatch] = []
         for (filter, regex) in filterWordRegexes {
             for match in regex.matches(in: text, range: NSRange(location: 0, length: ns.length)) {
-                results.append(PositionedMatch(word: filter, position: match.range.location))
+                results.append(PositionedMatch(word: filter, position: match.range.location, length: match.range.length))
             }
         }
         return results.sorted { $0.position < $1.position }
@@ -200,7 +207,7 @@ nonisolated enum ProseQuality {
         var results: [PositionedMatch] = []
         for (cliche, regex) in clicheRegexes {
             for match in regex.matches(in: text, range: NSRange(location: 0, length: ns.length)) {
-                results.append(PositionedMatch(word: cliche, position: match.range.location))
+                results.append(PositionedMatch(word: cliche, position: match.range.location, length: match.range.length))
             }
         }
         return results.sorted { $0.position < $1.position }
@@ -211,7 +218,7 @@ nonisolated enum ProseQuality {
         var results: [PositionedMatch] = []
         for (_, regex) in vagueWordRegexes {
             for match in regex.matches(in: text, range: NSRange(location: 0, length: ns.length)) {
-                results.append(PositionedMatch(word: ns.substring(with: match.range), position: match.range.location))
+                results.append(PositionedMatch(word: ns.substring(with: match.range), position: match.range.location, length: match.range.length))
             }
         }
         return results.sorted { $0.position < $1.position }
@@ -231,7 +238,7 @@ nonisolated enum ProseQuality {
         for match in adverbs {
             result.append(AnalysisHighlight(
                 type: .adverb, severity: .info,
-                start: match.position, end: match.position + (match.word as NSString).length,
+                start: match.position, end: match.position + match.length,
                 message: "Adverb: \"\(match.word)\" - Consider using a stronger verb instead",
                 suggestion: "Try replacing with a more specific verb"
             ))
@@ -239,7 +246,7 @@ nonisolated enum ProseQuality {
         for match in passives {
             result.append(AnalysisHighlight(
                 type: .passiveVoice, severity: .warning,
-                start: match.position, end: match.position + (match.phrase as NSString).length,
+                start: match.position, end: match.position + match.length,
                 message: "Passive voice: \"\(match.phrase)\" - Active voice is often stronger",
                 suggestion: "Consider rewriting in active voice"
             ))
@@ -247,7 +254,7 @@ nonisolated enum ProseQuality {
         for match in filters {
             result.append(AnalysisHighlight(
                 type: .filterWord, severity: .info,
-                start: match.position, end: match.position + (match.word as NSString).length,
+                start: match.position, end: match.position + match.length,
                 message: "Filter word: \"\(match.word)\" - Often unnecessary and weakens prose",
                 suggestion: "Consider removing or finding a stronger alternative"
             ))
@@ -256,7 +263,7 @@ nonisolated enum ProseQuality {
             for match in clicheMatches {
                 result.append(AnalysisHighlight(
                     type: .cliche, severity: .warning,
-                    start: match.position, end: match.position + (match.word as NSString).length,
+                    start: match.position, end: match.position + match.length,
                     message: "Cliché: \"\(match.word)\" - Consider a more original expression",
                     suggestion: "Try expressing this idea in your own unique way"
                 ))
@@ -266,7 +273,7 @@ nonisolated enum ProseQuality {
             for match in vagues {
                 result.append(AnalysisHighlight(
                     type: .vagueWord, severity: .info,
-                    start: match.position, end: match.position + (match.word as NSString).length,
+                    start: match.position, end: match.position + match.length,
                     message: "Vague word: \"\(match.word)\" - Could be more specific",
                     suggestion: "Consider using a more precise word"
                 ))

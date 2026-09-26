@@ -26,6 +26,12 @@ struct QuoteStyleTests {
         #expect(QuoteStyle.straight.mark(forTyped: "'", after: "n", before: "t") == "'")
     }
 
+    @Test func convertClosesSingleQuoteAtEndOfText() {
+        // A final mark after a word closes the quote; mid-word it stays an apostrophe.
+        #expect(QuoteStyle.german.convert("Er sagte 'ja'") == "Er sagte \u{201A}ja\u{2018}")
+        #expect(QuoteStyle.german.convert("geht's") == "geht\u{2019}s")
+    }
+
     @Test func nonQuoteKeysAreLeftAlone() {
         #expect(QuoteStyle.english.mark(forTyped: "a", after: " ") == nil)
     }

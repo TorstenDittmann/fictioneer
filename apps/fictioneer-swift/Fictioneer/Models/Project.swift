@@ -200,11 +200,12 @@ final class Project {
         }
         merged.append(scene.content)
         previous.updateContent(merged)
+        // Beats move to the merged scene; where both had one, both are kept.
         for key in beats.keys where key.sceneID == scene.id {
+            guard let text = beats.removeValue(forKey: key), !text.isEmpty else { continue }
             let target = BeatKey(sceneID: previous.id, plotLineID: key.plotLineID)
-            if let text = beats[key], (beats[target] ?? "").isEmpty {
-                beats[target] = text
-            }
+            let existing = beats[target] ?? ""
+            beats[target] = existing.isEmpty ? text : existing + "\n" + text
         }
         deleteScene(scene)
         return previous

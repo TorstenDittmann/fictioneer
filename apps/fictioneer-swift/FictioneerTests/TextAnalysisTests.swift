@@ -321,6 +321,23 @@ struct TextAnalysisEngineTests {
 /// runs never overlap each other and CI contention is minimized.
 @Suite(.serialized)
 struct TextAnalysisPerformanceTests {
+    @Test func highlightRangesUseTheMatchedTextLength() {
+        // "İ" lowercases to two UTF-16 units; collapsed whitespace shortens
+        // the passive phrase. Ranges must still cover exactly the source text.
+        let text = "İNSTANTLY he ran. The door was  closed."
+        let sentences = SentenceAnalysis.parseSentences(text)
+        let adverbs = ProseQuality.detectAdverbs(text, sentences: sentences)
+        let passives = ProseQuality.detectPassiveVoice(text, sentences: sentences)
+        let highlights = ProseQuality.highlights(
+            adverbs: adverbs, passives: passives, filters: [], cliches: [], vagues: [], config: AnalysisConfig()
+        )
+        let ns = text as NSString
+        let adverb = try? #require(highlights.first { $0.type == .adverb })
+        #expect(adverb.map { ns.substring(with: $0.range) } == "İNSTANTLY")
+        let passive = try? #require(highlights.first { $0.type == .passiveVoice })
+        #expect(passive.map { ns.substring(with: $0.range) } == "was  closed")
+    }
+
     @Test func largeDocumentAnalyzesWithinBudget() {
         let paragraph = "The detective walked slowly through the very dark corridor. He was followed by shadows that seemed to whisper. "
         let text = String(repeating: paragraph, count: 180) // ~3k words

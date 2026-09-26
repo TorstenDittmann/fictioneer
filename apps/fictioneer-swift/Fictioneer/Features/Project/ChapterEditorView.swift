@@ -164,9 +164,11 @@ struct ChapterEditorView: View {
             initialSelection: { [weak session] in
                 guard let session, let storage = controller.textView?.textStorage else { return nil }
                 session.chapterScrollRequest = nil
-                // Where the writer was (after a rebuild), else the start of
-                // the selected scene.
-                if let caret = session.chapterCaret, let selection = Self.selection(for: caret, in: storage) {
+                // Where the writer was (after a rebuild), unless another scene
+                // was selected meanwhile (e.g. a scene just added): then the
+                // start of that scene.
+                if let caret = session.chapterCaret, caret.sceneID == session.selectedSceneID,
+                   let selection = Self.selection(for: caret, in: storage) {
                     return selection
                 }
                 if let sceneID = session.selectedSceneID {
