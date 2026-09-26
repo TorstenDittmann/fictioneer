@@ -12,7 +12,7 @@ type Model = Parameters<typeof openrouter>[0];
 
 const MODELS = {
 	SLOW: 'openai/gpt-oss-120b',
-	FAST: 'x-ai/grok-4.1-fast'
+	FAST: 'deepseek/deepseek-v4-flash'
 } as const satisfies Record<string, Model>;
 
 function create_model(model: Model, distinctId: string | undefined = undefined) {
