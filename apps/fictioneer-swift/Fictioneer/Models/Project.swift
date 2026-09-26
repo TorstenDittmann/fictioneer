@@ -133,6 +133,20 @@ final class Project {
         targetChapter.updatedAt = .now
         touch()
     }
+
+    /// Moves a scene to `index` in `targetChapter` (which may be its own
+    /// chapter); `index` counts the target's scenes without the moved one.
+    @discardableResult
+    func moveScene(_ scene: Scene, from sourceChapter: Chapter, to targetChapter: Chapter, at index: Int) -> Bool {
+        guard let current = sourceChapter.scenes.firstIndex(where: { $0.id == scene.id }) else { return false }
+        if sourceChapter.id == targetChapter.id, current == index { return false }
+        sourceChapter.scenes.remove(at: current)
+        targetChapter.scenes.insert(scene, at: min(max(index, 0), targetChapter.scenes.count))
+        sourceChapter.updatedAt = .now
+        targetChapter.updatedAt = .now
+        touch()
+        return true
+    }
 }
 
 @Observable

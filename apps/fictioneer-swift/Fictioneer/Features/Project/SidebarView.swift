@@ -9,6 +9,7 @@ struct SidebarView: View {
     @State private var chapterPendingDeletion: Chapter?
     @State private var scenePendingDeletion: Scene?
     @State private var showingProjectSettings = false
+    @State private var hoveredChapterID: UUID?
 
     private var project: Project { session.project }
 
@@ -57,14 +58,43 @@ struct SidebarView: View {
 
     // MARK: - Sections
 
+    private static let numeralSpacing: CGFloat = 6
+    private static let numeralFontName = "Quattrocento-Bold"
+    private static let numeralFontSize: CGFloat = 12
+
+    /// Fits the numeral column to the widest numeral in the project, so
+    /// chapter titles align without a fixed column leaving a gap after "I".
+    private static func numeralColumnWidth(_ numerals: some Sequence<String>) -> CGFloat {
+        let font = NSFont(name: numeralFontName, size: numeralFontSize) ?? .boldSystemFont(ofSize: numeralFontSize)
+        let widths = numerals.map { NSAttributedString(string: $0, attributes: [.font: font]).size().width }
+        return ceil(widths.max() ?? 0)
+    }
+
     private var chaptersSection: some View {
-        Section {
-            ForEach(Array(project.chapters.enumerated()), id: \.element.id) { index, chapter in
-                chapterGroup(chapter, numeral: RomanNumeral.format(index + 1))
+        let rows = SidebarOutline.rows(for: project)
+        let numerals = Dictionary(
+            uniqueKeysWithValues: project.chapters.enumerated().map { ($1.id, RomanNumeral.format($0 + 1)) }
+        )
+        let numeralWidth = Self.numeralColumnWidth(numerals.values)
+        let sceneIndent = numeralWidth + Self.numeralSpacing
+        return Section {
+            ForEach(rows) { row in
+                Group {
+                    switch row {
+                    case .chapter(let chapter):
+                        chapterRow(chapter, numeral: numerals[chapter.id] ?? "", numeralWidth: numeralWidth)
+                    case .scene(let scene, let chapter):
+                        sceneRow(scene, in: chapter, indent: sceneIndent)
+                    case .addScene(let chapter):
+                        emptyChapterRow(chapter, indent: sceneIndent)
+                    }
+                }
+                .moveDisabled(!row.isMovable)
             }
             .onMove { source, destination in
-                project.moveChapters(fromOffsets: source, toOffset: destination)
-                session.markDirty()
+                if SidebarOutline.move(in: project, rows: rows, fromOffsets: source, toOffset: destination) {
+                    session.markDirty()
+                }
             }
             Button {
                 addChapter()
@@ -79,35 +109,33 @@ struct SidebarView: View {
         }
     }
 
-    private func chapterGroup(_ chapter: Chapter, numeral: String) -> some View {
-        @Bindable var chapter = chapter
-        return DisclosureGroup(isExpanded: $chapter.isExpanded) {
-            ForEach(chapter.scenes, id: \.id) { scene in
-                sceneRow(scene, in: chapter)
-            }
-            .onMove { source, destination in
-                chapter.moveScenes(fromOffsets: source, toOffset: destination)
-                session.markDirty()
-            }
-            Button {
-                addScene(to: chapter)
-            } label: {
-                Label("Add Scene", systemImage: "plus")
-                    .font(.callout)
-                    .foregroundStyle(.tertiary)
-            }
-            .buttonStyle(.plain)
-            .selectionDisabled()
-        } label: {
-            HStack(alignment: .firstTextBaseline, spacing: 7) {
-                Text(numeral)
-                    .font(.custom("Quattrocento-Bold", size: 12))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 24, alignment: .trailing)
-                Text(ManuscriptTitle.strippingNumbering(chapter.title))
-                    .font(.custom("Quattrocento-Bold", size: 13))
-                    .lineLimit(1)
-                Spacer()
+    /// Unselectable (no .tag()); clicking anywhere on it toggles the chapter.
+    /// The trailing edge shows the scene count only while collapsed (expanded,
+    /// the scenes are right there) and an Add Scene button on hover.
+    private func chapterRow(_ chapter: Chapter, numeral: String, numeralWidth: CGFloat) -> some View {
+        let isHovered = hoveredChapterID == chapter.id
+        return HStack(alignment: .firstTextBaseline, spacing: Self.numeralSpacing) {
+            Text(numeral)
+                .font(.custom(Self.numeralFontName, size: Self.numeralFontSize))
+                .foregroundStyle(.secondary)
+                .fixedSize()
+                .frame(minWidth: numeralWidth, alignment: .leading)
+            Text(ManuscriptTitle.strippingNumbering(chapter.title))
+                .font(.custom("Quattrocento-Bold", size: 13))
+                .lineLimit(1)
+            Spacer(minLength: 4)
+            if isHovered {
+                Button {
+                    addScene(to: chapter)
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.borderless)
+                .help("Add scene")
+                .accessibilityLabel("Add scene to \(chapter.title)")
+            } else if !chapter.isExpanded {
                 Text("\(chapter.scenes.count)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
@@ -115,24 +143,63 @@ struct SidebarView: View {
                     .fixedSize()
                     .help("\(chapter.scenes.count) scene\(chapter.scenes.count == 1 ? "" : "s")")
             }
-            .contextMenu {
-                Button("Rename…") { beginRename(chapter) }
-                Button("Add Scene") { addScene(to: chapter) }
-                Divider()
-                Button("Move Up") { moveChapter(chapter, by: -1) }
-                    .disabled(project.chapters.first?.id == chapter.id)
-                Button("Move Down") { moveChapter(chapter, by: 1) }
-                    .disabled(project.chapters.last?.id == chapter.id)
-                Divider()
-                Button("Delete Chapter…", role: .destructive) { chapterPendingDeletion = chapter }
+            Image(systemName: "chevron.right")
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(.tertiary)
+                .rotationEffect(.degrees(chapter.isExpanded ? 90 : 0))
+                .frame(width: 10)
+                .accessibilityHidden(true)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { toggle(chapter) }
+        .onHover { hovering in
+            if hovering {
+                hoveredChapterID = chapter.id
+            } else if hoveredChapterID == chapter.id {
+                hoveredChapterID = nil
             }
         }
-        // No .selectionDisabled() here: on a DisclosureGroup it propagates to
-        // every child row, making the scenes unselectable. The label row is
-        // already unselectable because it carries no .tag().
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityValue(chapter.isExpanded ? "Expanded" : "Collapsed")
+        .accessibilityAction { toggle(chapter) }
+        .contextMenu {
+            Button(chapter.isExpanded ? "Collapse" : "Expand") { toggle(chapter) }
+            Divider()
+            Button("Rename…") { beginRename(chapter) }
+            Button("Add Scene") { addScene(to: chapter) }
+            Divider()
+            Button("Move Up") { moveChapter(chapter, by: -1) }
+                .disabled(project.chapters.first?.id == chapter.id)
+            Button("Move Down") { moveChapter(chapter, by: 1) }
+                .disabled(project.chapters.last?.id == chapter.id)
+            Divider()
+            Button("Delete Chapter…", role: .destructive) { chapterPendingDeletion = chapter }
+        }
     }
 
-    private func sceneRow(_ scene: Scene, in chapter: Chapter) -> some View {
+    /// Placeholder under an expanded chapter with no scenes, aligned with
+    /// where scene titles would start.
+    private func emptyChapterRow(_ chapter: Chapter, indent: CGFloat) -> some View {
+        Button {
+            addScene(to: chapter)
+        } label: {
+            Text("Add Scene")
+                .font(.system(size: 13))
+                .foregroundStyle(.tertiary)
+        }
+        .buttonStyle(.plain)
+        .padding(.leading, indent)
+        .selectionDisabled()
+    }
+
+    private func toggle(_ chapter: Chapter) {
+        withAnimation(.easeInOut(duration: 0.15)) {
+            chapter.isExpanded.toggle()
+        }
+    }
+
+    private func sceneRow(_ scene: Scene, in chapter: Chapter, indent: CGFloat) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
             Text(scene.title)
                 .font(.system(size: 13))
@@ -151,7 +218,7 @@ struct SidebarView: View {
                 Spacer(minLength: 0)
             }
         }
-        .padding(.leading, 4)
+        .padding(.leading, indent)
         .tag(SidebarItem.scene(scene.id))
         .contextMenu {
             Button("Rename…") { beginRename(scene) }
@@ -226,7 +293,6 @@ struct SidebarView: View {
                     .help(note.tags.joined(separator: ", "))
             }
         }
-        .padding(.leading, 4)
         .tag(SidebarItem.note(note.id))
         .contextMenu {
             Button("Delete Note", role: .destructive) {
@@ -264,56 +330,23 @@ struct SidebarView: View {
         }
     }
 
+    /// Word count, plus a warning only when saving failed. Unsaved changes
+    /// show as the dot in the close button, and shortcuts live in the menus.
     private var footer: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 5) {
-                shortcutRow("New Scene", "⌘N")
-                shortcutRow("Command Palette", "⌘K")
-                shortcutRow("Focus Mode", "⌘F")
-                shortcutRow("AI Suggestion", "hold ⌥")
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            Divider()
-            HStack {
-                ManuscriptLabel("\(project.totalWordCount.formatted()) words", size: 10, color: .secondary)
-                    .monospacedDigit()
-                Spacer()
-                saveStateLabel
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-        }
-        .background(.bar)
-    }
-
-    private func shortcutRow(_ label: String, _ keys: String) -> some View {
         HStack {
-            Text(label)
-                .foregroundStyle(.secondary)
+            ManuscriptLabel("\(project.totalWordCount.formatted()) words", size: 10, color: .secondary)
+                .monospacedDigit()
             Spacer()
-            Text(keys)
-                .foregroundStyle(.tertiary)
-                .monospaced()
+            if let message = session.saveFailureMessage {
+                Label("Save failed", systemImage: "exclamationmark.triangle")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .help(message)
+            }
         }
-        .font(.caption2)
-    }
-
-    @ViewBuilder
-    private var saveStateLabel: some View {
-        switch session.saveState {
-        case .saved:
-            Label("Saved", systemImage: "checkmark.circle")
-        case .dirty:
-            Label("Editing…", systemImage: "pencil")
-        case .saving:
-            Label("Saving…", systemImage: "arrow.triangle.2.circlepath")
-        case .failed:
-            Label("Save failed", systemImage: "exclamationmark.triangle")
-                .foregroundStyle(.red)
-        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(.bar)
     }
 
     // MARK: - Actions
