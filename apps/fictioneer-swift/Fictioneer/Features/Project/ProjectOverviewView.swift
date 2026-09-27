@@ -4,7 +4,6 @@ import SwiftUI
 /// line on the paper canvas, followed by the progress dashboard.
 struct ProjectOverviewView: View {
     let session: ProjectSession
-    @State private var showingExportSheet = false
 
     private var project: Project { session.project }
 
@@ -26,20 +25,17 @@ struct ProjectOverviewView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         ManuscriptLabel("Export")
                         HStack {
-                            Text("Compile the manuscript as RTF, EPUB, or plain text.")
+                            Text("Publish an eBook with a cover and preview, or a manuscript as RTF or plain text.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            Button("Export Project…") {
-                                showingExportSheet = true
+                            Button("Export…") {
+                                session.requestExport()
                             }
                             .controlSize(.small)
                         }
                         .padding(12)
                         .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.separator))
-                    }
-                    .sheet(isPresented: $showingExportSheet) {
-                        ExportSheet(session: session)
                     }
 
                     if let scene = mostRecentScene {

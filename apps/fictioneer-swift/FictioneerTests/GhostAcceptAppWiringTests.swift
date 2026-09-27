@@ -38,7 +38,7 @@ struct GhostAcceptAppWiringTests {
         editorController.textView = textView
 
         let suiteName = "ghost-wiring-\(UUID().uuidString)"
-        let settings = AppSettings(defaults: UserDefaults(suiteName: suiteName)!)
+        let settings = AppSettings(defaults: UserDefaults(suiteName: suiteName)!, secrets: InMemorySecretStore())
         editorController.applyTheme(EditorTheme(settings: settings))
 
         let analysis = AnalysisCoordinator()

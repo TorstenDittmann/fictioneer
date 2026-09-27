@@ -36,4 +36,27 @@ struct AnalysisCoordinatorTests {
         #expect(coordinator.result?.contentHash == fastHash)
         #expect(!coordinator.isAnalyzing)
     }
+
+    /// Undoing back to already-analyzed text while a newer analysis is still
+    /// computing must not leave the spinner running forever.
+    @Test func returningToAnalyzedTextClearsTheSpinner() async {
+        let coordinator = AnalysisCoordinator()
+        let shortText = "The cat sat."
+        let paragraph = "The detective walked slowly through the very dark corridor. "
+        let slowText = String(repeating: paragraph, count: 800)
+
+        coordinator.contentDidChange(shortText)
+        for _ in 0..<200 where coordinator.result == nil {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        #expect(coordinator.result != nil)
+
+        coordinator.contentDidChange(slowText)
+        try? await Task.sleep(for: .milliseconds(400))
+        coordinator.contentDidChange(shortText)
+
+        try? await Task.sleep(for: .seconds(3))
+        #expect(!coordinator.isAnalyzing)
+        #expect(coordinator.result?.contentHash == TextAnalysisEngine.contentHash(shortText))
+    }
 }

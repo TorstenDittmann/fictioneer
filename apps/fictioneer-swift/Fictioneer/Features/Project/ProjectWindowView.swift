@@ -20,9 +20,6 @@ struct ProjectWindowView: View {
                 columnVisibility = session.isFocusMode ? .detailOnly : .all
             }
         }
-        .sheet(isPresented: $session.isExportSheetRequested) {
-            ExportSheet(session: session)
-        }
         .overlay {
             if session.isCommandPaletteVisible {
                 ZStack(alignment: .top) {

@@ -159,9 +159,15 @@ struct AppCommands: Commands {
             Divider()
 
             Button("Export…") {
-                appModel.activeSession?.isExportSheetRequested = true
+                appModel.activeDocument?.showExportWindow()
             }
             .keyboardShortcut("e", modifiers: [.command, .shift])
+            .disabled(appModel.activeSession == nil)
+
+            Button("Export Again") {
+                appModel.activeDocument?.exportAgain()
+            }
+            .keyboardShortcut("e", modifiers: [.command, .shift, .option])
             .disabled(appModel.activeSession == nil)
         }
         // Replaces SwiftUI's default Help group: its "Fictioneer Help" opens a

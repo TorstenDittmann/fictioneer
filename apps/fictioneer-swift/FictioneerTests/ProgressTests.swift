@@ -18,12 +18,22 @@ struct ProgressMathTests {
         #expect(key == "2026-08-01")
     }
 
-    @Test func currentStreakRequiresTodayMet() {
+    @Test func currentStreakSurvivesUntilTodayIsOver() {
         let progress = [
             entry("2026-07-30", words: 600, met: true),
             entry("2026-07-31", words: 700, met: true),
         ]
-        // Today (08-01) has no entry → current 0, longest 2.
+        // Today (08-01) has no entry yet: the streak through yesterday holds.
+        let streaks = ProgressMath.streaks(progress: progress, today: day("2026-08-01"), calendar: calendar)
+        #expect(streaks.current == 2)
+        #expect(streaks.longest == 2)
+    }
+
+    @Test func missingYesterdayEndsCurrentStreak() {
+        let progress = [
+            entry("2026-07-29", words: 600, met: true),
+            entry("2026-07-30", words: 700, met: true),
+        ]
         let streaks = ProgressMath.streaks(progress: progress, today: day("2026-08-01"), calendar: calendar)
         #expect(streaks.current == 0)
         #expect(streaks.longest == 2)
@@ -40,7 +50,7 @@ struct ProgressMathTests {
         #expect(streaks.longest == 3)
     }
 
-    @Test func missedCalendarDayBreaksCurrentButNotLongest() {
+    @Test func missedCalendarDayBreaksBothStreaks() {
         let progress = [
             entry("2026-07-28", words: 600, met: true),
             entry("2026-07-29", words: 600, met: true),
@@ -49,7 +59,18 @@ struct ProgressMathTests {
         ]
         let streaks = ProgressMath.streaks(progress: progress, today: day("2026-08-01"), calendar: calendar)
         #expect(streaks.current == 1)
-        #expect(streaks.longest == 3) // gaps don't break longest (Tauri parity)
+        #expect(streaks.longest == 2)
+    }
+
+    @Test func duplicateMetEntriesCountAsOneDay() {
+        let progress = [
+            entry("2026-08-01", words: 600, met: true),
+            entry("2026-08-01", words: 650, met: true),
+            entry("2026-08-01", words: 700, met: true),
+        ]
+        let streaks = ProgressMath.streaks(progress: progress, today: day("2026-08-01"), calendar: calendar)
+        #expect(streaks.current == 1)
+        #expect(streaks.longest == 1)
     }
 
     @Test func unmetDayBreaksBothStreaks() {
@@ -100,6 +121,14 @@ struct ProgressMathTests {
         ]
         let streaks = ProgressMath.streaks(progress: progress, today: day("2026-08-01"), calendar: calendar)
         #expect(streaks.current == 2)
+        #expect(streaks.longest == 2)
+
+        let stats = ProgressMath.stats(
+            progress: progress, goals: goals, totalProjectWords: 0,
+            today: day("2026-08-01"), calendar: calendar
+        )
+        #expect(stats.totalDaysActive == 2)
+        #expect(stats.averageDailyWords == 650)
 
         let points = ProgressMath.chartPoints(
             progress: progress, goals: goals, days: 3,

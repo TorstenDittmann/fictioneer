@@ -37,6 +37,8 @@ targets:
         com.apple.security.app-sandbox: true
         com.apple.security.network.client: true
         com.apple.security.files.user-selected.read-write: true
+        # Export Again: remembers each project's last export destination.
+        com.apple.security.files.bookmarks.app-scope: true
         # Sparkle sandboxing: mach-lookup to its installer XPC services.
         com.apple.security.temporary-exception.mach-lookup.global-name:
           - "$(PRODUCT_BUNDLE_IDENTIFIER)-spks"
@@ -50,7 +52,7 @@ targets:
         CFBundleVersion: "0.1.1"
         LSMinimumSystemVersion: "15.0"
         LSApplicationCategoryType: public.app-category.productivity
-        NSHumanReadableCopyright: ""
+        NSHumanReadableCopyright: "Copyright © 2026 Torsten Dittmann. All rights reserved."
         # XcodeGen copies resources flat into Contents/Resources, so fonts live at the root.
         ATSApplicationFontsPath: "."
         NSSupportsAutomaticTermination: false

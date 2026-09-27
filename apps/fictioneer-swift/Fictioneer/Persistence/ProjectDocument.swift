@@ -25,6 +25,12 @@ final class ProjectDocument: NSDocument {
     private var packageWrapper: FileWrapper?
     /// The in-flight save: what it captured and the tree it produced.
     private var pendingSave: (snapshot: ProjectSession.SaveSnapshot, wrapper: FileWrapper)?
+    /// AppKit's autosaves are implicitly cancellable, so nonstop typing can
+    /// keep postponing them. This forces one through past a ceiling.
+    private var forcedAutosaveTask: Task<Void, Never>?
+    /// Titles of scenes/notes that opened empty because their text was
+    /// damaged or missing; shown once the window is up.
+    private var unreadableItems: [String] = []
 
     var session: ProjectSession? { state.session }
 
@@ -35,13 +41,18 @@ final class ProjectDocument: NSDocument {
     nonisolated override func read(from fileWrapper: FileWrapper, ofType typeName: String) throws {
         nonisolated(unsafe) let fileWrapper = fileWrapper
         try MainActor.assumeIsolated {
-            let project = try ProjectPackage.read(from: fileWrapper)
+            let (project, unreadable) = try ProjectPackage.readReporting(from: fileWrapper)
             packageWrapper = fileWrapper
+            unreadableItems = unreadable
             let session = ProjectSession(project: project)
             if let previous = state.session {
                 session.adoptNavigation(from: previous)
             }
             attach(session)
+            if !windowControllers.isEmpty {
+                // A reload (Revert To, iCloud) of an open document.
+                DispatchQueue.main.async { self.presentUnreadableWarningIfNeeded() }
+            }
         }
     }
 
@@ -54,9 +65,13 @@ final class ProjectDocument: NSDocument {
     private func attach(_ session: ProjectSession) {
         session.onChange = { [weak self] in
             self?.updateChangeCount(.changeDone)
+            self?.scheduleForcedAutosave()
         }
         session.onSaveRequest = { [weak self] in
             self?.autosave(withImplicitCancellability: false) { _ in }
+        }
+        session.onExportRequest = { [weak self] in
+            self?.showExportWindow()
         }
         state.session = session
     }
@@ -113,11 +128,25 @@ final class ProjectDocument: NSDocument {
         super.save(to: url, ofType: typeName, for: saveOperation, completionHandler: handler)
     }
 
+    private func scheduleForcedAutosave() {
+        guard forcedAutosaveTask == nil, fileURL != nil else { return }
+        forcedAutosaveTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(AppConfig.maxUnsavedInterval))
+            guard let self, !Task.isCancelled else { return }
+            forcedAutosaveTask = nil
+            if hasUnautosavedChanges {
+                autosave(withImplicitCancellability: false) { _ in }
+            }
+        }
+    }
+
     private func finishSave(error: Error?) {
         guard let pending = pendingSave else { return }
         pendingSave = nil
         if error == nil {
             packageWrapper = pending.wrapper
+            forcedAutosaveTask?.cancel()
+            forcedAutosaveTask = nil
         }
         session?.endSave(pending.snapshot, error: error)
     }
@@ -149,10 +178,72 @@ final class ProjectDocument: NSDocument {
         addWindowController(ProjectWindowController(document: self))
     }
 
+    /// One export window per document; it closes with the document.
+    func showExportWindow() {
+        guard let session else { return }
+        if let existing = windowControllers.first(where: { $0 is ExportWindowController }) {
+            existing.showWindow(nil)
+            return
+        }
+        let controller = ExportWindowController(session: session)
+        addWindowController(controller)
+        controller.showWindow(nil)
+    }
+
+    /// Re-exports to the last destination without asking; falls back to the
+    /// export window when there is none (or it can't be written).
+    func exportAgain() {
+        guard let session else { return }
+        guard let last = ExportService.lastDestination(projectID: session.project.id) else {
+            showExportWindow()
+            return
+        }
+        session.saveNow()
+        let book = BookDocument.make(from: session.project)
+        guard !BookReadiness.issues(for: book, format: last.format).contains(where: { $0.severity == .blocking }) else {
+            showExportWindow()
+            return
+        }
+        var options = AppModel.shared.settings.exportDefaults.map(ExportOptions.init(defaults:)) ?? ExportOptions()
+        options.format = last.format
+        Task {
+            do {
+                let data = try await ExportService.render(book, options: options)
+                try ExportService.write(data, to: last.url)
+                NSSound(named: "Glass")?.play()
+            } catch {
+                showExportWindow()
+            }
+        }
+    }
+
     /// Every open path (panel, Finder, Open Recent, restoration) ends here.
     override func showWindows() {
         super.showWindows()
         AppModel.shared.documentDidOpen(self)
+        presentUnreadableWarningIfNeeded()
+    }
+
+    private func presentUnreadableWarningIfNeeded() {
+        guard !unreadableItems.isEmpty, let window = windowControllers.first?.window else { return }
+        let items = unreadableItems
+        unreadableItems = []
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = items.count == 1
+            ? "“\(items[0])” couldn’t be read"
+            : "\(items.count) scenes or notes couldn’t be read"
+        let list = items.prefix(8).map { "• \($0)" }.joined(separator: "\n")
+        let more = items.count > 8 ? "\n…and \(items.count - 8) more" : ""
+        alert.informativeText = """
+        Their text is damaged or missing, so they open empty. \
+        Until you edit them, the original files are left untouched. \
+        Earlier versions may be available under File ▸ Revert To ▸ Browse All Versions.
+
+        \(items.count == 1 ? "" : list + more)
+        """.trimmingCharacters(in: .whitespacesAndNewlines)
+        alert.addButton(withTitle: "OK")
+        alert.beginSheetModal(for: window)
     }
 
     /// Only documents that were on screen affect the app (active document,
@@ -190,6 +281,9 @@ final class ProjectWindowController: NSWindowController {
         window.tabbingMode = .preferred
         super.init(window: window)
         shouldCascadeWindows = true
+        // Closing the project window closes the document and with it any
+        // secondary window (export).
+        shouldCloseDocument = true
 
         NotificationCenter.default.addObserver(
             self,

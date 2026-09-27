@@ -206,6 +206,7 @@ struct SidebarView: View {
         withAnimation(.easeInOut(duration: 0.15)) {
             chapter.isExpanded.toggle()
         }
+        session.markDirty()
     }
 
     private func sceneRow(_ scene: Scene, in chapter: Chapter, indent: CGFloat) -> some View {

@@ -1,8 +1,9 @@
 import Foundation
+import os
 
-/// Pure port of the Tauri app's `find_notes_by_content`: flags which project
-/// notes are "mentioned" in a scene by matching each note's tags against the
-/// scene's plain text, case-insensitively and on whole-word boundaries.
+/// Flags which project notes are "mentioned" in a scene by matching each
+/// note's tags against the scene's plain text, case-insensitively and on
+/// whole-word boundaries.
 ///
 /// Deliberately has no dependency on the `Note` model or persistence — callers
 /// supply plain `(id, tags)` candidates and get back the ids that matched, so
@@ -26,12 +27,25 @@ nonisolated enum NoteMatcher {
 
     private static func tagMatches(_ tag: String, in text: String) -> Bool {
         let trimmed = tag.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return false }
-        let escaped = NSRegularExpression.escapedPattern(for: trimmed)
-        guard let regex = try? NSRegularExpression(pattern: "\\b\(escaped)\\b", options: [.caseInsensitive]) else {
-            return false
-        }
+        guard !trimmed.isEmpty, let regex = regex(for: trimmed) else { return false }
         let range = NSRange(text.startIndex..<text.endIndex, in: text)
         return regex.firstMatch(in: text, range: range) != nil
+    }
+
+    /// Compiled once per tag: this runs on every analysis pass.
+    private static let cache = OSAllocatedUnfairLock<[String: NSRegularExpression]>(initialState: [:])
+
+    /// Word boundaries as "no letter, digit or underscore on either side"
+    /// rather than `\b`, which can't match next to a tag that starts or ends
+    /// with punctuation (`#hero`, `Dr.`).
+    private static func regex(for tag: String) -> NSRegularExpression? {
+        if let cached = cache.withLock({ $0[tag] }) { return cached }
+        let word = "[\\p{L}\\p{N}_]"
+        let pattern = "(?<!\(word))\(NSRegularExpression.escapedPattern(for: tag))(?!\(word))"
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else {
+            return nil
+        }
+        cache.withLock { $0[tag] = regex }
+        return regex
     }
 }

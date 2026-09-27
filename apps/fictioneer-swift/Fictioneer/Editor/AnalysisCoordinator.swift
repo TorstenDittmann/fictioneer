@@ -62,6 +62,9 @@ final class AnalysisCoordinator {
 
         let hash = TextAnalysisEngine.contentHash(text)
         if hash == lastAnalyzedHash, result != nil {
+            // An older run may still be computing; it will discard itself
+            // as stale, so this run owns clearing the spinner.
+            isAnalyzing = false
             matchingNoteIDs = NoteMatcher.matchingIDs(in: text, notes: noteCandidates)
             applyIfPossible()
             return

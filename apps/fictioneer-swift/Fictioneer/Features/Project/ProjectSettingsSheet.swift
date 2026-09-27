@@ -1,18 +1,14 @@
 import SwiftUI
 
-/// Project details + eBook metadata. Fields write through to the model on
-/// every change (Tauri parity); autosave picks them up via markDirty.
+/// Project basics. Fields write through to the model on every change;
+/// autosave picks them up via markDirty. Book details, cover and design
+/// live in the export window.
 struct ProjectSettingsSheet: View {
     let session: ProjectSession
     @Environment(\.dismiss) private var dismiss
 
     @State private var title: String
     @State private var details: String
-    @State private var author: String
-    @State private var publisher: String
-    @State private var language: String
-    @State private var rights: String
-    @State private var subjectsText: String
     @State private var quoteStyle: QuoteStyle
 
     init(session: ProjectSession) {
@@ -20,12 +16,6 @@ struct ProjectSettingsSheet: View {
         let project = session.project
         _title = State(initialValue: project.title)
         _details = State(initialValue: project.details)
-        let metadata = project.epubMetadata ?? ProjectEpubMetadata()
-        _author = State(initialValue: metadata.author)
-        _publisher = State(initialValue: metadata.publisher)
-        _language = State(initialValue: metadata.language)
-        _rights = State(initialValue: metadata.rights)
-        _subjectsText = State(initialValue: metadata.subjects.joined(separator: ", "))
         _quoteStyle = State(initialValue: project.effectiveQuoteStyle)
     }
 
@@ -57,27 +47,16 @@ struct ProjectSettingsSheet: View {
                         .foregroundStyle(.secondary)
                 }
                 Section {
-                    TextField("Author", text: $author)
-                    TextField("Publisher", text: $publisher)
-                    TextField("Language", text: $language, prompt: Text("en"))
-                    TextField("Rights", text: $rights, prompt: Text("Copyright statement"))
-                    TextField("Subjects", text: $subjectsText, prompt: Text("Fantasy, Adventure, Drama"))
-                } header: {
-                    ManuscriptLabel("eBook Metadata", size: 10)
-                } footer: {
-                    Text("Used as defaults when exporting EPUB files. Separate subjects with commas.")
-                        .font(.caption)
+                    Text("Author, cover, design and the rest of the book’s details are set when you export.")
+                        .font(.callout)
                         .foregroundStyle(.secondary)
+                } header: {
+                    ManuscriptLabel("Book", size: 10)
                 }
             }
             .formStyle(.grouped)
             .onChange(of: title) { save() }
             .onChange(of: details) { save() }
-            .onChange(of: author) { save() }
-            .onChange(of: publisher) { save() }
-            .onChange(of: language) { save() }
-            .onChange(of: rights) { save() }
-            .onChange(of: subjectsText) { save() }
             .onChange(of: quoteStyle) { save() }
 
             HStack {
@@ -93,7 +72,7 @@ struct ProjectSettingsSheet: View {
             .padding(.top, 12)
         }
         .padding(20)
-        .frame(width: 460, height: 560)
+        .frame(width: 460, height: 440)
     }
 
     private func save() {
@@ -102,18 +81,6 @@ struct ProjectSettingsSheet: View {
             ? "Untitled Project"
             : title.trimmingCharacters(in: .whitespaces)
         project.details = details.trimmingCharacters(in: .whitespacesAndNewlines)
-        project.epubMetadata = ProjectEpubMetadata(
-            author: author.trimmingCharacters(in: .whitespaces),
-            publisher: publisher.trimmingCharacters(in: .whitespaces),
-            language: language.trimmingCharacters(in: .whitespaces).isEmpty
-                ? "en"
-                : language.trimmingCharacters(in: .whitespaces),
-            rights: rights.trimmingCharacters(in: .whitespaces),
-            subjects: subjectsText
-                .split(separator: ",")
-                .map { $0.trimmingCharacters(in: .whitespaces) }
-                .filter { !$0.isEmpty }
-        )
         project.quoteStyle = quoteStyle
         project.touch()
         session.markDirty()
